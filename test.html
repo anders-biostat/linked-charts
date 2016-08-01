@@ -21,6 +21,8 @@ function chartBase() {
   obj.add_property = function( propname, defaultval ) {
     var getter = "get_" + propname;
     obj[ propname ] = function( vf ) {
+      if( vf === undefined )
+        throw "No value passed in setter for property '" + propname + "'.";
       if( typeof(vf) === "function" )
         obj[ getter ] = vf
       else
@@ -65,31 +67,47 @@ function scatterChart() {
   var obj = chartBase()
     .add_property( "x" )
     .add_property( "y" )
+    .add_property( "numPoints" )
     .add_property( "dataIds" );
 
+  // Set default margin
   obj.margin( { top: 20, right: 20, bottom: 30, left: 40 } );
+
+  // Set default for dataIds, namely to return numbers accoring to numPoints
+  obj.dataIds( function() { return d3.range( obj.get_numPoints() ) } );
+
+  // Set default for numPoints, namely to count the data provided for x
+  obj.numPoints( function() {
+    var val;
+    for( var i = 0; i < 10000; i++ ) {
+      try {
+        // tyryu to get a value
+        val = obj.get_x(i)
+      } catch( exc ) {
+        // if call failed with exception, report the last successful 
+        // index, if any, otherwise zero
+        return i > 0 ? i-1 : 0;  
+      }
+      if( val === undefined ) {
+        // same again: return last index with defines return, if any,
+        // otherwise zero
+        return i > 0 ? i-1 : 0;  
+      }
+    }
+    // If we exit the loop, there is either something wrong or there are
+    // really many points
+    throw "There seem to be very many data points. Please supply a number via 'numPoints'."
+  })
 
   obj.update = function() {
 
-    // Get scale domains
-    var dataIds = obj.get_dataIds()
-    var min_x = Infinity, max_x = -Infinity;
-    var min_y = Infinity, max_y = -Infinity;
-    for( i = 0; i < dataIds.length; i++ ) {
-      var k = dataIds[i];
-      if( obj.get_x(k) < min_x ) min_x = obj.get_x(k);
-      if( obj.get_x(k) > max_x ) max_x = obj.get_x(k);
-      if( obj.get_y(k) < min_y ) min_y = obj.get_y(k);
-      if( obj.get_y(k) > max_y ) max_y = obj.get_y(k);
-    }
-
     // Set scales and axes
     var scaleX = d3.scaleLinear()
-      .domain( [ min_x, max_x ] )
+      .domain( d3.extent( obj.get_dataIds(), function(k) { return obj.get_x(k) } ) )
       .range( [ 0, obj.get_width() ] )
       .nice();
     var scaleY = d3.scaleLinear()
-      .domain( [ min_y, max_y ] )
+      .domain( d3.extent( obj.get_dataIds(), function(k) { return obj.get_y(k) } ) )
       .range( [ obj.get_height(), 0 ] )
       .nice();
 
@@ -144,12 +162,11 @@ function scatterChart() {
 // User code
 
 
-if( false ) {
+if( true ) {
 
   // Test code 1
 
  scatterChart()
-    .npoints( data.length )
     .x( function(i) { return data[i].wt } )
     .y( function(i) { return data[i].hp } )
     .place( )
