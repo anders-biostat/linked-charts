@@ -31,6 +31,8 @@ function chartBase() {
   }
 
   obj.place = function( element ) {
+    if( element === undefined )
+      element = "body";
     if( typeof( element ) == "string" ) {
       element = d3.select( element );
       if( element.size == 0 )
@@ -38,7 +40,7 @@ function chartBase() {
           node + "' did not find a node."
     }
     obj.svgElement = element.append( "svg" )
-    obj.update()
+    obj.update();
     return obj;
   }
 
@@ -73,6 +75,7 @@ function scatterChart() {
     var sel = obj.svgElement.selectAll( ".datapoint" )
       .attr( "cx", function(d,i) { return scaleX(obj.get_x(i) ) } )
       .attr( "cy", function(d,i) { return scaleY(obj.get_y(i) ) } );
+
   };
 
 
@@ -82,11 +85,51 @@ function scatterChart() {
 
 // User code
 
-var chart = scatterChart()
-  .npoints( data.length )
-  .x( function( i ) { return data[i].wt } )
-  .y( function( i ) { return data[i].hp } )
-  .place( "#main_scatter_plot" )
+
+if( true ) {
+
+  // Test code 1
+
+ scatterChart()
+    .npoints( data.length )
+    .x( function(i) { return data[i].wt } )
+    .y( function(i) { return data[i].hp } )
+    .place( )
+
+} else {
+
+  // Test code 2
+
+  for( var i = 0; i < data.length; i++ )
+    data2[ data[i]._row ] = data[i];
+  
+  var sc = scatterChart()
+    .pointIds( function() { return keys(data2) } )
+    .x( function(k) { return data2[k].wt } )
+    .y( cache( function(k) { return data2[k].hp } ) )
+    .place( "#main_scatter_plot" )
+
+  change_content( data2 );
+  sc.update();
+  
+}
+
+// Not yet used:
+
+function cache( f ) {
+  var the_cache = {}
+  return function( arguments ) {
+    if( arguments[0] === "clear" ) {
+      the_cache = {}
+      return undefined;
+    }
+    if( !( x in keys(the_cache) ) )
+      the_cache[x] = f.apply( undefined, x );
+    return the_cache[x];
+  }
+}
+
+sc.get_y("clear");
 
 </script>
 
