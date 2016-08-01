@@ -12,28 +12,47 @@ data = JSON.parse( '[{"mpg":21,"cyl":6,"disp":160,"hp":110,"drat":3.9,"wt":2.62,
 
 <script>
 
-// General functions
+// General chart class
 
-function addprop( obj, propname ) {
-  var getter = "get_" + propname;
-  obj[ propname ] = function( vf ) {
-    if( typeof(vf) === "function" )
-      obj[ getter ] = vf
-    else
-      obj[ getter ] = function() { return vf };
-    return obj
+function chartBase() {
+  var obj = {};
+
+  obj.add_property = function( propname ) {
+    var getter = "get_" + propname;
+    obj[ propname ] = function( vf ) {
+      if( typeof(vf) === "function" )
+        obj[ getter ] = vf
+      else
+        obj[ getter ] = function() { return vf };
+      return obj
+    }
+    obj[ getter ] = function() { return undefined }
+    return obj;
   }
-  obj[ getter ] = function() { return undefined }
+
+  obj.place = function( element ) {
+    if( typeof( element ) == "string" ) {
+      element = d3.select( element );
+      if( element.size == 0 )
+        throw "Error in function 'place': DOM selection for string '" +
+          node + "' did not find a node."
+    }
+    obj.svgElement = element.append( "svg" )
+    obj.update()
+    return obj;
+  }
+
+  return obj;
 }
 
 // Scatter plot class
 
 function scatterChart() {
-  var obj = {};
 
-  addprop( obj, "x" );
-  addprop( obj, "y" );
-  addprop( obj, "npoints" );
+  var obj = chartBase()
+    .add_property( "x" )
+    .add_property( "y" )
+    .add_property( "npoints" );
 
   obj.update = function() {
 
@@ -56,16 +75,6 @@ function scatterChart() {
       .attr( "cy", function(d,i) { return scaleY(obj.get_y(i) ) } );
   };
 
-  obj.place = function( element ) {
-    if( typeof( element ) == "string" ) {
-      element = d3.select( element );
-      if( element.size == 0 )
-        throw "Error in function 'place': DOM selection for string '" +
-          node + "' did not find a node."
-    }
-    obj.svgElement = element.append( "svg" )
-    return obj;
-  }
 
   return obj;
 }
@@ -79,7 +88,6 @@ var chart = scatterChart()
   .y( function( i ) { return data[i].hp } )
   .place( "#main_scatter_plot" )
 
-chart.update();
 </script>
 
 </body></html>
