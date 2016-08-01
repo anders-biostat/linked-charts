@@ -82,6 +82,7 @@ function scatterChart() {
   var obj = chartBase()
     .add_property( "x" )
     .add_property( "y" )
+    .add_property( "style", "" )
     .add_property( "numPoints" )
     .add_property( "dataIds" );
 
@@ -132,7 +133,6 @@ function scatterChart() {
       .attr( "class", "label" )
       .attr( "fill", "black")   // why do I need this?
       .style( "text-anchor", "end" );
-    obj.axes.x_axis = d3.axisBottom();
 
     obj.axes.y_g = obj.svg.append( "g" )
       .attr( "class", "y axis" )
@@ -141,7 +141,6 @@ function scatterChart() {
       .attr( "fill", "black")
       .attr( "transform", "rotate(-90)" )
       .style( "text-anchor", "end" );
-    obj.axes.y_axis = d3.axisLeft();
   }
 
   var inherited_update = obj.update;
@@ -166,13 +165,13 @@ function scatterChart() {
       .range( [ obj.get_height(), 0 ] )
       .nice();
 
-    obj.axes.x_axis.scale( scale_x );
-    obj.axes.x_g.transition(transition)
-      .call( obj.axes.x_axis );
+    d3.axisBottom()
+      .scale( scale_x )
+      ( obj.axes.x_g.transition(transition) );
 
-    obj.axes.y_axis.scale( scale_y );
-    obj.axes.y_g.transition(transition)
-      .call( obj.axes.y_axis );
+    d3.axisLeft()
+      .scale( scale_y )
+      ( obj.axes.y_g.transition(transition) );
 
     obj.axes.x_label
       .attr( "x", obj.get_width() )
@@ -195,8 +194,9 @@ function scatterChart() {
     .merge( sel )
       .on( "click", obj.get_on_click )
       .transition(transition)
-        .attr( "cx", function(d,i) { return scale_x( obj.get_x(d) ) } )
-        .attr( "cy", function(d,i) { return scale_y( obj.get_y(d) ) } );
+        .attr( "cx", function(d) { return scale_x( obj.get_x(d) ) } )
+        .attr( "cy", function(d) { return scale_y( obj.get_y(d) ) } )
+        .attr( "style", function(d) { return obj.get_style(d) } );
 
     return obj;
   };
@@ -245,7 +245,8 @@ function simpleTable() {
   }
 
   obj.put_static_content = function( element ) {
-    obj.table = element.append( "table" );
+    obj.table = element.append( "table" )
+      .attr( "border", 1 );
   }
 
   obj.update = function( ) {
@@ -277,6 +278,7 @@ if( true ) {
   var sc = scatterChart()
     .x( function(i) { return data[i].wt } )
     .y( function(i) { return data[i].hp } )
+    .style( function(i) { return i==highlighted ? "fill:red" : "" } )
     .x_label( "weight" )
     .y_label( "horsepower" )
     .place( )
@@ -287,6 +289,7 @@ if( true ) {
 
   sc.on_click( function(k) { 
     highlighted = k;
+    sc.update();
     tbl.update();
   } )
 
