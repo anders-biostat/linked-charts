@@ -47,13 +47,27 @@ function chartBase() {
         throw "Error in function 'place': DOM selection for string '" +
           node + "' did not find a node."
     }
-    obj.svg = element.append( "svg" )
-      .attr( "width", obj.get_width() + obj.get_margin().left + obj.get_margin().right )
-      .attr( "height", obj.get_height() + obj.get_margin().top + obj.get_margin().bottom )
-    .append( "g" )
-      .attr( "transform", "translate(" + obj.get_margin().left + "," + obj.get_margin().top + ")" );
+
+    obj.put_static_content( element );
 
     obj.update();
+    return obj;
+  }
+
+  obj.put_static_content = function( element ) {
+    obj.real_svg = element.append( "svg" );
+    obj.svg = obj.real_svg.append( "g" );
+  }
+
+  obj.update = function( ) {
+    obj.real_svg
+      .attr( "width", obj.get_width() 
+          + obj.get_margin().left + obj.get_margin().right )
+      .attr( "height", obj.get_height() 
+          + obj.get_margin().top + obj.get_margin().bottom );
+    obj.svg
+      .attr( "transform", "translate(" + obj.get_margin().left + "," 
+          + obj.get_margin().top + ")" );
     return obj;
   }
 
@@ -70,6 +84,10 @@ function scatterChart() {
     .add_property( "numPoints" )
     .add_property( "dataIds" );
 
+  obj
+    .add_property( "x_label", "" )
+    .add_property( "y_label", "" )
+
   // Set default margin
   obj.margin( { top: 20, right: 20, bottom: 30, left: 40 } );
 
@@ -81,7 +99,7 @@ function scatterChart() {
     var val;
     for( var i = 0; i < 10000; i++ ) {
       try {
-        // tyryu to get a value
+        // try to get a value
         val = obj.get_x(i)
       } catch( exc ) {
         // if call failed with exception, report the last successful 
@@ -99,46 +117,71 @@ function scatterChart() {
     throw "There seem to be very many data points. Please supply a number via 'numPoints'."
   })
 
+  var inherited_put_static_content = obj.put_static_content;
+  obj.put_static_content = function( element ) {
+    inherited_put_static_content( element );
+
+    obj.axes = {};
+
+    obj.axes.x_g = obj.svg.append( "g" )
+      .attr( "class", "x axis" )
+      .attr( "transform", "translate(0," + obj.get_height() + ")" );
+    obj.axes.x_label = obj.axes.x_g.append( "text" )
+      .attr( "class", "label" )
+      .attr( "fill", "black")   // why do I need this?
+      .style( "text-anchor", "end" );
+    obj.axes.x_axis = d3.axisBottom();
+
+    obj.axes.y_g = obj.svg.append( "g" )
+      .attr( "class", "y axis" )
+    obj.axes.y_label = obj.axes.y_g.append( "text" )
+      .attr( "class", "label" )
+      .attr( "fill", "black")
+      .attr( "transform", "rotate(-90)" )
+      .style( "text-anchor", "end" );
+    obj.axes.y_axis = d3.axisLeft();
+  }
+
+  var inherited_update = obj.update;
+  obj.update_not_yet_called = true;
   obj.update = function() {
+    inherited_update();
+    console.log( "update called", obj.get_numPoints() );
+
+    var transition = d3.transition();
+    if( obj.update_not_yet_called ) {
+      obj.update_not_yet_called = false;
+      transition.duration( 0 );
+    } else
+      transition.duration(1000);
 
     // Set scales and axes
-    var scaleX = d3.scaleLinear()
+    var scale_x = d3.scaleLinear()
       .domain( d3.extent( obj.get_dataIds(), function(k) { return obj.get_x(k) } ) )
       .range( [ 0, obj.get_width() ] )
       .nice();
-    var scaleY = d3.scaleLinear()
+    var scale_y = d3.scaleLinear()
       .domain( d3.extent( obj.get_dataIds(), function(k) { return obj.get_y(k) } ) )
       .range( [ obj.get_height(), 0 ] )
       .nice();
 
-    var xAxis = d3.axisBottom()
-      .scale(scaleX);
-    var yAxis = d3.axisLeft()
-      .scale(scaleY)
+    obj.axes.x_axis.scale( scale_x );
+    obj.axes.x_g.transition(transition)
+      .call( obj.axes.x_axis );
 
-    obj.svg.append( "g" )
-      .attr( "class", "x axis" )
-      .attr( "transform", "translate(0," + obj.get_height() + ")" )
-      .call( xAxis )
-    .append( "text" )
-      .attr( "class", "label" )
-      .attr( "fill", "black")   // why do I need this?
+    obj.axes.y_axis.scale( scale_y );
+    obj.axes.y_g.transition(transition)
+      .call( obj.axes.y_axis );
+
+    obj.axes.x_label
       .attr( "x", obj.get_width() )
       .attr( "y", -6 )
-      .style( "text-anchor", "end" )
-      .text( "x axis" );
+      .text( obj.get_x_label() );
 
-    obj.svg.append( "g" )
-      .attr( "class", "y axis" )
-      .call( yAxis )
-    .append( "text" )
-      .attr( "class", "label" )
-      .attr( "fill", "black")
-      .attr( "transform", "rotate(-90)" )
+    obj.axes.y_label
       .attr( "y", 6 )
       .attr( "dy", ".71em" )
-      .style( "text-anchor", "end" )
-      .text( "y axis" )
+      .text( obj.get_y_label() )
 
 
     var sel = obj.svg.selectAll( "circle.datapoint" )
@@ -148,10 +191,11 @@ function scatterChart() {
     sel.enter().append( "circle" )
       .classed( "datapoint", true )
       .attr( "r", 3 )
-    .merge( sel )
-      .attr( "cx", function(d,i) { return scaleX(obj.get_x(d) ) } )
-      .attr( "cy", function(d,i) { return scaleY(obj.get_y(d) ) } );
+    .merge( sel ).transition(transition)
+      .attr( "cx", function(d,i) { return scale_x(obj.get_x(d) ) } )
+      .attr( "cy", function(d,i) { return scale_y(obj.get_y(d) ) } );
 
+    return obj;
   };
 
 
@@ -166,10 +210,16 @@ if( true ) {
 
   // Test code 1
 
- scatterChart()
+ var sc = scatterChart()
     .x( function(i) { return data[i].wt } )
     .y( function(i) { return data[i].hp } )
+    .x_label( "weight" )
+    .y_label( "horsepower" )
     .place( )
+
+ data = data.filter( function(x) { return x.hp < 300 } )
+
+ setTimeout( function() { sc.update() }, 2000 );
 
 } else {
 
@@ -184,6 +234,8 @@ if( true ) {
     .x( function(k) { return data2[k].wt } )
     .y( function(k) { return data2[k].hp } )
     .place( "#main_scatter_plot" )
+
+  data2
   
 }
 
