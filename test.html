@@ -3,6 +3,7 @@
 <body>
 
 <div id="main_scatter_plot"></div>
+<p id="extra_info"></p>
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
 
@@ -87,6 +88,7 @@ function scatterChart() {
   obj
     .add_property( "x_label", "" )
     .add_property( "y_label", "" )
+    .add_property( "on_click", function() {} )
 
   // Set default margin
   obj.margin( { top: 20, right: 20, bottom: 30, left: 40 } );
@@ -146,7 +148,6 @@ function scatterChart() {
   obj.update_not_yet_called = true;
   obj.update = function() {
     inherited_update();
-    console.log( "update called", obj.get_numPoints() );
 
     var transition = d3.transition();
     if( obj.update_not_yet_called ) {
@@ -191,9 +192,11 @@ function scatterChart() {
     sel.enter().append( "circle" )
       .classed( "datapoint", true )
       .attr( "r", 3 )
-    .merge( sel ).transition(transition)
-      .attr( "cx", function(d,i) { return scale_x(obj.get_x(d) ) } )
-      .attr( "cy", function(d,i) { return scale_y(obj.get_y(d) ) } );
+    .merge( sel )
+      .on( "click", obj.get_on_click )
+      .transition(transition)
+        .attr( "cx", function(d,i) { return scale_x( obj.get_x(d) ) } )
+        .attr( "cy", function(d,i) { return scale_y( obj.get_y(d) ) } );
 
     return obj;
   };
@@ -202,6 +205,65 @@ function scatterChart() {
   return obj;
 }
 
+// Simple Table
+
+function simpleTable() {
+
+  obj = {}
+
+  obj.add_property = function( propname, defaultval ) {
+    var getter = "get_" + propname;
+    obj[ propname ] = function( vf ) {
+      if( vf === undefined )
+        throw "No value passed in setter for property '" + propname + "'.";
+      if( typeof(vf) === "function" )
+        obj[ getter ] = vf
+      else
+        obj[ getter ] = function() { return vf };
+      return obj
+    }
+    obj[ getter ] = function() { return defaultval }
+    return obj;
+  }
+
+  obj.add_property( "record", {} )
+
+  obj.place = function( element ) {
+    if( element === undefined )
+      element = "body";
+    if( typeof( element ) == "string" ) {
+      element = d3.select( element );
+      if( element.size == 0 )
+        throw "Error in function 'place': DOM selection for string '" +
+          node + "' did not find a node."
+    }
+
+    obj.put_static_content( element );
+
+    obj.update();
+    return obj;
+  }
+
+  obj.put_static_content = function( element ) {
+    obj.table = element.append( "table" );
+  }
+
+  obj.update = function( ) {
+
+    var sel = obj.table.selectAll( "tr" )
+      .data( Object.keys( obj.get_record() ) );
+    sel.exit()
+      .remove();  
+    sel.enter().append( "tr" )
+    .merge( sel )
+      .html( function(k) { return "<td>" + k + "</td><td>" 
+         + obj.get_record()[k] + "</td>" } )
+
+    return obj;
+  };
+
+  return obj;
+}
 
 // User code
 
@@ -210,16 +272,27 @@ if( true ) {
 
   // Test code 1
 
- var sc = scatterChart()
+  var highlighted = 0;
+
+  var sc = scatterChart()
     .x( function(i) { return data[i].wt } )
     .y( function(i) { return data[i].hp } )
     .x_label( "weight" )
     .y_label( "horsepower" )
     .place( )
 
- data = data.filter( function(x) { return x.hp < 300 } )
+  var tbl = simpleTable()
+    .record( function() { return data[highlighted] } )
+    .place( );
 
- setTimeout( function() { sc.update() }, 2000 );
+  sc.on_click( function(k) { 
+    highlighted = k;
+    tbl.update();
+  } )
+
+  data = data.filter( function(x) { return x.hp < 300 } )
+
+  setTimeout( function() { sc.update() }, 2000 );
 
 } else {
 
