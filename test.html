@@ -15,9 +15,10 @@ data = JSON.parse( '[{"mpg":21,"cyl":6,"disp":160,"hp":110,"drat":3.9,"wt":2.62,
 // General chart class
 
 function chartBase() {
+
   var obj = {};
 
-  obj.add_property = function( propname ) {
+  obj.add_property = function( propname, defaultval ) {
     var getter = "get_" + propname;
     obj[ propname ] = function( vf ) {
       if( typeof(vf) === "function" )
@@ -26,9 +27,14 @@ function chartBase() {
         obj[ getter ] = function() { return vf };
       return obj
     }
-    obj[ getter ] = function() { return undefined }
+    obj[ getter ] = function() { return defaultval }
     return obj;
   }
+
+  obj
+    .add_property( "width", 500 )
+    .add_property( "height", 400 )
+    .add_property( "margin", { top: 20, right: 10, bottom: 20, left: 10 } );
 
   obj.place = function( element ) {
     if( element === undefined )
@@ -39,7 +45,12 @@ function chartBase() {
         throw "Error in function 'place': DOM selection for string '" +
           node + "' did not find a node."
     }
-    obj.svgElement = element.append( "svg" )
+    obj.svg = element.append( "svg" )
+      .attr( "width", obj.get_width() + obj.get_margin().left + obj.get_margin().right )
+      .attr( "height", obj.get_height() + obj.get_margin().top + obj.get_margin().bottom )
+    .append( "g" )
+      .attr( "transform", "translate(" + obj.get_margin().left + "," + obj.get_margin().top + ")" );
+
     obj.update();
     return obj;
   }
@@ -54,27 +65,74 @@ function scatterChart() {
   var obj = chartBase()
     .add_property( "x" )
     .add_property( "y" )
-    .add_property( "npoints" );
+    .add_property( "dataIds" );
+
+  obj.margin( { top: 20, right: 20, bottom: 30, left: 40 } );
 
   obj.update = function() {
 
-    var scaleX = d3.scaleLinear()
-      .domain( [ 0, 6 ] )
-      .range( [ 0, 350 ] );
-    var scaleY = d3.scaleLinear()
-      .domain( [ 0, 400 ] )
-      .range( [ 0, 350 ] );
+    // Get scale domains
+    var dataIds = obj.get_dataIds()
+    var min_x = Infinity, max_x = -Infinity;
+    var min_y = Infinity, max_y = -Infinity;
+    for( i = 0; i < dataIds.length; i++ ) {
+      var k = dataIds[i];
+      if( obj.get_x(k) < min_x ) min_x = obj.get_x(k);
+      if( obj.get_x(k) > max_x ) max_x = obj.get_x(k);
+      if( obj.get_y(k) < min_y ) min_y = obj.get_y(k);
+      if( obj.get_y(k) > max_y ) max_y = obj.get_y(k);
+    }
 
-    var sel = obj.svgElement.selectAll( ".datapoint" )
-      .data( Array(obj.get_npoints()) );
+    // Set scales and axes
+    var scaleX = d3.scaleLinear()
+      .domain( [ min_x, max_x ] )
+      .range( [ 0, obj.get_width() ] )
+      .nice();
+    var scaleY = d3.scaleLinear()
+      .domain( [ min_y, max_y ] )
+      .range( [ obj.get_height(), 0 ] )
+      .nice();
+
+    var xAxis = d3.axisBottom()
+      .scale(scaleX);
+    var yAxis = d3.axisLeft()
+      .scale(scaleY)
+
+    obj.svg.append( "g" )
+      .attr( "class", "x axis" )
+      .attr( "transform", "translate(0," + obj.get_height() + ")" )
+      .call( xAxis )
+    .append( "text" )
+      .attr( "class", "label" )
+      .attr( "fill", "black")   // why do I need this?
+      .attr( "x", obj.get_width() )
+      .attr( "y", -6 )
+      .style( "text-anchor", "end" )
+      .text( "x axis" );
+
+    obj.svg.append( "g" )
+      .attr( "class", "y axis" )
+      .call( yAxis )
+    .append( "text" )
+      .attr( "class", "label" )
+      .attr( "fill", "black")
+      .attr( "transform", "rotate(-90)" )
+      .attr( "y", 6 )
+      .attr( "dy", ".71em" )
+      .style( "text-anchor", "end" )
+      .text( "y axis" )
+
+
+    var sel = obj.svg.selectAll( "circle.datapoint" )
+      .data( obj.get_dataIds() );
     sel.exit()
       .remove();  
     sel.enter().append( "circle" )
       .classed( "datapoint", true )
-      .attr( "r", 3 );
-    var sel = obj.svgElement.selectAll( ".datapoint" )
-      .attr( "cx", function(d,i) { return scaleX(obj.get_x(i) ) } )
-      .attr( "cy", function(d,i) { return scaleY(obj.get_y(i) ) } );
+      .attr( "r", 3 )
+    .merge( sel )
+      .attr( "cx", function(d,i) { return scaleX(obj.get_x(d) ) } )
+      .attr( "cy", function(d,i) { return scaleY(obj.get_y(d) ) } );
 
   };
 
@@ -86,7 +144,7 @@ function scatterChart() {
 // User code
 
 
-if( true ) {
+if( false ) {
 
   // Test code 1
 
@@ -100,36 +158,32 @@ if( true ) {
 
   // Test code 2
 
+  data2 = {}
   for( var i = 0; i < data.length; i++ )
     data2[ data[i]._row ] = data[i];
   
   var sc = scatterChart()
-    .pointIds( function() { return keys(data2) } )
+    .dataIds( function() { return Object.keys(data2) } )
     .x( function(k) { return data2[k].wt } )
-    .y( cache( function(k) { return data2[k].hp } ) )
+    .y( function(k) { return data2[k].hp } )
     .place( "#main_scatter_plot" )
-
-  change_content( data2 );
-  sc.update();
   
 }
 
 // Not yet used:
 
-function cache( f ) {
-  var the_cache = {}
-  return function( arguments ) {
-    if( arguments[0] === "clear" ) {
-      the_cache = {}
-      return undefined;
-    }
-    if( !( x in keys(the_cache) ) )
-      the_cache[x] = f.apply( undefined, x );
-    return the_cache[x];
-  }
-}
-
-sc.get_y("clear");
+// function cache( f ) {
+//   var the_cache = {}
+//   return function( arguments ) {
+//     if( arguments[0] === "clear" ) {
+//       the_cache = {}
+//       return undefined;
+//     }
+//     if( !( x in keys(the_cache) ) )
+//       the_cache[x] = f.apply( undefined, x );
+//     return the_cache[x];
+//   }
+// }
 
 </script>
 
