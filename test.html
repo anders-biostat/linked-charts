@@ -34,10 +34,8 @@ function chartBase() {
     return obj;
   }
 
-  obj
-    .add_property( "width", 500 )
-    .add_property( "height", 400 )
-    .add_property( "margin", { top: 20, right: 10, bottom: 20, left: 10 } );
+  obj.put_static_content = function() {
+  }
 
   obj.place = function( element ) {
     if( element === undefined )
@@ -54,6 +52,16 @@ function chartBase() {
     obj.update();
     return obj;
   }
+
+  return obj;
+}
+
+function svgChartBase() {
+
+  var obj = chartBase()
+    .add_property( "width", 500 )
+    .add_property( "height", 400 )
+    .add_property( "margin", { top: 20, right: 10, bottom: 20, left: 10 } );
 
   obj.put_static_content = function( element ) {
     obj.real_svg = element.append( "svg" );
@@ -79,7 +87,7 @@ function chartBase() {
 
 function scatterChart() {
 
-  var obj = chartBase()
+  var obj = svgChartBase()
     .add_property( "x" )
     .add_property( "y" )
     .add_property( "style", "" )
@@ -209,40 +217,8 @@ function scatterChart() {
 
 function simpleTable() {
 
-  obj = {}
-
-  obj.add_property = function( propname, defaultval ) {
-    var getter = "get_" + propname;
-    obj[ propname ] = function( vf ) {
-      if( vf === undefined )
-        throw "No value passed in setter for property '" + propname + "'.";
-      if( typeof(vf) === "function" )
-        obj[ getter ] = vf
-      else
-        obj[ getter ] = function() { return vf };
-      return obj
-    }
-    obj[ getter ] = function() { return defaultval }
-    return obj;
-  }
-
-  obj.add_property( "record", {} )
-
-  obj.place = function( element ) {
-    if( element === undefined )
-      element = "body";
-    if( typeof( element ) == "string" ) {
-      element = d3.select( element );
-      if( element.size == 0 )
-        throw "Error in function 'place': DOM selection for string '" +
-          node + "' did not find a node."
-    }
-
-    obj.put_static_content( element );
-
-    obj.update();
-    return obj;
-  }
+  obj = chartBase()
+    .add_property( "record", {} )
 
   obj.put_static_content = function( element ) {
     obj.table = element.append( "table" )
