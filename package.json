@@ -1,0 +1,28 @@
+{
+  "name": "d3-linked-charts",
+  "version": "0.0.1",
+  "description": "{DESCRIPTION}",
+  "keywords": [
+    "d3",
+    "d3-module"
+  ],
+  "license": "tbd",
+  "main": "build/d3-linked-charts.js",
+  "jsnext:main": "index",
+  "homepage": "https://github.com/simon-anders/d3-linked-charts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/simon-anders/d3-linked-charts.git"
+  },
+  "scripts": {
+    "pretest": "rm -rf build && mkdir build && rollup -f umd -n d3 -o build/d3-linked-charts.js -- index.js",
+    "test": "tape 'test/**/*-test.js'",
+    "prepublish": "npm run test && uglifyjs build/d3-linked-charts.js -c -m -o build/d3-linked-charts.min.js",
+    "postpublish": "zip -j build/d3-linked-charts.zip -- LICENSE README.md build/d3-linked-charts.js build/d3-linked-charts.min.js"
+  },
+  "devDependencies": {
+    "rollup": "0.27",
+    "tape": "4",
+    "uglify-js": "2"
+  }
+}
