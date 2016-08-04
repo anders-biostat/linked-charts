@@ -1,3 +1,4 @@
+import {svgChartBase} from "./chartBase";
 
 export function scatterChart() {
 
