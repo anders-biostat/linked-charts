@@ -115,6 +115,8 @@ export function heatmapChart(){
 		
 		//if there is a g object for heatmap body, remove it
 		obj.svg.selectAll(".heanapBody").remove();
+		//if there is any canvas, remove it as well
+		obj.svg.selectAll("canvas").remove();
 		
 		//create a canvas object
 		var heatmapBody = obj.real_div.append("canvas")
@@ -125,31 +127,39 @@ export function heatmapChart(){
 			.property("height", obj.get_height())
 			.node().getContext("2d");
 		
-		//create an array to store information on each cell of a heatmap
 		var pixelData = new Uint8ClampedArray(4 * obj.get_ncols() * obj.get_nrows());
 		//store colour of each cell
 		var rgbColour, position;
+		//create an object to store information on each cell of a heatmap
+		var pixelData = new ImageData(obj.get_ncols(), obj.get_nrows());
+
 		for(var i = 0; i < obj.get_rowIds().length; i++)
 			for(var j = 0; j < obj.get_colIds().length; j++) {
 					rgbColour = d3.rgb(obj.get_colour(obj.get_value(obj.get_rowIds()[i], 
 																													obj.get_colIds()[j])));
 					position = obj.get_heatmapRow(obj.get_rowIds()[i]) * obj.get_ncols() * 4 +
-						obj.get_heatmapCol(obj.get_colIds()[i]) * 4;
-					pixelData[position] = rgbColour.r;
-					pixelData[position + 1] = rgbColour.g;
-					pixelData[position + 2] = rgbColour.b;
+						obj.get_heatmapCol(obj.get_colIds()[j]) * 4;
+					pixelData.data[position] = rgbColour.r;
+					pixelData.data[position + 1] = rgbColour.g;
+					pixelData.data[position + 2] = rgbColour.b;
 			}
 		//set opacity of all the pixels to 1
 		for(var i = 0; i < obj.get_ncols() * obj.get_nrows(); i++)
-			pixelData[i * 4 + 3] = 255;
+			pixelData.data[i * 4 + 3] = 255;
 		
-		var heatmapImage = {
-			width: obj.get_ncols(),
-			height: obj.get_nrows(),
-			data: pixelData
-		}
-		
-		heatmapBody.putImageData(heatmapImage, 0, 0, 0, 0, obj.get_width(), obj.get_height())
+		//put a small heatmap on screen and then rescale it
+		heatmapBody.putImageData(pixelData, 0 , 0);
+
+		heatmapBody.imageSmoothingEnabled = false;
+		//probaly no longer required, but let it stay here just in case
+    //heatmapBody.mozImageSmoothingEnabled = false;
+		//heatmapBody.webkitImageSmoothingEnabled = false;
+    //heatmapBody.msImageSmoothingEnabled = false;
+
+		heatmapBody.drawImage(obj.real_div.selectAll("canvas").node(), 0, 0, 
+			obj.get_colIds().length, obj.get_rowIds().length,
+			0, 0,	obj.get_width(), obj.get_height());
+			
 	}
 	
 	obj.update = function() {
