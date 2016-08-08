@@ -78,6 +78,14 @@ export function heatmapChart(){
 	
 	obj.updateSVG = function(cellSize, transition) {
 	
+		data = [];
+		for(var i = 0; i < obj.get_rowIds().length; i++)
+			for(var j = 0; j < obj.get_colIds().length; j++)
+				data.push({
+					row: obj.get_rowIds()[i],
+					col: obj.get_colIds()[j],
+				});
+	
 		//if there is any canvas object, remove it
 		obj.svg.selectAll("canvas").remove();
 		
@@ -91,7 +99,7 @@ export function heatmapChart(){
 					obj.get_margin().top + ")");
 		heatmapBody = obj.svg.select(".heatmap_body");
 		//add cells	
-		var cells = heatmapBody.selectAll(".datapoint").data(obj.data);
+		var cells = heatmapBody.selectAll(".datapoint").data(data);
 		cells.exit()
 			.remove();
 		cells.enter()
@@ -109,7 +117,6 @@ export function heatmapChart(){
 				.attr("fill", function(d) {
 					return obj.get_colour(obj.get_value(d.row, d.col));
 				});
-
 	}
 	obj.updateCanvas = function() {
 		
@@ -159,7 +166,48 @@ export function heatmapChart(){
 		heatmapBody.drawImage(obj.real_div.selectAll("canvas").node(), 0, 0, 
 			obj.get_colIds().length, obj.get_rowIds().length,
 			0, 0,	obj.get_width(), obj.get_height());
-			
+	}
+	obj.updateSVGTest = function(cellSize, transition) {
+
+		//if there is any canvas object, remove it
+		obj.svg.selectAll("canvas").remove();
+		
+		//append or resize heatmap bode
+		var heatmapBody = obj.svg.selectAll(".heatmap_body").data(["x"]);
+		heatmapBody.enter()
+			.append("g")
+			.attr("class", "heatmap_body")
+			.merge(heatmapBody).transition(transition)
+				.attr("transform", "translate(" + obj.get_margin().left + ", " +
+					obj.get_margin().top + ")");
+		heatmapBody = obj.svg.select(".heatmap_body");
+		
+		//add cells
+		var point, cell;
+		heatmapBody.selectAll(".datapoint")
+			.classed("transient", true);
+		for(var i = 0; i < obj.get_rowIds().length; i++)
+			for(var j = 0; j < obj.get_colIds().length; j++) {
+				point = "c" + obj.get_rowIds()[i] + "_" + obj.get_colIds()[j];
+				cell = heatmapBody.select("#" + point).transition(transition)
+
+				if(cell.empty())
+					cell = heatmapBody.append("rect")
+						.attr("id", point)
+						.attr("class", "cell datapoint")
+						.attr("width", cellSize.width)
+						.attr("height", cellSize.height);
+				
+				cell.transition(transition)
+					.attr("x", obj.get_heatmapCol(obj.get_colIds()[j]) * cellSize.width)
+					.attr("y", obj.get_heatmapRow(obj.get_rowIds()[i]) * cellSize.height)
+					.attr("fill", obj.get_colour(obj.get_value(obj.get_rowIds()[i], 
+																										obj.get_colIds()[j])));
+				cell.classed("transient", false);
+			}
+		heatmapBody.selectAll(".datapoint")
+			.filter(function() {return d3.select(this).classed("transient")})
+				.remove();
 	}
 	
 	obj.update = function() {
@@ -194,14 +242,6 @@ export function heatmapChart(){
 			width: obj.get_width() / obj.get_ncols(),
 			height: obj.get_height() / obj.get_nrows()
 		}
-
-		obj.data = [];
-		for(var i = 0; i < obj.get_rowIds().length; i++)
-			for(var j = 0; j < obj.get_colIds().length; j++)
-				obj.data.push({
-					row: obj.get_rowIds()[i],
-					col: obj.get_colIds()[j],
-				});
 				
 		//add column labels
 		var colLabels = obj.svg.select(".col").selectAll(".label")
@@ -283,9 +323,14 @@ export function heatmapChart(){
 			return obj;
 		}
 		if(obj.get_mode() == "svg") {
-			obj.updateSVG(cellSize, transition	);
+			obj.updateSVG(cellSize, transition);
 			return obj;
 		}
+		if(obj.get_mode() == "svg_test") {
+			obj.updateSVGTest(cellSize, transition);
+			return obj;
+		}
+		
 		throw "Error in function 'heatmapChart.update': mode did not correspond to any " +
 			"existing type ('canvas', 'svg' or 'default')";
 	}
