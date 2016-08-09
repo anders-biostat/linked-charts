@@ -121,7 +121,7 @@ export function heatmapChart(){
 	obj.updateCanvas = function() {
 		
 		//if there is a g object for heatmap body, remove it
-		obj.svg.selectAll(".heanapBody").remove();
+		obj.svg.selectAll(".heatmapBody").remove();
 		//if there is any canvas, remove it as well
 		obj.svg.selectAll("canvas").remove();
 		
@@ -133,8 +133,10 @@ export function heatmapChart(){
 			.property("width", obj.get_width())
 			.property("height", obj.get_height())
 			.node().getContext("2d");
+		var pixelHeatmap = document.createElement("canvas");
+		pixelHeatmap.width = obj.get_ncols();
+		pixelHeatmap.height = obj.get_nrows();
 		
-		var pixelData = new Uint8ClampedArray(4 * obj.get_ncols() * obj.get_nrows());
 		//store colour of each cell
 		var rgbColour, position;
 		//create an object to store information on each cell of a heatmap
@@ -155,7 +157,7 @@ export function heatmapChart(){
 			pixelData.data[i * 4 + 3] = 255;
 		
 		//put a small heatmap on screen and then rescale it
-		heatmapBody.putImageData(pixelData, 0 , 0);
+		pixelHeatmap.getContext("2d").putImageData(pixelData, 0 , 0);
 
 		heatmapBody.imageSmoothingEnabled = false;
 		//probaly no longer required, but let it stay here just in case
@@ -163,7 +165,7 @@ export function heatmapChart(){
 		//heatmapBody.webkitImageSmoothingEnabled = false;
     //heatmapBody.msImageSmoothingEnabled = false;
 
-		heatmapBody.drawImage(obj.real_div.selectAll("canvas").node(), 0, 0, 
+		heatmapBody.drawImage(pixelHeatmap, 0, 0, 
 			obj.get_colIds().length, obj.get_rowIds().length,
 			0, 0,	obj.get_width(), obj.get_height());
 	}
