@@ -77,15 +77,7 @@ export function heatmapChart(){
 	obj.update_not_yet_called = true;
 	
 	obj.updateSVG = function(cellSize, transition) {
-	
-		data = [];
-		for(var i = 0; i < obj.get_rowIds().length; i++)
-			for(var j = 0; j < obj.get_colIds().length; j++)
-				data.push({
-					row: obj.get_rowIds()[i],
-					col: obj.get_colIds()[j],
-				});
-	
+		
 		//if there is any canvas object, remove it
 		obj.svg.selectAll("canvas").remove();
 		
@@ -98,24 +90,40 @@ export function heatmapChart(){
 				.attr("transform", "translate(" + obj.get_margin().left + ", " +
 					obj.get_margin().top + ")");
 		heatmapBody = obj.svg.select(".heatmap_body");
+		
+		//add rows
+		var rows = heatmapBody.selectAll(".data_row").data(obj.get_rowIds());
+		rows.exit()
+			.remove();
+		rows.enter()
+			.append("g")
+				.attr("class", "data_row")
+			.merge(rows).transition(transition)
+				.attr("transform", function(d) {
+					return "translate(0, " + 
+						(obj.get_heatmapRow(d) * cellSize.height) + ")";
+				});
+						
 		//add cells	
-		var cells = heatmapBody.selectAll(".datapoint").data(data);
+		var cells = heatmapBody.selectAll(".data_row").selectAll(".data_point")
+			.data(function(d) {
+				return obj.get_colIds().map(function(e){
+					return [d, e];
+				})
+			});
 		cells.exit()
 			.remove();
 		cells.enter()
 			.append("rect")
-				.attr("class", "cell datapoint")
+				.attr("class", "data_point")
 				.attr("width", cellSize.width)
 				.attr("height", cellSize.height)
 			.merge(cells).transition(transition)
 				.attr("x", function(d){
-					return obj.get_heatmapCol(d.col) * cellSize.width;
-				})
-				.attr("y", function(d){
-					return obj.get_heatmapRow(d.row) * cellSize.height;
+					return obj.get_heatmapCol(d[1]) * cellSize.width;
 				})
 				.attr("fill", function(d) {
-					return obj.get_colour(obj.get_value(d.row, d.col));
+					return obj.get_colour(obj.get_value(d[0], d[1]));
 				});
 	}
 	obj.updateCanvas = function() {
