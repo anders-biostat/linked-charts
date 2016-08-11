@@ -15,7 +15,11 @@ export function chartBase() {
         obj[ getter ] = function() { return vf };
       return obj
     }
-    obj[ getter ] = function() { return defaultval }
+    //Allowing default values to be a function
+		if(typeof defaultval === "function")
+			obj[ getter ] = defaultval
+		else
+			obj[ getter ] = function() { return defaultval };
     return obj;
   }
 
@@ -66,4 +70,14 @@ export function svgChartBase() {
   }
 
   return obj;
+}
+
+export function divChartBase() {
+	var obj = chartBase();
+	
+	obj.put_static_content = function(element) {
+		obj.real_div = element.append("div");
+	}
+	
+	return obj;
 }
