@@ -1,3 +1,5 @@
+import {select} from "d3-select";
+
 export function chartBase() {
 
   var obj = {};
@@ -24,7 +26,7 @@ export function chartBase() {
     if( element === undefined )
       element = "body";
     if( typeof( element ) == "string" ) {
-      element = d3.select( element );
+      element = select( element );
       if( element.size == 0 )
         throw "Error in function 'place': DOM selection for string '" +
           node + "' did not find a node."
