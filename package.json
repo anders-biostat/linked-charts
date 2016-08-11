@@ -14,13 +14,6 @@
     "type": "git",
     "url": "https://github.com/simon-anders/d3-linked-charts.git"
   },
-  "dependencies": {
-    "d3-array": "1",
-    "d3-selection": "1",
-    "d3-axis": "1",
-    "d3-scale": "1",
-    "d3-transition": "1"
-  },
   "scripts": {
     "rollup": "rm -rf build && mkdir build && rollup -f umd -n d3 -o build/d3-linked-charts.js index.js",
     "minify": "uglifyjs build/d3-linked-charts.js -c -m -o build/d3-linked-charts.min.js",

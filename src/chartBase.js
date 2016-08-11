@@ -1,4 +1,5 @@
-import {select} from "d3-select";
+var select = d3.select;   // To do: Figure out how to use import correctly with rollup
+// import {select} from "d3-select";    // This here doesn't work.
 
 export function chartBase() {
 
