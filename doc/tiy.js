@@ -23,19 +23,28 @@ tiy.insert_box = function( pre ) {
   pre.attr( "id", id );
   tiy.insert_box.count += 1;
   var code = pre.text();
-  var div = d3.select(pre.node().parentNode).insert( "div", "pre#"+id );
+  var table = d3.select(pre.node().parentNode).insert( "table", "pre#"+id );
+  var height = pre.attr( "height" );
+  if( height == null )
+    height = 300;
   pre.remove();
-  div.html(
-    '<table class="tiy"><tr>' +
-    '  <td style="vertical-align:top"><textarea id="' + id + '">' +
-         code +
-    '  </textarea></td>' +
-    '<td rowspan=2 style="vertical-align:top">' +
-    '   <iframe id="' + id + '"></iframe></td></tr>' +
+  table.attr( "class", "tiy" );
+  table.style( "height", height );
+  table.html(
+    '<tr>' +
+    '  <td style="vertical-align:top; height:100%">' +
+    '     <textarea style="height:100%" id="' + id + '">' +
+             code +
+    '     </textarea>' +
+    '  </td>' +
+    '  <td rowspan=2 style="vertical-align:top">' +
+    '     <iframe id="' + id + '" height="100%"></iframe>' +
+    '  </td>' +
+    '</tr>' +
     '<tr><td style="text-align:right; vertical-align:bottom">' + 
     '  <button onclick=\'tiy.button_reset("' + id + '")\'>Reset</button>' +
     '  <button onclick=\'tiy.button_run("' + id + '")\'>Run</button>' +
-    '</td></tr></table>'
+    '</td></tr>'
   );
 }
 tiy.insert_box.count = 0;

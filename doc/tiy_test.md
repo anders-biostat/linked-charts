@@ -11,7 +11,7 @@ d3.select("body").text("ABC");
 
 And here is another one:
 
-<pre class="tiy">
+<pre class="tiy" height="100">
 d3.select("body").text("ABC");
 </pre>
 
