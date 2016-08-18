@@ -1,0 +1,10 @@
+.tiy textarea {
+  border: 2px solid #ddd; 
+  height: 370px; 
+  width: 500px;
+}
+.tiy iframe {
+  border: 2px solid #ddd; 
+  height: 400px; 
+  width: 500px;
+}
