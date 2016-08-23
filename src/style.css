@@ -1,0 +1,40 @@
+text.label{
+	fill: #aaa;
+	font-family: Consolas, courier;
+}
+
+text.hover{
+	fill: red;
+	font-weight: bold;
+}
+
+text.selected{
+	fill: black;
+	font-weight: bold;
+}
+
+rect.hover{
+	stroke: #aaa;
+	stroke-width: 0.75px;
+}
+
+.inform {
+	position: absolute;
+	width: 170px;
+	height: auto;
+	padding: 10px;
+	background-color: white;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	-webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+	-moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+	box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+	pointer-events: none;
+	opacity: 0.7;
+}
+
+.hidden {
+	display: none;
+}
+

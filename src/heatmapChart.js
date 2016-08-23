@@ -10,7 +10,7 @@ export function heatmapChart(){
 	
 	//optional parameters with possible default values
 	obj.add_property("mode", "default")
-		.add_property("height", 1000)
+		.add_property("height", 800)
 		.add_property("width", 1000)
 		.add_property("margin", {top: 100, bottom: 50, left: 100, right: 20})
 		.add_property("colLabels", function(i) {return i;})
@@ -18,12 +18,17 @@ export function heatmapChart(){
 		.add_property("colIds", function() {return d3.range(obj.get_ncols());})
 		.add_property("rowIds", function() {return d3.range(obj.get_nrows());})
 		.add_property("colour", function(val) {return obj.colourScale(val);})
-		.add_property("heatmapRow", function(rowId){return rowId;})
-		.add_property("heatmapCol", function(colId) {return colId;})
-		.add_property("palette", ["#0000FF", "#002FFF", "#005FFF", "#008FFF", "#00BFFF", 
-			"#3FCFFF", "#7FDFFF", "#BFEFFF", "#FFFFFF", "#FDFDF3", "#FCFCE8", "#FBFBDD",
-			"#FAFAD2", "#F7DBBD", "#F4BDA9", "#F29E94", "#F08080", "#F35F5F", "#F74040",
-			"#FB1F1F", "#FF0000"]);
+		.add_property("heatmapRow", function(rowId) {return obj.get_rowIds().indexOf(rowId);})
+		.add_property("heatmapCol", function(colId) {return obj.get_rowIds().indexOf(colId);})
+		.add_property("palette", d3.interpolateOrRd)
+		.add_property("colourRange", function() {return obj.dataRange()})
+		.add_property("legendSteps", 21)
+		.add_property("labelMouseOver")
+		.add_property("labelMouseOut")
+		.add_property("cellMouseOver")
+		.add_property("cellMouseOut")
+		.add_property("labelClick")
+		.add_property("cellClick");
 		
 	//returns maximum and minimum values of the data
 	obj.dataRange = function(){
@@ -42,16 +47,100 @@ export function heatmapChart(){
 			
 		return range;
 	}
+	
+	obj.reorderRow = function(f){
+		if(f == "flip"){
+			obj.get_heatmapRow("__flip__");
+			return obj;
+		}
+		var ids = obj.get_rowIds().slice(), ind;
+		ids = ids.sort(f);
+		obj.heatmapRow(function(rowId){
+			if(rowId == "__flip__"){
+				ids = ids.reverse();
+				return;
+			}
+			var actIds = obj.get_rowIds(),
+				orderedIds = ids.filter(function(e) {
+					return actIds.indexOf(e) != -1;
+				});
+			if(orderedIds.length != actIds.length) {
+				orderedIds = actIds.sort(f);
+				ids = orderedIds.slice();
+			}
+			ind = orderedIds.indexOf(rowId);
+			if(ind > -1)
+				 return ind
+			else
+				throw "Wrong rowId in obj.get_heatmapRow";
+		});
+		
+		return obj;
+	}
+	obj.reorderCol = function(f){
+		if(f == "flip"){
+			obj.get_heatmapCol("__flip__");
+			return obj;
+		}
+		var ids = obj.get_colIds().slice(), ind;
+		ids = ids.sort(f);
+		obj.heatmapCol(function(colId){
+			if(colId == "__flip__"){
+				ids = ids.reverse();
+				return;
+			}
 
+			var actIds = obj.get_colIds(),
+				orderedIds = ids.filter(function(e) {
+					return actIds.indexOf(e) != -1;
+				});
+			if(orderedIds.length != actIds.length) {
+				orderedIds = actIds.sort(f);
+				ids = orderedIds.slice();
+			}
+			ind = orderedIds.indexOf(colId);
+			if(ind > -1)
+				 return ind
+			else
+				throw "Wrong rowId in obj.get_heatmapRow";
+		});
+		
+		return obj;
+	}
+	
+/*	obj.heatmapRow = function(f){
+		obj.get_heatmapRow = function(rowId){
+			var ids = obj.get_rowIds();
+			f ? ids = ids.sort(f): ids = ids.sort();
+			return ids.indexOf(rowId);
+		}
+		return obj;
+	}
+	obj.heatmapRow();
+	
+	obj.heatmapCol = function(f){
+		obj.get_heatmapCol = function(colId){
+			var ids = obj.get_colIds();
+			f ? ids = ids.sort(f): ids = ids.sort();
+			return ids.indexOf(colId);
+		}
+		return obj;
+	}
+	obj.heatmapCol();
+*/	
+	
 	//reset a colourScale
 	//in cases like zooming and filtering we, probably, need to
 	//use previously stored colourScale, so it will be reset only
 	//when user tells it to
 	obj.resetColourScale = function(){
-		//create colorScale
-		obj.colourScale = d3.scaleQuantile()
-			.domain(obj.dataRange())
-			.range(obj.get_palette());	
+	//create colorScale
+		var scale = d3.scaleSequential(obj.get_palette);
+		obj.colourScale = function(val){
+			val = (val - obj.get_colourRange()[0]) / 
+				(obj.get_colourRange()[1] - obj.get_colourRange()[0]);
+			return scale(val);
+		}
 	}	
 	
 	var inherited_put_static_content = obj.put_static_content;
@@ -59,7 +148,12 @@ export function heatmapChart(){
 		
 		inherited_put_static_content(element);
 		
+		obj.container = element;
 		obj.real_div.style("position", "relative");
+		element.append("div")
+			.attr("class", "inform hidden")
+			.append("p")
+				.attr("class", "value");
 		
 		obj.svg = obj.real_div.append("svg");
 		
@@ -73,6 +167,79 @@ export function heatmapChart(){
 
 		obj.resetColourScale();
 	}
+	
+	//some default onmouseover and onmouseout behaviour for cells and labels
+	//may be later moved out of the main library
+	obj.labelMouseOver(function() {
+		d3.select(this).classed("hover", true);
+	});
+	obj.labelMouseOut(function() {
+		d3.select(this).classed("hover", false);
+	});
+	obj.cellMouseOver(function(d) {
+		//change colour and class
+		d3.select(this)
+			.attr("fill", function(d) {
+				return d3.rgb(obj.get_colour(obj.get_value(d[0], d[1]))).darker(0.5);
+			})
+			.classed("hover", true);		
+		//finde column and row labels
+		obj.svg.select(".col").selectAll(".label")
+			.filter(function(dl) {return dl == d[1];})
+				.classed("hover", true);
+		obj.svg.select(".row").selectAll(".label")
+			.filter(function(dl) {return dl == d[0];})
+				.classed("hover", true);
+		//show label
+		obj.container.select(".inform")
+				.style("left", (d3.event.pageX + 10) + "px")
+				.style("top", (d3.event.pageY - 10) + "px")
+				.select(".value")
+					.html("Row: <b>" + d[0] + "</b>;<br>" + 
+						"Col: <b>" + d[1] + "</b>;<br>" + 
+						"value = " + obj.get_value(d[0], d[1]));  
+		obj.container.select(".inform")
+			.classed("hidden", false);
+	});
+	obj.cellMouseOut(function() {
+		//change colour and class
+		d3.select(this)
+			.attr("fill", function(d) {
+				return obj.get_colour(obj.get_value(d[0], d[1]));
+			})
+			.classed("hover", false);
+		//deselect row and column labels
+		obj.svg.selectAll(".label")
+			.classed("hover", false);
+		obj.container.select(".inform")
+			.classed("hidden", true);
+	});
+	//set default clicking behaviour for labels (ordering)
+	obj.labelClick(function(d){
+		//check whether row or col label has been clicked
+		var type;
+		d3.select(this.parentNode).classed("row") ? type = "row" : type = "col";
+		//if this label is already selected, flip the heatmap
+		if(d3.select(this).classed("selected")){
+			type == "col" ? obj.reorderRow("flip") : obj.reorderCol("flip");
+			obj.update();
+		} else {
+			//unselect other
+			obj.svg.select("." + type).selectAll(".label")
+				.classed("selected", false);
+			//select new label and chage ordering
+			d3.select(this).classed("selected", true);
+			if(type == "col")
+				obj.reorderRow(function(a, b){
+					return obj.get_value(b, d) - obj.get_value(a, d);
+				})
+			else
+				obj.reorderCol(function(a, b){
+					return obj.get_value(d, b) - obj.get_value(d, a);
+				});
+			obj.update();
+		}
+	});
 	
 	obj.update_not_yet_called = true;
 	
@@ -92,7 +259,7 @@ export function heatmapChart(){
 		heatmapBody = obj.svg.select(".heatmap_body");
 		
 		//add rows
-		var rows = heatmapBody.selectAll(".data_row").data(obj.get_rowIds());
+		var rows = heatmapBody.selectAll(".data_row").data(obj.get_rowIds().slice());
 		rows.exit()
 			.remove();
 		rows.enter()
@@ -116,15 +283,18 @@ export function heatmapChart(){
 		cells.enter()
 			.append("rect")
 				.attr("class", "data_point")
-				.attr("width", cellSize.width)
-				.attr("height", cellSize.height)
+				.on("mouseover", obj.get_cellMouseOver)
+				.on("mouseout", obj.get_cellMouseOut)
+				.on("click", obj.get_cellClick)
 			.merge(cells).transition(transition)
 				.attr("x", function(d){
 					return obj.get_heatmapCol(d[1]) * cellSize.width;
 				})
 				.attr("fill", function(d) {
 					return obj.get_colour(obj.get_value(d[0], d[1]));
-				});
+				})
+				.attr("width", cellSize.width)
+				.attr("height", cellSize.height);
 	}
 	obj.updateCanvas = function() {
 		
@@ -224,10 +394,10 @@ export function heatmapChart(){
 		
 		var transition;
 		if(obj.update_not_yet_called){
-			transition = d3.transition(0);
+			transition = d3.transition().duration(0);
 			obj.update_not_yet_called = false;
 		} else {
-			transition = d3.transition(1000);
+			transition = d3.transition().duration(1000);
 		}
 
 		//update sizes of all parts of the chart
@@ -255,7 +425,7 @@ export function heatmapChart(){
 				
 		//add column labels
 		var colLabels = obj.svg.select(".col").selectAll(".label")
-				.data(obj.get_colIds());
+				.data(obj.get_colIds().slice());
 		colLabels.exit()
 			.remove();
 		colLabels.enter()
@@ -263,38 +433,44 @@ export function heatmapChart(){
 				.attr("class", "label")
 				.attr("transform", "rotate(-90)")
 				.style("text-anchor", "start")
+				.on("mouseover", obj.get_labelMouseOver)
+				.on("mouseout", obj.get_labelMouseOut)
+				.on("click", obj.get_labelClick)
 			.merge(colLabels).transition(transition)
-				.attr("font-size", cellSize.width)
+				.attr("font-size", d3.min([cellSize.width, 12]))
 				.attr("dy", function(d) {return cellSize.width * (obj.get_heatmapCol(d) + 1);})
 				.attr("dx", 2)
 				.text(function(d) {return obj.get_colLabels(d);});		
 		
 		//add row labels
 		var rowLabels = obj.svg.select(".row").selectAll(".label")
-				.data(obj.get_rowIds());
+				.data(obj.get_rowIds().slice());
 		rowLabels.exit()
 			.remove();
 		rowLabels.enter()
 			.append("text")
 				.attr("class", "label")
 				.style("text-anchor", "end")
+				.on("mouseover", obj.get_labelMouseOver)
+				.on("mouseout", obj.get_labelMouseOut)
+				.on("click", obj.get_labelClick)
 			.merge(rowLabels).transition(transition)
-				.attr("font-size", cellSize.height)
+				.attr("font-size", d3.min([cellSize.height, 12]))
 				.attr("dy", function(d) {return cellSize.height * (obj.get_heatmapRow(d) + 1);})
 				.attr("dx", -2)
 				.text(function(d) {return obj.get_rowLabels(d)});
 
 		//add legend
-		var legendStep = (obj.colourScale.domain()[1] - obj.colourScale.domain()[0]) / 
-				(obj.get_palette().length - 1),
+		var legendStep = (obj.get_colourRange()[1] - obj.get_colourRange()[0]) / 
+				(obj.get_legendSteps() - 1),
 			legendScale = [], legendElementWidth = 20,
 			legendElementHeight = 10;
 		//if default legend elements are to wide, make them shorter
 		if(legendElementWidth * obj.get_palette().length > obj.get_width())
 			legendElementWidth = obj.get_width() / obj.get_palette().length;
 
-		for(var i = 0; i < obj.get_palette().length; i++)
-			legendScale.push((obj.colourScale.domain()[0] + i * legendStep).toPrecision(2));
+		for(var i = 0; i < obj.get_legendSteps(); i++)
+			legendScale.push((obj.get_colourRange()[0] + i * legendStep).toPrecision(2));
 
 		var legendBlocks = obj.svg.select(".legend_panel")
 			.selectAll(".legend").data(legendScale);	

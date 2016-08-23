@@ -1,0 +1,153 @@
+<html>
+
+<title>Linked charts with D3</title>
+<link rel="stylesheet" type="text/css" href="../src/style.css">
+
+<body>
+<div id = "selectData" style = "float: left">
+	Colour by:<br>
+	Screen: <select id = "screen"></select><br>
+	Drug: <select id = "drug"></select> <br>
+	Colour range from <input type = "number" id = "clRangeMin" 
+		value = 0 style = "width: 50px">
+	to <input type = "number" id = "clRangeMax" value = 15 
+		style = "width: 50px"><br>
+	<button onclick = "change()">Reset</button>
+</div>
+<div id = "filterData" style = "margin-left: 300px">
+	Filter by <br>
+	screen: <select id = "screen_filter"></select><br>
+	drug: <select id = "drug_filter"></select><br>
+	Show only drugs <br>
+	with deltaDSS at least <input type = "number" id = "dss_threshold" value = 5> <br>
+	for at least <input type = "number" id = "min_cell_lines" value = 2> cell lines<br>
+	<button onclick = "change()">Reset</button>
+</div>
+<div id = "heatmap"></div>
+
+<script src = "https://d3js.org/d3.v4.min.js"></script>
+<script src = "https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src="https://d3js.org/d3-color.v1.min.js"></script>
+<script src = "input_heatmapWithFiltering.js"></script>
+<script src = "../build/d3-linked-charts.js"></script>
+
+<script>
+//add options to all the dropdown lists
+d3.select("#screen").selectAll("option")
+	.data(Object.keys(inputData))
+	.enter().append("option")
+		.attr("value", function(d) {return d;})
+		.text(function(d) {return d;})		
+updateDrugList = function(){
+	var selected_screen = document.getElementById("screen")
+		.options[document.getElementById("screen").selectedIndex].value;
+	var options = d3.select("#drug").selectAll("option")
+		.data(Object.keys(inputData[selected_screen]));
+	options.exit().remove();
+	options.enter().append("option")
+		.attr("value", function(d) {return d;})
+		.text(function(d) {return d;});
+}
+updateDrugList();
+
+d3.select("#screen_filter").selectAll("option")
+	.data(Object.keys(inputData))
+	.enter().append("option")
+		.attr("value", function(d) {return d;})
+		.text(function(d) {return d;})
+updateDrugFilterList = function(){
+	var selected_screen = document.getElementById("screen_filter")
+		.options[document.getElementById("screen_filter").selectedIndex].value;
+	var options = d3.select("#drug_filter").selectAll("option")
+		.data(Object.keys(inputData[selected_screen]));
+	options.exit().remove();
+	options.enter().append("option")
+		.attr("value", function(d) {return d;})
+		.text(function(d) {return d;});
+}
+updateDrugFilterList();
+
+//get functions
+get_data = function(i, j){
+	var screen = document.getElementById("screen")
+			.options[document.getElementById("screen").selectedIndex].value,
+		drug = document.getElementById("drug")
+			.options[document.getElementById("drug").selectedIndex].value;
+		return inputData[screen][drug][i][j];
+}
+get_rowIds = function(){
+	var screen = document.getElementById("screen_filter")
+			.options[document.getElementById("screen_filter").selectedIndex].value,
+		drug = document.getElementById("drug_filter")
+			.options[document.getElementById("drug_filter").selectedIndex].value,
+		min_lines = document.getElementById("min_cell_lines").value,
+		thr = document.getElementById("dss_threshold").value,
+		ids = [], k;
+	
+	for(var i in inputData[screen][drug]){
+		k = 0;
+		for(var j in inputData[screen][drug][i])
+			if(inputData[screen][drug][i][j] > thr)
+				k++;
+		if(k >= min_lines)
+			ids.push(i);
+		}
+	return ids;
+}
+
+get_colIds = function(){
+	var screen = document.getElementById("screen_filter")
+			.options[document.getElementById("screen_filter").selectedIndex].value,
+		drug = document.getElementById("drug_filter")
+			.options[document.getElementById("drug_filter").selectedIndex].value,
+		row_name = Object.keys(inputData[screen][drug])[0];
+
+	return Object.keys(inputData[screen][drug][row_name]);
+}
+get_nrow = function(){
+	return this.get_rowIds().length;
+}
+get_ncol = function(){
+	return this.get_colIds().length;
+}
+
+get_heatmap_row = function(id){
+	return this.get_rowIds().indexOf(id);
+}
+get_heatmap_col = function(id){
+	return this.get_colIds().indexOf(id);
+}
+
+get_colourRange = function(){
+	return [document.getElementById("clRangeMin").value * 1,
+		 document.getElementById("clRangeMax").value * 1];
+}
+
+//create a heatmap
+var chart = d3.heatmapChart()
+	.nrows(get_nrow)
+	.ncols(get_ncol)
+	.value(get_data)
+	.rowIds(d3.cache(get_rowIds))
+	.colIds(get_colIds)
+	.heatmapRow(get_heatmap_row)
+	.heatmapCol(get_heatmap_col)
+	.width(1000)
+	.height(700)
+	.mode("svg")
+	.margin({top: 100, bottom: 50, left: 150, right: 20})
+	.colourRange(get_colourRange)
+	.place("#heatmap");
+
+change = function(){
+	chart.get_rowIds("clear");
+	chart.resetColourScale();
+	chart.update();
+}
+
+d3.selectAll("select")
+	.attr("onchange", "change()");
+
+</script>
+
+</body></html>
