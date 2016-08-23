@@ -1,0 +1,54 @@
+<head>
+	<link rel="stylesheet" type="text/css" href="../src/style.css">
+	<title>Heatmap connected to a scatter plot</title>
+	<script src = "https://d3js.org/d3.v4.min.js"></script>
+	<script src = "https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+	<script src = "https://d3js.org/d3-color.v1.min.js"></script>
+	<script src = "input_heatmapWithScatter.js"></script>
+	<script src = "../build/d3-linked-charts.js"></script>
+</head>
+<body>
+</body>
+<table>
+	<tr>
+		<td>
+			<div id = "heatmap"></div>
+		</td>
+		<td>
+			<div id = "scatter"></div>
+		</td>
+	</tr>
+</table>
+<script>
+
+var selected = {
+	x: Object.keys(data.cors)[0],
+	y: Object.keys(data.cors)[0]
+};
+
+onHeatmapClick = function(d){
+	selected.x = d[0];
+	selected.y = d[1];
+	scatter.update();
+}
+
+var heatmap = d3.heatmapChart()
+	.nrows(Object.keys(data.cors).length)
+	.ncols(Object.keys(data.cors).length)
+	.value(function(rowId, colId) {return data.cors[rowId][colId];})
+	.rowIds(Object.keys(data.cors))
+	.colIds(Object.keys(data.cors))
+	.cellClick(onHeatmapClick)
+	.place("#heatmap");
+
+var scatter = d3.scatterChart()
+		.dataIds(Object.keys(data.dss))
+		.x(function(k){return data.dss[k][selected.x];})
+		.y(function(k){return data.dss[k][selected.y];})
+		.x_label(function() {return selected.x;})
+		.y_label(function() {return selected.y;})
+		.place("#scatter");
+
+</script>
+</body>
+
