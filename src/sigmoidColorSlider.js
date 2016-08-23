@@ -1,7 +1,7 @@
 import { svgChartBase } from "./chartBase";
 
-function sigmoid( x, mid_point ) {
-  return 1 / ( 1 + Math.exp( ( x - mid_point ) / .03 ) )
+function sigmoid( x, midpoint, width ) {
+  return 1 / ( 1 + Math.exp( ( x - midpoint ) * 1.38 / width ) )
 }
 
 export function sigmoidColorSlider() {
@@ -11,6 +11,7 @@ export function sigmoidColorSlider() {
   var obj = svgChartBase()
     .add_property( "straightColorScale" )
     .add_property( "midpoint", .5 )
+    .add_property( "slopewidth", .1 )
     .height( 50 );    
 
   obj.straightColorScale(
@@ -52,12 +53,40 @@ export function sigmoidColorSlider() {
          .style( "fill", "gray" )
          .style( "stroke", "black" )
 
+    defs.append( "path" )
+         .attr( "id", "rightMarker" )
+         .attr( "d", "M 0 0 L 5 5 L 5 15 L 0 15 Z")
+         .style( "fill", "lightgray" )
+         .style( "stroke", "black" )
+
+    defs.append( "path" )
+         .attr( "id", "leftMarker" )
+         .attr( "d", "M 0 0 L -5 5 L -5 15 L 0 15 Z")
+         .style( "fill", "lightgray" )
+         .style( "stroke", "black" )
+
     obj.mainMarker = obj.svg.append( "use" )
       .attr( "xlink:href", "#mainMarker")
       .attr( "y", 28 )
       .call( d3.drag().on( "drag", function() {
          obj.midpoint( obj.get_midpoint() + obj.pos_scale.invert( d3.event.dx ) );
          obj.update();
+      } ) );
+
+    obj.rightMarker = obj.svg.append( "use" )
+      .attr( "xlink:href", "#rightMarker")
+      .attr( "y", 30 )
+      .call( d3.drag().on( "drag", function() {
+         obj.slopewidth( obj.get_slopewidth() + obj.pos_scale.invert( d3.event.dx ) );
+         obj.update();        
+      } ) );
+
+    obj.leftMarker = obj.svg.append( "use" )
+      .attr( "xlink:href", "#leftMarker")
+      .attr( "y", 30 )
+      .call( d3.drag().on( "drag", function() {
+         obj.slopewidth( obj.get_slopewidth() - obj.pos_scale.invert( d3.event.dx ) );
+         obj.update();        
       } ) );
 
   }
@@ -68,7 +97,7 @@ export function sigmoidColorSlider() {
 
     obj.pos_scale = d3.scaleLinear()
       .range( [ 0, obj.get_width() ] )
-      .domain( obj.get_straightColorScale.domain() );
+      .domain( obj.get_straightColorScale.domain() )
 
     d3.axisTop()
       .scale( obj.pos_scale )
@@ -80,10 +109,14 @@ export function sigmoidColorSlider() {
     obj.gradient.selectAll( "stop" )
       .data( d3.range(100) )
       .style( "stop-color", function(d) { 
-        return obj.get_straightColorScale( sigmoid( d/100, obj.get_midpoint() ) ) } );
+        return obj.get_straightColorScale( sigmoid( d/100, obj.get_midpoint(), obj.get_slopewidth() ) ) } );
 
     obj.mainMarker
-      .attr( "x", obj.pos_scale( obj.get_midpoint() ) )
+      .attr( "x", obj.pos_scale( obj.get_midpoint() ) );
+    obj.rightMarker
+      .attr( "x", obj.pos_scale( obj.get_midpoint() + obj.get_slopewidth() ) )
+    obj.leftMarker
+      .attr( "x", obj.pos_scale( obj.get_midpoint() - obj.get_slopewidth() ) )
   }
 
   return obj;
