@@ -155,14 +155,14 @@ export function heatmapChart(){
 			.append("p")
 				.attr("class", "value");
 		
-		obj.svg = obj.real_div.append("svg");
+		obj.real_svg = obj.real_div.append("svg");
 		
 		//create main parts of the heatmap
-		obj.svg.append("g")
+		obj.real_svg.append("g")
 			.attr("class", "row label_panel");
-		obj.svg.append("g")
+		obj.real_svg.append("g")
 			.attr("class", "col label_panel");
-		obj.svg.append("g")
+		obj.real_svg.append("g")
 			.attr("class", "legend_panel");
 
 		obj.resetColourScale();
@@ -184,10 +184,10 @@ export function heatmapChart(){
 			})
 			.classed("hover", true);		
 		//finde column and row labels
-		obj.svg.select(".col").selectAll(".label")
+		obj.real_svg.select(".col").selectAll(".label")
 			.filter(function(dl) {return dl == d[1];})
 				.classed("hover", true);
-		obj.svg.select(".row").selectAll(".label")
+		obj.real_svg.select(".row").selectAll(".label")
 			.filter(function(dl) {return dl == d[0];})
 				.classed("hover", true);
 		//show label
@@ -209,7 +209,7 @@ export function heatmapChart(){
 			})
 			.classed("hover", false);
 		//deselect row and column labels
-		obj.svg.selectAll(".label")
+		obj.real_svg.selectAll(".label")
 			.classed("hover", false);
 		obj.container.select(".inform")
 			.classed("hidden", true);
@@ -225,7 +225,7 @@ export function heatmapChart(){
 			obj.update();
 		} else {
 			//unselect other
-			obj.svg.select("." + type).selectAll(".label")
+			obj.real_svg.select("." + type).selectAll(".label")
 				.classed("selected", false);
 			//select new label and chage ordering
 			d3.select(this).classed("selected", true);
@@ -246,17 +246,17 @@ export function heatmapChart(){
 	obj.updateSVG = function(cellSize, transition) {
 		
 		//if there is any canvas object, remove it
-		obj.svg.selectAll("canvas").remove();
+		obj.real_svg.selectAll("canvas").remove();
 		
 		//append or resize heatmap bode
-		var heatmapBody = obj.svg.selectAll(".heatmap_body").data(["x"]);
+		var heatmapBody = obj.real_svg.selectAll(".heatmap_body").data(["x"]);
 		heatmapBody.enter()
 			.append("g")
 			.attr("class", "heatmap_body")
 			.merge(heatmapBody).transition(transition)
 				.attr("transform", "translate(" + obj.get_margin().left + ", " +
 					obj.get_margin().top + ")");
-		heatmapBody = obj.svg.select(".heatmap_body");
+		heatmapBody = obj.real_svg.select(".heatmap_body");
 		
 		//add rows
 		var rows = heatmapBody.selectAll(".data_row").data(obj.get_rowIds().slice());
@@ -299,9 +299,9 @@ export function heatmapChart(){
 	obj.updateCanvas = function() {
 		
 		//if there is a g object for heatmap body, remove it
-		obj.svg.selectAll(".heatmapBody").remove();
+		obj.real_svg.selectAll(".heatmapBody").remove();
 		//if there is any canvas, remove it as well
-		obj.svg.selectAll("canvas").remove();
+		obj.real_svg.selectAll("canvas").remove();
 		
 		//create a canvas object
 		var heatmapBody = obj.real_div.append("canvas")
@@ -350,17 +350,17 @@ export function heatmapChart(){
 	obj.updateSVGTest = function(cellSize, transition) {
 
 		//if there is any canvas object, remove it
-		obj.svg.selectAll("canvas").remove();
+		obj.real_svg.selectAll("canvas").remove();
 		
 		//append or resize heatmap bode
-		var heatmapBody = obj.svg.selectAll(".heatmap_body").data(["x"]);
+		var heatmapBody = obj.real_svg.selectAll(".heatmap_body").data(["x"]);
 		heatmapBody.enter()
 			.append("g")
 			.attr("class", "heatmap_body")
 			.merge(heatmapBody).transition(transition)
 				.attr("transform", "translate(" + obj.get_margin().left + ", " +
 					obj.get_margin().top + ")");
-		heatmapBody = obj.svg.select(".heatmap_body");
+		heatmapBody = obj.real_svg.select(".heatmap_body");
 		
 		//add cells
 		var point, cell;
@@ -405,15 +405,15 @@ export function heatmapChart(){
 			.style("width", (obj.get_width() + obj.get_margin().left + obj.get_margin().right) + "px")
 			.style("height", (obj.get_height() + obj.get_margin().top + obj.get_margin().bottom) + "px");
 
-		obj.svg.transition(transition)
+		obj.real_svg.transition(transition)
 			.attr("height", obj.get_height() + obj.get_margin().top + obj.get_margin().bottom)
 			.attr("width", obj.get_width() + obj.get_margin().left + obj.get_margin().right);
 		
-		obj.svg.selectAll(".label_panel").transition(transition)
+		obj.real_svg.selectAll(".label_panel").transition(transition)
 			.attr("transform", "translate(" + obj.get_margin().left + ", " +
 				obj.get_margin().top + ")");
 		
-		obj.svg.select(".legend_panel").transition(transition)
+		obj.real_svg.select(".legend_panel").transition(transition)
 			.attr("transform", "translate(" + obj.get_margin().left + 
 				", " + (obj.get_height() + obj.get_margin().top)  + ")");
 			
@@ -424,7 +424,7 @@ export function heatmapChart(){
 		}
 				
 		//add column labels
-		var colLabels = obj.svg.select(".col").selectAll(".label")
+		var colLabels = obj.real_svg.select(".col").selectAll(".label")
 				.data(obj.get_colIds().slice());
 		colLabels.exit()
 			.remove();
@@ -443,7 +443,7 @@ export function heatmapChart(){
 				.text(function(d) {return obj.get_colLabels(d);});		
 		
 		//add row labels
-		var rowLabels = obj.svg.select(".row").selectAll(".label")
+		var rowLabels = obj.real_svg.select(".row").selectAll(".label")
 				.data(obj.get_rowIds().slice());
 		rowLabels.exit()
 			.remove();
@@ -472,13 +472,13 @@ export function heatmapChart(){
 		for(var i = 0; i < obj.get_legendSteps(); i++)
 			legendScale.push((obj.get_colourRange()[0] + i * legendStep).toPrecision(2));
 
-		var legendBlocks = obj.svg.select(".legend_panel")
+		var legendBlocks = obj.real_svg.select(".legend_panel")
 			.selectAll(".legend").data(legendScale);	
 		legendBlocks.enter()
 			.append("g")
 				.attr("class", "legend")
 				.attr("num", function(d, i){return i;});
-		legendBlocks = obj.svg.select(".legend_panel").selectAll(".legend");
+		legendBlocks = obj.real_svg.select(".legend_panel").selectAll(".legend");
 		legendBlocks.append("rect");
 		legendBlocks.append("text");
 	
