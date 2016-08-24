@@ -23,11 +23,16 @@
 	for at least <input type = "number" id = "min_cell_lines" value = 2> cell lines<br>
 	<button onclick = "change()">Reset</button>
 </div>
-<div id = "heatmap"></div>
+<table>
+	<tr>
+		<td><div id = "heatmap"></div></td>
+		<td><div id = "curveFit"></div></td>
+	</tr>
+</table>
 
 <script src = "https://d3js.org/d3.v4.min.js"></script>
 <script src = "https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
-<script src="https://d3js.org/d3-color.v1.min.js"></script>
+<script src = "https://d3js.org/d3-color.v1.min.js"></script>
 <script src = "input_heatmapWithFiltering.js"></script>
 <script src = "../build/d3-linked-charts.js"></script>
 
@@ -73,7 +78,7 @@ get_data = function(i, j){
 			.options[document.getElementById("screen").selectedIndex].value,
 		drug = document.getElementById("drug")
 			.options[document.getElementById("drug").selectedIndex].value;
-		return inputData[screen][drug][i][j];
+		return inputData[screen][drug]["dss"][i][j];
 }
 get_rowIds = function(){
 	var screen = document.getElementById("screen_filter")
@@ -84,10 +89,10 @@ get_rowIds = function(){
 		thr = document.getElementById("dss_threshold").value,
 		ids = [], k;
 	
-	for(var i in inputData[screen][drug]){
+	for(var i in inputData[screen][drug].dss){
 		k = 0;
-		for(var j in inputData[screen][drug][i])
-			if(inputData[screen][drug][i][j] > thr)
+		for(var j in inputData[screen][drug]["dss"][i])
+			if(inputData[screen][drug]["dss"][i][j] > thr)
 				k++;
 		if(k >= min_lines)
 			ids.push(i);
@@ -100,9 +105,9 @@ get_colIds = function(){
 			.options[document.getElementById("screen_filter").selectedIndex].value,
 		drug = document.getElementById("drug_filter")
 			.options[document.getElementById("drug_filter").selectedIndex].value,
-		row_name = Object.keys(inputData[screen][drug])[0];
+		row_name = Object.keys(inputData[screen][drug]["dss"])[0];
 
-	return Object.keys(inputData[screen][drug][row_name]);
+	return Object.keys(inputData[screen][drug]["dss"][row_name]);
 }
 get_nrow = function(){
 	return this.get_rowIds().length;
@@ -123,6 +128,37 @@ get_colourRange = function(){
 		 document.getElementById("clRangeMax").value * 1];
 }
 
+get_x = function(i){
+	var screen = document.getElementById("screen")
+			.options[document.getElementById("screen").selectedIndex].value,
+		drug = document.getElementById("drug")
+			.options[document.getElementById("drug").selectedIndex].value;
+	return Math.log10(inputData[screen][drug]["curveFit"][curveFit_id].minConc * 
+					Math.pow(10, i));
+}
+get_y = function(i){
+	var screen = document.getElementById("screen")
+			.options[document.getElementById("screen").selectedIndex].value,
+		drug = document.getElementById("drug")
+			.options[document.getElementById("drug").selectedIndex].value;
+	return inputData[screen][drug]["curveFit"][curveFit_id]["D" + (i + 1)];
+}
+curveFunction = function(id, x) {
+	var screen = document.getElementById("screen")
+			.options[document.getElementById("screen").selectedIndex].value,
+		drug = document.getElementById("drug")
+			.options[document.getElementById("drug").selectedIndex].value,
+		max = inputData[screen][drug]["curveFit"][curveFit_id].max,
+		min = inputData[screen][drug]["curveFit"][curveFit_id].min,
+		IC50 = inputData[screen][drug]["curveFit"][curveFit_id].IC50,
+		slope = inputData[screen][drug]["curveFit"][curveFit_id].Slope;
+		
+		return min + (max - min)/(1 + Math.pow(10, -(x - Math.log10(IC50)) * slope))
+}
+
+
+var curveFit_id = Object.keys(inputData.ctx.Alpelisib.curveFit)[0];
+
 //create a heatmap
 var chart = d3.heatmapChart()
 	.nrows(get_nrow)
@@ -137,7 +173,25 @@ var chart = d3.heatmapChart()
 	.mode("svg")
 	.margin({top: 100, bottom: 50, left: 150, right: 20})
 	.colourRange(get_colourRange)
+	.cellClick(function(d){
+		curveFit_id = d[1] + "_" + d[0];
+		curveFit.update();
+	})
 	.place("#heatmap");
+	
+//create curveFit
+var curveFit = d3.scatterChart()
+	.numPoints(5)
+	.x(get_x)
+	.y(get_y)
+	.x_label("Concentration (log10)")
+	.y_label("Inhibition")
+	.place("#curveFit")
+	.add_lines()
+	.nlines(1)
+	.lineFun(curveFunction)
+	.update();
+
 
 change = function(){
 	chart.get_rowIds("clear");

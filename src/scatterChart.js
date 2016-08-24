@@ -79,21 +79,21 @@ export function scatterChart() {
       transition.duration(1000);
 
     // Set scales and axes
-    var scale_x = d3.scaleLinear()
+    obj.scale_x = d3.scaleLinear()
       .domain( d3.extent( obj.get_dataIds(), function(k) { return obj.get_x(k) } ) )
       .range( [ 0, obj.get_width() ] )
       .nice();
-    var scale_y = d3.scaleLinear()
+    obj.scale_y = d3.scaleLinear()
       .domain( d3.extent( obj.get_dataIds(), function(k) { return obj.get_y(k) } ) )
       .range( [ obj.get_height(), 0 ] )
       .nice();
 
     d3.axisBottom()
-      .scale( scale_x )
+      .scale( obj.scale_x )
       ( obj.axes.x_g.transition(transition) );
 
     d3.axisLeft()
-      .scale( scale_y )
+      .scale( obj.scale_y )
       ( obj.axes.y_g.transition(transition) );
 
     obj.axes.x_label
@@ -117,8 +117,8 @@ export function scatterChart() {
     .merge( sel )
       .on( "click", obj.get_on_click )
       .transition(transition)
-        .attr( "cx", function(d) { return scale_x( obj.get_x(d) ) } )
-        .attr( "cy", function(d) { return scale_y( obj.get_y(d) ) } )
+        .attr( "cx", function(d) { return obj.scale_x( obj.get_x(d) ) } )
+        .attr( "cy", function(d) { return obj.scale_y( obj.get_y(d) ) } )
         .attr( "style", function(d) { return obj.get_style(d) } );
 
     return obj;

@@ -28,7 +28,7 @@ export function heatmapChart(){
 		.add_property("cellMouseOver")
 		.add_property("cellMouseOut")
 		.add_property("labelClick")
-		.add_property("cellClick");
+		.add_property("cellClick", function() {});
 		
 	//returns maximum and minimum values of the data
 	obj.dataRange = function(){
@@ -248,18 +248,18 @@ export function heatmapChart(){
 		//if there is any canvas object, remove it
 		obj.real_svg.selectAll("canvas").remove();
 		
-		//append or resize heatmap bode
-		var heatmapBody = obj.real_svg.selectAll(".heatmap_body").data(["x"]);
-		heatmapBody.enter()
+		//append or resize heatmap body
+		obj.svg = obj.real_svg.selectAll(".heatmap_body").data(["x"]);
+		obj.svg.enter()
 			.append("g")
 			.attr("class", "heatmap_body")
-			.merge(heatmapBody).transition(transition)
+			.merge(obj.svg).transition(transition)
 				.attr("transform", "translate(" + obj.get_margin().left + ", " +
 					obj.get_margin().top + ")");
-		heatmapBody = obj.real_svg.select(".heatmap_body");
+		obj.svg = obj.real_svg.select(".heatmap_body");
 		
 		//add rows
-		var rows = heatmapBody.selectAll(".data_row").data(obj.get_rowIds().slice());
+		var rows = obj.svg.selectAll(".data_row").data(obj.get_rowIds().slice());
 		rows.exit()
 			.remove();
 		rows.enter()
@@ -272,7 +272,7 @@ export function heatmapChart(){
 				});
 						
 		//add cells	
-		var cells = heatmapBody.selectAll(".data_row").selectAll(".data_point")
+		var cells = obj.svg.selectAll(".data_row").selectAll(".data_point")
 			.data(function(d) {
 				return obj.get_colIds().map(function(e){
 					return [d, e];
