@@ -17,6 +17,19 @@ export function sigmoidColorSlider() {
   obj.straightColorScale(
     d3.scaleLinear()
       .range( [ "white", "darkblue" ] ) );
+
+  obj.clamp_markers = function() {
+    var min = d3.min( obj.get_straightColorScale.domain() );
+    var max = d3.max( obj.get_straightColorScale.domain() );
+    if( obj.get_midpoint() < min )
+       obj.midpoint( min );
+    if( obj.get_midpoint() > max )
+       obj.midpoint( max );
+    if( obj.get_slopewidth() > (max-min) )
+       obj.slopewidth( max-min );
+    if( obj.get_slopewidth() < (min-max) )
+       obj.slopewidth( min-max );
+  }
    
   var inherited_put_static_content = obj.put_static_content;
   obj.put_static_content = function( element ) {
@@ -70,6 +83,7 @@ export function sigmoidColorSlider() {
       .attr( "y", 28 )
       .call( d3.drag().on( "drag", function() {
          obj.midpoint( obj.get_midpoint() + obj.pos_scale.invert( d3.event.dx ) );
+         obj.clamp_markers();
          obj.update();
       } ) );
 
@@ -78,6 +92,7 @@ export function sigmoidColorSlider() {
       .attr( "y", 30 )
       .call( d3.drag().on( "drag", function() {
          obj.slopewidth( obj.get_slopewidth() + obj.pos_scale.invert( d3.event.dx ) );
+         obj.clamp_markers();
          obj.update();        
       } ) );
 
@@ -86,6 +101,7 @@ export function sigmoidColorSlider() {
       .attr( "y", 30 )
       .call( d3.drag().on( "drag", function() {
          obj.slopewidth( obj.get_slopewidth() - obj.pos_scale.invert( d3.event.dx ) );
+         obj.clamp_markers();
          obj.update();        
       } ) );
 
@@ -104,8 +120,6 @@ export function sigmoidColorSlider() {
 
     if( obj.get_slopewidth() == undefined )
       obj.slopewidth( percent_scale( 15 ) );
-   console.log( obj.get_slopewidth() );
-
 
     obj.pos_scale = d3.scaleLinear()
       .range( [ 0, obj.get_width() ] )
