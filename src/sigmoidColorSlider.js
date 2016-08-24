@@ -1,7 +1,7 @@
 import { svgChartBase } from "./chartBase";
 
 function sigmoid( x, midpoint, width ) {
-  return 1 / ( 1 + Math.exp( ( x - midpoint ) * 1.38 / width ) )
+  return 1 / ( 1 + Math.exp( ( x - midpoint ) * 1.38 / width  ) )
 }
 
 export function sigmoidColorSlider() {
@@ -10,8 +10,8 @@ export function sigmoidColorSlider() {
 
   var obj = svgChartBase()
     .add_property( "straightColorScale" )
-    .add_property( "midpoint", .5 )
-    .add_property( "slopewidth", .1 )
+    .add_property( "midpoint", undefined )
+    .add_property( "slopewidth", undefined )
     .height( 50 );    
 
   obj.straightColorScale(
@@ -95,6 +95,18 @@ export function sigmoidColorSlider() {
   obj.update = function() {
     inherited_update();
 
+    var percent_scale = d3.scaleLinear()
+      .domain( [0, 100] )
+      .range( obj.get_straightColorScale.domain() );
+
+    if( obj.get_midpoint() == undefined )
+      obj.midpoint( percent_scale( 50 ) );
+
+    if( obj.get_slopewidth() == undefined )
+      obj.slopewidth( percent_scale( 15 ) );
+   console.log( obj.get_slopewidth() );
+
+
     obj.pos_scale = d3.scaleLinear()
       .range( [ 0, obj.get_width() ] )
       .domain( obj.get_straightColorScale.domain() )
@@ -109,7 +121,9 @@ export function sigmoidColorSlider() {
     obj.gradient.selectAll( "stop" )
       .data( d3.range(100) )
       .style( "stop-color", function(d) { 
-        return obj.get_straightColorScale( sigmoid( d/100, obj.get_midpoint(), obj.get_slopewidth() ) ) } );
+        return obj.get_straightColorScale( 
+          percent_scale( 100 *
+             sigmoid( percent_scale(d), obj.get_midpoint(), obj.get_slopewidth() ) ) ) } ) ;
 
     obj.mainMarker
       .attr( "x", obj.pos_scale( obj.get_midpoint() ) );
