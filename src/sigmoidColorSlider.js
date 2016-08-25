@@ -1,7 +1,14 @@
 import { svgChartBase } from "./chartBase";
 
-function sigmoid( x, midpoint, width ) {
-  return 1 / ( 1 + Math.exp( ( x - midpoint ) * 1.38 / width  ) )
+function sigmoid( x, midpoint, slope ) {
+  return 1 / ( 1 + Math.exp( -slope * ( x - midpoint ) ) )
+}
+
+function make_stretched_sigmoid( midpoint, slope, xl, xr ) {
+  var yl = sigmoid( xl, midpoint, slope, 0, 1 )
+  var yr = sigmoid( xr, midpoint, slope, 0, 1 )
+  var ym = Math.min( yl, yr )
+  return function(x) { return ( sigmoid( x, midpoint, slope, 1 ) - ym ) / Math.abs( yr - yl ) }
 }
 
 export function sigmoidColorSlider() {
@@ -132,12 +139,15 @@ export function sigmoidColorSlider() {
     obj.colorBar
       .attr( "width", obj.get_width() );
 
+    //obj.the_sigmoid = function(x) { return sigmoid( x, obj.get_midpoint(), 1.38 / obj.get_slopewidth(), 0, 1 ) };
+    obj.the_sigmoid = make_stretched_sigmoid( obj.get_midpoint(), 1.38 / obj.get_slopewidth(), 
+      obj.get_straightColorScale.domain()[0], obj.get_straightColorScale.domain()[1] );
+
     obj.gradient.selectAll( "stop" )
       .data( d3.range(100) )
       .style( "stop-color", function(d) { 
         return obj.get_straightColorScale( 
-          percent_scale( 100 *
-             sigmoid( percent_scale(d), obj.get_midpoint(), obj.get_slopewidth() ) ) ) } ) ;
+          percent_scale( 100 * obj.the_sigmoid( percent_scale(d) ) ) ) } ) ;
 
     obj.mainMarker
       .attr( "x", obj.pos_scale( obj.get_midpoint() ) );
