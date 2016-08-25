@@ -26,7 +26,10 @@
 <table>
 	<tr>
 		<td><div id = "heatmap"></div></td>
-		<td><div id = "curveFit"></div></td>
+		<td>
+			<p id = "headline"></p>
+			<div id = "curveFit"></div>
+		</td>
 	</tr>
 </table>
 
@@ -176,6 +179,7 @@ var chart = d3.heatmapChart()
 	.cellClick(function(d){
 		curveFit_id = d[1] + "_" + d[0];
 		curveFit.update();
+		changeTitle();
 	})
 	.place("#heatmap");
 	
@@ -197,7 +201,20 @@ change = function(){
 	chart.get_rowIds("clear");
 	chart.resetColourScale();
 	chart.update();
+	curveFit.update();
+	changeTitle();
 }
+
+changeTitle = function() {
+		var screen = document.getElementById("screen")
+			.options[document.getElementById("screen").selectedIndex].value,
+		drug = document.getElementById("drug")
+			.options[document.getElementById("drug").selectedIndex].value;
+		d3.select("#headline")
+			.text(screen + " " + drug + " " + curveFit_id);
+};
+
+changeTitle();
 
 d3.selectAll("select")
 	.attr("onchange", "change()");
