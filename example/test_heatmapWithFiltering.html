@@ -136,25 +136,39 @@ get_x = function(i){
 			.options[document.getElementById("screen").selectedIndex].value,
 		drug = document.getElementById("drug")
 			.options[document.getElementById("drug").selectedIndex].value;
-	return Math.log10(inputData[screen][drug]["curveFit"][curveFit_id].minConc * 
-					Math.pow(10, i));
+	if(i < 5)
+		return Math.log10(inputData[screen][drug]["curveFit"][curveFit_id].minConc * 
+						Math.pow(10, i))
+	else 
+		return Math.log10(inputData[screen]["DMSO"]["curveFit"][curveFit_id].minConc * 
+						Math.pow(10, i - 5));
 }
 get_y = function(i){
 	var screen = document.getElementById("screen")
 			.options[document.getElementById("screen").selectedIndex].value,
 		drug = document.getElementById("drug")
 			.options[document.getElementById("drug").selectedIndex].value;
-	return inputData[screen][drug]["curveFit"][curveFit_id]["D" + (i + 1)];
+	if(i < 5)
+		return inputData[screen][drug]["curveFit"][curveFit_id]["D" + (i + 1)]
+	else
+		return inputData[screen]["DMSO"]["curveFit"][curveFit_id]["D" + (i - 4)];
 }
 curveFunction = function(id, x) {
 	var screen = document.getElementById("screen")
 			.options[document.getElementById("screen").selectedIndex].value,
 		drug = document.getElementById("drug")
-			.options[document.getElementById("drug").selectedIndex].value,
-		max = inputData[screen][drug]["curveFit"][curveFit_id].max,
-		min = inputData[screen][drug]["curveFit"][curveFit_id].min,
-		IC50 = inputData[screen][drug]["curveFit"][curveFit_id].IC50,
-		slope = inputData[screen][drug]["curveFit"][curveFit_id].Slope;
+			.options[document.getElementById("drug").selectedIndex].value;
+		if(id == 0){
+			var max = inputData[screen][drug]["curveFit"][curveFit_id].max,
+				min = inputData[screen][drug]["curveFit"][curveFit_id].min,
+				IC50 = inputData[screen][drug]["curveFit"][curveFit_id].IC50,
+				slope = inputData[screen][drug]["curveFit"][curveFit_id].Slope;
+		} else {
+			var max = inputData[screen]["DMSO"]["curveFit"][curveFit_id].max,
+				min = inputData[screen]["DMSO"]["curveFit"][curveFit_id].min,
+				IC50 = inputData[screen]["DMSO"]["curveFit"][curveFit_id].IC50,
+				slope = inputData[screen]["DMSO"]["curveFit"][curveFit_id].Slope;
+		}
 		
 		return min + (max - min)/(1 + Math.pow(10, -(x - Math.log10(IC50)) * slope))
 }
@@ -185,15 +199,27 @@ var chart = d3.heatmapChart()
 	
 //create curveFit
 var curveFit = d3.scatterChart()
-	.numPoints(5)
+	.numPoints(10)
 	.x(get_x)
 	.y(get_y)
+	.style(function(i) {
+		if(i < 5)
+			return "fill: blue;"
+		else
+			return "fill: LightBlue;";
+	})
 	.x_label("Concentration (log10)")
 	.y_label("Inhibition")
 	.place("#curveFit")
 	.add_lines()
-	.nlines(1)
+	.nlines(2)
 	.lineFun(curveFunction)
+	.lineStyle(function(i){
+		if(i == 0)
+			return "stroke: blue"
+		else
+			return "stroke: LightBlue; stroke-dasharray: 5,5";
+		})
 	.update();
 
 
