@@ -1,5 +1,3 @@
-import {divChartBase} from "./chartBase";
-
 export function heatmapChart(){
 	
 	//user set parameters

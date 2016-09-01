@@ -1,6 +1,9 @@
-export { chartBase, svgChartBase, divChartBase } from "./src/chartBase";
+export { base } from "./src/base";
+export { layerBase } from "./src/layerBase";
+export { chartBase, axisChartBase } from "./src/chartBase";
 export { scatterChart } from "./src/scatterChart";
-export { heatmapChart } from "./src/heatmapChart";
+export { lineChart } from "./src/lineChart";
+//export { heatmapChart } from "./src/heatmapChart";
 export { cache } from "./src/additionalFunctions";
-export { sigmoidColorSlider } from "./src/sigmoidColorSlider";
+//export { sigmoidColorSlider } from "./src/sigmoidColorSlider";
 

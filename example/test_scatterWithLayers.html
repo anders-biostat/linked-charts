@@ -1,0 +1,37 @@
+<title>Layer plot</title>
+
+<body>
+
+<div id="main_scatter_plot"></div>
+
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="../build/d3-linked-charts.js"></script>
+<script src="mtcars.json.js">></script>
+
+<script>
+
+  var highlighted = 0;
+
+  var sc = d3.axisChartBase()
+    .labelX( "weight" )
+    .labelY( "horsepower" );
+
+	sc = d3.scatterChart(sc, "scatter")
+    .x( function(i) { return data[i].wt } )
+    .y( function(i) { return data[i].hp } )
+    .style( function(i) { return i==highlighted ? "fill:red" : "" } )
+		.on_click( function(k) { highlighted = k; } )
+		.get_chart();
+	sc = d3.lineChart(sc, "line")
+		.nlines(1)
+		.lineFun(function(id, x) {return x*30;})
+		.get_chart();
+
+	sc.place();
+
+  data = data.filter( function(x) { return x.hp < 300 } )
+
+  setTimeout( function() { sc.update() }, 2000 );
+	setTimeout( function() { sc.update() }, 4000 );
+</script>
