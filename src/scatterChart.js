@@ -58,8 +58,7 @@ export function scatterChart(chart, id) {
 				layer.chart.get_margin().left + ", " +
 				layer.chart.get_margin().top + ")");
 
-		
-    var sel = layer.g.selectAll( ".datapoint" )
+		var sel = layer.g.selectAll( ".datapoint" )
       .data( layer.get_dataIds() );
     sel.exit()
       .remove();  

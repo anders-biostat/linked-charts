@@ -60,7 +60,7 @@ export function chartBase() {
 		
 		var k;
 		if(chart.update_not_yet_called){
-			chart.update_not_yet_called == false;
+			chart.update_not_yet_called = false;
 			chart.transition = 
 				d3.transition().duration(0);
 		} else {
@@ -225,7 +225,7 @@ export function axisChartBase() {
 	var inherited_update = chart.update;
 	
 	chart.update = function() {
-		
+	
 		//set scales and update axes
 		if(chart.get_domainX().length == 2)
 			chart.axes.scale_x = d3.scaleLinear()
@@ -248,7 +248,9 @@ export function axisChartBase() {
 				.domain( chart.get_domainY() )
 				.range( [chart.get_height(), 0] )
 				.nice();
-
+		
+			inherited_update();
+		
     d3.axisBottom()
       .scale( chart.axes.scale_x )
       ( chart.axes.x_g.transition(chart.transition) );
@@ -266,8 +268,6 @@ export function axisChartBase() {
       .attr( "y", 6 )
       .attr( "dy", ".71em" )
       .text( chart.get_labelY() );
-		
-		inherited_update();
 		
 		return chart;
 	}
