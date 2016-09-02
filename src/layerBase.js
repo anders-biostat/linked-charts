@@ -8,10 +8,6 @@ export function layerBase() {
 		.add_property("contScaleX", true)
 		.add_property("contScaleY", true)
 		.add_property("on_click", function() {});
-	
-	layer.get_chart = function(){
-		return layer.chart;
-	}
-	
+		
 	return layer;
 }

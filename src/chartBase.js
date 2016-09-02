@@ -10,18 +10,8 @@ export function chartBase() {
 		.add_property("transitionDuration", 1000);
 	
   chart.put_static_content = function( element ) {
-		chart.container = element.append( "div" )
-			.style("width", 
-				(chart.get_width() + chart.get_margin().left + chart.get_margin().right)
-				+ "px")
-			.style("height", 
-				(chart.get_height() + chart.get_margin().top + chart.get_margin().bottom) 
-				+ "px");
-		chart.svg = chart.container.append("svg")
-			.attr("width", 
-				chart.get_width() + chart.get_margin().left + chart.get_margin().right)
-			.attr("height", 
-				chart.get_height() + chart.get_margin().top + chart.get_margin().bottom);
+		chart.container = element.append( "div" );
+		chart.svg = chart.container.append("svg");
 	}
 
   chart.place = function( element ) {
@@ -67,6 +57,7 @@ export function chartBase() {
 	chart.update_not_yet_called = true;
 	
 	chart.update = function(){
+		
 		var k;
 		if(chart.update_not_yet_called){
 			chart.update_not_yet_called == false;
@@ -78,7 +69,19 @@ export function chartBase() {
 		}
 		for(var k in chart.layers)
 			chart.get_layer(k).update();
-		
+
+		chart.svg.transition(chart.transition)
+			.attr("width", 
+				chart.get_width() + chart.get_margin().left + chart.get_margin().right)
+			.attr("height", 
+				chart.get_height() + chart.get_margin().top + chart.get_margin().bottom);
+		chart.container.transition(chart.transition)
+			.style("width", 
+				(chart.get_width() + chart.get_margin().left + chart.get_margin().right)
+				+ "px")
+			.style("height", 
+				(chart.get_height() + chart.get_margin().top + chart.get_margin().bottom) 
+				+ "px");
 		return chart;
 	}
 	
