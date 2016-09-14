@@ -20,8 +20,13 @@
 	d3.scatterChart(sc, "scatter")
     .x( function(i) { return data[i].wt } )
     .y( function(i) { return data[i].hp } )
-    .style( function(i) { return i==highlighted ? "fill:red" : "" } )
-		.on_click( function(k) { highlighted = k; } );
+    .style( function(i) { 
+			return i == highlighted ? "fill: red" : "" } )
+		.on_click( function(k) { 
+			highlighted = k; 
+			sc.update();
+		} )
+		.groupName(function(i) {return data[i].cyl;});
 	d3.lineChart(sc, "line")
 		.nlines(1)
 		.lineFun(function(id, x) {return x*30;});

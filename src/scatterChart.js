@@ -5,7 +5,8 @@ export function scatterChart(chart, id) {
 		.add_property("y")
 		.add_property("style", "")
 		.add_property("npoints")
-		.add_property("dataIds");
+		.add_property("dataIds")
+		.add_property("groupName", function(i){return i;});
 	
   // Set default for dataIds, namely to return numbers accoring to numPoints
   layer.dataIds( function() { return d3.range( layer.get_npoints() ) } );
