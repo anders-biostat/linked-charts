@@ -17,7 +17,7 @@ export function heatmapChart(){
 		.add_property("rowIds", function() {return d3.range(obj.get_nrows());})
 		.add_property("colour", function(val) {return obj.colourScale(val);})
 		.add_property("heatmapRow", function(rowId) {return obj.get_rowIds().indexOf(rowId);})
-		.add_property("heatmapCol", function(colId) {return obj.get_rowIds().indexOf(colId);})
+		.add_property("heatmapCol", function(colId) {return obj.get_colIds().indexOf(colId);})
 		.add_property("palette", d3.interpolateOrRd)
 		.add_property("colourRange", function() {return obj.dataRange()})
 		.add_property("legendSteps", 21)
