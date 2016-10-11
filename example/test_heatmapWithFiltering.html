@@ -200,8 +200,11 @@ d3.heatmapChart(chart, "heatm")
 	chart.place("#heatmap");
 	
 //create curveFit
-/*var curveFit = d3.scatterChart()
-	.numPoints(10)
+var curveFit = d3.axisChartBase()
+	.labelX("Concentration (log10)")
+	.labelY("Inhibition");
+d3.scatterChart(curveFit, "scatter")	
+	.npoints(10)
 	.x(get_x)
 	.y(get_y)
 	.style(function(i) {
@@ -209,11 +212,8 @@ d3.heatmapChart(chart, "heatm")
 			return "fill: blue;"
 		else
 			return "fill: LightBlue;";
-	})
-	.x_label("Concentration (log10)")
-	.y_label("Inhibition")
-	.place("#curveFit")
-	.add_lines()
+	});
+d3.lineChart(curveFit, "line")
 	.nlines(2)
 	.lineFun(curveFunction)
 	.lineStyle(function(i){
@@ -221,9 +221,8 @@ d3.heatmapChart(chart, "heatm")
 			return "stroke: blue"
 		else
 			return "stroke: LightBlue; stroke-dasharray: 5,5";
-		})
-	.update();
-*/
+		});
+curveFit.place("#curveFit");
 
 change = function(){
 	chart.update();
