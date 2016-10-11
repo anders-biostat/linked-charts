@@ -177,28 +177,30 @@ curveFunction = function(id, x) {
 var curveFit_id = Object.keys(inputData.ctx.Alpelisib.curveFit)[0];
 
 //create a heatmap
-var chart = d3.heatmapChart()
+var chart = d3.tableChartBase()
 	.nrows(get_nrow)
 	.ncols(get_ncol)
-	.value(get_data)
 	.rowIds(d3.cache(get_rowIds))
 	.colIds(get_colIds)
 	.heatmapRow(get_heatmap_row)
 	.heatmapCol(get_heatmap_col)
 	.width(1000)
 	.height(700)
-	.mode("svg")
-	.margin({top: 100, bottom: 50, left: 150, right: 20})
+	.margin({top: 100, bottom: 50, left: 150, right: 20});
+d3.heatmapChart(chart, "heatm")
 	.colourRange(get_colourRange)
-	.cellClick(function(d){
+	.on_click(function(d){
 		curveFit_id = d[1] + "_" + d[0];
 		curveFit.update();
 		changeTitle();
 	})
-	.place("#heatmap");
+	.value(get_data)
+	.mode("svg");
+
+	chart.place("#heatmap");
 	
 //create curveFit
-var curveFit = d3.scatterChart()
+/*var curveFit = d3.scatterChart()
 	.numPoints(10)
 	.x(get_x)
 	.y(get_y)
@@ -221,11 +223,9 @@ var curveFit = d3.scatterChart()
 			return "stroke: LightBlue; stroke-dasharray: 5,5";
 		})
 	.update();
-
+*/
 
 change = function(){
-	chart.get_rowIds("clear");
-	chart.resetColourScale();
 	chart.update();
 	curveFit.update();
 	changeTitle();

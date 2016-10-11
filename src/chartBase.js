@@ -274,3 +274,224 @@ export function axisChartBase() {
 	
 	return chart;
 }
+
+export function tableChartBase() {
+	
+	var chart = chartBase();
+	
+	chart.add_property("nrows")
+		.add_property("ncols");
+	
+	chart.add_property("colLabels", function(i) {return i;})
+		.add_property("rowLabels", function(i) {return i;})
+		.add_property("colIds", function() {return d3.range(obj.get_ncols());})
+		.add_property("rowIds", function() {return d3.range(obj.get_nrows());})
+		.add_property("heatmapRow", function(rowId) {return obj.get_rowIds().indexOf(rowId);})
+		.add_property("heatmapCol", function(colId) {return obj.get_colIds().indexOf(colId);})
+		.add_property("labelMouseOver")
+		.add_property("labelMouseOut")
+		.add_property("colStyle", "")
+		.add_property("rowStyle", "");
+
+	//if user specifies column or row Ids, set the number of rows or columns automatically
+	/*chart.colIds = function(f) {
+		if(f.length) chart.ncols(f.length);
+		typeof f == "function" ? chart.get_colIds = f : chart.get_colIds = function() {return f;};
+	}
+	chart.rowIds = function(f) {
+		if(f.length) chart.nrows(f.length);
+		typeof f == "function" ? chart.get_rowIds = f : chart.get_rowIds = function() {return f;};
+	}
+*/
+
+	//make nrows and ncols protected from recursion
+	//if get_colIds and get_rowIds are not using get_ncols
+	//and get_nrows, the number of rows and columns will be
+	//set equal to the number of Ids
+	chart.nrows((function() {
+			var inFun = false;
+			return function(){
+				if(inFun) return undefined;
+				inFun = true;
+				try {
+					return chart.get_rowIds().length;
+				} finally {
+					inFun = false;
+				}
+			}
+		})())
+		.ncols((function() {
+			var inFun = false;
+			return function(){
+				if(inFun) return undefined;
+				inFun = true;
+				try {
+					return chart.get_colIds().length;
+				} finally {
+					inFun = false;
+				}
+			}
+		})());
+
+	//set default hovering behaviour
+	chart.labelMouseOver(function() {
+		d3.select(this).classed("hover", true);
+	});
+	chart.labelMouseOut(function() {
+		d3.select(this).classed("hover", false);
+	});
+	
+	chart.reorderRow = function(f){
+		if(f == "flip"){
+			chart.get_heatmapRow("__flip__");
+			return chart;
+		}
+		var ids = chart.get_rowIds().slice(), ind;
+		ids = ids.sort(f);
+		chart.heatmapRow(function(rowId){
+			if(rowId == "__flip__"){
+				ids = ids.reverse();
+				return;
+			}
+			var actIds = chart.get_rowIds(),
+				orderedIds = ids.filter(function(e) {
+					return actIds.indexOf(e) != -1;
+				});
+			if(orderedIds.length != actIds.length) {
+				orderedIds = actIds.sort(f);
+				ids = orderedIds.slice();
+			}
+			ind = orderedIds.indexOf(rowId);
+			if(ind > -1)
+				 return ind
+			else
+				throw "Wrong rowId in chart.get_heatmapRow";
+		});
+		
+		return chart;
+	}
+	chart.reorderCol = function(f){
+		if(f == "flip"){
+			chart.get_heatmapCol("__flip__");
+			return chart;
+		}
+		var ids = chart.get_colIds().slice(), ind;
+		ids = ids.sort(f);
+		chart.heatmapCol(function(colId){
+			if(colId == "__flip__"){
+				ids = ids.reverse();
+				return;
+			}
+
+			var actIds = chart.get_colIds(),
+				orderedIds = ids.filter(function(e) {
+					return actIds.indexOf(e) != -1;
+				});
+			if(orderedIds.length != actIds.length) {
+				orderedIds = actIds.sort(f);
+				ids = orderedIds.slice();
+			}
+			ind = orderedIds.indexOf(colId);
+			if(ind > -1)
+				 return ind
+			else
+				throw "Wrong rowId in chart.get_heatmapRow";
+		});
+		return chart;
+	}
+	
+	
+	var inherited_put_static_content = chart.put_static_content;
+	chart.put_static_content = function(element){
+		
+		inherited_put_static_content(element);
+		
+		//chart.container.style("position", "relative");
+		chart.container.append("div")
+			.attr("class", "inform hidden")
+			.append("p")
+				.attr("class", "value");
+				
+		//create main parts of the heatmap
+		chart.svg.append("g")
+			.attr("class", "row label_panel");
+		chart.svg.append("g")
+			.attr("class", "col label_panel");
+		
+		//delete later if unnecessary
+		chart.axes = {};
+	}
+	
+	var inherited_update = chart.update;
+	chart.update = function() {
+		//update sizes of all parts of the chart
+		chart.container.transition(chart.transition)
+			.style("width", (chart.get_width() + chart.get_margin().left + chart.get_margin().right) + "px")
+			.style("height", (chart.get_height() + chart.get_margin().top + chart.get_margin().bottom) + "px");
+
+		chart.svg.transition(chart.transition)
+			.attr("height", chart.get_height() + chart.get_margin().top + chart.get_margin().bottom)
+			.attr("width", chart.get_width() + chart.get_margin().left + chart.get_margin().right);
+		
+		chart.svg.selectAll(".label_panel").transition(chart.transition)
+			.attr("transform", "translate(" + chart.get_margin().left + ", " +
+				chart.get_margin().top + ")");
+			
+		//calculate cell size
+		chart.cellSize = {
+			width: chart.get_width() / chart.get_ncols(),
+			height: chart.get_height() / chart.get_nrows()
+		}
+		
+		//create scales
+		chart.axes.scale_x = d3.scaleLinear()
+			.domain( [1, chart.get_ncols()] )
+			.range( [ 0, chart.get_width() ] )
+			.nice();
+		chart.axes.scale_y = d3.scaleLinear()
+			.domain( [1, chart.get_nrows()] )
+			.range( [0, chart.get_height()] )
+			.nice();
+
+		//add column labels
+		var colLabels = chart.svg.select(".col").selectAll(".label")
+				.data(chart.get_colIds().slice());
+		colLabels.exit()
+			.remove();
+		colLabels.enter()
+			.append("text")
+				.attr("class", "label")
+				.attr("transform", "rotate(-90)")
+				.style("text-anchor", "start")
+				.on("mouseover", chart.get_labelMouseOver)
+				.on("mouseout", chart.get_labelMouseOut)
+			.merge(colLabels).transition(chart.transition)
+				.attr("font-size", d3.min([chart.cellSize.width, 12]))
+				.attr("dy", function(d) {return chart.axes.scale_x(chart.get_heatmapCol(d) + 1);})
+				.attr("dx", 2)
+				.text(function(d) {return chart.get_colLabels(d);});		
+		
+		//add row labels
+		var rowLabels = chart.svg.select(".row").selectAll(".label")
+				.data(chart.get_rowIds().slice());
+		rowLabels.exit()
+			.remove();
+		rowLabels.enter()
+			.append("text")
+				.attr("class", "label")
+				.style("text-anchor", "end")
+				.on("mouseover", chart.get_labelMouseOver)
+				.on("mouseout", chart.get_labelMouseOut)
+			.merge(rowLabels).transition(chart.transition)
+				.attr("font-size", d3.min([chart.cellSize.height, 12]))
+				.attr("dy", function(d) {return chart.axes.scale_y(chart.get_heatmapRow(d) + 1);})
+				.attr("dx", -2)
+				.text(function(d) {return chart.get_rowLabels(d)});
+		
+		inherited_update();
+		
+		return chart;
+	}		
+	
+	return chart;
+}
