@@ -284,10 +284,10 @@ export function tableChartBase() {
 	
 	chart.add_property("colLabels", function(i) {return i;})
 		.add_property("rowLabels", function(i) {return i;})
-		.add_property("colIds", function() {return d3.range(obj.get_ncols());})
-		.add_property("rowIds", function() {return d3.range(obj.get_nrows());})
-		.add_property("heatmapRow", function(rowId) {return obj.get_rowIds().indexOf(rowId);})
-		.add_property("heatmapCol", function(colId) {return obj.get_colIds().indexOf(colId);})
+		.add_property("colIds", function() {return d3.range(chart.get_ncols());})
+		.add_property("rowIds", function() {return d3.range(chart.get_nrows());})
+		.add_property("heatmapRow", function(rowId) {return chart.get_rowIds().indexOf(rowId);})
+		.add_property("heatmapCol", function(colId) {return chart.get_colIds().indexOf(colId);})
 		.add_property("labelMouseOver")
 		.add_property("labelMouseOut")
 		.add_property("colStyle", "")
@@ -445,12 +445,12 @@ export function tableChartBase() {
 		
 		//create scales
 		chart.axes.scale_x = d3.scaleLinear()
-			.domain( [1, chart.get_ncols()] )
-			.range( [ 0, chart.get_width() ] )
+			.domain( [0, chart.get_ncols() - 1] )
+			.range( [0, chart.get_width() - chart.cellSize.width] )
 			.nice();
 		chart.axes.scale_y = d3.scaleLinear()
-			.domain( [1, chart.get_nrows()] )
-			.range( [0, chart.get_height()] )
+			.domain( [0, chart.get_nrows() - 1] )
+			.range( [0, chart.get_height() - chart.cellSize.height] )
 			.nice();
 
 		//add column labels
