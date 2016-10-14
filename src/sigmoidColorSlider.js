@@ -44,10 +44,14 @@ export function sigmoidColorSlider() {
   obj.put_static_content = function( element ) {
     inherited_put_static_content( element );
 
-    obj.axis = obj.svg.append( "g" )
+    var g = obj.svg.append( "g" )
+      .attr( "class", "sigmoidColorSlider" )
+      .attr( "transform", "translate( 0, 30 )" )  // space for axis
+
+    obj.axis = g.append( "g" )
       .attr( "class", "axis" );
 
-    var defs = obj.svg.append( "defs" );
+    var defs = g.append( "defs" );
 
     obj.gradient = defs.append( "linearGradient" )
       .attr( "id", "scaleGradient")
@@ -61,7 +65,7 @@ export function sigmoidColorSlider() {
       .enter().append( "stop" )
         .attr( "offset", function(d) { return d + "%" } )
 
-    obj.colorBar = obj.svg.append( "rect" )
+    obj.colorBar = g.append( "rect" )
       .attr( "x", "0" )
       .attr( "y", "5" )
       .attr( "height", 20 )
@@ -87,7 +91,7 @@ export function sigmoidColorSlider() {
          .style( "fill", "lightgray" )
          .style( "stroke", "black" )
 
-    obj.mainMarker = obj.svg.append( "use" )
+    obj.mainMarker = g.append( "use" )
       .attr( "xlink:href", "#mainMarker")
       .attr( "y", 28 )
       .call( d3.drag().on( "drag", function() {
@@ -96,7 +100,7 @@ export function sigmoidColorSlider() {
          obj.update();
       } ) );
 
-    obj.rightMarker = obj.svg.append( "use" )
+    obj.rightMarker = g.append( "use" )
       .attr( "xlink:href", "#rightMarker")
       .attr( "y", 30 )
       .call( d3.drag().on( "drag", function() {
@@ -105,7 +109,7 @@ export function sigmoidColorSlider() {
          obj.update();        
       } ) );
 
-    obj.leftMarker = obj.svg.append( "use" )
+    obj.leftMarker = g.append( "use" )
       .attr( "xlink:href", "#leftMarker")
       .attr( "y", 30 )
       .call( d3.drag().on( "drag", function() {
