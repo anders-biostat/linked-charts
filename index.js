@@ -6,4 +6,5 @@ export { lineChart } from "./src/lineChart";
 export { heatmapChart } from "./src/heatmapChart";
 export { cache, fireEvent } from "./src/additionalFunctions";
 export { sigmoidColorSlider } from "./src/sigmoidColorSlider";
+export { simpleTable } from "./src/simpleTable";
 
