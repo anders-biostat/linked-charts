@@ -33,6 +33,17 @@
 		</table>
 		</td>
 	</tr>
+	<tr>
+		<td>
+			<div id = "redSlider">
+				Colour scale for CTX<br>
+			</div>
+			<div id = "greenSlider">
+				Colour scale for RTG<br>
+			</div>
+			<p id = "test"></p>
+		</td>
+	</tr>
 </table>
 
 <script src = "https://d3js.org/d3.v4.min.js"></script>
@@ -122,13 +133,22 @@ get_rowIds = function(){
 
 var scale_red = d3.scaleLinear()
 	.domain()
-		
+
+//add two colour sliders
+var ctxSlider = d3.sigmoidColorSlider()
+	.straightColorScale( d3.scaleLinear().range( [ "black", "red" ] ).domain([0, 30]) )
+  .place("#redSlider");
+var rtgSlider = d3.sigmoidColorSlider()
+	.straightColorScale( d3.scaleLinear().range( [ "black", "green" ] ).domain([0, 30]) )
+  .place("#greenSlider");
+	
 var heatmap = d3.tableChartBase()
 	.width(1000)
 	.height(700)
 	.margin({top: 100, bottom: 50, left: 150, right: 20})
 	.rowIds(d3.cache(get_rowIds))
 	.colIds(d3.cache(get_colIds));
+	
 d3.heatmapChart(heatmap, "main")
 	.mode("svg")
 	.value(function(rowId, colId){
@@ -146,9 +166,10 @@ d3.heatmapChart(heatmap, "main")
 			return Math.round((val - self.get_colourRange()[0]) / 
 				(self.get_colourRange()[1] - self.get_colourRange()[0]) * 255);
 		}
-		return "rgb(" + scale(val[0]) + ", " + scale(val[1]) + ", 30)";
+		return "rgb(" + Math.round(ctxSlider.the_sigmoid(val[1]) * 255) + ", " 
+			+ Math.round(rtgSlider.the_sigmoid(val[0]) * 255) + ", 30)";
 	})
-	.colourRange([0, 40]);
+	.colourRange([0, 30]);
 heatmap.place("#heatmap");
 
 change = function(){
@@ -157,6 +178,8 @@ change = function(){
 	heatmap.update();
 }
 
+ctxSlider.on_change(heatmap.get_layer("main").updateColour);
+rtgSlider.on_change(heatmap.get_layer("main").updateColour);
 
 </script>
 </body>

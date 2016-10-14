@@ -121,6 +121,13 @@ export function heatmapChart(chart, id){
 	
 	//layer.update_not_yet_called = true;
 	
+	layer.updateColour = function() {
+		layer.g.selectAll(".data_point")
+			.attr("fill", function(d) {
+				return layer.get_colour(layer.get_value(d[0], d[1]));
+			});
+	}
+	
 	layer.updateSVG = function() {
 		
 		if(typeof layer.canvas != "undefined")
@@ -167,12 +174,9 @@ export function heatmapChart(chart, id){
 				.attr("x", function(d){
 					return layer.chart.axes.scale_x(layer.chart.get_heatmapCol(d[1]));
 				})
-				.attr("fill", function(d) {
-					return layer.get_colour(layer.get_value(d[0], d[1]));
-				})
 				.attr("width", layer.chart.cellSize.width)
 				.attr("height", layer.chart.cellSize.height);
-				
+		layer.updateColour();
 		//TO DO: See if it's better to do something more clever about having several layers
 		layer.chart.svg
 			.selectAll(".label")

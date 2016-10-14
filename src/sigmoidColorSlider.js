@@ -1,4 +1,5 @@
-import { svgChartBase } from "./chartBase";
+import { chartBase } from "./chartBase";
+import { fireEvent } from "./additionalFunctions";
 
 function sigmoid( x, midpoint, slope ) {
   return 1 / ( 1 + Math.exp( -slope * ( x - midpoint ) ) )
@@ -15,10 +16,11 @@ export function sigmoidColorSlider() {
 
   // for now only horizontal
 
-  var obj = svgChartBase()
+  var obj = chartBase()
     .add_property( "straightColorScale" )
     .add_property( "midpoint", undefined )
     .add_property( "slopewidth", undefined )
+		.add_property( "on_change", function() {})
     .height( 50 );    
 
   obj.straightColorScale(
@@ -37,7 +39,7 @@ export function sigmoidColorSlider() {
     if( obj.get_slopewidth() < (min-max) )
        obj.slopewidth( min-max );
   }
-   
+	
   var inherited_put_static_content = obj.put_static_content;
   obj.put_static_content = function( element ) {
     inherited_put_static_content( element );
@@ -45,7 +47,7 @@ export function sigmoidColorSlider() {
     obj.axis = obj.svg.append( "g" )
       .attr( "class", "axis" );
 
-    var defs = obj.real_svg.append( "defs" );
+    var defs = obj.svg.append( "defs" );
 
     obj.gradient = defs.append( "linearGradient" )
       .attr( "id", "scaleGradient")
@@ -113,11 +115,13 @@ export function sigmoidColorSlider() {
       } ) );
 
   }
-
+	
+	obj.update_not_yet_called = true;
+	
   var inherited_update = obj.update;
   obj.update = function() {
     inherited_update();
-
+		
     var percent_scale = d3.scaleLinear()
       .domain( [0, 100] )
       .range( obj.get_straightColorScale.domain() );
@@ -155,6 +159,13 @@ export function sigmoidColorSlider() {
       .attr( "x", obj.pos_scale( obj.get_midpoint() + obj.get_slopewidth() ) )
     obj.leftMarker
       .attr( "x", obj.pos_scale( obj.get_midpoint() - obj.get_slopewidth() ) )
+			
+		if(obj.update_not_yet_called){
+			obj.update_not_yet_called = false;
+		} else {
+			obj.get_on_change();			
+		}
+			
   }
 
   return obj;
