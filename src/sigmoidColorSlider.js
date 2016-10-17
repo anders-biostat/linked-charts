@@ -98,7 +98,11 @@ export function sigmoidColorSlider() {
          obj.midpoint( obj.get_midpoint() + obj.pos_scale.invert( d3.event.dx ) );
          obj.clamp_markers();
          obj.update();
-      } ) );
+      } )
+				.on("end", function() {
+					obj.get_on_change();
+				})
+			);
 
     obj.rightMarker = g.append( "use" )
       .attr( "xlink:href", "#rightMarker")
@@ -107,7 +111,11 @@ export function sigmoidColorSlider() {
          obj.slopewidth( obj.get_slopewidth() + obj.pos_scale.invert( d3.event.dx ) );
          obj.clamp_markers();
          obj.update();        
-      } ) );
+      } )
+				.on("end", function() {
+					obj.get_on_change();
+				})
+			);
 
     obj.leftMarker = g.append( "use" )
       .attr( "xlink:href", "#leftMarker")
@@ -116,11 +124,13 @@ export function sigmoidColorSlider() {
          obj.slopewidth( obj.get_slopewidth() - obj.pos_scale.invert( d3.event.dx ) );
          obj.clamp_markers();
          obj.update();        
-      } ) );
+      } )
+			.on("end", function() {
+				obj.get_on_change();
+			})
+		);
 
   }
-	
-	obj.update_not_yet_called = true;
 	
   var inherited_update = obj.update;
   obj.update = function() {
@@ -163,13 +173,9 @@ export function sigmoidColorSlider() {
       .attr( "x", obj.pos_scale( obj.get_midpoint() + obj.get_slopewidth() ) )
     obj.leftMarker
       .attr( "x", obj.pos_scale( obj.get_midpoint() - obj.get_slopewidth() ) )
-			
-		if(obj.update_not_yet_called){
-			obj.update_not_yet_called = false;
-		} else {
-			obj.get_on_change();			
-		}
-			
+
+		//obj.get_on_change();
+
   }
 
   return obj;

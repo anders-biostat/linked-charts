@@ -8,9 +8,10 @@ export function chartBase() {
 		.add_property("height", 400)
 		.add_property("margin", { top: 20, right: 10, bottom: 50, left: 50 })
 		.add_property("transitionDuration", 1000);
+		//.add_property("transition", true);
 	
   chart.put_static_content = function( element ) {
-		chart.container = element.append( "div" );
+		chart.container = element.append("div");
 		chart.svg = chart.container.append("svg");
 	}
 

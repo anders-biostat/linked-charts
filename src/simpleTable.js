@@ -1,6 +1,6 @@
 import { chartBase } from "./chartBase";
 
-d3.simpleTable = function() {
+export function simpleTable() {
 
   obj = d3.chartBase()
     .add_property( "record", {} )

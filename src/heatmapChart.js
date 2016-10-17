@@ -183,41 +183,46 @@ export function heatmapChart(chart, id){
 			.on("click", layer.get_labelClick);
 	}
 	layer.updateCanvas = function() {
-		
-		//if there is a g object for heatmap body, remove it
-		obj.real_svg.selectAll(".heatmapBody").remove();
+	
+		if(typeof layer.g != "undefined")
+			layer.g.classed("hidden", true);
+		if(typeof layer.canvas == "undefined")
+			layer.canvas = layer.chart.container.append("canvas")
+		else
+			layer.canvas.classed("hidden", false);
+
 		//if there is any canvas, remove it as well
-		obj.real_svg.selectAll("canvas").remove();
+		layer.canvas.remove();
 		
 		//create a canvas object
-		var heatmapBody = obj.real_div.append("canvas")
+		var heatmapBody = layer.chart.container.append("canvas")
 			.style("position", "absolute")
-			.style("left", obj.get_margin().left + "px")
-			.style("top", obj.get_margin().top + "px")
-			.property("width", obj.get_width())
-			.property("height", obj.get_height())
+			.style("left", layer.chart.get_margin().left + "px")
+			.style("top", layer.chart.get_margin().top + "px")
+			.property("width", layer.chart.get_width())
+			.property("height", layer.chart.get_height())
 			.node().getContext("2d");
 		var pixelHeatmap = document.createElement("canvas");
-		pixelHeatmap.width = obj.get_ncols();
-		pixelHeatmap.height = obj.get_nrows();
+		pixelHeatmap.width = layer.chart.get_ncols();
+		pixelHeatmap.height = layer.chart.get_nrows();
 		
 		//store colour of each cell
 		var rgbColour, position;
 		//create an object to store information on each cell of a heatmap
-		var pixelData = new ImageData(obj.get_ncols(), obj.get_nrows());
+		var pixelData = new ImageData(layer.chart.get_ncols(), layer.chart.get_nrows());
 
-		for(var i = 0; i < obj.get_rowIds().length; i++)
-			for(var j = 0; j < obj.get_colIds().length; j++) {
-					rgbColour = d3.rgb(obj.get_colour(obj.get_value(obj.get_rowIds()[i], 
-																													obj.get_colIds()[j])));
-					position = obj.get_heatmapRow(obj.get_rowIds()[i]) * obj.get_ncols() * 4 +
-						obj.get_heatmapCol(obj.get_colIds()[j]) * 4;
+		for(var i = 0; i < layer.chart.get_rowIds().length; i++)
+			for(var j = 0; j < layer.chart.get_colIds().length; j++) {
+					rgbColour = d3.rgb(layer.get_colour(layer.get_value(layer.chart.get_rowIds()[i], 
+																													layer.chart.get_colIds()[j])));
+					position = layer.chart.get_heatmapRow(layer.chart.get_rowIds()[i]) * layer.chart.get_ncols() * 4 +
+						layer.chart.get_heatmapCol(layer.chart.get_colIds()[j]) * 4;
 					pixelData.data[position] = rgbColour.r;
 					pixelData.data[position + 1] = rgbColour.g;
 					pixelData.data[position + 2] = rgbColour.b;
 			}
 		//set opacity of all the pixels to 1
-		for(var i = 0; i < obj.get_ncols() * obj.get_nrows(); i++)
+		for(var i = 0; i < layer.chart.get_ncols() * layer.chart.get_nrows(); i++)
 			pixelData.data[i * 4 + 3] = 255;
 		
 		//put a small heatmap on screen and then rescale it
@@ -230,8 +235,8 @@ export function heatmapChart(chart, id){
     //heatmapBody.msImageSmoothingEnabled = false;
 
 		heatmapBody.drawImage(pixelHeatmap, 0, 0, 
-			obj.get_colIds().length, obj.get_rowIds().length,
-			0, 0,	obj.get_width(), obj.get_height());
+			layer.chart.get_colIds().length, layer.chart.get_rowIds().length,
+			0, 0,	layer.chart.get_width(), layer.chart.get_height());
 	}
 	
 	layer.update = function() {

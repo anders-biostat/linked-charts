@@ -43,12 +43,17 @@
 			</div>
 			<p id = "test"></p>
 		</td>
+		<td>
+			<button onclick = "heatmap.clusterRows()">Cluster Rows</button><br>
+			<button onclick = "heatmap.clusterCols()">Cluster Columns</button>
+		</td>
 	</tr>
 </table>
 
 <script src = "https://d3js.org/d3.v4.min.js"></script>
 <script src = "https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 <script src = "https://d3js.org/d3-color.v1.min.js"></script>
+<script scr = "https://github.com/downloads/harthur/clusterfck/clusterfck-0.1.js"></script>
 <script src = "input_heatmapWithFiltering.js"></script>
 <script src = "../build/d3-linked-charts.js"></script>
 
@@ -157,29 +162,39 @@ d3.heatmapChart(heatmap, "main")
 			inputData.ctx[ids[1]].dss[rowId][ids[0]]]
 	})
 	.colour(function(val){
-		var self = this;
-		var scale = function(val){
-			if(val > self.get_colourRange()[1])
-				val = self.get_colourRange()[1];
-			if(val < self.get_colourRange()[0])
-				val = self.get_colourRange()[0];
-			return Math.round((val - self.get_colourRange()[0]) / 
-				(self.get_colourRange()[1] - self.get_colourRange()[0]) * 255);
-		}
 		return "rgb(" + Math.round(ctxSlider.the_sigmoid(val[1]) * 255) + ", " 
 			+ Math.round(rtgSlider.the_sigmoid(val[0]) * 255) + ", 30)";
 	})
 	.colourRange([0, 30]);
 heatmap.place("#heatmap");
 
+
+//change the heatmap
 change = function(){
 	heatmap.get_rowIds("clear");
 	heatmap.get_colIds("clear")
 	heatmap.update();
 }
 
-ctxSlider.on_change(heatmap.get_layer("main").updateColour);
-rtgSlider.on_change(heatmap.get_layer("main").updateColour);
+//define what happens when sliders are used
+ctxSlider.last_dispatch = -Infinity
+ctxSlider.on_change( function() {
+	var currentTime = new Date();
+  if( currentTime - ctxSlider.last_dispatch > 300 ) {
+	  ctxSlider.last_dispatch = new Date();
+		//heatmap.get_layer("main").updateCanvas();
+    heatmap.get_layer("main").updateColour(); 
+	}
+});
+rtgSlider.last_dispatch = -Infinity
+rtgSlider.on_change( function() {
+	var currentTime = new Date();
+  if( currentTime - rtgSlider.last_dispatch > 300 ) {
+	  rtgSlider.last_dispatch = new Date();
+		//heatmap.get_layer("main").updateCanvas();
+    heatmap.get_layer("main").updateColour(); 
+	}
+});
 
 </script>
 </body>
