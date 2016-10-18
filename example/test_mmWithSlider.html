@@ -1,0 +1,45 @@
+<html>
+<title>Multiple myeloma correlation heatmap</title>
+<link rel="stylesheet" type="text/css" href="../src/style.css">
+
+<script src = "https://d3js.org/d3.v4.min.js"></script>
+<script src = "https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src = "https://d3js.org/d3-color.v1.min.js"></script>
+<script src = "../src/lib/clusterfck.js"></script>
+<script src = "mm_data.js"></script>
+<script src = "../build/d3-linked-charts.js"></script>
+
+<body>
+<div id = "heatmap"></div>
+<div id = "slider"></div>
+
+<script>
+var heatmap = d3.tableChartBase()
+	.width(700)
+	.height(700)
+	.margin({top: 100, bottom: 50, left: 150, right: 20})
+	.rowIds(inputData.samplenames)
+	.colIds(inputData.samplenames);
+
+var layer = d3.heatmapChart(heatmap, "main")
+	.mode("svg")
+	.value(function(rowId, colId){
+		return inputData.distmatrix[heatmap.get_rowIds().indexOf(rowId)]
+																[heatmap.get_colIds().indexOf(colId)];
+	})
+heatmap.place("#heatmap");
+
+var slider = d3.sigmoidColorSlider()
+	.straightColorScale(layer.colourScale)
+	.on_change(function(){
+		layer.colour(function(val){
+			return layer.get_palette(slider.the_sigmoid(val));
+		});
+		layer.updateColour();
+	})
+  .place("#slider");
+
+</script>
+
+</body>
+</html>
