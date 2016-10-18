@@ -44,8 +44,8 @@
 			<p id = "test"></p>
 		</td>
 		<td>
-			<button onclick = "heatmap.clusterRows()">Cluster Rows</button><br>
-			<button onclick = "heatmap.clusterCols()">Cluster Columns</button>
+			<button onclick = "heatmap.get_layer('main').clusterRows()">Cluster Rows</button><br>
+			<button onclick = "heatmap.get_layer('main').clusterCols()">Cluster Columns</button>
 		</td>
 	</tr>
 </table>
@@ -53,7 +53,7 @@
 <script src = "https://d3js.org/d3.v4.min.js"></script>
 <script src = "https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 <script src = "https://d3js.org/d3-color.v1.min.js"></script>
-<script scr = "https://github.com/downloads/harthur/clusterfck/clusterfck-0.1.js"></script>
+<script src = "../src/lib/clusterfck.js"></script>
 <script src = "input_heatmapWithFiltering.js"></script>
 <script src = "../build/d3-linked-charts.js"></script>
 
@@ -134,6 +134,15 @@ get_rowIds = function(){
 	return ids;
 }
 
+var clusterMetric = function(a, b) {
+	var sum = 0;
+	for(var i = 0; i < a.length; i++){
+		sum += (a[i][0] - b[i][0]) * (a[i][0] - b[i][0]) +
+					(a[i][1] - b[i][1]) * (a[i][1] - b[i][1]);
+	return Math.sqrt(sum);
+	}
+}
+
 //define scales for red and green channels
 
 var scale_red = d3.scaleLinear()
@@ -165,7 +174,9 @@ d3.heatmapChart(heatmap, "main")
 		return "rgb(" + Math.round(ctxSlider.the_sigmoid(val[1]) * 255) + ", " 
 			+ Math.round(rtgSlider.the_sigmoid(val[0]) * 255) + ", 30)";
 	})
-	.colourRange([0, 30]);
+	.colourRange([0, 30])
+	.clusterRowsMetric(clusterMetric)
+	.clusterColsMetric(clusterMetric);
 heatmap.place("#heatmap");
 
 

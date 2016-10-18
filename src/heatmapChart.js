@@ -11,7 +11,9 @@ export function heatmapChart(chart, id){
 		.add_property("colourRange", function() {return layer.dataRange()})
 		.add_property("labelClick", function() {})
 		.add_property("cellMouseOver", function() {})
-		.add_property("cellMouseOut", function() {});
+		.add_property("cellMouseOut", function() {})
+		.add_property("clusterRowsMetric", clusterfck.EUCLIDEAN_DISTANCE)
+		.add_property("clusterColsMetric", clusterfck.EUCLIDEAN_DISTANCE);
 	
 	//returns maximum and minimum values of the data
 	layer.dataRange = function(){
@@ -262,6 +264,80 @@ export function heatmapChart(chart, id){
 		
 		throw "Error in function 'heatmapChart.update': mode did not correspond to any " +
 			"existing type ('canvas', 'svg' or 'default')";
+	}
+	
+	layer.clusterRows = function(){
+		var items = {}, it = [],
+			rowIds = layer.chart.get_rowIds(),
+			colIds = layer.chart.get_colIds();
+		
+		for(var i = 0; i < rowIds.length; i++) {
+			for(var j = 0; j < colIds.length; j++)
+				it.push(layer.get_value(rowIds[i], colIds[j]));
+			items[rowIds[i]] = it.slice();
+			it = [];
+		}
+		
+		var getDistance = function(a, b) {
+			return layer.get_clusterRowsMetric(items[a], items[b]);
+		}
+		
+		var newOrder = [];
+		
+		var traverse = function(node) {
+			if(node.value){
+				newOrder.push(node.value);
+				return;
+			}
+			traverse(node.left);
+			traverse(node.right);
+		}
+		
+		var clusters = clusterfck.hcluster(rowIds, getDistance, clusterfck.COMPLETE_LINKAGE);
+		traverse(clusters);
+		
+		layer.chart.reorderRow(function(a, b){
+			return newOrder.indexOf(a) - newOrder.indexOf(b);
+		});
+		
+		layer.chart.update();
+	}
+	
+		layer.clusterCols = function(){
+		var items = {}, it = [],
+			rowIds = layer.chart.get_rowIds(),
+			colIds = layer.chart.get_colIds();
+		
+		for(var i = 0; i < colIds.length; i++) {
+			for(var j = 0; j < rowIds.length; j++)
+				it.push(layer.get_value(rowIds[j], colIds[i]));
+			items[colIds[i]] = it.slice();
+			it = [];
+		}
+		
+		var getDistance = function(a, b) {
+			return layer.get_clusterColsMetric(items[a], items[b]);
+		}
+		
+		var newOrder = [];
+		
+		var traverse = function(node) {
+			if(node.value){
+				newOrder.push(node.value);
+				return;
+			}
+			traverse(node.left);
+			traverse(node.right);
+		}
+		
+		var clusters = clusterfck.hcluster(colIds, getDistance, clusterfck.COMPLETE_LINKAGE);
+		traverse(clusters);
+		
+		layer.chart.reorderCol(function(a, b){
+			return newOrder.indexOf(a) - newOrder.indexOf(b);
+		});
+		
+		layer.chart.update();
 	}
 	
 	return layer;
