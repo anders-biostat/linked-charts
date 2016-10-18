@@ -17,10 +17,12 @@ export function heatmapChart(chart, id){
 	
 	//returns maximum and minimum values of the data
 	layer.dataRange = function(){
-		var i = 0, range, newRange;
+		var i = 0, range, newRange,
+			rowIds = layer.chart.get_rowIds(),
+			colIds = layer.chart.get_colIds();
 		do{
-			newRange = d3.extent(layer.chart.get_colIds(), 
-				function(col) {return layer.get_value(layer.chart.get_rowIds()[i], col);});
+			newRange = d3.extent(colIds, 
+				function(col) {return layer.get_value(rowIds[i], col);});
 			if(typeof range === "undefined")
 				range = newRange;
 			if(newRange[0] < range[0])
@@ -38,12 +40,16 @@ export function heatmapChart(chart, id){
 	//yet some transformations, such as zooming, will avoid it
 	layer.resetColourScale = function(){
 	//create colorScale
-		var scale = d3.scaleSequential(layer.get_palette);
+		var range = layer.get_colourRange();
+		var scale = d3.scaleSequential(layer.get_palette).domain(range);
+		/*
 		layer.colourScale = function(val){
-			val = (val - layer.get_colourRange()[0]) / 
-				(layer.get_colourRange()[1] - layer.get_colourRange()[0]);
+			val = (val - range[0]) / 
+				(range[1] - range[0]);
 			return scale(val);
-		}
+		} */
+		
+		layer.colourScale = scale;
 	}	
 	
 	/*var inherited_put_static_content = layer.put_static_content;
