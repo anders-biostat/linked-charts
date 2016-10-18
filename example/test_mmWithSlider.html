@@ -17,7 +17,7 @@
 var heatmap = d3.tableChartBase()
 	.width(700)
 	.height(700)
-	.margin({top: 100, bottom: 50, left: 150, right: 20})
+	.margin({top: 100, bottom: 10, left: 150, right: 10})
 	.rowIds(inputData.samplenames)
 	.colIds(inputData.samplenames);
 
@@ -31,6 +31,7 @@ heatmap.place("#heatmap");
 
 var slider = d3.sigmoidColorSlider()
 	.straightColorScale(layer.colourScale)
+	.margin({top: 30, bottom: 10, left: 150, right: 10})
 	.on_change(function(){
 		layer.colour(function(val){
 			return layer.get_palette(slider.the_sigmoid(val));

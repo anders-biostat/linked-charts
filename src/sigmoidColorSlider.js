@@ -46,7 +46,8 @@ export function sigmoidColorSlider() {
 
     var g = obj.svg.append( "g" )
       .attr( "class", "sigmoidColorSlider" )
-      .attr( "transform", "translate( 0, 30 )" )  // space for axis
+      .attr( "transform", "translate(" + obj.get_margin().left + ", " + 
+																	obj.get_margin().top + ")" );  // space for axis
 
     obj.axis = g.append( "g" )
       .attr( "class", "axis" );
