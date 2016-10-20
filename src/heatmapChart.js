@@ -1,6 +1,12 @@
 import { getEuclideanDistance } from "./additionalFunctions";
+import { tableChartBase } from "./chartBase";
 
-export function heatmapChart(chart, id){
+export function heatmapChart(id, chart){
+
+	if(chart === undefined)
+		chart = tableChartBase();
+	if(id === undefined)
+		id = "layer" + chart.layers.length;
 	
 	//TO DO: See if we need colIds and rowIds to be stored separately for
 	//each layer
@@ -17,11 +23,13 @@ export function heatmapChart(chart, id){
 		.add_property("clusterRowsMetric", getEuclideanDistance)
 		.add_property("clusterColsMetric", getEuclideanDistance);
 	
+	chart.setActiveLayer(id);
+	
 	//returns maximum and minimum values of the data
 	layer.dataRange = function(){
 		var i = 0, range, newRange,
-			rowIds = layer.chart.get_rowIds(),
-			colIds = layer.chart.get_colIds();
+			rowIds = layer.get_rowIds(),
+			colIds = layer.get_colIds();
 		do{
 			newRange = d3.extent(colIds, 
 				function(col) {return layer.get_value(rowIds[i], col);});
@@ -32,7 +40,7 @@ export function heatmapChart(chart, id){
 			if(newRange[1] > range[1])
 				range[1] = newRange[1];
 			i++;
-		}while (i < layer.chart.get_nrows())
+		}while (i < layer.get_nrows())
 			
 		return range;
 	}
@@ -149,11 +157,11 @@ export function heatmapChart(chart, id){
 				
 		//resize heatmap body
 		layer.g.transition(layer.chart.transition)
-			.attr("transform", "translate(" + layer.chart.get_margin().left + ", " +
-					layer.chart.get_margin().top + ")");
+			.attr("transform", "translate(" + layer.get_margin().left + ", " +
+					layer.get_margin().top + ")");
 					
 		//add rows
-		var rows = layer.g.selectAll(".data_row").data(layer.chart.get_rowIds().slice());
+		var rows = layer.g.selectAll(".data_row").data(layer.get_rowIds().slice());
 		rows.exit()
 			.remove();
 		rows.enter()
@@ -162,13 +170,13 @@ export function heatmapChart(chart, id){
 			.merge(rows).transition(layer.chart.transition)
 				.attr("transform", function(d) {
 					return "translate(0, " + 
-						layer.chart.axes.scale_y(layer.chart.get_heatmapRow(d)) + ")";
+						layer.chart.axes.scale_y(layer.get_heatmapRow(d)) + ")";
 				});
 						
 		//add cells	
 		var cells = layer.g.selectAll(".data_row").selectAll(".data_point")
 			.data(function(d) {
-				return layer.chart.get_colIds().map(function(e){
+				return layer.get_colIds().map(function(e){
 					return [d, e];
 				})
 			});
@@ -207,32 +215,32 @@ export function heatmapChart(chart, id){
 		//create a canvas object
 		var heatmapBody = layer.chart.container.append("canvas")
 			.style("position", "absolute")
-			.style("left", layer.chart.get_margin().left + "px")
-			.style("top", layer.chart.get_margin().top + "px")
-			.property("width", layer.chart.get_width())
-			.property("height", layer.chart.get_height())
+			.style("left", layer.get_margin().left + "px")
+			.style("top", layer.get_margin().top + "px")
+			.property("width", layer.get_width())
+			.property("height", layer.get_height())
 			.node().getContext("2d");
 		var pixelHeatmap = document.createElement("canvas");
-		pixelHeatmap.width = layer.chart.get_ncols();
-		pixelHeatmap.height = layer.chart.get_nrows();
+		pixelHeatmap.width = layer.get_ncols();
+		pixelHeatmap.height = layer.get_nrows();
 		
 		//store colour of each cell
 		var rgbColour, position;
 		//create an object to store information on each cell of a heatmap
-		var pixelData = new ImageData(layer.chart.get_ncols(), layer.chart.get_nrows());
+		var pixelData = new ImageData(layer.get_ncols(), layer.get_nrows());
 
-		for(var i = 0; i < layer.chart.get_rowIds().length; i++)
-			for(var j = 0; j < layer.chart.get_colIds().length; j++) {
-					rgbColour = d3.rgb(layer.get_colour(layer.get_value(layer.chart.get_rowIds()[i], 
-																													layer.chart.get_colIds()[j])));
-					position = layer.chart.get_heatmapRow(layer.chart.get_rowIds()[i]) * layer.chart.get_ncols() * 4 +
-						layer.chart.get_heatmapCol(layer.chart.get_colIds()[j]) * 4;
+		for(var i = 0; i < layer.get_rowIds().length; i++)
+			for(var j = 0; j < layer.get_colIds().length; j++) {
+					rgbColour = d3.rgb(layer.get_colour(layer.get_value(layer.get_rowIds()[i], 
+																													layer.get_colIds()[j])));
+					position = layer.get_heatmapRow(layer.get_rowIds()[i]) * layer.get_ncols() * 4 +
+						layer.get_heatmapCol(layer.get_colIds()[j]) * 4;
 					pixelData.data[position] = rgbColour.r;
 					pixelData.data[position + 1] = rgbColour.g;
 					pixelData.data[position + 2] = rgbColour.b;
 			}
 		//set opacity of all the pixels to 1
-		for(var i = 0; i < layer.chart.get_ncols() * layer.chart.get_nrows(); i++)
+		for(var i = 0; i < layer.get_ncols() * layer.get_nrows(); i++)
 			pixelData.data[i * 4 + 3] = 255;
 		
 		//put a small heatmap on screen and then rescale it
@@ -245,8 +253,8 @@ export function heatmapChart(chart, id){
     //heatmapBody.msImageSmoothingEnabled = false;
 
 		heatmapBody.drawImage(pixelHeatmap, 0, 0, 
-			layer.chart.get_colIds().length, layer.chart.get_rowIds().length,
-			0, 0,	layer.chart.get_width(), layer.chart.get_height());
+			layer.get_colIds().length, layer.get_rowIds().length,
+			0, 0,	layer.get_width(), layer.get_height());
 	}
 	
 	layer.update = function() {
@@ -259,7 +267,7 @@ export function heatmapChart(chart, id){
 		layer.resetColourScale();
 	
 		if(layer.get_mode() == "default")
-			layer.chart.get_ncols() * layer.chart.get_nrows() > 5000 ? layer.mode("canvas") : layer.mode("svg");
+			layer.get_ncols() * layer.get_nrows() > 5000 ? layer.mode("canvas") : layer.mode("svg");
 		
 		if(layer.get_mode() == "canvas") {
 			layer.updateCanvas();
@@ -276,8 +284,8 @@ export function heatmapChart(chart, id){
 	
 	layer.clusterRows = function(){
 		var items = {}, it = [],
-			rowIds = layer.chart.get_rowIds(),
-			colIds = layer.chart.get_colIds();
+			rowIds = layer.get_rowIds(),
+			colIds = layer.get_colIds();
 		
 		for(var i = 0; i < rowIds.length; i++) {
 			for(var j = 0; j < colIds.length; j++)
@@ -291,7 +299,6 @@ export function heatmapChart(chart, id){
 		}
 		
 		var newOrder = [];
-		
 		var traverse = function(node) {
 			if(node.value){
 				newOrder.push(node.value);
@@ -311,10 +318,10 @@ export function heatmapChart(chart, id){
 		layer.chart.update();
 	}
 	
-		layer.clusterCols = function(){
+	layer.clusterCols = function(){
 		var items = {}, it = [],
-			rowIds = layer.chart.get_rowIds(),
-			colIds = layer.chart.get_colIds();
+			rowIds = layer.get_rowIds(),
+			colIds = layer.get_colIds();
 		
 		for(var i = 0; i < colIds.length; i++) {
 			for(var j = 0; j < rowIds.length; j++)
@@ -322,13 +329,13 @@ export function heatmapChart(chart, id){
 			items[colIds[i]] = it.slice();
 			it = [];
 		}
+
 		
 		var getDistance = function(a, b) {
 			return layer.get_clusterColsMetric(items[a], items[b]);
 		}
 		
 		var newOrder = [];
-		
 		var traverse = function(node) {
 			if(node.value){
 				newOrder.push(node.value);

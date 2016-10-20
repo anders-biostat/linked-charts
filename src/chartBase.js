@@ -5,10 +5,9 @@ import { layerBase } from "./layerBase";
 export function chartBase() {
 	var chart = base()
 		.add_property("width", 500)
-		.add_property("height", 400)
+		.add_property("height", 500)
 		.add_property("margin", { top: 20, right: 10, bottom: 50, left: 50 })
 		.add_property("transitionDuration", 1000);
-		//.add_property("transition", true);
 	
   chart.put_static_content = function( element ) {
 		chart.container = element.append("div");
@@ -31,30 +30,6 @@ export function chartBase() {
     return chart;
   }
 	
-	//Basic layer functionality
-	chart.layers = {};
-	
-	chart.get_nlayers = function() {
-		return chart.layers.length;
-	}
-	
-	chart.get_layer = function(k) {
-		return chart.layers[k];
-	}
-	
-	chart.add_layer = function(k) {
-		if(typeof k === "undefined")
-			k = chart.get_nlayers();
-		
-		var layer = layerBase();
-		chart.layers[k] = {};
-		layer.chart = chart;
-		chart.layers[k] = layer;
-		//Object.assign(chart.layers[k], layer)
-			
-		return chart.get_layer(k);
-	}
-	
 	chart.update_not_yet_called = true;
 	
 	chart.update = function(){
@@ -68,8 +43,6 @@ export function chartBase() {
 			chart.transition = 
 				d3.transition().duration(chart.get_transitionDuration());
 		}
-		for(var k in chart.layers)
-			chart.get_layer(k).update();
 
 		chart.svg.transition(chart.transition)
 			.attr("width", 
@@ -89,9 +62,60 @@ export function chartBase() {
   return chart;
 }
 
+export function layerChartBase(){
+	var chart = chartBase();
+	chart.properties.push("add_layer");
+	chart.properties.push("get_layer");
+	chart.properties.push("place");
+	
+	//Basic layer functionality
+	chart.layers = {};
+	
+	chart.get_nlayers = function() {
+		return chart.layers.length;
+	}
+	chart.get_layer = function(k) {
+		return chart.layers[k];
+	}
+	chart.add_layer = function(k) {
+		if(typeof k === "undefined")
+			k = "layer" + chart.get_nlayers();
+		var layer = layerBase();
+		chart.layers[k] = {};
+		layer.chart = chart;
+		chart.layers[k] = layer;
+		//Object.assign(chart.layers[k], layer)
+
+		for(var i = 0; i < chart.properties.length; i++){
+			layer[chart.properties[i]] = chart[chart.properties[i]];
+			layer["get_" + chart.properties[i]] = chart["get_" + chart.properties[i]];
+		}
+			
+		return chart.get_layer(k);
+	}
+	chart.setActiveLayer = function(id) {
+		var layer = chart.layers[id];
+		for(var i = 0; i < layer.properties.length; i++){
+			chart[layer.properties[i]] = layer[layer.properties[i]];
+			chart["get_" + layer.properties[i]] = layer["get_" + layer.properties[i]];
+		}
+		return chart;
+	}
+	
+	var inherited_update = chart.update;
+	chart.update = function() {
+		inherited_update();
+		for(var k in chart.layers)
+			chart.get_layer(k).update();
+		
+		return chart;
+	}
+	return chart;
+}
+
 export function axisChartBase() {
 	
-	var chart = chartBase();
+	var chart = layerChartBase();
 	
 	chart.add_property("singleScaleX", true)
 		.add_property("singleScaleY", true)
@@ -278,7 +302,7 @@ export function axisChartBase() {
 
 export function tableChartBase() {
 	
-	var chart = chartBase();
+	var chart = layerChartBase();
 	
 	chart.add_property("nrows")
 		.add_property("ncols");

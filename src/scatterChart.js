@@ -1,4 +1,11 @@
-export function scatterChart(chart, id) {
+import { axisChartBase } from "./chartBase";
+
+export function scatterChart(id, chart) {
+
+	if(chart === undefined)
+		chart = axisChartBase();
+	if(id === undefined)
+		id = "layer" + chart.layers.length;
 
   var layer = chart.add_layer(id)
 		.add_property("x")
@@ -7,6 +14,7 @@ export function scatterChart(chart, id) {
 		.add_property("npoints")
 		.add_property("dataIds")
 		.add_property("groupName", function(i){return i;});
+	chart.setActiveLayer(id);
 	
   // Set default for dataIds, namely to return numbers accoring to numPoints
   layer.dataIds( function() { return d3.range( layer.get_npoints() ) } );
@@ -56,8 +64,8 @@ export function scatterChart(chart, id) {
 		
 		layer.g.transition(layer.chart.transition)
 			.attr("transform", "translate(" + 
-				layer.chart.get_margin().left + ", " +
-				layer.chart.get_margin().top + ")");
+				layer.get_margin().left + ", " +
+				layer.get_margin().top + ")");
 
 		var sel = layer.g.selectAll( ".datapoint" )
       .data( layer.get_dataIds() );

@@ -1,10 +1,19 @@
-export function lineChart(chart, id){
+import { axisChartBase } from "./chartBase";
+
+export function lineChart(id, chart){
+	
+	if(chart === undefined)
+		chart = axisChartBase();
+	if(id === undefined)
+		id = "layer" + chart.layers.length;
+	
 	var layer = chart.add_layer(id)
 		.add_property("nlines")
 		.add_property("lineIds", function() {return d3.range(layer.get_nlines());})
 		.add_property("lineFun")
 		.add_property("lineStyle", "")
 		.add_property("lineStepNum", 100);
+	chart.setActiveLayer(id);
 	
 	layer.update_not_yet_called = true;
 	
@@ -18,8 +27,8 @@ export function lineChart(chart, id){
 		
 		layer.g.transition(layer.chart.transition)
 			.attr("transform", "translate(" + 
-				layer.chart.get_margin().left + ", " +
-				layer.chart.get_margin().top + ")");
+				layer.get_margin().left + ", " +
+				layer.get_margin().top + ")");
 		
 		//define the length of each step
 		var lineStep = (layer.chart.axes.scale_x.domain()[1] - 

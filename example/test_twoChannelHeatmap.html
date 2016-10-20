@@ -163,7 +163,7 @@ var heatmap = d3.tableChartBase()
 	.rowIds(d3.cache(get_rowIds))
 	.colIds(d3.cache(get_colIds));
 	
-d3.heatmapChart(heatmap, "main")
+d3.heatmapChart("main", heatmap)
 	.mode("svg")
 	.value(function(rowId, colId){
 		var ids = colId.split("/");

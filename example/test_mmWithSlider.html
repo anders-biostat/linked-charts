@@ -23,7 +23,7 @@ var heatmap = d3.tableChartBase()
 	.rowIds(inputData.samplenames)
 	.colIds(inputData.samplenames);
 
-var layer = d3.heatmapChart(heatmap, "main")
+var layer = d3.heatmapChart("main", heatmap)
 	.mode("svg")
 	.value(function(rowId, colId){
 		return inputData.distmatrix[heatmap.get_rowIds().indexOf(rowId)]
