@@ -1,3 +1,5 @@
+import { getEuclideanDistance } from "./additionalFunctions";
+
 export function heatmapChart(chart, id){
 	
 	//TO DO: See if we need colIds and rowIds to be stored separately for
@@ -12,8 +14,8 @@ export function heatmapChart(chart, id){
 		.add_property("labelClick", function() {})
 		.add_property("cellMouseOver", function() {})
 		.add_property("cellMouseOut", function() {})
-		.add_property("clusterRowsMetric", clusterfck.EUCLIDEAN_DISTANCE)
-		.add_property("clusterColsMetric", clusterfck.EUCLIDEAN_DISTANCE);
+		.add_property("clusterRowsMetric", getEuclideanDistance)
+		.add_property("clusterColsMetric", getEuclideanDistance);
 	
 	//returns maximum and minimum values of the data
 	layer.dataRange = function(){

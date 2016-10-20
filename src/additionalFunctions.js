@@ -24,3 +24,14 @@ export function fireEvent(element,event){
     return !element.dispatchEvent(evt);
   }
 }
+
+export function getEuclideanDistance(a, b) {
+	if(a.length != b.length)
+		throw "Error in getEuclideanDistance: length of the" +
+			"input vectors is not the same";
+	var sum = 0;
+	for(var i = 0; i < a.length; i++)
+		sum += (a[i] - b[i]) * (a[i] - b[i]);
+	
+	return Math.sqrt(sum);
+}
