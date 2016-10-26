@@ -102,12 +102,27 @@ export function layerChartBase(){
 		return chart;
 	}
 	
+	var inherited_put_static_content = chart.put_static_content;
+	chart.put_static_content = function(element){
+		inherited_put_static_content(element);
+		chart.svg.append("rect")
+			.attr("class", "clickPanel")
+			.attr("fill", "transparent");
+	}
+
 	var inherited_update = chart.update;
 	chart.update = function() {
 		inherited_update();
+
 		for(var k in chart.layers)
 			chart.get_layer(k).update();
 		
+		chart.svg.select(".clickPanel")
+			.attr("x", chart.get_margin().left)
+			.attr("y", chart.get_margin().top)
+			.attr("width", chart.get_width())
+			.attr("height", chart.get_height());
+
 		return chart;
 	}
 	return chart;
@@ -137,20 +152,20 @@ export function axisChartBase() {
 			if(contScale){ //if resulting scale is continous, find minimun and maximum values
 				for(var k in chart.layers)
 					//some of the layers may not have domains at all (such as legends)
-					if(typeof chart.get_layer(k).get_domainX() !== "undefined")
+					if(typeof chart.get_layer(k).get_layerDomainX() !== "undefined")
 						if(typeof domain === "undefined") 
-							domain = chart.get_layer(k).get_domainX()
+							domain = chart.get_layer(k).get_layerDomainX()
 						else {
-							domain[0] = d3.min([domain[0], chart.get_layer(k).get_domainX()[0]]);
-							domain[1] = d3.min([domain[1], chart.get_layer(k).get_domainX()[1]]);
+							domain[0] = d3.min([domain[0], chart.get_layer(k).get_layerDomainX()[0]]);
+							domain[1] = d3.min([domain[1], chart.get_layer(k).get_layerDomainX()[1]]);
 						}
 			} else { //if scale is categorical, find unique values from each layer
 				for(var k in chart.layers)
-					if(typeof chart.get_layer(k).get_domainX() !== "undefined")
+					if(typeof chart.get_layer(k).get_layerDomainX() !== "undefined")
 						if(typeof domain === "undefined") 
-							domain = chart.get_layer(k).get_domainX()
+							domain = chart.get_layer(k).get_layerDomainX()
 						else 
-							domain = domain.concat(chart.get_layer(k).get_domainX()
+							domain = domain.concat(chart.get_layer(k).get_layerDomainX()
 								.filter(function(e){
 									return domain.indexOf(e) < 0;
 								}));
@@ -168,20 +183,20 @@ export function axisChartBase() {
 				contScale = contScale && chart.get_layer(k).get_contScaleY();
 			if(contScale){
 				for(var k in chart.layers)
-					if(typeof chart.get_layer(k).get_domainY() !== "undefined")
+					if(typeof chart.get_layer(k).get_layerDomainY() !== "undefined")
 						if(typeof domain === "undefined") 
-							domain = chart.get_layer(k).get_domainY()
+							domain = chart.get_layer(k).get_layerDomainY()
 						else {
-							domain[0] = d3.min([domain[0], chart.get_layer(k).get_domainY()[0]]);
-							domain[1] = d3.min([domain[1], chart.get_layer(k).get_domainY()[1]]);
+							domain[0] = d3.min([domain[0], chart.get_layer(k).get_layerDomainY()[0]]);
+							domain[1] = d3.min([domain[1], chart.get_layer(k).get_layerDomainY()[1]]);
 						}							
 			} else { //if scale is categorical, find unique values from each layer
 				for(var k in chart.layers)
-					if(typeof chart.get_layer(k).get_domainY() !== "undefined")
+					if(typeof chart.get_layer(k).get_layerDomainY() !== "undefined")
 						if(typeof domain === "undefined") 
-							domain = chart.get_layer(k).get_domainY()
+							domain = chart.get_layer(k).get_layerDomainY()
 						else 
-							domain = domain.concat(chart.get_layer(k).get_domainY()
+							domain = domain.concat(chart.get_layer(k).get_layerDomainY()
 								.filter(function(e){
 									return domain.indexOf(e) < 0;
 								}));
@@ -274,7 +289,7 @@ export function axisChartBase() {
 				.range( [chart.get_height(), 0] )
 				.nice();
 		
-			inherited_update();
+		inherited_update();
 		
     d3.axisBottom()
       .scale( chart.axes.scale_x )
@@ -514,7 +529,7 @@ export function tableChartBase() {
 				.text(function(d) {return chart.get_rowLabels(d)});
 		
 		inherited_update();
-		
+
 		return chart;
 	}		
 	

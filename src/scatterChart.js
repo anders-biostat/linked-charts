@@ -42,10 +42,10 @@ export function scatterChart(id, chart) {
     throw "There seem to be very many data points. Please supply a number via 'numPoints'."
   })
 	
-	layer.domainX(function() {
+	layer.layerDomainX(function() {
 		return d3.extent( layer.get_dataIds(), function(k) { return layer.get_x(k) } )
 	});
-	layer.domainY(function() {
+	layer.layerDomainY(function() {
 		return d3.extent( layer.get_dataIds(), function(k) { return layer.get_y(k) } )
 	});
 

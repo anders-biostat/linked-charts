@@ -1,5 +1,6 @@
 import { getEuclideanDistance } from "./additionalFunctions";
 import { tableChartBase } from "./chartBase";
+import { add_click_listener } from "./additionalFunctions";
 
 export function heatmapChart(id, chart){
 
@@ -43,6 +44,18 @@ export function heatmapChart(id, chart){
 		}while (i < layer.get_nrows())
 			
 		return range;
+	}
+
+	//find all the cells inside a rectangle
+	layer.findPoints = function(lu, rb){
+		return layer.g.selectAll(".data_point")
+			.filter(function(d) {
+				var loc = [layer.chart.axes.scale_x(layer.chart.get_heatmapCol(d[1])), 
+									layer.chart.axes.scale_y(layer.get_heatmapRow(d[0]))]
+				return (loc[0] <= rb[0]) && (loc[1] <= rb[1]) && 
+					(loc[0] + layer.chart.cellSize.width >= lu[0]) && 
+					(loc[1] + layer.chart.cellSize.height>= lu[1]);
+			});
 	}
 		
 	//reset a colourScale
@@ -150,10 +163,12 @@ export function heatmapChart(id, chart){
 		
 		if(typeof layer.canvas != "undefined")
 			layer.canvas.classed("hidden", true);
-		if(typeof layer.g == "undefined")
-			layer.g = layer.chart.svg.append("g")
-		else
+		if(typeof layer.g == "undefined"){
+			layer.g = layer.chart.svg.append("g");
+			add_click_listener(layer);
+		} else {
 			layer.g.classed("hidden", false);
+		}
 				
 		//resize heatmap body
 		layer.g.transition(layer.chart.transition)

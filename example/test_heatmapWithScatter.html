@@ -38,15 +38,16 @@ var heatmap = d3.heatmapChart()
 	.value(function(rowId, colId) {return data.cors[rowId][colId];})
 	.rowIds(Object.keys(data.cors))
 	.colIds(Object.keys(data.cors))
-	.cellClick(onHeatmapClick)
+	.on_click(onHeatmapClick)
+	.mode("svg")
 	.place("#heatmap");
 
 var scatter = d3.scatterChart()
 		.dataIds(Object.keys(data.dss))
 		.x(function(k){return data.dss[k][selected.x];})
 		.y(function(k){return data.dss[k][selected.y];})
-		.x_label(function() {return selected.x;})
-		.y_label(function() {return selected.y;})
+		.labelX(function() {return selected.x;})
+		.labelY(function() {return selected.y;})
 		.place("#scatter");
 
 </script>
