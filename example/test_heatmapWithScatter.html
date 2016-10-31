@@ -26,9 +26,9 @@ var selected = {
 	y: Object.keys(data.cors)[0]
 };
 
-onHeatmapClick = function(d){
-	selected.x = d[0];
-	selected.y = d[1];
+onHeatmapClick = function(rowId, colId){
+	selected.x = rowId;
+	selected.y = colId;
 	scatter.update();
 }
 
@@ -48,6 +48,7 @@ var scatter = d3.scatterChart()
 		.y(function(k){return data.dss[k][selected.y];})
 		.labelX(function() {return selected.x;})
 		.labelY(function() {return selected.y;})
+		.on_click(function(d) {console.log(d);})
 		.place("#scatter");
 
 </script>

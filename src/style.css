@@ -13,9 +13,25 @@ text.selected{
 	font-weight: bold;
 }
 
+rect.selected{
+	stroke-width: 2px;
+	stroke: #ccc;
+}
+circle.selected{
+	stroke-width: 2px;
+	stroke: #ccc;	
+}
+
 rect.hover{
 	stroke: #aaa;
 	stroke-width: 0.75px;
+}
+
+rect.selection {
+	stroke: #333;
+	stroke-dasharray: 4px;
+	stroke-opacity: 0.5;
+	fill: transparent;
 }
 
 .inform {
@@ -37,4 +53,5 @@ rect.hover{
 .hidden {
 	display: none;
 }
+
 

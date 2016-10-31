@@ -102,13 +102,10 @@ export function layerChartBase(){
 		return chart;
 	}
 	
-	var inherited_put_static_content = chart.put_static_content;
+/*	var inherited_put_static_content = chart.put_static_content;
 	chart.put_static_content = function(element){
 		inherited_put_static_content(element);
-		chart.svg.append("rect")
-			.attr("class", "clickPanel")
-			.attr("fill", "transparent");
-	}
+	}*/
 
 	var inherited_update = chart.update;
 	chart.update = function() {
@@ -205,37 +202,41 @@ export function axisChartBase() {
 		
 		return domain;
 	}
-	
+
+	chart.get_domainX = get_domainX;
+	chart.get_domainY = get_domainY;
+
 	//redefine setters for axis domains
 	chart.domainX = function(domain){
 		//set default getter
-		if(domain == "reset")
-			chart.get_domainX = get_domainX;
+		if(domain == "reset"){
+			chart.domainX(get_domainX());
+			return chart;
+		}
 		//if user provided function, use this function
 		if(typeof domain === "function")
-			get_domainX = domain;
+			chart.get_domainX = domain;
 		if(domain.length)
-			get_domainX = function() {
+			chart.get_domainX = function() {
 				return domain;
 			};
 			
 		return chart;
 	}
 	chart.domainY = function(domain){
-		if(domain == "reset")
-			chart.get_domainY = get_domainY;
+		if(domain == "reset"){
+			chart.domainY(get_domainY());
+			return chart;
+		}
 		if(typeof domain === "function")
-			get_domainY = domain;
+			chart.get_domainY = domain;
 		if(domain.length)
-			get_domainY = function() {
+			chart.get_domainY = function() {
 				return domain;
 			};
 		
 		return chart;
 	}
-	
-	chart.get_domainX = get_domainX;
-	chart.get_domainY = get_domainY;
 	
   var inherited_put_static_content = chart.put_static_content;
   chart.put_static_content = function( element ) {

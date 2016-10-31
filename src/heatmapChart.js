@@ -1,6 +1,5 @@
 import { getEuclideanDistance } from "./additionalFunctions";
 import { tableChartBase } from "./chartBase";
-import { add_click_listener } from "./additionalFunctions";
 
 export function heatmapChart(id, chart){
 
@@ -56,6 +55,12 @@ export function heatmapChart(id, chart){
 					(loc[0] + layer.chart.cellSize.width >= lu[0]) && 
 					(loc[1] + layer.chart.cellSize.height>= lu[1]);
 			});
+	}
+
+	layer.zoom = function(lu, rb){
+		
+
+		return layer;
 	}
 		
 	//reset a colourScale
@@ -165,7 +170,7 @@ export function heatmapChart(id, chart){
 			layer.canvas.classed("hidden", true);
 		if(typeof layer.g == "undefined"){
 			layer.g = layer.chart.svg.append("g");
-			add_click_listener(layer);
+			layer.add_click_listener();
 		} else {
 			layer.g.classed("hidden", false);
 		}
@@ -202,7 +207,9 @@ export function heatmapChart(id, chart){
 				.attr("class", "data_point")
 				.on("mouseover", layer.get_cellMouseOver)
 				.on("mouseout", layer.get_cellMouseOut)
-				.on("click", layer.get_on_click)
+				.on("click", function(d) {
+					layer.get_on_click(d[0], d[1]);
+				})
 			.merge(cells).transition(layer.chart.transition)
 				.attr("x", function(d){
 					return layer.chart.axes.scale_x(layer.chart.get_heatmapCol(d[1]));
