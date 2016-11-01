@@ -49,8 +49,11 @@ export function heatmapChart(id, chart){
 	layer.findPoints = function(lu, rb){
 		return layer.g.selectAll(".data_point")
 			.filter(function(d) {
-				var loc = [layer.chart.axes.scale_x(layer.chart.get_heatmapCol(d[1])), 
-									layer.chart.axes.scale_y(layer.get_heatmapRow(d[0]))]
+				//slow if reordered
+				//var loc = [layer.chart.axes.scale_x(layer.chart.get_heatmapCol(d[1])), 
+				//					layer.chart.axes.scale_y(layer.get_heatmapRow(d[0]))]
+				var loc = [this.x.baseVal.value, 
+										d3.select(this.parentNode).attr("y")*1];
 				return (loc[0] <= rb[0]) && (loc[1] <= rb[1]) && 
 					(loc[0] + layer.chart.cellSize.width >= lu[0]) && 
 					(loc[1] + layer.chart.cellSize.height>= lu[1]);
@@ -58,9 +61,34 @@ export function heatmapChart(id, chart){
 	}
 
 	layer.zoom = function(lu, rb){
-		
+		var selectedCells = layer.findPoints(lu, rb),
+			rowIdsAll = selectedCells.data().map(function(d){
+				return d[0];
+			}),
+			colIdsAll = selectedCells.data().map(function(d){
+				return d[1];
+			}),
+			rowIds = [], colIds = [];
+
+		for(var i = 0; i < rowIdsAll.length; i++)
+			if(rowIds.indexOf(rowIdsAll[i]) == -1)
+				rowIds.push(rowIdsAll[i]);
+		for(var i = 0; i < colIdsAll.length; i++)
+			if(colIds.indexOf(colIdsAll[i]) == -1)
+				colIds.push(colIdsAll[i]);
+
+		layer.dispRowIds(rowIds);
+		layer.dispColIds(colIds);
+		layer.chart.update();
+		//if(!layer.reZoom)
 
 		return layer;
+	}
+
+	layer.resetDomain = function(){
+		layer.dispColIds(function() {return layer.get_colIds()});
+		layer.dispRowIds(function() {return layer.get_rowIds()});
+		layer.chart.update();
 	}
 		
 	//reset a colourScale
@@ -181,7 +209,7 @@ export function heatmapChart(id, chart){
 					layer.get_margin().top + ")");
 					
 		//add rows
-		var rows = layer.g.selectAll(".data_row").data(layer.get_rowIds().slice());
+		var rows = layer.g.selectAll(".data_row").data(layer.get_dispRowIds().slice());
 		rows.exit()
 			.remove();
 		rows.enter()
@@ -190,13 +218,16 @@ export function heatmapChart(id, chart){
 			.merge(rows).transition(layer.chart.transition)
 				.attr("transform", function(d) {
 					return "translate(0, " + 
-						layer.chart.axes.scale_y(layer.get_heatmapRow(d)) + ")";
+						layer.chart.axes.scale_y(layer.get_heatmapRow(d)) + ")"
+				})
+				.attr("y", function(d) {
+					return layer.chart.axes.scale_y(layer.get_heatmapRow(d))
 				});
 						
 		//add cells	
 		var cells = layer.g.selectAll(".data_row").selectAll(".data_point")
 			.data(function(d) {
-				return layer.get_colIds().map(function(e){
+				return layer.get_dispColIds().map(function(e){
 					return [d, e];
 				})
 			});
@@ -251,12 +282,12 @@ export function heatmapChart(id, chart){
 		//create an object to store information on each cell of a heatmap
 		var pixelData = new ImageData(layer.get_ncols(), layer.get_nrows());
 
-		for(var i = 0; i < layer.get_rowIds().length; i++)
-			for(var j = 0; j < layer.get_colIds().length; j++) {
-					rgbColour = d3.rgb(layer.get_colour(layer.get_value(layer.get_rowIds()[i], 
-																													layer.get_colIds()[j])));
-					position = layer.get_heatmapRow(layer.get_rowIds()[i]) * layer.get_ncols() * 4 +
-						layer.get_heatmapCol(layer.get_colIds()[j]) * 4;
+		for(var i = 0; i < layer.get_dispRowIds().length; i++)
+			for(var j = 0; j < layer.get_dispColIds().length; j++) {
+					rgbColour = d3.rgb(layer.get_colour(layer.get_value(layer.get_dispRowIds()[i], 
+																													layer.get_dispColIds()[j])));
+					position = layer.get_heatmapRow(layer.get_dispRowIds()[i]) * layer.get_ncols() * 4 +
+						layer.get_heatmapCol(layer.get_dispColIds()[j]) * 4;
 					pixelData.data[position] = rgbColour.r;
 					pixelData.data[position + 1] = rgbColour.g;
 					pixelData.data[position + 2] = rgbColour.b;
@@ -275,7 +306,7 @@ export function heatmapChart(id, chart){
     //heatmapBody.msImageSmoothingEnabled = false;
 
 		heatmapBody.drawImage(pixelHeatmap, 0, 0, 
-			layer.get_colIds().length, layer.get_rowIds().length,
+			layer.get_dispColIds().length, layer.get_dispRowIds().length,
 			0, 0,	layer.get_width(), layer.get_height());
 	}
 	
@@ -306,8 +337,8 @@ export function heatmapChart(id, chart){
 	
 	layer.clusterRows = function(){
 		var items = {}, it = [],
-			rowIds = layer.get_rowIds(),
-			colIds = layer.get_colIds();
+			rowIds = layer.get_dispRowIds(),
+			colIds = layer.get_dispColIds();
 		
 		for(var i = 0; i < rowIds.length; i++) {
 			for(var j = 0; j < colIds.length; j++)
@@ -342,8 +373,8 @@ export function heatmapChart(id, chart){
 	
 	layer.clusterCols = function(){
 		var items = {}, it = [],
-			rowIds = layer.get_rowIds(),
-			colIds = layer.get_colIds();
+			rowIds = layer.get_dispRowIds(),
+			colIds = layer.get_dispColIds();
 		
 		for(var i = 0; i < colIds.length; i++) {
 			for(var j = 0; j < rowIds.length; j++)

@@ -327,8 +327,10 @@ export function tableChartBase() {
 		.add_property("rowLabels", function(i) {return i;})
 		.add_property("colIds", function() {return d3.range(chart.get_ncols());})
 		.add_property("rowIds", function() {return d3.range(chart.get_nrows());})
-		.add_property("heatmapRow", function(rowId) {return chart.get_rowIds().indexOf(rowId);})
-		.add_property("heatmapCol", function(colId) {return chart.get_colIds().indexOf(colId);})
+		.add_property("dispColIds", function() {return chart.get_rowIds();})
+		.add_property("dispRowIds", function() {return chart.get_colIds();})
+		.add_property("heatmapRow", function(rowId) {return chart.get_dispRowIds().indexOf(rowId);})
+		.add_property("heatmapCol", function(colId) {return chart.get_dispColIds().indexOf(colId);})
 		.add_property("labelMouseOver")
 		.add_property("labelMouseOut")
 		.add_property("colStyle", "")
@@ -344,7 +346,7 @@ export function tableChartBase() {
 		typeof f == "function" ? chart.get_rowIds = f : chart.get_rowIds = function() {return f;};
 	}
 */
-
+	
 	//make nrows and ncols protected from recursion
 	//if get_colIds and get_rowIds are not using get_ncols
 	//and get_nrows, the number of rows and columns will be
@@ -355,7 +357,7 @@ export function tableChartBase() {
 				if(inFun) return undefined;
 				inFun = true;
 				try {
-					return chart.get_rowIds().length;
+					return chart.get_dispRowIds().length;
 				} finally {
 					inFun = false;
 				}
@@ -367,7 +369,7 @@ export function tableChartBase() {
 				if(inFun) return undefined;
 				inFun = true;
 				try {
-					return chart.get_colIds().length;
+					return chart.get_dispColIds().length;
 				} finally {
 					inFun = false;
 				}
@@ -394,14 +396,15 @@ export function tableChartBase() {
 				ids = ids.reverse();
 				return;
 			}
-			var actIds = chart.get_rowIds(),
+			var actIds = chart.get_dispRowIds(),
 				orderedIds = ids.filter(function(e) {
 					return actIds.indexOf(e) != -1;
 				});
 			if(orderedIds.length != actIds.length) {
 				orderedIds = actIds.sort(f);
 				ids = orderedIds.slice();
-			}
+			} 
+			
 			ind = orderedIds.indexOf(rowId);
 			if(ind > -1)
 				 return ind
@@ -424,7 +427,7 @@ export function tableChartBase() {
 				return;
 			}
 
-			var actIds = chart.get_colIds(),
+			var actIds = chart.get_dispColIds(),
 				orderedIds = ids.filter(function(e) {
 					return actIds.indexOf(e) != -1;
 				});
@@ -432,6 +435,7 @@ export function tableChartBase() {
 				orderedIds = actIds.sort(f);
 				ids = orderedIds.slice();
 			}
+			
 			ind = orderedIds.indexOf(colId);
 			if(ind > -1)
 				 return ind
@@ -496,7 +500,7 @@ export function tableChartBase() {
 
 		//add column labels
 		var colLabels = chart.svg.select(".col").selectAll(".label")
-				.data(chart.get_colIds().slice());
+				.data(chart.get_dispColIds().slice());
 		colLabels.exit()
 			.remove();
 		colLabels.enter()
@@ -514,7 +518,7 @@ export function tableChartBase() {
 		
 		//add row labels
 		var rowLabels = chart.svg.select(".row").selectAll(".label")
-				.data(chart.get_rowIds().slice());
+				.data(chart.get_dispRowIds().slice());
 		rowLabels.exit()
 			.remove();
 		rowLabels.enter()

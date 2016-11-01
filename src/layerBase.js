@@ -69,6 +69,8 @@ export function layerBase() {
 	          .attr("width", 1)
 	          .attr("height", 1);
 	      }
+	      layer.chart.container.select(".inform")
+	      	.classed("blocked", true);
 	    })
 	    .on("mousemove", function() {
 	      var s = layer.g.select(".selection");
@@ -129,6 +131,9 @@ export function layerBase() {
 	    })
 	    .on("mouseup", function() {
 	      // remove selection frame
+	      layer.chart.container.select(".inform")
+	      	.classed("blocked", false);
+
 	      var x = layer.g.selectAll("rect.selection").attr("x") * 1,
 	        y = layer.g.selectAll("rect.selection").attr("y") * 1,
 	        w = layer.g.selectAll("rect.selection").attr("width") * 1,
