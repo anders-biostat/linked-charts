@@ -70,9 +70,9 @@ export function layerChartBase(){
 	
 	//Basic layer functionality
 	chart.layers = {};
-	
+
 	chart.get_nlayers = function() {
-		return chart.layers.length;
+		return Object.keys(chart.layers).length;
 	}
 	chart.get_layer = function(k) {
 		return chart.layers[k];
@@ -102,10 +102,14 @@ export function layerChartBase(){
 		return chart;
 	}
 	
-/*	var inherited_put_static_content = chart.put_static_content;
+var inherited_put_static_content = chart.put_static_content;
 	chart.put_static_content = function(element){
 		inherited_put_static_content(element);
-	}*/
+		chart.container.append("div")
+			.attr("class", "inform hidden")
+			.append("p")
+				.attr("class", "value");		
+	}
 
 	var inherited_update = chart.update;
 	chart.update = function() {
@@ -115,8 +119,8 @@ export function layerChartBase(){
 			chart.get_layer(k).update();
 		
 		chart.svg.select(".clickPanel")
-			.attr("x", chart.get_margin().left)
-			.attr("y", chart.get_margin().top)
+			//.attr("x", chart.get_margin().left)
+			//.attr("y", chart.get_margin().top)
 			.attr("width", chart.get_width())
 			.attr("height", chart.get_height());
 
@@ -268,27 +272,30 @@ export function axisChartBase() {
 	chart.update = function() {
 	
 		//set scales and update axes
-		if(chart.get_domainX().length == 2)
+		var domainX = chart.get_domainX();
+		if(domainX.length == 2)
 			chart.axes.scale_x = d3.scaleLinear()
-				.domain( chart.get_domainX() )
+				.domain( domainX )
 				.range( [ 0, chart.get_width() ] )
 				.nice()
-		else
-			chart.axes.scale_x = d3.scaleQuantize()
-				.domain( chart.get_domainX() )
+		else{
+			chart.axes.scale_x = d3.scalePoint()
+				.domain( domainX )
 				.range( [0, chart.get_width()] )
-				.nice();	
+				.padding(0.3);	
+		}
 		
-		if(chart.get_domainY().length == 2)
+		var domainY = chart.get_domainY();
+		if(domainY.length == 2)
 			chart.axes.scale_y = d3.scaleLinear()
-				.domain( chart.get_domainY() )
+				.domain( domainY )
 				.range( [chart.get_height(), 0] )
 				.nice()
 		else
-			chart.axes.scale_x = d3.scaleQuantize()
-				.domain( chart.get_domainY() )
+			chart.axes.scale_y = d3.scalePoint()
+				.domain( get_domainY )
 				.range( [chart.get_height(), 0] )
-				.nice();
+				.padding(0.3);
 		
 		inherited_update();
 		
@@ -325,8 +332,8 @@ export function tableChartBase() {
 	
 	chart.add_property("colLabels", function(i) {return i;})
 		.add_property("rowLabels", function(i) {return i;})
-		.add_property("colIds", function() {return d3.range(chart.get_ncols());})
-		.add_property("rowIds", function() {return d3.range(chart.get_nrows());})
+		.add_property("colIds", function() {return undefined})
+		.add_property("rowIds", function() {return undefined})
 		.add_property("dispColIds", function() {return chart.get_rowIds();})
 		.add_property("dispRowIds", function() {return chart.get_colIds();})
 		.add_property("heatmapRow", function(rowId) {return chart.get_dispRowIds().indexOf(rowId);})
@@ -351,7 +358,18 @@ export function tableChartBase() {
 	//if get_colIds and get_rowIds are not using get_ncols
 	//and get_nrows, the number of rows and columns will be
 	//set equal to the number of Ids
-	chart.nrows((function() {
+	chart.ncols = function(n){
+		if(!chart.get_colIds())
+			chart.colIds(d3.range(n));
+		return chart;
+	}
+	chart.nrows = function(n){
+		if(!chart.get_rowIds())
+			chart.rowIds(d3.range(n));
+		return chart;
+	}
+
+	chart.get_nrows = (function() {
 			var inFun = false;
 			return function(){
 				if(inFun) return undefined;
@@ -362,8 +380,8 @@ export function tableChartBase() {
 					inFun = false;
 				}
 			}
-		})())
-		.ncols((function() {
+		})();
+	chart.get_ncols = (function() {
 			var inFun = false;
 			return function(){
 				if(inFun) return undefined;
@@ -374,7 +392,7 @@ export function tableChartBase() {
 					inFun = false;
 				}
 			}
-		})());
+		})();
 
 	//set default hovering behaviour
 	chart.labelMouseOver(function() {
@@ -396,6 +414,8 @@ export function tableChartBase() {
 				ids = ids.reverse();
 				return;
 			}
+			if(rowId == "__order__")
+				return ids.sort(f);
 			var actIds = chart.get_dispRowIds(),
 				orderedIds = ids.filter(function(e) {
 					return actIds.indexOf(e) != -1;
@@ -426,6 +446,8 @@ export function tableChartBase() {
 				ids = ids.reverse();
 				return;
 			}
+			if(colId == "__order__")
+				return ids.sort(f);
 
 			var actIds = chart.get_dispColIds(),
 				orderedIds = ids.filter(function(e) {
@@ -452,11 +474,7 @@ export function tableChartBase() {
 		inherited_put_static_content(element);
 		
 		//chart.container.style("position", "relative");
-		chart.container.append("div")
-			.attr("class", "inform hidden")
-			.append("p")
-				.attr("class", "value");
-				
+
 		//create main parts of the heatmap
 		chart.svg.append("g")
 			.attr("class", "row label_panel");

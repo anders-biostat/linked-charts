@@ -2,7 +2,7 @@ import { chartBase } from "./chartBase";
 
 export function simpleTable() {
 
-  obj = d3.chartBase()
+  var obj = d3.chartBase()
     .add_property( "record", {} )
 
   obj.put_static_content = function( element ) {

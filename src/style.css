@@ -21,6 +21,10 @@ circle.selected{
 	stroke-width: 2px;
 	stroke: #ccc;	
 }
+circle.marked {
+	stroke-width: 2px;
+	stroke: #d45;
+}
 
 rect.hover{
 	stroke: #aaa;
@@ -57,4 +61,11 @@ rect.selection {
 	display: none;
 }
 
+text{
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none;   /* Chrome/Safari/Opera */
+	-khtml-user-select: none;    /* Konqueror */
+	-moz-user-select: none;      /* Firefox */
+	-ms-user-select: none;       /* Internet Explorer/Edge */
+}
 

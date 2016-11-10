@@ -1,0 +1,85 @@
+<head>
+	<link rel="stylesheet" type="text/css" href="../src/style.css">
+	<title>Gene expression comparison</title>
+	<script src = "https://d3js.org/d3.v4.min.js"></script>
+	<script src = "https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+	<script src = "https://d3js.org/d3-color.v1.min.js"></script>
+	<script src = "input_ASC_AC_Compar.js"></script>
+	<script src = "../build/d3-linked-charts.js"></script>
+</head>
+<body>
+<table>
+	<tr>
+		<td>
+			<div id = "MAPlot"></div>
+			<div id = "heatmap"></div>
+		</td>
+		<td>
+			<div id = "normCounts"></div>
+			<h4 id = "title" align = "center"></h4>
+			<div id = "infTable"></div>
+		</td>
+	</tr>
+</table>
+<script>
+	function pValueScale(pv){
+		if(pv < 0.1){
+			return 1 - 9*pv;
+		} else {
+			return (1 - pv)/9;
+		}
+	}
+	var colourScale = d3.scaleLinear()
+		.domain([0, 1])
+		.range(["black", "red"]);
+
+	var selectedGene = Object.keys(inputData)[0];
+	d3.select("#title").text(selectedGene);
+
+	var MAplot = d3.scatterChart()
+		.width(700)
+		.height(500)
+		.y(function(id) {return inputData[id].ASC_AC_LogFoldC;})
+		.x(function(id) {return inputData[id].AvExpr;})
+		.dataIds(Object.keys(inputData))
+		.labelX("Average Expression")
+		.labelY("Log2 Fold Change")
+		.size(function(id) {return 3*pValueScale(inputData[id]["ASC_AC_Adj.p.value"]) + 2;})
+		.colour(function(id) {return colourScale(pValueScale(inputData[id]["ASC_AC_Adj.p.value"]))})
+		.on_click(function(id){
+			selectedGene = id;
+			//normCounts.domainY(
+			//function(){
+				//var extent = d3.extent( sampleIds.map( function(id) { return inputData[selectedGene][id] } ) );
+				//var mid = ( extent[0] + extent[1] ) / 2;
+				//return [ mid - 5, mid + 5];
+			//})
+			normCounts.update();
+			infoTable.update();
+			d3.select("#title").text(selectedGene);
+
+		})
+		.place("#MAplot");
+
+  var sampleIds = ["KP.SPC.1", "KP.SPC.2", "KP.CC10.1", "KP.CC10.2", "KL.SPC.1", "KL.SPC.2", "KL.CC10.1", "KL.CC10.2"]
+
+	var normCounts = d3.scatterChart()
+		.width(250)
+		.height(500)
+		.x(function(id) {
+			var spl = id.split(".");
+			return spl[0] + "_" + spl[1]
+		})
+		.contScaleX(false)
+		.y(function(id) {return inputData[selectedGene][id]})
+		.labelX("Sample")
+		.labelY("Log2 Normalized Counts")
+		.dataIds(sampleIds)
+		.domainY([0,20])
+		.place("#normCounts");
+
+	var infoTable = d3.simpleTable()
+		.record(function() {return inputData[selectedGene]})
+		.place("#infTable");
+</script>
+</body>

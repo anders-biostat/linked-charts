@@ -5,7 +5,7 @@ export function lineChart(id, chart){
 	if(chart === undefined)
 		chart = axisChartBase();
 	if(id === undefined)
-		id = "layer" + chart.layers.length;
+		id = "layer" + chart.get_nlayers();
 	
 	var layer = chart.add_layer(id)
 		.add_property("nlines")

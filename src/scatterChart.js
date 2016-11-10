@@ -5,7 +5,7 @@ export function scatterChart(id, chart) {
 	if(chart === undefined)
 		chart = axisChartBase();
 	if(id === undefined)
-		id = "layer" + chart.layers.length;
+		id = "layer" + chart.get_nlayers();
 
   var layer = chart.add_layer(id)
 		.add_property("x")
@@ -14,6 +14,7 @@ export function scatterChart(id, chart) {
 		.add_property("npoints")
 		.add_property("dataIds")
     .add_property("size", 4)
+    .add_property("colour", "black")
 		.add_property("groupName", function(i){return i;});
 	chart.setActiveLayer(id);
 	
@@ -68,11 +69,48 @@ export function scatterChart(id, chart) {
   })
 	
 	layer.layerDomainX(function() {
-		return d3.extent( layer.get_dataIds(), function(k) { return layer.get_x(k) } )
+		if(layer.get_contScaleX()){
+      return d3.extent( layer.get_dataIds(), function(k) { return layer.get_x(k) } )
+    } else {
+      return layer.get_dataIds().map(function(e) { return layer.get_x(e);});
+    }
 	});
 	layer.layerDomainY(function() {
-		return d3.extent( layer.get_dataIds(), function(k) { return layer.get_y(k) } )
+    if(layer.get_contScaleY()) {
+		  return d3.extent( layer.get_dataIds(), function(k) { return layer.get_y(k) } )
+    } else{
+      return layer.get_dataIds().map(function(e) { return layer.get_y(e);});
+    }
 	});
+
+  //default hovering behaviour
+  layer.pointMouseOver(function(d){
+    //change colour and class
+    d3.select(this)
+      .attr("fill", function(d) {
+        return d3.rgb(layer.get_colour(d)).darker(0.5);
+      })
+      .classed("hover", true);
+    //show label
+    layer.chart.container.select(".inform")
+        .style("left", (d3.event.pageX + 10) + "px")
+        .style("top", (d3.event.pageY - 10) + "px")
+        .select(".value")
+          .html("ID: <b>" + d + "</b>;<br>" + 
+            "x = " + layer.get_x(d) + ";<br>" + 
+            "y = " + layer.get_y(d));  
+    layer.chart.container.select(".inform")
+      .classed("hidden", false);
+  });
+  layer.pointMouseOut(function(d){
+    d3.select(this)
+      .attr("fill", function(d) {
+        return layer.get_colour(d);
+      })
+      .classed("hover", false);
+    layer.chart.container.select(".inform")
+      .classed("hidden", true);
+  })
 
 	//for now there is no inherited_update for a layer
   //var inherited_update = obj.update;
@@ -99,10 +137,13 @@ export function scatterChart(id, chart) {
       .remove();  
     sel.enter().append( "circle" )
       .attr( "class", "data_point" )
-      .attr( "r", function(d) {return layer.get_size(d)} )
-    .merge( sel )
       .on( "click", layer.get_on_click )
+      .on( "mouseover", layer.get_pointMouseOver)
+      .on( "mouseout", layer.get_pointMouseOut)
+    .merge( sel )
       .transition(layer.chart.transition)
+        .attr( "r", function(d) {return layer.get_size(d)} )
+        .attr( "fill", function(d) { return layer.get_colour(d)})
         .attr( "cx", function(d) { return layer.chart.axes.scale_x( layer.get_x(d) ) } )
         .attr( "cy", function(d) { return layer.chart.axes.scale_y( layer.get_y(d) ) } )
         .attr( "style", function(d) { return layer.get_style(d) } );

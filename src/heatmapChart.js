@@ -6,7 +6,7 @@ export function heatmapChart(id, chart){
 	if(chart === undefined)
 		chart = tableChartBase();
 	if(id === undefined)
-		id = "layer" + chart.layers.length;
+		id = "layer" + chart.get_nlayers();
 	
 	//TO DO: See if we need colIds and rowIds to be stored separately for
 	//each layer
@@ -18,8 +18,6 @@ export function heatmapChart(id, chart){
 		.add_property("palette", d3.interpolateOrRd)
 		.add_property("colourRange", function() {return layer.dataRange()})
 		.add_property("labelClick", function() {})
-		.add_property("cellMouseOver", function() {})
-		.add_property("cellMouseOut", function() {})
 		.add_property("clusterRowsMetric", getEuclideanDistance)
 		.add_property("clusterColsMetric", getEuclideanDistance);
 	
@@ -117,7 +115,7 @@ export function heatmapChart(id, chart){
 	
 	//some default onmouseover and onmouseout behaviour for cells and labels
 	//may be later moved out of the main library
-	layer.cellMouseOver(function(d) {
+	layer.pointMouseOver(function(d) {
 		//change colour and class
 		d3.select(this)
 			.attr("fill", function(d) {
@@ -142,7 +140,7 @@ export function heatmapChart(id, chart){
 		layer.chart.container.select(".inform")
 			.classed("hidden", false);
 	});
-	layer.cellMouseOut(function() {
+	layer.pointMouseOut(function(d) {
 		//change colour and class
 		d3.select(this)
 			.attr("fill", function(d) {
@@ -236,8 +234,8 @@ export function heatmapChart(id, chart){
 		cells.enter()
 			.append("rect")
 				.attr("class", "data_point")
-				.on("mouseover", layer.get_cellMouseOver)
-				.on("mouseout", layer.get_cellMouseOut)
+				.on("mouseover", layer.get_pointMouseOver)
+				.on("mouseout", layer.get_pointMouseOut)
 				.on("click", function(d) {
 					layer.get_on_click(d[0], d[1]);
 				})
@@ -364,8 +362,11 @@ export function heatmapChart(id, chart){
 		var clusters = clusterfck.hcluster(rowIds, getDistance, clusterfck.COMPLETE_LINKAGE);
 		traverse(clusters);
 		
+		var oldOrder = chart.get_heatmapRow("__order__");
 		layer.chart.reorderRow(function(a, b){
-			return newOrder.indexOf(a) - newOrder.indexOf(b);
+			if(newOrder.indexOf(a) != -1 && newOrder.indexOf(b) != -1)
+				return newOrder.indexOf(a) - newOrder.indexOf(b);
+			return oldOrder.indexOf(a) - oldOrder.indexOf(b);
 		});
 		
 		layer.chart.update();
@@ -400,9 +401,12 @@ export function heatmapChart(id, chart){
 		
 		var clusters = clusterfck.hcluster(colIds, getDistance, clusterfck.COMPLETE_LINKAGE);
 		traverse(clusters);
-		
+
+		var oldOrder = chart.get_heatmapCol("__order__");
 		layer.chart.reorderCol(function(a, b){
-			return newOrder.indexOf(a) - newOrder.indexOf(b);
+			if(newOrder.indexOf(a) != -1 && newOrder.indexOf(b) != -1)
+				return newOrder.indexOf(a) - newOrder.indexOf(b);
+			return oldOrder.indexOf(a) - oldOrder.indexOf(b);
 		});
 		
 		layer.chart.update();

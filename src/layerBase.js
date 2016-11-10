@@ -7,6 +7,8 @@ export function layerBase() {
 		.add_property("layerDomainY")
 		.add_property("contScaleX", true)
 		.add_property("contScaleY", true)
+		.add_property("pointMouseOver", function() {})
+		.add_property("pointMouseOut", function() {})
 		.add_property("on_click", function() {});
 
 	layer.add_click_listener = function(){
@@ -130,6 +132,7 @@ export function layerBase() {
 	      }
 	    })
 	    .on("mouseup", function() {
+	      var mark = d3.event.shiftKey;
 	      // remove selection frame
 	      layer.chart.container.select(".inform")
 	      	.classed("blocked", false);
@@ -150,11 +153,11 @@ export function layerBase() {
 	                    //console.log("doubleclick");
 	                    window.clearTimeout(wait_dblClick);
 	                    wait_dblClick = null;
-	                    points.on("dblclick").apply(points);
+	                    points.on("dblclick").apply(points, mark);
 	        } else {
 	          wait_dblClick = window.setTimeout((function(e) {
 	                        return function() {
-	                            points.on("click").apply(points, [pos]);
+	                            points.on("click").apply(points, [pos], mark);
 	                            wait_dblClick = null;
 	                        };
 	                    })(d3.event), 300);
@@ -162,42 +165,33 @@ export function layerBase() {
 	        click_coord = d3.mouse(document.body);
 	        return;
 	      }
-
-	      d3.selectAll(".tmp-selection")
-	        .classed("tmp-selection",false)
-	        .classed("selected", false);
-	      
 	      // remove temporary selection marker class
-	      layer.zoom(lu, rb);
+	      if(mark)
+	      	d3.selectAll(".tmp-selection")
+	      		.classed("marked", true);
+      	d3.selectAll(".tmp-selection")
+        	.classed("tmp-selection",false)
+        	.classed("selected", false)
+	      if(!mark)
+	      	layer.zoom(lu, rb);
 	    } )
-	    .on("dblclick", function(){
+	    .on("dblclick", function(mark){
 	      console.log("doubleclick");
-	      layer.resetDomain();
-	      /*var update = false;
-	      if(self.dataPoints.savedColOrder && 
-	        self.dataPoints.savedColOrder.length != self.dataPoints.colOrder.length
-	      ){
-	        self.dataPoints.colOrder = self.dataPoints.savedColOrder.slice();
-	        update = true;
-	      }
-	      if(self.dataPoints.savedRowOrder && 
-	        self.dataPoints.savedRowOrder.length != self.dataPoints.rowOrder.length
-	      ){
-	        self.dataPoints.rowOrder = self.dataPoints.savedRowOrder.slice();
-	        update = true;
-	      }
-	      if(update)
-	        self.updatePlot();*/
+	      mark ? layer.chart.container.selectAll(".marked").classed("marked", false) : layer.resetDomain();
 	    })  
 
-	    .on("click", function(p){
+	    .on("click", function(p, mark){
 
 	      console.log("click");
 	      console.log(p);
 	      var clickedPoint = layer.findPoints(p, p);
 	      if(!clickedPoint.empty()){
-	      	var click = clickedPoint.on("click");
-	      	click.apply(clickedPoint, [clickedPoint.datum()]); 
+	      	if(!mark){
+	      		var click = clickedPoint.on("click");
+	      		click.apply(clickedPoint, [clickedPoint.datum()]); 
+	      	} else {
+	      		clickedPoint.classed("marked") ? clickedPoint.classed("marked", false) : clickedPoint.classed("marked", true);
+	      	}
 	      }
 	    });
 
