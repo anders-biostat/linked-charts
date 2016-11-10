@@ -4,6 +4,7 @@
 	<script src = "https://d3js.org/d3.v4.min.js"></script>
 	<script src = "https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 	<script src = "https://d3js.org/d3-color.v1.min.js"></script>
+	<script src = "../src/lib/clusterfck.js"></script>
 	<script src = "input_ASC_AC_Compar.js"></script>
 	<script src = "../build/d3-linked-charts.js"></script>
 </head>
@@ -13,6 +14,7 @@
 		<td>
 			<div id = "MAPlot"></div>
 			<div id = "heatmap"></div>
+			<div id = "slider"></div>
 		</td>
 		<td>
 			<div id = "normCounts"></div>
@@ -59,9 +61,20 @@
 			d3.select("#title").text(selectedGene);
 
 		})
+		.markedUpdated(function(){
+			hLayer.clusterCols();
+			slider
+				.straightColorScale(hLayer.colourScale)
+				.update();
+			heatmap.update();
+		})
 		.place("#MAplot");
 
-  var sampleIds = ["KP.SPC.1", "KP.SPC.2", "KP.CC10.1", "KP.CC10.2", "KL.SPC.1", "KL.SPC.2", "KL.CC10.1", "KL.CC10.2"]
+  var sampleIds = ["KP.SPC.1", "KP.SPC.2", "KP.CC10.1", "KP.CC10.2", "KL.SPC.1", "KL.SPC.2", "KL.CC10.1", "KL.CC10.2"],
+  	sampleColour = function(id){
+  		return d3.schemePaired[sampleIds.indexOf(id)];
+  	}
+
 
 	var normCounts = d3.scatterChart()
 		.width(250)
@@ -76,10 +89,45 @@
 		.labelY("Log2 Normalized Counts")
 		.dataIds(sampleIds)
 		.domainY([0,20])
+		.colour(sampleColour)
+		.size(5)
 		.place("#normCounts");
 
 	var infoTable = d3.simpleTable()
 		.record(function() {return inputData[selectedGene]})
 		.place("#infTable");
+
+
+	var heatmap = d3.heatmapChart()
+		.width(700)
+		.height(300)
+		.rowIds(sampleIds)
+		.colIds(function(){
+			return MAplot.container.selectAll(".marked").data();
+		})
+		.value(function(rowId, colId){
+			return inputData[colId][rowId];
+		})
+		.margin({top: 50, bottom: 10, left: 70, right: 10})
+		.colourRange([0, 17])
+		.on_click(function(rowId, colId){
+			selectedGene = colId;
+			infoTable.update();
+			normCounts.update();
+		})
+		.place("#heatmap");
+
+	var hLayer = heatmap.get_layer("layer0");
+
+	var slider = d3.sigmoidColorSlider()
+		.straightColorScale(hLayer.colourScale)
+		.margin({top: 30, bottom: 10, left: 150, right: 10})
+		.on_change(function(){
+			hLayer.colour(function(val){
+				return hLayer.get_palette(slider.the_sigmoid(val));
+			});
+			hLayer.updateColour();
+		})
+	  .place("#slider");
 </script>
 </body>

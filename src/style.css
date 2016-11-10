@@ -23,7 +23,7 @@ circle.selected{
 }
 circle.marked {
 	stroke-width: 2px;
-	stroke: #d45;
+	stroke: #4d5;
 }
 
 rect.hover{

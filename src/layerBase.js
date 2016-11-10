@@ -9,7 +9,8 @@ export function layerBase() {
 		.add_property("contScaleY", true)
 		.add_property("pointMouseOver", function() {})
 		.add_property("pointMouseOut", function() {})
-		.add_property("on_click", function() {});
+		.add_property("on_click", function() {})
+		.add_property("markedUpdated", function() {});
 
 	layer.add_click_listener = function(){
 
@@ -153,11 +154,12 @@ export function layerBase() {
 	                    //console.log("doubleclick");
 	                    window.clearTimeout(wait_dblClick);
 	                    wait_dblClick = null;
-	                    points.on("dblclick").apply(points, mark);
+	                    points.on("dblclick").apply(points, [mark]);
 	        } else {
 	          wait_dblClick = window.setTimeout((function(e) {
+	          							//var mark = e.shiftKey;
 	                        return function() {
-	                            points.on("click").apply(points, [pos], mark);
+	                            points.on("click").call(points, pos, mark);
 	                            wait_dblClick = null;
 	                        };
 	                    })(d3.event), 300);
@@ -167,13 +169,12 @@ export function layerBase() {
 	      }
 	      // remove temporary selection marker class
 	      if(mark)
-	      	d3.selectAll(".tmp-selection")
+	      	d3.selectAll(".selected")
 	      		.classed("marked", true);
       	d3.selectAll(".tmp-selection")
         	.classed("tmp-selection",false)
         	.classed("selected", false)
-	      if(!mark)
-	      	layer.zoom(lu, rb);
+	      mark ? layer.get_markedUpdated() : layer.zoom(lu, rb);
 	    } )
 	    .on("dblclick", function(mark){
 	      console.log("doubleclick");
@@ -181,9 +182,8 @@ export function layerBase() {
 	    })  
 
 	    .on("click", function(p, mark){
-
 	      console.log("click");
-	      console.log(p);
+	      console.log(p, mark);
 	      var clickedPoint = layer.findPoints(p, p);
 	      if(!clickedPoint.empty()){
 	      	if(!mark){
@@ -191,6 +191,7 @@ export function layerBase() {
 	      		click.apply(clickedPoint, [clickedPoint.datum()]); 
 	      	} else {
 	      		clickedPoint.classed("marked") ? clickedPoint.classed("marked", false) : clickedPoint.classed("marked", true);
+	      		layer.get_markedUpdated();
 	      	}
 	      }
 	    });

@@ -187,7 +187,7 @@ var chart = d3.tableChartBase()
 	.width(1000)
 	.height(700)
 	.margin({top: 100, bottom: 50, left: 150, right: 20});
-d3.heatmapChart(chart, "heatm")
+d3.heatmapChart("heatm", chart)
 	.colourRange(get_colourRange)
 	.on_click(function(d){
 		curveFit_id = d[1] + "_" + d[0];
@@ -203,7 +203,7 @@ d3.heatmapChart(chart, "heatm")
 var curveFit = d3.axisChartBase()
 	.labelX("Concentration (log10)")
 	.labelY("Inhibition");
-d3.scatterChart(curveFit, "scatter")	
+d3.scatterChart("scatter", curveFit)	
 	.npoints(10)
 	.x(get_x)
 	.y(get_y)
@@ -213,7 +213,7 @@ d3.scatterChart(curveFit, "scatter")
 		else
 			return "fill: LightBlue;";
 	});
-d3.lineChart(curveFit, "line")
+d3.lineChart("line", curveFit)
 	.nlines(2)
 	.lineFun(curveFunction)
 	.lineStyle(function(i){
