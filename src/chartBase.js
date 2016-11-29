@@ -273,7 +273,7 @@ export function axisChartBase() {
 	
 		//set scales and update axes
 		var domainX = chart.get_domainX();
-		if(domainX.length == 2)
+		if(domainX.length == 2 & typeof domainX[0] === "number")
 			chart.axes.scale_x = d3.scaleLinear()
 				.domain( domainX )
 				.range( [ 0, chart.get_width() ] )
@@ -286,7 +286,7 @@ export function axisChartBase() {
 		}
 		
 		var domainY = chart.get_domainY();
-		if(domainY.length == 2)
+		if(domainY.length == 2 & typeof domainY[0] === "number")
 			chart.axes.scale_y = d3.scaleLinear()
 				.domain( domainY )
 				.range( [chart.get_height(), 0] )
