@@ -8,3 +8,5 @@ The following example demonstrates how this looks in practice and how to code in
 First example script: https://simon-anders.github.io/demos/linked-charts.html
 
 A more complete documentation is work-in-progress.
+
+If you already want to try out linked-charts, send us an e-mail (or give us a month or two to bundle everything uip nicely).
