@@ -5,6 +5,7 @@ charts. By "linking", we mean that a user's interaction with one chart controls 
 on a data point in a summary chart can show the data underlying this data point in the second plot.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 First example script: https://simon-anders.github.io/demos/linked-charts.html
 
 =======
@@ -15,3 +16,10 @@ A more complete documentation is work-in-progress.
 
 If you already want to try out linked-charts, send us an e-mail (or give us a month or two to bundle everything uip nicely).
 >>>>>>> refs/remotes/origin/master
+=======
+The following example demonstrates how this looks in practice and how to code in "linked-charts":
+First example script: https://simon-anders.github.io/demos/linked-charts.html
+
+A more complete documentation is work-in-progress.
+
+>>>>>>> origin/Layers
