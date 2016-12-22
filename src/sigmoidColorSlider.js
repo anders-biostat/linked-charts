@@ -96,7 +96,8 @@ export function sigmoidColorSlider() {
       .attr( "xlink:href", "#mainMarker")
       .attr( "y", 28 )
       .call( d3.drag().on( "drag", function() {
-         obj.midpoint( obj.get_midpoint() + obj.pos_scale.invert( d3.event.dx ) );
+         //console.log( obj.get_midpoint(),  d3.event.dx,  obj.pos_scale.invert( d3.event.dx ) )
+         obj.midpoint( obj.pos_scale.invert( obj.pos_scale( obj.get_midpoint() ) + d3.event.dx ) );
          obj.clamp_markers();
          obj.update();
       } )
@@ -109,7 +110,8 @@ export function sigmoidColorSlider() {
       .attr( "xlink:href", "#rightMarker")
       .attr( "y", 30 )
       .call( d3.drag().on( "drag", function() {
-         obj.slopewidth( obj.get_slopewidth() + obj.pos_scale.invert( d3.event.dx ) );
+         obj.slopewidth( obj.pos_scale.invert( obj.pos_scale( obj.get_slopewidth() ) + d3.event.dx ) );
+         //obj.slopewidth( obj.get_slopewidth() + obj.pos_scale.invert( d3.event.dx ) );
          obj.clamp_markers();
          obj.update();        
       } )
@@ -122,7 +124,8 @@ export function sigmoidColorSlider() {
       .attr( "xlink:href", "#leftMarker")
       .attr( "y", 30 )
       .call( d3.drag().on( "drag", function() {
-         obj.slopewidth( obj.get_slopewidth() - obj.pos_scale.invert( d3.event.dx ) );
+         obj.slopewidth( obj.pos_scale.invert( obj.pos_scale( obj.get_slopewidth() ) - d3.event.dx ) );
+         //obj.slopewidth( obj.get_slopewidth() - obj.pos_scale.invert( d3.event.dx ) );
          obj.clamp_markers();
          obj.update();        
       } )
@@ -145,7 +148,7 @@ export function sigmoidColorSlider() {
       obj.midpoint( percent_scale( 50 ) );
 
     if( obj.get_slopewidth() == undefined )
-      obj.slopewidth( percent_scale( 15 ) );
+      obj.slopewidth( Math.abs(percent_scale( 15 )) );
 
     obj.pos_scale = d3.scaleLinear()
       .range( [ 0, obj.get_width() ] )
