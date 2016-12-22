@@ -431,7 +431,7 @@ export function tableChartBase() {
 			else
 				throw "Wrong rowId in chart.get_heatmapRow";
 		});
-		
+		chart.update();
 		return chart;
 	}
 	chart.reorderCol = function(f){
@@ -464,6 +464,7 @@ export function tableChartBase() {
 			else
 				throw "Wrong rowId in chart.get_heatmapRow";
 		});
+		chart.update();
 		return chart;
 	}
 	
