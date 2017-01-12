@@ -128,36 +128,33 @@ chB.append("label")
 
 reorderRow = function(){
 	var sort = document.getElementById("sortRows").value;
+	heatmap.get_rowIds("clear");
 	if(sort == "cluster")
 		layer.clusterRows();
 	var ids = get_inds();
 	if(sort == "sample"){
-		heatmap.reorderRow(function(a, b){return a > b;})
+		heatmap.reorderRow(function(a, b){
+			return a.split("/")[0].localeCompare(b.split("/")[0]);
+		});
 	}
 	if(sort == "drug"){
-		var invIds = [];
-		for(var i = 0; i < ids.length; i++)
-			invIds.push(ids[i].split("/")[1] + "/" + ids[i].split("/")[0]);
-		invIds.sort();
-		heatmap.reorderRow(function(a, b){return invIds.indexOf(a) > invIds.indexOf(b);})
+		heatmap.reorderRow(function(a, b){return a.split("/")[1].localeCompare(b.split("/")[1]);});
 	}
 }
 reorderCol = function(){
 	var sort = document.getElementById("sortCols").value;
+	heatmap.get_colIds("clear");
 	if(sort == "cluster")
 		layer.clusterCols();
 	var ids = get_inds();
 	if(sort == "sample"){
-		heatmap.reorderCol(function(a, b){return a > b;})
+		heatmap.reorderCol(function(a, b){return a.split("/")[0].localeCompare(b.split("/")[0]);});
 	}
 	if(sort == "drug"){
-		var invIds = [];
-		for(var i = 0; i < ids.length; i++)
-			invIds.push(ids[i].split("/")[1] + "/" + ids[i].split("/")[0]);
-		invIds.sort();
-		heatmap.reorderCol(function(a, b){return invIds.indexOf(a) > invIds.indexOf(b);})
+		heatmap.reorderCol(function(a, b){return a.split("/")[1].localeCompare(b.split("/")[1]);});
 	}
 }
+
 	
 get_inds = function(){
 	var selSamples = d3.select("#samples").selectAll("input")

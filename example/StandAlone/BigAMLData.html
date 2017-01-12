@@ -2607,28 +2607,30 @@ chB.append("label")
 
 reorderRow = function(){
 	var sort = document.getElementById("sortRows").value;
+	heatmap.get_rowIds("clear");
 	if(sort == "cluster")
 		layer.clusterRows();
 	var ids = get_inds();
 	if(sort == "sample"){
 		heatmap.reorderRow(function(a, b){
-			return a.split("/")[0] > b.split("/")[0];
+			return a.split("/")[0].localeCompare(b.split("/")[0]);
 		});
 	}
 	if(sort == "drug"){
-		heatmap.reorderRow(function(a, b){return a.split("/")[1] > b.split("/")[1];});
+		heatmap.reorderRow(function(a, b){return a.split("/")[1].localeCompare(b.split("/")[1]);});
 	}
 }
 reorderCol = function(){
 	var sort = document.getElementById("sortCols").value;
+	heatmap.get_colIds("clear");
 	if(sort == "cluster")
 		layer.clusterCols();
 	var ids = get_inds();
 	if(sort == "sample"){
-		heatmap.reorderCol(function(a, b){return a.split("/")[0] > b.split("/")[0];});
+		heatmap.reorderCol(function(a, b){return a.split("/")[0].localeCompare(b.split("/")[0]);});
 	}
 	if(sort == "drug"){
-		heatmap.reorderCol(function(a, b){return a.split("/")[1] > b.split("/")[1];});
+		heatmap.reorderCol(function(a, b){return a.split("/")[1].localeCompare(b.split("/")[1]);});
 	}
 }
 	
