@@ -242,30 +242,30 @@ export function axisChartBase() {
 		return chart;
 	}
 	
-  var inherited_put_static_content = chart.put_static_content;
-  chart.put_static_content = function( element ) {
-    inherited_put_static_content( element );
+	var inherited_put_static_content = chart.put_static_content;
+  	chart.put_static_content = function( element ) {
+    	inherited_put_static_content( element );
 
-    chart.axes = {};
+    	chart.axes = {};
 		
 		var g = chart.svg.append("g")
 			.attr("transform", "translate(" + chart.get_margin().left + 
 				", " + chart.get_margin().top + ")");
 		
-    chart.axes.x_g = g.append( "g" )
-      .attr( "class", "x axis" )
-      .attr( "transform", "translate(0," + chart.get_height() + ")" );
-    chart.axes.x_label = chart.axes.x_g.append( "text" )
-      .attr( "class", "label" )
-      .style( "text-anchor", "end" );
+   	chart.axes.x_g = g.append( "g" )
+      	.attr( "class", "x axis" )
+      	.attr( "transform", "translate(0," + chart.get_height() + ")" );
+    	chart.axes.x_label = chart.axes.x_g.append( "text" )
+      	.attr( "class", "label" )
+      	.style( "text-anchor", "end" );
 
-    chart.axes.y_g = g.append( "g" )
-      .attr( "class", "y axis" )
-    chart.axes.y_label = chart.axes.y_g.append( "text" )
-      .attr( "class", "label" )
-      .attr( "transform", "rotate(-90)" )
-      .style( "text-anchor", "end" );
-  }	
+    	chart.axes.y_g = g.append( "g" )
+      	.attr( "class", "y axis" )
+    	chart.axes.y_label = chart.axes.y_g.append( "text" )
+      	.attr( "class", "label" )
+      	.attr( "transform", "rotate(-90)" )
+      	.style( "text-anchor", "end" );
+  	}	
 	
 	var inherited_update = chart.update;
 	
