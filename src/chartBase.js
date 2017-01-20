@@ -102,7 +102,7 @@ export function layerChartBase(){
 		return chart;
 	}
 	
-var inherited_put_static_content = chart.put_static_content;
+	var inherited_put_static_content = chart.put_static_content;
 	chart.put_static_content = function(element){
 		inherited_put_static_content(element);
 		chart.container.append("div")
@@ -241,7 +241,7 @@ export function axisChartBase() {
 		
 		return chart;
 	}
-	
+
 	var inherited_put_static_content = chart.put_static_content;
   	chart.put_static_content = function( element ) {
     	inherited_put_static_content( element );
