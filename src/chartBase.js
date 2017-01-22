@@ -321,11 +321,7 @@ export function axisChartBase() {
 			if( typeof domainY[0] !== "number" | typeof domainY[0] !== "number") {
 				throw "attempt to fix aspect ratio for non-numeric axes";
 			}
-			console.log( "x", chart.axes.scale_x.range(), chart.axes.scale_x.domain() )
-			console.log( "y", chart.axes.scale_y.range(), chart.axes.scale_y.domain() )
 			fix_aspect_ratio( chart.axes.scale_x, chart.axes.scale_y, chart.get_aspectRatio() );
-			console.log( "x", chart.axes.scale_x.range(), chart.axes.scale_x.domain() )
-			console.log( "y", chart.axes.scale_y.range(), chart.axes.scale_y.domain() )
 		}
 
 		inherited_update();
