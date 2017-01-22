@@ -22,7 +22,9 @@ export function sigmoidColorSlider() {
     .add_property( "slopewidth", undefined )
     .add_property( "on_drag", function() {})
 		.add_property( "on_change", function() {})
-    .height( 50 );    
+    .margin( { top: 20, right: 5, bottom: 5, left: 5 } )
+    .height( 50 )
+    .transitionDuration( 0 );    
 
   obj.straightColorScale(
     d3.scaleLinear()
@@ -98,7 +100,6 @@ export function sigmoidColorSlider() {
       .attr( "y", 28 )
       .call( d3.drag()
         .on( "drag", function() {
-          console.log("drag event")
           obj.midpoint( obj.pos_scale.invert( obj.pos_scale( obj.get_midpoint() ) + d3.event.dx ) );
           obj.clamp_markers();
           obj.get_on_drag();
