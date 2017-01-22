@@ -129,6 +129,25 @@ export function layerChartBase(){
 	return chart;
 }
 
+// This function takes two linear scales, and extends the domain of one of them to get  
+// the desired x:y aspect ratio 'asp'. 
+function fix_aspect_ratio( scaleX, scaleY, asp ) { 
+   var xfactor = ( scaleX.range()[1] - scaleX.range()[0] ) /  
+      ( scaleX.domain()[1] - scaleX.domain()[0] ) 
+   var yfactor = ( scaleY.range()[1] - scaleY.range()[0] ) /  
+      ( scaleY.domain()[1] - scaleY.domain()[0] ) 
+   var curasp = Math.abs( xfactor / yfactor )  // current aspect ratio 
+   if( curasp > asp ) {  // x domain has to be expanded 
+      var cur_dom_length = ( scaleX.domain()[1] - scaleX.domain()[0] ) 
+      var extension = cur_dom_length * ( curasp/asp - 1 ) / 2 
+      scaleX.domain( [ scaleX.domain()[0] - extension, scaleX.domain()[1] + extension ] )       
+   } else { // y domain has to be expanded 
+      var cur_dom_length = ( scaleY.domain()[1] - scaleY.domain()[0] ) 
+      var extension = cur_dom_length * ( asp/curasp - 1 ) / 2 
+      scaleY.domain( [ scaleY.domain()[0] - extension, scaleY.domain()[1] + extension ] )             
+   } 
+} 
+
 export function axisChartBase() {
 	
 	var chart = layerChartBase();
@@ -137,6 +156,7 @@ export function axisChartBase() {
 		.add_property("singleScaleY", true)
 		.add_property("domainX")
 		.add_property("domainY")
+		.add_property("aspectRatio", null)
 		.add_property("labelX")
 		.add_property("labelY");
 	
@@ -297,25 +317,36 @@ export function axisChartBase() {
 				.range( [chart.get_height(), 0] )
 				.padding(0.3);
 		
+		if( chart.get_aspectRatio() ) {
+			if( typeof domainY[0] !== "number" | typeof domainY[0] !== "number") {
+				throw "attempt to fix aspect ratio for non-numeric axes";
+			}
+			console.log( "x", chart.axes.scale_x.range(), chart.axes.scale_x.domain() )
+			console.log( "y", chart.axes.scale_y.range(), chart.axes.scale_y.domain() )
+			fix_aspect_ratio( chart.axes.scale_x, chart.axes.scale_y, chart.get_aspectRatio() );
+			console.log( "x", chart.axes.scale_x.range(), chart.axes.scale_x.domain() )
+			console.log( "y", chart.axes.scale_y.range(), chart.axes.scale_y.domain() )
+		}
+
 		inherited_update();
 		
-    d3.axisBottom()
-      .scale( chart.axes.scale_x )
-      ( chart.axes.x_g.transition(chart.transition) );
+		d3.axisBottom()
+			.scale( chart.axes.scale_x )
+			( chart.axes.x_g.transition(chart.transition) );
 
-    d3.axisLeft()
-      .scale( chart.axes.scale_y )
-      ( chart.axes.y_g.transition(chart.transition) );
+		d3.axisLeft()
+			.scale( chart.axes.scale_y )
+			( chart.axes.y_g.transition(chart.transition) );
 
-    chart.axes.x_label
-      .attr( "x", chart.get_width() )
-      .attr( "y", -6 )
-      .text( chart.get_labelX() );
+		chart.axes.x_label
+			.attr( "x", chart.get_width() )
+			.attr( "y", -6 )
+			.text( chart.get_labelX() );
 
-    chart.axes.y_label
-      .attr( "y", 6 )
-      .attr( "dy", ".71em" )
-      .text( chart.get_labelY() );
+		chart.axes.y_label
+			.attr( "y", 6 )
+			.attr( "dy", ".71em" )
+			.text( chart.get_labelY() );
 		
 		return chart;
 	}
