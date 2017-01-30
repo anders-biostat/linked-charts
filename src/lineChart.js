@@ -1,4 +1,4 @@
-import { axisChartBase } from "./chartBase";
+import { axisChart } from "./chartBase";
 
 export function lineChart(id, chart){
 	

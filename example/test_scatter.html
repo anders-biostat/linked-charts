@@ -51,11 +51,14 @@ if( true ) {
   var highlighted = 0;
 
   var sc = d3.scatterChart()
-    .x( function(i) { return data[i].wt } )
+    .x( 
+      function(i) {
+        return data[i].wt 
+      } )
     .y( function(i) { return data[i].hp } )
     .style( function(i) { return i==highlighted ? "fill:red" : "" } )
-    .x_label( "weight" )
-    .y_label( "horsepower" )
+    .labelX( "weight" )
+    .labelY( "horsepower" )
     .place( )
 
   var tbl = simpleTable()

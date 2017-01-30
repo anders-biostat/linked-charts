@@ -91,19 +91,6 @@ export function separateBy(data, properties){
   return newData;
 }
 
-export function fireEvent(element,event){
-	if (document.createEventObject){
-		// dispatch for IE
-		var evt = document.createEventObject();
-		return element.fireEvent('on'+event,evt)
-	} else {
-    // dispatch for firefox + others
-    var evt = document.createEvent("HTMLEvents");
-    evt.initEvent(event, true, true ); // event type,bubbling,cancelable
-    return !element.dispatchEvent(evt);
-  }
-}
-
 export function getEuclideanDistance(a, b) {
 	if(a.length != b.length)
 		throw "Error in getEuclideanDistance: length of the" +

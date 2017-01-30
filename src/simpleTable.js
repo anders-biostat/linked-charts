@@ -2,27 +2,31 @@ import { chartBase } from "./chartBase";
 
 export function simpleTable() {
 
-  var obj = d3.chartBase()
+  var chart = chartBase()
     .add_property( "record", {} )
 
-  obj.put_static_content = function( element ) {
-    obj.table = element.append( "table" )
+  var inherited_put_static_content = chart.put_static_content;
+  chart.put_static_content = function( element ) {
+    inherited_put_static_content(element);
+    chart.table = chart.container.append( "table" )
       .attr( "border", 1 );
   }
 
-  obj.update = function( ) {
+  var inherited_update = chart.update;
+  chart.update = function( ) {
 
-    var sel = obj.table.selectAll( "tr" )
+    inherited_update();
+    var sel = chart.table.selectAll( "tr" )
       .data( Object.keys( obj.get_record() ) );
     sel.exit()
       .remove();  
     sel.enter().append( "tr" )
     .merge( sel )
       .html( function(k) { return "<td>" + k + "</td><td>" 
-         + obj.get_record()[k] + "</td>" } )
+         + chart.get_record()[k] + "</td>" } )
 
-    return obj;
+    return chart;
   };
 
-  return obj;
+  return chart;
 }

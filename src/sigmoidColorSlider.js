@@ -1,5 +1,4 @@
 import { chartBase } from "./chartBase";
-import { fireEvent } from "./additionalFunctions";
 
 function sigmoid( x, midpoint, slope ) {
   return 1 / ( 1 + Math.exp( -slope * ( x - midpoint ) ) )
@@ -133,7 +132,6 @@ export function sigmoidColorSlider() {
 				obj.get_on_change();
 			})
 		);
-
   }
 	
   var inherited_update = obj.update;

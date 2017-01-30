@@ -6,12 +6,50 @@ export function chartBase() {
 	var chart = base()
 		.add_property("width", 500)
 		.add_property("height", 500)
-		.add_property("margin", { top: 20, right: 10, bottom: 50, left: 50 })
-		.add_property("transitionDuration", 1000);
+		.add_property("plotWidth", 440)
+		.add_property("plotHeight", 440)
+		.add_property("margin", { top: 10, right: 10, bottom: 50, left: 50 })
+		.add_property("transitionDuration", 1000); //may be set to zero
 	
+	chart.transition = undefined;
+  chart.width("_override_", "plotWidth", function(){
+  			return chart.get_width() - 
+  				(chart.get_margin().right + chart.get_margin().left);
+  });
+  chart.plotWidth("_override_", "width", function(){
+  			return chart.get_plotWidth() +
+  				(chart.get_margin().right + chart.get_margin().left);
+  });
+  chart.margin("_override_", "plotWidth", function(){
+  			return chart.get_width() - 
+  				(chart.get_margin().right + chart.get_margin().left);
+  });
+  chart.height("_override_", "plotHeight", function(){
+  			return chart.get_height() - 
+  				(chart.get_margin().top + chart.get_margin().bottom);
+  });
+  chart.plotHeight("_override_", "height", function(){
+  			return chart.get_plotHeight() +
+  				(chart.get_margin().top + chart.get_margin().bottom);
+  });
+  chart.margin("_override_", "plotHeight", function(){
+  			return chart.get_height() - 
+  				(chart.get_margin().top + chart.get_margin().bottom);
+  });
+
   chart.put_static_content = function( element ) {
 		chart.container = element.append("div");
 		chart.svg = chart.container.append("svg");
+		chart.container.append("div")
+			.attr("class", "inform hidden")
+			.append("p")
+				.attr("class", "value");
+	}
+
+	chart.afterUpdate = function(){
+		if(chart.get_transitionDuration() != 0)
+			chart.transition = 
+				d3.transition().duration(chart.get_transitionDuration());
 	}
 
   chart.place = function( element ) {
@@ -22,114 +60,114 @@ export function chartBase() {
       if( element.size == 0 )
         throw "Error in function 'place': DOM selection for string '" +
           node + "' did not find a node."
-    }
-
+  	}
 		chart.put_static_content( element );
-
     chart.update();
+    chart.afterUpdate();
     return chart;
   }
 	
-	chart.update_not_yet_called = true;
-	
-	chart.update = function(){
-		
-		var k;
-		if(chart.update_not_yet_called){
-			chart.update_not_yet_called = false;
-			chart.transition = 
-				d3.transition().duration(0);
+	//update parts
+	chart.updateSize = function(){
+		if(typeof chart.transition !== "undefined"){
+			chart.svg.transition(chart.transition)
+				.attr("width", chart.get_width())
+				.attr("height", chart.get_height());
+			chart.container.transition(chart.transition)
+				.style("width", chart.get_width() + "px")
+				.style("height", chart.get_height() + "px");
 		} else {
-			chart.transition = 
-				d3.transition().duration(chart.get_transitionDuration());
+			chart.svg
+				.attr("width", chart.get_width())
+				.attr("height",	chart.get_height());
+			chart.container
+				.style("width", chart.get_width() + "px")
+				.style("height", chart.get_height() + "px");
 		}
+		return chart;			
+	}
 
-		chart.svg.transition(chart.transition)
-			.attr("width", 
-				chart.get_width() + chart.get_margin().left + chart.get_margin().right)
-			.attr("height", 
-				chart.get_height() + chart.get_margin().top + chart.get_margin().bottom);
-		chart.container.transition(chart.transition)
-			.style("width", 
-				(chart.get_width() + chart.get_margin().left + chart.get_margin().right)
-				+ "px")
-			.style("height", 
-				(chart.get_height() + chart.get_margin().top + chart.get_margin().bottom) 
-				+ "px");
+	chart.update = function(){
+		chart.updateSize();
 		return chart;
 	}
-	
   return chart;
 }
 
 export function layerChartBase(){
-	var chart = chartBase();
-	chart.properties.push("add_layer");
-	chart.properties.push("get_layer");
-	chart.properties.push("place");
+	var chart = chartBase()
+		.add_property("activeLayer", undefined);
 	
 	//Basic layer functionality
 	chart.layers = {};
+	var findLayerProperty = function(propname){
+		return function() {
+			if(chart.get_activeLayer()[propname])
+				return chart.get_activeLayer()[propname].apply(chart, arguments)
+			else {
+				for(var i in chart.layers)
+					if(chart.layers[i][propname])
+						return chart.layers[i][propname].apply(chart, arguments);
+				return;
+			}
+		}
+	}
+	chart.syncProperties = function(layer){
+		for(var i in layer)
+			if(typeof chart[i] === "undefined")
+				chart[i] = findLayerProperty(i);
+	}
 
 	chart.get_nlayers = function() {
 		return Object.keys(chart.layers).length;
 	}
-	chart.get_layer = function(k) {
-		return chart.layers[k];
+	chart.get_layer = function(id) {
+		return chart.layers[id];
 	}
-	chart.add_layer = function(k) {
-		if(typeof k === "undefined")
-			k = "layer" + chart.get_nlayers();
+	chart.add_layer = function(id) {
+		if(typeof id === "undefined")
+			id = "layer" + chart.get_nlayers();
 		var layer = layerBase();
-		chart.layers[k] = {};
 		layer.chart = chart;
-		chart.layers[k] = layer;
-		//Object.assign(chart.layers[k], layer)
+		chart.layers[id] = layer;
+		chart.activeLayer(chart.get_layer(id));
 
-		for(var i = 0; i < chart.properties.length; i++){
-			layer[chart.properties[i]] = chart[chart.properties[i]];
-			layer["get_" + chart.properties[i]] = chart["get_" + chart.properties[i]];
-		}
-			
-		return chart.get_layer(k);
-	}
-	chart.setActiveLayer = function(id) {
-		var layer = chart.layers[id];
-		for(var i = 0; i < layer.properties.length; i++){
-			chart[layer.properties[i]] = layer[layer.properties[i]];
-			chart["get_" + layer.properties[i]] = layer["get_" + layer.properties[i]];
-		}
 		return chart;
 	}
 	
-var inherited_put_static_content = chart.put_static_content;
+	var inherited_put_static_content = chart.put_static_content;
 	chart.put_static_content = function(element){
 		inherited_put_static_content(element);
-		chart.container.append("div")
-			.attr("class", "inform hidden")
-			.append("p")
-				.attr("class", "value");		
+		for(var k in chart.layers)
+			chart.get_layer(k).put_static_content();		
 	}
 
 	var inherited_update = chart.update;
 	chart.update = function() {
 		inherited_update();
-
 		for(var k in chart.layers)
 			chart.get_layer(k).update();
-		
-		chart.svg.select(".clickPanel")
-			//.attr("x", chart.get_margin().left)
-			//.attr("y", chart.get_margin().top)
-			.attr("width", chart.get_width())
-			.attr("height", chart.get_height());
-
 		return chart;
 	}
+
+	var inherited_afterUpdate = chart.afterUpdate;
+	chart.afterUpdate = function(){
+		inherited_afterUpdate();
+		for(var k in chart.layers)
+			chart.get_layer(k).afterUpdate();
+	}
+
+	var inherited_updateSize = chart.updateSize;
+	chart.updateSize = function(){
+		inherited_updateSize();
+		for(var k in chart.layers)
+			chart.get_layer(k).updateSize();
+	}
+
 	return chart;
 }
 
-export function axisChartBase() {
+export function axisChart() {
 	
 	var chart = layerChartBase();
 	
@@ -139,82 +177,58 @@ export function axisChartBase() {
 		.add_property("domainY")
 		.add_property("labelX")
 		.add_property("labelY");
+
+	chart.axes = {};
 	
-	//default getter for domainX
-	var get_domainX = function() {
-		//TODO: add possibility of adding several axises
-		//(one for each plot.layer)
-		var domain;
-		
-		if(chart.get_singleScaleX()){
-			var contScale = true;
-			for(var k in chart.layers)
-				contScale = contScale && chart.get_layer(k).get_contScaleX();
-			if(contScale){ //if resulting scale is continous, find minimun and maximum values
+	//default getter for domain
+	//tries to make domain fit data from all layers
+	//for axis capital letters a supposed to be used
+	var get_domain = function(axis) {
+		return function() {
+			var domain;
+			//TODO: add possibility of adding several axises
+			//(one for each plot.layer)
+			if(chart["get_singleScale" + axis]()){
+				//if all the layers use continuous scale, make the scale continuous
+				//otherwise make it categorical
+				var contScale = true;
 				for(var k in chart.layers)
-					//some of the layers may not have domains at all (such as legends)
-					if(typeof chart.get_layer(k).get_layerDomainX() !== "undefined")
-						if(typeof domain === "undefined") 
-							domain = chart.get_layer(k).get_layerDomainX()
-						else {
-							domain[0] = d3.min([domain[0], chart.get_layer(k).get_layerDomainX()[0]]);
-							domain[1] = d3.min([domain[1], chart.get_layer(k).get_layerDomainX()[1]]);
-						}
-			} else { //if scale is categorical, find unique values from each layer
-				for(var k in chart.layers)
-					if(typeof chart.get_layer(k).get_layerDomainX() !== "undefined")
-						if(typeof domain === "undefined") 
-							domain = chart.get_layer(k).get_layerDomainX()
-						else 
-							domain = domain.concat(chart.get_layer(k).get_layerDomainX()
-								.filter(function(e){
-									return domain.indexOf(e) < 0;
-								}));
+					contScale = contScale && chart.get_layer(k)["get_contScale" + axis]();
+
+				if(contScale){//if resulting scale is continous, find minimun and maximum values
+					for(var k in chart.layers)
+						//some of the layers may not have domains at all (such as legends)
+						if(typeof chart.get_layer(k)["get_layerDomain" + axis]() !== "undefined")
+							if(typeof domain === "undefined") 
+								domain = chart.get_layer(k)["get_layerDomain" + axis]()
+							else {
+								domain[0] = d3.min([domain[0], chart.get_layer(k)["get_layerDomain" + axis]()[0]]);
+								domain[1] = d3.min([domain[1], chart.get_layer(k)["get_layerDomain" + axis]()[1]]);
+							}
+				} else { //if scale is categorical, find unique values from each layer
+					for(var k in chart.layers)
+						if(typeof chart.get_layer(k)["get_layerDomain" + axis]() !== "undefined")
+							if(typeof domain === "undefined") 
+								domain = chart.get_layer(k)["get_layerDomain" + axis]()
+							else 
+								domain = domain.concat(chart.get_layer(k)["get_layerDomain" + axis]()
+									.filter(function(e){
+										return domain.indexOf(e) < 0;
+									}));
+				}
 			}
+			return domain;
 		}
-		
-		return domain;
-	}
-	var get_domainY = function() {
-		var domain;
-		
-		if(chart.get_singleScaleY()){
-			var contScale = true;
-			for(var k in chart.layers)
-				contScale = contScale && chart.get_layer(k).get_contScaleY();
-			if(contScale){
-				for(var k in chart.layers)
-					if(typeof chart.get_layer(k).get_layerDomainY() !== "undefined")
-						if(typeof domain === "undefined") 
-							domain = chart.get_layer(k).get_layerDomainY()
-						else {
-							domain[0] = d3.min([domain[0], chart.get_layer(k).get_layerDomainY()[0]]);
-							domain[1] = d3.min([domain[1], chart.get_layer(k).get_layerDomainY()[1]]);
-						}							
-			} else { //if scale is categorical, find unique values from each layer
-				for(var k in chart.layers)
-					if(typeof chart.get_layer(k).get_layerDomainY() !== "undefined")
-						if(typeof domain === "undefined") 
-							domain = chart.get_layer(k).get_layerDomainY()
-						else 
-							domain = domain.concat(chart.get_layer(k).get_layerDomainY()
-								.filter(function(e){
-									return domain.indexOf(e) < 0;
-								}));
-			}
-		}
-		
-		return domain;
 	}
 
-	chart.get_domainX = get_domainX;
-	chart.get_domainY = get_domainY;
+	chart.get_domainX = get_domain("X");
+	chart.get_domainY = get_domain("Y");
 
 	//redefine setters for axis domains
 	chart.domainX = function(domain){
 		//set default getter
 		if(domain == "reset"){
-			chart.domainX(get_domainX());
+			chart.domainX(get_domain("X"));
 			return chart;
 		}
 		//if user provided function, use this function
@@ -229,7 +243,7 @@ export function axisChartBase() {
 	}
 	chart.domainY = function(domain){
 		if(domain == "reset"){
-			chart.domainY(get_domainY());
+			chart.domainY(get_domain("Y"));
 			return chart;
 		}
 		if(typeof domain === "function")
@@ -245,18 +259,15 @@ export function axisChartBase() {
   var inherited_put_static_content = chart.put_static_content;
   chart.put_static_content = function( element ) {
     inherited_put_static_content( element );
-
-    chart.axes = {};
 		
 		var g = chart.svg.append("g")
-			.attr("transform", "translate(" + chart.get_margin().left + 
-				", " + chart.get_margin().top + ")");
-		
+			.attr("class", "axes_g");
+
     chart.axes.x_g = g.append( "g" )
-      .attr( "class", "x axis" )
-      .attr( "transform", "translate(0," + chart.get_height() + ")" );
+      .attr( "class", "x axis" );
     chart.axes.x_label = chart.axes.x_g.append( "text" )
       .attr( "class", "label" )
+      .attr( "y", -6 )
       .style( "text-anchor", "end" );
 
     chart.axes.y_g = g.append( "g" )
@@ -264,60 +275,86 @@ export function axisChartBase() {
     chart.axes.y_label = chart.axes.y_g.append( "text" )
       .attr( "class", "label" )
       .attr( "transform", "rotate(-90)" )
+      .attr( "y", 6 )
+      .attr( "dy", ".71em" )
       .style( "text-anchor", "end" );
-  }	
-	
-	var inherited_update = chart.update;
-	
-	chart.update = function() {
-	
-		//set scales and update axes
+
 		var domainX = chart.get_domainX();
-		if(domainX.length == 2 & typeof domainX[0] === "number")
+		if(domainX.length == 2 && typeof domainX[0] === "number")
 			chart.axes.scale_x = d3.scaleLinear()
-				.domain( domainX )
-				.range( [ 0, chart.get_width() ] )
-				.nice()
+				.nice();
 		else{
 			chart.axes.scale_x = d3.scalePoint()
-				.domain( domainX )
-				.range( [0, chart.get_width()] )
 				.padding(0.3);	
 		}
 		
 		var domainY = chart.get_domainY();
-		if(domainY.length == 2 & typeof domainY[0] === "number")
+		if(domainY.length == 2 && typeof domainY[0] === "number")
 			chart.axes.scale_y = d3.scaleLinear()
-				.domain( domainY )
-				.range( [chart.get_height(), 0] )
-				.nice()
+				.nice();
 		else
 			chart.axes.scale_y = d3.scalePoint()
-				.domain( get_domainY )
-				.range( [chart.get_height(), 0] )
-				.padding(0.3);
-		
-		inherited_update();
-		
-    d3.axisBottom()
-      .scale( chart.axes.scale_x )
-      ( chart.axes.x_g.transition(chart.transition) );
+				.padding(0.3); 	
+  }	
+	
+	var inherited_updateSize = chart.updateSize;
+	chart.updateSize = function() {
+		inherited_updateSize();
 
-    d3.axisLeft()
-      .scale( chart.axes.scale_y )
-      ( chart.axes.y_g.transition(chart.transition) );
+		if(typeof chart.transition !== "undefined"){
+			chart.svg.select(".axes_g").transition(chart.transition)
+				.attr("transform", "translate(" + chart.get_margin().left + 
+								", " + chart.get_margin().top + ")");
+			chart.axes.x_g.transition(chart.transition)
+				.attr( "transform", "translate(0," + chart.get_plotHeight() + ")" );
+			chart.axes.x_label.transition(chart.transition)
+				.attr("x", chart.get_plotWidth());
 
-    chart.axes.x_label
-      .attr( "x", chart.get_width() )
-      .attr( "y", -6 )
-      .text( chart.get_labelX() );
+		}	else {
+			chart.svg.select(".axes_g")
+				.attr("transform", "translate(" + chart.get_margin().left + 
+								", " + chart.get_margin().top + ")");
+			chart.axes.x_g
+				.attr( "transform", "translate(0," + chart.get_plotHeight() + ")" );
+			chart.axes.x_label
+				.attr("x", chart.get_plotWidth());
+		}
+		chart.axes.scale_x.range([0, chart.get_plotWidth()]);
+		chart.axes.scale_y.range([0, chart.get_plotHeight()]);
 
-    chart.axes.y_label
-      .attr( "y", 6 )
-      .attr( "dy", ".71em" )
-      .text( chart.get_labelY() );
-		
+		chart.updateAxes();
+
 		return chart;
+	};
+
+	chart.updateAxes = function(){
+    chart.axes.x_label
+    	.text( chart.get_labelX());
+		chart.axes.y_label
+   		.text( chart.get_labelY() );
+    chart.axes.scale_x.domain(chart.get_domainX());
+		chart.axes.scale_y.domain(chart.get_domainY());
+
+    if(typeof chart.transition !== "undefined") {
+	    d3.axisBottom()
+	      .scale( chart.axes.scale_x )
+	      ( chart.axes.x_g.transition(chart.transition) );
+
+	    d3.axisLeft()
+	      .scale( chart.axes.scale_y )
+	      ( chart.axes.y_g.transition(chart.transition) );	
+    } else {
+	    d3.axisBottom()
+	      .scale( chart.axes.scale_x )
+	      ( chart.axes.x_g );
+
+	    d3.axisLeft()
+	      .scale( chart.axes.scale_y )
+	      ( chart.axes.y_g );    	
+    }
+
+    for(var k in chart.layers)
+    	chart.get_layer(k).updatePointLocation();
 	}
 	
 	return chart;
@@ -337,225 +374,7 @@ export function tableChartBase() {
 		.add_property("dispColIds", function() {return chart.get_colIds();})
 		.add_property("dispRowIds", function() {return chart.get_rowIds();})
 		.add_property("heatmapRow", function(rowId) {return chart.get_dispRowIds().indexOf(rowId);})
-		.add_property("heatmapCol", function(colId) {return chart.get_dispColIds().indexOf(colId);})
-		.add_property("labelMouseOver")
-		.add_property("labelMouseOut")
-		.add_property("colStyle", "")
-		.add_property("rowStyle", "");
-
-	//if user specifies column or row Ids, set the number of rows or columns automatically
-	/*chart.colIds = function(f) {
-		if(f.length) chart.ncols(f.length);
-		typeof f == "function" ? chart.get_colIds = f : chart.get_colIds = function() {return f;};
-	}
-	chart.rowIds = function(f) {
-		if(f.length) chart.nrows(f.length);
-		typeof f == "function" ? chart.get_rowIds = f : chart.get_rowIds = function() {return f;};
-	}
-*/
+		.add_property("heatmapCol", function(colId) {return chart.get_dispColIds().indexOf(colId);});
 	
-	//make nrows and ncols protected from recursion
-	//if get_colIds and get_rowIds are not using get_ncols
-	//and get_nrows, the number of rows and columns will be
-	//set equal to the number of Ids
-	chart.ncols = function(n){
-		if(!chart.get_colIds())
-			chart.colIds(d3.range(n));
-		return chart;
-	}
-	chart.nrows = function(n){
-		if(!chart.get_rowIds())
-			chart.rowIds(d3.range(n));
-		return chart;
-	}
 
-	chart.get_nrows = (function() {
-			var inFun = false;
-			return function(){
-				if(inFun) return undefined;
-				inFun = true;
-				try {
-					return chart.get_dispRowIds().length;
-				} finally {
-					inFun = false;
-				}
-			}
-		})();
-	chart.get_ncols = (function() {
-			var inFun = false;
-			return function(){
-				if(inFun) return undefined;
-				inFun = true;
-				try {
-					return chart.get_dispColIds().length;
-				} finally {
-					inFun = false;
-				}
-			}
-		})();
-
-	//set default hovering behaviour
-	chart.labelMouseOver(function() {
-		d3.select(this).classed("hover", true);
-	});
-	chart.labelMouseOut(function() {
-		d3.select(this).classed("hover", false);
-	});
-	
-	chart.reorderRow = function(f){
-		if(f == "flip"){
-			chart.get_heatmapRow("__flip__");
-			return chart;
-		}
-		var ids = chart.get_rowIds().slice(), ind;
-		ids = ids.sort(f);
-		chart.heatmapRow(function(rowId){
-			if(rowId == "__flip__"){
-				ids = ids.reverse();
-				return;
-			}
-			if(rowId == "__order__")
-				return ids.sort(f);
-			var actIds = chart.get_dispRowIds(),
-				orderedIds = ids.filter(function(e) {
-					return actIds.indexOf(e) != -1;
-				});
-			if(orderedIds.length != actIds.length) {
-				orderedIds = actIds.sort(f);
-				ids = orderedIds.slice();
-			} 
-			
-			ind = orderedIds.indexOf(rowId);
-			if(ind > -1)
-				 return ind
-			else
-				throw "Wrong rowId in chart.get_heatmapRow";
-		});
-		chart.update();
-		return chart;
-	}
-	chart.reorderCol = function(f){
-		if(f == "flip"){
-			chart.get_heatmapCol("__flip__");
-			return chart;
-		}
-		var ids = chart.get_colIds().slice(), ind;
-		ids = ids.sort(f);
-		chart.heatmapCol(function(colId){
-			if(colId == "__flip__"){
-				ids = ids.reverse();
-				return;
-			}
-			if(colId == "__order__")
-				return ids.sort(f);
-
-			var actIds = chart.get_dispColIds(),
-				orderedIds = ids.filter(function(e) {
-					return actIds.indexOf(e) != -1;
-				});
-			if(orderedIds.length != actIds.length) {
-				orderedIds = actIds.sort(f);
-				ids = orderedIds.slice();
-			}
-			
-			ind = orderedIds.indexOf(colId);
-			if(ind > -1)
-				 return ind
-			else
-				throw "Wrong rowId in chart.get_heatmapRow";
-		});
-		chart.update();
-		return chart;
-	}
-	
-	
-	var inherited_put_static_content = chart.put_static_content;
-	chart.put_static_content = function(element){
-		
-		inherited_put_static_content(element);
-		
-		//chart.container.style("position", "relative");
-
-		//create main parts of the heatmap
-		chart.svg.append("g")
-			.attr("class", "row label_panel");
-		chart.svg.append("g")
-			.attr("class", "col label_panel");
-		
-		//delete later if unnecessary
-		chart.axes = {};
-	}
-	
-	var inherited_update = chart.update;
-	chart.update = function() {
-		//update sizes of all parts of the chart
-		chart.container.transition(chart.transition)
-			.style("width", (chart.get_width() + chart.get_margin().left + chart.get_margin().right) + "px")
-			.style("height", (chart.get_height() + chart.get_margin().top + chart.get_margin().bottom) + "px");
-
-		chart.svg.transition(chart.transition)
-			.attr("height", chart.get_height() + chart.get_margin().top + chart.get_margin().bottom)
-			.attr("width", chart.get_width() + chart.get_margin().left + chart.get_margin().right);
-		
-		chart.svg.selectAll(".label_panel").transition(chart.transition)
-			.attr("transform", "translate(" + chart.get_margin().left + ", " +
-				chart.get_margin().top + ")");
-			
-		//calculate cell size
-		chart.cellSize = {
-			width: chart.get_width() / chart.get_ncols(),
-			height: chart.get_height() / chart.get_nrows()
-		}
-		
-		//create scales
-		chart.axes.scale_x = d3.scaleLinear()
-			.domain( [0, chart.get_ncols() - 1] )
-			.range( [0, chart.get_width() - chart.cellSize.width] )
-			.nice();
-		chart.axes.scale_y = d3.scaleLinear()
-			.domain( [0, chart.get_nrows() - 1] )
-			.range( [0, chart.get_height() - chart.cellSize.height] )
-			.nice();
-
-		//add column labels
-		var colLabels = chart.svg.select(".col").selectAll(".label")
-				.data(chart.get_dispColIds().slice());
-		colLabels.exit()
-			.remove();
-		colLabels.enter()
-			.append("text")
-				.attr("class", "label")
-				.attr("transform", "rotate(-90)")
-				.style("text-anchor", "start")
-				.on("mouseover", chart.get_labelMouseOver)
-				.on("mouseout", chart.get_labelMouseOut)
-			.merge(colLabels).transition(chart.transition)
-				.attr("font-size", d3.min([chart.cellSize.width, 12]))
-				.attr("dy", function(d) {return chart.axes.scale_x(chart.get_heatmapCol(d) + 1);})
-				.attr("dx", 2)
-				.text(function(d) {return chart.get_colLabels(d);});		
-		
-		//add row labels
-		var rowLabels = chart.svg.select(".row").selectAll(".label")
-				.data(chart.get_dispRowIds().slice());
-		rowLabels.exit()
-			.remove();
-		rowLabels.enter()
-			.append("text")
-				.attr("class", "label")
-				.style("text-anchor", "end")
-				.on("mouseover", chart.get_labelMouseOver)
-				.on("mouseout", chart.get_labelMouseOut)
-			.merge(rowLabels).transition(chart.transition)
-				.attr("font-size", d3.min([chart.cellSize.height, 12]))
-				.attr("dy", function(d) {return chart.axes.scale_y(chart.get_heatmapRow(d) + 1);})
-				.attr("dx", -2)
-				.text(function(d) {return chart.get_rowLabels(d)});
-		
-		inherited_update();
-
-		return chart;
-	}		
-	
-	return chart;
 }
