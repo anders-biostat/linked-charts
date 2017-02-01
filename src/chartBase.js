@@ -167,7 +167,26 @@ export function layerChartBase(){
 	return chart;
 }
 
-export function axisChart() {
+// This function takes two linear scales, and extends the domain of one of them to get  
+// the desired x:y aspect ratio 'asp'. 
+function fix_aspect_ratio( scaleX, scaleY, asp ) { 
+   var xfactor = ( scaleX.range()[1] - scaleX.range()[0] ) /  
+      ( scaleX.domain()[1] - scaleX.domain()[0] ) 
+   var yfactor = ( scaleY.range()[1] - scaleY.range()[0] ) /  
+      ( scaleY.domain()[1] - scaleY.domain()[0] ) 
+   var curasp = Math.abs( xfactor / yfactor )  // current aspect ratio 
+   if( curasp > asp ) {  // x domain has to be expanded 
+      var cur_dom_length = ( scaleX.domain()[1] - scaleX.domain()[0] ) 
+      var extension = cur_dom_length * ( curasp/asp - 1 ) / 2 
+      scaleX.domain( [ scaleX.domain()[0] - extension, scaleX.domain()[1] + extension ] )       
+   } else { // y domain has to be expanded 
+      var cur_dom_length = ( scaleY.domain()[1] - scaleY.domain()[0] ) 
+      var extension = cur_dom_length * ( asp/curasp - 1 ) / 2 
+      scaleY.domain( [ scaleY.domain()[0] - extension, scaleY.domain()[1] + extension ] )             
+   } 
+} 
+
+export function axisChartBase() {
 	
 	var chart = layerChartBase();
 	
@@ -175,6 +194,7 @@ export function axisChart() {
 		.add_property("singleScaleY", true)
 		.add_property("domainX")
 		.add_property("domainY")
+		.add_property("aspectRatio", null)
 		.add_property("labelX")
 		.add_property("labelY");
 

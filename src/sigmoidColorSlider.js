@@ -19,8 +19,11 @@ export function sigmoidColorSlider() {
     .add_property( "straightColorScale" )
     .add_property( "midpoint", undefined )
     .add_property( "slopewidth", undefined )
+    .add_property( "on_drag", function() {})
 		.add_property( "on_change", function() {})
-    .height( 50 );    
+    .margin( { top: 20, right: 5, bottom: 5, left: 5 } )
+    .height( 50 )
+    .transitionDuration( 0 );    
 
   obj.straightColorScale(
     d3.scaleLinear()
@@ -94,13 +97,14 @@ export function sigmoidColorSlider() {
     obj.mainMarker = g.append( "use" )
       .attr( "xlink:href", "#mainMarker")
       .attr( "y", 28 )
-      .call( d3.drag().on( "drag", function() {
-         //console.log( obj.get_midpoint(),  d3.event.dx,  obj.pos_scale.invert( d3.event.dx ) )
-         obj.midpoint( obj.pos_scale.invert( obj.pos_scale( obj.get_midpoint() ) + d3.event.dx ) );
-         obj.clamp_markers();
-         obj.update();
-      } )
-				.on("end", function() {
+      .call( d3.drag()
+        .on( "drag", function() {
+          obj.midpoint( obj.pos_scale.invert( obj.pos_scale( obj.get_midpoint() ) + d3.event.dx ) );
+          obj.clamp_markers();
+          obj.get_on_drag();
+          obj.update();
+        } )
+        .on("end", function() {
 					obj.get_on_change();
 				})
 			);
@@ -108,12 +112,13 @@ export function sigmoidColorSlider() {
     obj.rightMarker = g.append( "use" )
       .attr( "xlink:href", "#rightMarker")
       .attr( "y", 30 )
-      .call( d3.drag().on( "drag", function() {
-         obj.slopewidth( obj.pos_scale.invert( obj.pos_scale( obj.get_slopewidth() ) + d3.event.dx ) );
-         //obj.slopewidth( obj.get_slopewidth() + obj.pos_scale.invert( d3.event.dx ) );
-         obj.clamp_markers();
-         obj.update();        
-      } )
+      .call( d3.drag()
+        .on( "drag", function() {
+          obj.slopewidth( obj.pos_scale.invert( obj.pos_scale( obj.get_slopewidth() ) + d3.event.dx ) );
+          obj.clamp_markers();
+          obj.update();        
+          obj.get_on_drag();
+        } )
 				.on("end", function() {
 					obj.get_on_change();
 				})
@@ -122,16 +127,18 @@ export function sigmoidColorSlider() {
     obj.leftMarker = g.append( "use" )
       .attr( "xlink:href", "#leftMarker")
       .attr( "y", 30 )
-      .call( d3.drag().on( "drag", function() {
-         obj.slopewidth( obj.pos_scale.invert( obj.pos_scale( obj.get_slopewidth() ) - d3.event.dx ) );
-         //obj.slopewidth( obj.get_slopewidth() - obj.pos_scale.invert( d3.event.dx ) );
-         obj.clamp_markers();
-         obj.update();        
-      } )
-			.on("end", function() {
-				obj.get_on_change();
-			})
-		);
+      .call( d3.drag()
+        .on( "drag", function() {
+          obj.slopewidth( obj.pos_scale.invert( obj.pos_scale( obj.get_slopewidth() ) - d3.event.dx ) );
+          obj.clamp_markers();
+          obj.update();        
+          obj.get_on_drag();
+        } )
+			  .on("end", function() {
+				  obj.get_on_change();
+			  })
+		  );
+
   }
 	
   var inherited_update = obj.update;
