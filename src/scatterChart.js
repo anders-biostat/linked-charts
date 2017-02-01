@@ -197,11 +197,12 @@ export function scatterChart(id, chart) {
       .remove();  
     sel.enter().append( "circle" )
       .attr( "class", "data_point" )
-      .on( "click", layer.get_on_click )
-      .on( "mouseover", layer.get_pointMouseOver)
-      .on( "mouseout", layer.get_pointMouseOut)
       .attr( "cx", function(d) { return layer.chart.axes.scale_x( layer.get_x(d) ) } )
-      .attr( "cy", function(d) { return layer.chart.axes.scale_y( layer.get_y(d) ) } );
+      .attr( "cy", function(d) { return layer.chart.axes.scale_y( layer.get_y(d) ) } )
+      .merge(sel)
+        .on( "click", layer.get_on_click )
+        .on( "mouseover", layer.get_pointMouseOver )
+        .on( "mouseout", layer.get_pointMouseOut );
   }
 	
   layer.update = function() {

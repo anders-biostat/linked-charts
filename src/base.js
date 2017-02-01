@@ -31,7 +31,10 @@ export function base() {
       if(obj.layers)
         return obj
       else
-        return obj.chart;
+        if(obj.chart)
+          return obj.chart
+        else
+          return obj;
     }
 
 		if(typeof defaultval === "function")

@@ -320,7 +320,7 @@ export function axisChart() {
 				.attr("x", chart.get_plotWidth());
 		}
 		chart.axes.scale_x.range([0, chart.get_plotWidth()]);
-		chart.axes.scale_y.range([0, chart.get_plotHeight()]);
+		chart.axes.scale_y.range([chart.get_plotHeight(), 0]);
 
 		chart.updateAxes();
 

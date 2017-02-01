@@ -1,5 +1,5 @@
 <html><title>Linked charts with D3</title>
-
+<link rel="stylesheet" type="text/css" href="../src/style.css">
 <body>
 
 <div id="main_scatter_plot"></div>
@@ -19,12 +19,17 @@ function simpleTable() {
   obj = d3.chartBase()
     .add_property( "record", {} )
 
+  var inherited_put_static_content  = obj.put_static_content;
   obj.put_static_content = function( element ) {
-    obj.table = element.append( "table" )
+    inherited_put_static_content(element);
+    obj.svg.remove();
+    obj.table = obj.container.append( "table" )
       .attr( "border", 1 );
   }
 
+  var inherited_update = obj.update;
   obj.update = function( ) {
+    inherited_update();
 
     var sel = obj.table.selectAll( "tr" )
       .data( Object.keys( obj.get_record() ) );
