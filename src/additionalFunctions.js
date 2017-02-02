@@ -112,7 +112,8 @@ export function add_click_listener(chart){
   //and make changes to update function
   chart.svg.append("rect")
     .attr("class", "clickPanel")
-    .attr("fill", "transparent");
+    .attr("fill", "transparent")
+    .lower();
   var inherited_updateSize = chart.updateSize;
   
   chart.updateSize = function(){
@@ -140,7 +141,7 @@ export function add_click_listener(chart){
         .attr("y", p[1])
         .attr("width", 1)
         .attr("height", 1);
-      chart.svg.select(".clickPanel").raise();
+      //chart.svg.select(".clickPanel").raise();
     }
     chart.container.select(".inform")
       .classed("blocked", true);
@@ -281,7 +282,7 @@ export function add_click_listener(chart){
     }
   }
 
-  chart.svg.select(".clickPanel")
+  chart.svg
     .on("mousedown", on_mousedown)
     .on("mousemove", on_mousemove)
     .on("mouseup", on_mouseup)

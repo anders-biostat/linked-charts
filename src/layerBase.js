@@ -27,7 +27,7 @@ export function layerBase(id) {
     layer.g = layer.chart.svg.append("g")
       .attr("class", "chart_g")
       .attr("id", layer.id);
-    layer.chart.svg.select(".clickPanel").raise();
+    //layer.chart.svg.select(".clickPanel").raise();
 	};
 	
 	layer.afterUpdate = function(){};
