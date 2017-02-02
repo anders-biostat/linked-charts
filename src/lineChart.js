@@ -38,6 +38,7 @@ export function lineChart(id, chart){
         .on( "mouseover", layer.get_pointMouseOver )
         .on( "mouseout", layer.get_pointMouseOut );			
 	};
+
 	layer.updatePointStyle = function(){
 		if(typeof layer.chart.transition !== "undefined")
 			layer.g.selectAll(".data_point").transition(layer.chart.transition)
@@ -77,7 +78,7 @@ export function lineChart(id, chart){
 				.attr("d", get_data)
 		else
 			layer.g.selectAll(".data_point")
-				.attr("d", get_data)			
+				.attr("d", get_data);			
 	};
 
 	return layer;

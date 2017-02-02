@@ -187,25 +187,6 @@ export function layerChartBase(){
 	return chart;
 }
 
-// This function takes two linear scales, and extends the domain of one of them to get  
-// the desired x:y aspect ratio 'asp'. 
-function fix_aspect_ratio( scaleX, scaleY, asp ) { 
-   var xfactor = ( scaleX.range()[1] - scaleX.range()[0] ) /  
-      ( scaleX.domain()[1] - scaleX.domain()[0] ) 
-   var yfactor = ( scaleY.range()[1] - scaleY.range()[0] ) /  
-      ( scaleY.domain()[1] - scaleY.domain()[0] ) 
-   var curasp = Math.abs( xfactor / yfactor )  // current aspect ratio 
-   if( curasp > asp ) {  // x domain has to be expanded 
-      var cur_dom_length = ( scaleX.domain()[1] - scaleX.domain()[0] ) 
-      var extension = cur_dom_length * ( curasp/asp - 1 ) / 2 
-      scaleX.domain( [ scaleX.domain()[0] - extension, scaleX.domain()[1] + extension ] )       
-   } else { // y domain has to be expanded 
-      var cur_dom_length = ( scaleY.domain()[1] - scaleY.domain()[0] ) 
-      var extension = cur_dom_length * ( asp/curasp - 1 ) / 2 
-      scaleY.domain( [ scaleY.domain()[0] - extension, scaleY.domain()[1] + extension ] )             
-   } 
-} 
-
 export function axisChart() {
 	
 	var chart = layerChartBase();
@@ -381,6 +362,25 @@ export function axisChart() {
 		return chart;
 	};
 
+	// This function takes two linear scales, and extends the domain of one of them to get  
+	// the desired x:y aspect ratio 'asp'. 
+	function fix_aspect_ratio( scaleX, scaleY, asp ) { 
+	   var xfactor = ( scaleX.range()[1] - scaleX.range()[0] ) /  
+	      ( scaleX.domain()[1] - scaleX.domain()[0] ) 
+	   var yfactor = ( scaleY.range()[1] - scaleY.range()[0] ) /  
+	      ( scaleY.domain()[1] - scaleY.domain()[0] ) 
+	   var curasp = Math.abs( xfactor / yfactor )  // current aspect ratio 
+	   if( curasp > asp ) {  // x domain has to be expanded 
+	      var cur_dom_length = ( scaleX.domain()[1] - scaleX.domain()[0] ) 
+	      var extension = cur_dom_length * ( curasp/asp - 1 ) / 2 
+	      scaleX.domain( [ scaleX.domain()[0] - extension, scaleX.domain()[1] + extension ] )       
+	   } else { // y domain has to be expanded 
+	      var cur_dom_length = ( scaleY.domain()[1] - scaleY.domain()[0] ) 
+	      var extension = cur_dom_length * ( asp/curasp - 1 ) / 2 
+	      scaleY.domain( [ scaleY.domain()[0] - extension, scaleY.domain()[1] + extension ] )             
+	   } 
+	} 
+
 	chart.updateAxes = function(){
     chart.axes.x_label
     	.text( chart.get_labelX());
@@ -388,6 +388,8 @@ export function axisChart() {
    		.text( chart.get_labelY() );
     chart.axes.scale_x.domain(chart.get_domainX());
 		chart.axes.scale_y.domain(chart.get_domainY());
+		if(chart.get_aspectRatio())
+			fix_aspect_ratio(chart.axes.scale_x, chart.axes.scale_y, chart.get_aspectRatio());
 
     if(typeof chart.transition !== "undefined") {
 	    d3.axisBottom()
