@@ -13,15 +13,44 @@ export function layerBase(id) {
 		.add_property("contScaleY", true);;
 
 	layer.id = id;
-	layer.update = function(){};
+
+	layer.update = function() {
+    
+    layer.updatePoints();
+    layer.updatePointStyle();
+    layer.updatePointLocation();
+
+    return layer;
+  };
+
 	layer.put_static_content = function() {
     layer.g = layer.chart.svg.append("g")
       .attr("class", "chart_g")
       .attr("id", layer.id);
     layer.chart.svg.select(".clickPanel").raise();
 	};
+	
 	layer.afterUpdate = function(){};
-	layer.updateSize = function(){};
-		
+  
+  layer.updateSize = function(){
+    if(typeof layer.chart.transition !== "undefined"){
+      layer.g.transition(layer.chart.transition)
+        .attr("transform", "translate(" + 
+          layer.chart.get_margin().left + ", " +
+          layer.chart.get_margin().top + ")");
+      layer.g.selectAll(".data_point")
+    } else {
+      layer.g
+        .attr("transform", "translate(" + 
+          layer.chart.get_margin().left + ", " +
+          layer.chart.get_margin().top + ")");
+    }
+    return layer;
+  }
+  layer.updatePoints = function() {};
+  layer.updatePointStyle = function() {};
+  layer.updatePointLocation = function() {};
+  layer.findPoints = function() {return layer.g.select("___");}; //return empty selection	
+	
 	return layer;
 }

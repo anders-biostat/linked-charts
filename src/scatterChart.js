@@ -48,6 +48,35 @@ export function scatterChart(id, chart) {
     throw "There seem to be very many data points. Please supply a number via 'npoints'."
   });
 
+  //default hovering behaviour
+  layer.pointMouseOver(function(d){
+    //change colour and class
+    d3.select(this)
+      .attr("fill", function(d) {
+        return d3.rgb(layer.get_colour(d)).darker(0.5);
+      })
+      .classed("hover", true);
+    //show label
+    layer.chart.container.select(".inform")
+        .style("left", (d3.event.pageX + 10) + "px")
+        .style("top", (d3.event.pageY - 10) + "px")
+        .select(".value")
+          .html("ID: <b>" + d + "</b>;<br>" + 
+            "x = " + layer.get_x(d) + ";<br>" + 
+            "y = " + layer.get_y(d));  
+    layer.chart.container.select(".inform")
+      .classed("hidden", false);
+  });
+  layer.pointMouseOut(function(d){
+    d3.select(this)
+      .attr("fill", function(d) {
+        return layer.get_colour(d);
+      })
+      .classed("hover", false);
+    layer.chart.container.select(".inform")
+      .classed("hidden", true);
+  });
+
 
   //These functions are used to react on clicks
   layer.findPoints = function(lu, rb){
@@ -76,60 +105,6 @@ export function scatterChart(id, chart) {
       return layer.get_dataIds().map(function(e) { return layer.get_y(e);});
     }
 	});
-
-  //default hovering behaviour
-  layer.pointMouseOver(function(d){
-    //change colour and class
-    d3.select(this)
-      .attr("fill", function(d) {
-        return d3.rgb(layer.get_colour(d)).darker(0.5);
-      })
-      .classed("hover", true);
-    //show label
-    layer.chart.container.select(".inform")
-        .style("left", (d3.event.pageX + 10) + "px")
-        .style("top", (d3.event.pageY - 10) + "px")
-        .select(".value")
-          .html("ID: <b>" + d + "</b>;<br>" + 
-            "x = " + layer.get_x(d) + ";<br>" + 
-            "y = " + layer.get_y(d));  
-    layer.chart.container.select(".inform")
-      .classed("hidden", false);
-  });
-  layer.pointMouseOut(function(d){
-    d3.select(this)
-      .attr("fill", function(d) {
-        return layer.get_colour(d);
-      })
-      .classed("hover", false);
-    layer.chart.container.select(".inform")
-      .classed("hidden", true);
-  })
-  
-	var inherited_put_static_content = layer.put_static_content;
-  layer.put_static_content = function(){
-    inherited_put_static_content();
-    layer.g.selectAll( ".data_point" )
-      .data( layer.get_dataIds() )
-      .enter().append( "circle" )
-      .attr( "class", "data_point" );
-  }
-
-  layer.updateSize = function(){
-    if(typeof layer.chart.transition !== "undefined"){
-      layer.g.transition(layer.chart.transition)
-        .attr("transform", "translate(" + 
-          layer.chart.get_margin().left + ", " +
-          layer.chart.get_margin().top + ")");
-      layer.g.selectAll(".data_point")
-    } else {
-      layer.g
-        .attr("transform", "translate(" + 
-          layer.chart.get_margin().left + ", " +
-          layer.chart.get_margin().top + ")");
-    }
-    return layer;
-  }
 
   layer.updatePointLocation = function(){
     if(typeof layer.chart.transition !== "undefined"){
@@ -183,22 +158,11 @@ export function scatterChart(id, chart) {
       .remove();  
     sel.enter().append( "circle" )
       .attr( "class", "data_point" )
-      .attr( "cx", function(d) { return layer.chart.axes.scale_x( layer.get_x(d) ) } )
-      .attr( "cy", function(d) { return layer.chart.axes.scale_y( layer.get_y(d) ) } )
       .merge(sel)
         .on( "click", layer.get_on_click )
         .on( "mouseover", layer.get_pointMouseOver )
         .on( "mouseout", layer.get_pointMouseOut );
   }
-	
-  layer.update = function() {
-    
-    layer.updatePoints();
-    layer.updatePointStyle();
-    layer.updatePointLocation();
-
-    return layer;
-  };
 
   return chart;
 }
