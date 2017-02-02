@@ -11,7 +11,6 @@
 
 <script>
 
-
 // Simple Table
 
 function simpleTable() {
@@ -64,7 +63,17 @@ if( true ) {
     .style( function(i) { return i==highlighted ? "fill:red" : "" } )
     .labelX( "weight" )
     .labelY( "horsepower" )
-    .place( )
+    .place( );
+
+  d3.scatterChart("blue_dots", sc)
+    .x( 
+      function(i) {
+        return data[i].wt 
+      } )
+    .y( function(i) { return data[i].hp + 10} )
+    .style( function(i) { return i==highlighted ? "fill:red" : "" } )
+    .colour("blue")
+    .placeLayer("blue_dots");
 
   var tbl = simpleTable()
     .record( function() { return data[highlighted] } )

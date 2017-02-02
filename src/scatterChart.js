@@ -61,18 +61,6 @@ export function scatterChart(id, chart) {
           (loc[1] + layer.get_size(d) >= lu[1]);
       });
   }
-  layer.zoom = function(lu, rb){
-    layer.chart.domainX([layer.chart.axes.scale_x.invert(lu[0]), 
-                        layer.chart.axes.scale_x.invert(rb[0])]);
-    layer.chart.domainY([layer.chart.axes.scale_y.invert(rb[1]),
-                        layer.chart.axes.scale_y.invert(lu[1])]);
-    layer.chart.updateAxes();
-  }
-  layer.resetDomain = function(){
-    layer.chart.domainX("reset");
-    layer.chart.domainY("reset");
-    layer.chart.updateAxes();
-  }
 
 	layer.layerDomainX(function() {
 		if(layer.get_contScaleX()){
@@ -118,11 +106,9 @@ export function scatterChart(id, chart) {
       .classed("hidden", true);
   })
   
-	
+	var inherited_put_static_content = layer.put_static_content;
   layer.put_static_content = function(){
-    layer.g = layer.chart.svg.append("g")
-      .attr("class", "chart_g");
-    layer.add_click_listener();
+    inherited_put_static_content();
     layer.g.selectAll( ".data_point" )
       .data( layer.get_dataIds() )
       .enter().append( "circle" )

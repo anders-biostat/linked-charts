@@ -1,5 +1,6 @@
 import { base } from "./base";
 import { layerBase } from "./layerBase";
+import { add_click_listener } from "./additionalFunctions";
 
 //basic chart object
 export function chartBase() {
@@ -39,6 +40,7 @@ export function chartBase() {
 
   chart.put_static_content = function( element ) {
 		chart.container = element.append("div");
+		chart.container.node().ondragstart = function() { return false; };
 		chart.svg = chart.container.append("svg");
 		chart.container.append("div")
 			.attr("class", "inform hidden")
@@ -61,6 +63,7 @@ export function chartBase() {
         throw "Error in function 'place': DOM selection for string '" +
           node + "' did not find a node."
   	}
+
 		chart.put_static_content( element );
     chart.update();
     chart.afterUpdate();
@@ -127,17 +130,34 @@ export function layerChartBase(){
 	chart.add_layer = function(id) {
 		if(typeof id === "undefined")
 			id = "layer" + chart.get_nlayers();
-		var layer = layerBase();
+		var layer = layerBase(id);
 		layer.chart = chart;
 		chart.layers[id] = layer;
 		chart.activeLayer(chart.get_layer(id));
 
 		return chart;
 	}
-	
+
+	chart.findPoints = function(lu, rb){
+		var selPoints = [];
+		chart.svg.selectAll(".chart_g").each(function(){
+			selPoints.unshift(
+				chart.get_layer(d3.select(this).attr("id")).findPoints(lu, rb)
+			);
+		});
+		return selPoints;
+	}
+
+	chart.placeLayer = function(id){
+		chart.get_layer(id).put_static_content();
+		chart.get_layer(id).updateSize();
+		chart.get_layer(id).update();
+	}
+
 	var inherited_put_static_content = chart.put_static_content;
 	chart.put_static_content = function(element){
 		inherited_put_static_content(element);
+		add_click_listener(chart);
 		for(var k in chart.layers)
 			chart.get_layer(k).put_static_content();		
 	}
@@ -186,7 +206,7 @@ function fix_aspect_ratio( scaleX, scaleY, asp ) {
    } 
 } 
 
-export function axisChartBase() {
+export function axisChart() {
 	
 	var chart = layerChartBase();
 	
@@ -196,7 +216,8 @@ export function axisChartBase() {
 		.add_property("domainY")
 		.add_property("aspectRatio", null)
 		.add_property("labelX")
-		.add_property("labelY");
+		.add_property("labelY")
+		.add_property("markedUpdated", function() {});
 
 	chart.axes = {};
 	
@@ -275,7 +296,20 @@ export function axisChartBase() {
 		
 		return chart;
 	}
-	
+
+	chart.zoom = function(lu, rb){
+    chart.domainX([chart.axes.scale_x.invert(lu[0]), 
+                        chart.axes.scale_x.invert(rb[0])]);
+    chart.domainY([chart.axes.scale_y.invert(rb[1]),
+                        chart.axes.scale_y.invert(lu[1])]);
+    chart.updateAxes();
+  }
+  chart.resetDomain = function(){
+    chart.domainX("reset");
+    chart.domainY("reset");
+    chart.updateAxes();
+  }
+
   var inherited_put_static_content = chart.put_static_content;
   chart.put_static_content = function( element ) {
     inherited_put_static_content( element );

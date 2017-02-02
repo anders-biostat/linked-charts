@@ -13,11 +13,11 @@
 
   var highlighted = 0;
 
-  var sc = d3.axisChartBase()
+  var sc = d3.axisChart()
     .labelX( "weight" )
     .labelY( "horsepower" );
 
-	d3.scatterChart(sc, "scatter")
+	d3.scatterChart("scatter", sc)
     .x( function(i) { return data[i].wt } )
     .y( function(i) { return data[i].hp } )
     .style( function(i) { 
@@ -27,7 +27,7 @@
 			sc.update();
 		} )
 		.groupName(function(i) {return data[i].cyl;});
-	d3.lineChart(sc, "line")
+	d3.lineChart("line", sc)
 		.nlines(1)
 		.lineFun(function(id, x) {return x*30;});
 
