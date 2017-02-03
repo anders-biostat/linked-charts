@@ -21,8 +21,7 @@
 	d3.scatterChart("scatter", sc)
     .x( function(i) { return data[i].wt } )
     .y( function(i) { return data[i].hp } )
-    .style( function(i) { 
-			return i == highlighted ? "fill: red" : "" } )
+    .colour( function(i) {return i == highlighted ? "red" : "black" } )
 		.on_click( function(k) { 
 			highlighted = k; 
 			sc.update();

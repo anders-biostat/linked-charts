@@ -11,7 +11,6 @@ export function lineChart(id, chart){
 		.add_property("nlines")
 		.add_property("lineIds", function() {return d3.range(layer.get_nlines());})
 		.add_property("lineFun")
-		.add_property("lineStyle", "")
 		.add_property("lineStepNum", 100)
 		.add_property("colour", "black")
 		.add_property("lineWidth", 1.5);
@@ -39,19 +38,11 @@ export function lineChart(id, chart){
         .on( "mouseout", layer.get_pointMouseOut );			
 	};
 
-	layer.updatePointStyle = function(){
-		if(typeof layer.chart.transition !== "undefined")
-			layer.g.selectAll(".data_point").transition(layer.chart.transition)
-				.attr("stroke", function(d) {return layer.get_colour(d);})
-				.attr("stroke-width", function(d) {return layer.get_lineWidth(d);})
-				.attr("style", function(d){return layer.get_lineStyle(d);})
+	layer.dresser(function(sel){
+		sel.attr("stroke", function(d) {return layer.get_colour(d);})
+			.attr("stroke-width", function(d) {return layer.get_lineWidth(d);});
+	});
 
-		else
-			layer.g.selectAll(".data_point")
-				.attr("stroke", function(d) {return layer.get_colour(d);})
-				.attr("stroke-width", function(d) {return layer.get_lineWidth(d);})
-				.attr("style", function(d){return layer.get_lineStyle(d);})
-	};
 	layer.updatePointLocation = function(){
 		//define the length of each step
 		var lineStep = (layer.chart.axes.scale_x.domain()[1] - 

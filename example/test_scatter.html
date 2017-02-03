@@ -60,7 +60,7 @@ if( true ) {
         return data[i].wt 
       } )
     .y( function(i) { return data[i].hp } )
-    .style( function(i) { return i==highlighted ? "fill:red" : "" } )
+    .colour( function(i) { return i == highlighted ? "red" : "black" } )
     .labelX( "weight" )
     .labelY( "horsepower" )
     .place( );
@@ -71,8 +71,7 @@ if( true ) {
         return data[i].wt 
       } )
     .y( function(i) { return data[i].hp + 10} )
-    .style( function(i) { return i==highlighted ? "fill:red" : "" } )
-    .colour("blue")
+    .colour( function(i) { return i == highlighted ? "red" : "blue" } )
     .placeLayer("blue_dots");
 
   var tbl = simpleTable()

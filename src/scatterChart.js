@@ -10,7 +10,6 @@ export function scatterChart(id, chart) {
   var layer = chart.add_layer(id).get_layer(id)
 		.add_property("x")
 		.add_property("y")
-		.add_property("style", "")
 		.add_property("npoints")
 		.add_property("dataIds")
     .add_property("size", 4)
@@ -136,20 +135,11 @@ export function scatterChart(id, chart) {
           .attr( "style", layer.get_style(id[i]));      
     return layer;
   }
-  layer.updatePointStyle = function(){
-    if(typeof layer.chart.transition !== "undefined")
-      layer.g.selectAll(".data_point").transition(layer.chart.transition)
-        .attr( "r", function(d) {return layer.get_size(d)})
-        .attr( "fill", function(d) { return layer.get_colour(d)})
-        .attr( "style", function(d) { return layer.get_style(d)})
-    else
-      layer.g.selectAll(".data_point")
-        .attr( "r", function(d) {return layer.get_size(d)})
-        .attr( "fill", function(d) { return layer.get_colour(d)})
-        .attr( "style", function(d) { return layer.get_style(d)});
 
-    return layer;
-  }
+  layer.dresser(function(sel) {
+    sel.attr("fill", function(d) {return layer.get_colour(d);})
+      .attr("r", function(d) {return layer.get_size(d);});
+  });
 
   layer.updatePoints = function(){
   var sel = layer.g.selectAll( ".data_point" )

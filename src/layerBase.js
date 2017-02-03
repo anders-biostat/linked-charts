@@ -10,7 +10,8 @@ export function layerBase(id) {
 		.add_property("layerDomainX")
 		.add_property("layerDomainY")
 		.add_property("contScaleX", true)
-		.add_property("contScaleY", true);;
+		.add_property("contScaleY", true)
+		.add_property("dresser", function(){});
 
 	layer.id = id;
 
@@ -48,7 +49,10 @@ export function layerBase(id) {
     return layer;
   }
   layer.updatePoints = function() {};
-  layer.updatePointStyle = function() {};
+  layer.updatePointStyle = function() {
+  	layer.get_dresser(layer.g.selectAll(".data_point"));
+  	return layer;
+  };
   layer.updatePointLocation = function() {};
   layer.findPoints = function() {return layer.g.select("___");}; //return empty selection	
 	
