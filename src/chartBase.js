@@ -164,9 +164,11 @@ export function layerChartBase(){
 
 	var inherited_update = chart.update;
 	chart.update = function() {
+		for(var k in chart.layers){
+			chart.get_layer(k).updatePoints();
+			chart.get_layer(k).updatePointStyle();
+		}
 		inherited_update();
-		for(var k in chart.layers)
-			chart.get_layer(k).update();
 		return chart;
 	}
 
@@ -414,23 +416,4 @@ export function axisChart() {
 	}
 	
 	return chart;
-}
-
-export function tableChartBase() {
-	
-	var chart = layerChartBase();
-	
-	chart.add_property("nrows")
-		.add_property("ncols");
-	
-	chart.add_property("colLabels", function(i) {return i;})
-		.add_property("rowLabels", function(i) {return i;})
-		.add_property("colIds", function() {return undefined})
-		.add_property("rowIds", function() {return undefined})
-		.add_property("dispColIds", function() {return chart.get_colIds();})
-		.add_property("dispRowIds", function() {return chart.get_rowIds();})
-		.add_property("heatmapRow", function(rowId) {return chart.get_dispRowIds().indexOf(rowId);})
-		.add_property("heatmapCol", function(colId) {return chart.get_dispColIds().indexOf(colId);});
-	
-
 }

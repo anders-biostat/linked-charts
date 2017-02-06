@@ -37,6 +37,12 @@ rect.selection {
 	stroke-opacity: 0.5;
 	fill: transparent;
 }
+rect.highlighter {
+	stroke: #a33;
+	stroke-dasharray: 4px;
+	stroke-opacity: 0.7;
+	fill: transparent;
+}
 
 .inform {
 	position: absolute;

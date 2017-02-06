@@ -143,7 +143,7 @@ export function scatterChart(id, chart) {
 
   layer.updatePoints = function(){
   var sel = layer.g.selectAll( ".data_point" )
-      .data( layer.get_dataIds() );
+      .data( layer.get_dataIds(), function(d) {return d;} );
     sel.exit()
       .remove();  
     sel.enter().append( "circle" )

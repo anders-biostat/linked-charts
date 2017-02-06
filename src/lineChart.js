@@ -25,7 +25,7 @@ export function lineChart(id, chart){
 	
 	layer.updatePoints = function(){
 		var lines = layer.g.selectAll(".data_point")
-			.data(layer.get_lineIds());
+			.data(layer.get_lineIds(), function(d) {return d;});
 		lines.exit()
 			.remove();
 		lines.enter()

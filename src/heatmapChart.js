@@ -1,36 +1,78 @@
-import { getEuclideanDistance } from "./additionalFunctions";
-import { tableChartBase } from "./chartBase";
+import { getEuclideanDistance, add_click_listener } from "./additionalFunctions";
+import { chartBase } from "./chartBase";
 
 export function heatmapChart(id, chart){
 
-	if(chart === undefined)
-		chart = tableChartBase();
-	if(id === undefined)
-		id = "layer" + chart.get_nlayers();
+	var chart = chartBase()
+		.add_property("nrows")
+		.add_property("ncols");
 	
-	//TO DO: See if we need colIds and rowIds to be stored separately for
-	//each layer
-	
-	var layer = chart.add_layer(id)
+	chart.add_property("colLabels", function(i) {return i;})
+		.add_property("rowLabels", function(i) {return i;})
+		.add_property("colIds", function() {return undefined})
+		.add_property("rowIds", function() {return undefined})
+		.add_property("dispColIds", function() {return chart.get_colIds();})
+		.add_property("dispRowIds", function() {return chart.get_rowIds();})
+		.add_property("heatmapRow", function(rowId) {return chart.get_dispRowIds().indexOf(rowId);})
+		.add_property("heatmapCol", function(colId) {return chart.get_dispColIds().indexOf(colId);})
 		.add_property("value")
-		.add_property("mode", "default")
-		.add_property("colour", function(val) {return layer.colourScale(val);})
-		.add_property("palette", d3.interpolateOrRd)
-		.add_property("colourRange", function() {return layer.dataRange()})
-		.add_property("labelClick", function() {})
-		.add_property("clusterRowsMetric", getEuclideanDistance)
-		.add_property("clusterColsMetric", getEuclideanDistance);
-	
-	chart.setActiveLayer(id);
-	
+		.add_property("colour", function(val) {return chart.colourScale(val);})
+		.add_property("palette", d3.interpolateOrRd) //? Do we need it? Really
+		.add_property("colourRange", function() {return chart.dataRange()})
+		.add_property("clusterRowMetric", getEuclideanDistance)
+		.add_property("clusterColMetric", getEuclideanDistance);
+
+	chart.ncols("_override_", "colIds", function(){
+		return d3.range(chart.get_ncols());
+	});
+	chart.nrows("_override_", "rowIds", function(){
+		return d3.range(chart.get_nrows());
+	});
+	chart.rowIds("_override_", "nrows", function(){
+		return chart.get_rowIds().length;
+	});
+	chart.colIds("_override_", "ncols", function(){
+		return chart.get_colIds().length;
+	});
+/*	chart.dispRowIds("_override_", "nrows", function(){
+		return chart.get_dispRowIds().length;
+	});
+	chart.dispColIds("_override_", "ncols", function(){
+		return chart.get_dispColIds().length;
+	}); */
+	chart.axes = {};
+
+	var inherited_put_static_content = chart.put_static_content;
+	chart.put_static_content = function(element){
+		inherited_put_static_content(element);
+		//create main parts of the heatmap
+		chart.svg.append("g")
+			.attr("class", "row label_panel");
+		chart.svg.append("g")
+			.attr("class", "col label_panel");
+				//delete canvas if any
+		chart.g = chart.svg.append("g")
+			.attr("class", "chart_g");
+		add_click_listener(chart);
+	}
+
+	chart.findPoints = function(lu, rb){
+		return chart.g.selectAll(".data_point")
+			.filter(function(d) {
+				var loc = [this.x.baseVal.value, this.y.baseVal.value];
+				return (loc[0] <= rb[0]) && (loc[1] <= rb[1]) && 
+					(loc[0] + chart.cellSize.width >= lu[0]) && 
+					(loc[1] + chart.cellSize.height>= lu[1]);
+			});
+	}	
 	//returns maximum and minimum values of the data
-	layer.dataRange = function(){
+	chart.dataRange = function(){
 		var i = 0, range, newRange,
-			rowIds = layer.get_rowIds(),
-			colIds = layer.get_colIds();
+			rowIds = chart.get_rowIds(),
+			colIds = chart.get_colIds();
 		do{
 			newRange = d3.extent(colIds, 
-				function(col) {return layer.get_value(rowIds[i], col);});
+				function(col) {return chart.get_value(rowIds[i], col);});
 			if(typeof range === "undefined")
 				range = newRange;
 			if(newRange[0] < range[0])
@@ -38,28 +80,205 @@ export function heatmapChart(id, chart){
 			if(newRange[1] > range[1])
 				range[1] = newRange[1];
 			i++;
-		}while (i < layer.get_nrows())
+		}while (i < chart.get_nrows())
 			
 		return range;
 	}
 
-	//find all the cells inside a rectangle
-	layer.findPoints = function(lu, rb){
-		return layer.g.selectAll(".data_point")
-			.filter(function(d) {
-				//slow if reordered
-				//var loc = [layer.chart.axes.scale_x(layer.chart.get_heatmapCol(d[1])), 
-				//					layer.chart.axes.scale_y(layer.get_heatmapRow(d[0]))]
-				var loc = [this.x.baseVal.value, 
-										d3.select(this.parentNode).attr("y")*1];
-				return (loc[0] <= rb[0]) && (loc[1] <= rb[1]) && 
-					(loc[0] + layer.chart.cellSize.width >= lu[0]) && 
-					(loc[1] + layer.chart.cellSize.height>= lu[1]);
-			});
+	//set default hovering behaviour
+	chart.labelMouseOver = function() {
+		d3.select(this).classed("hover", true);
+	};
+	chart.labelMouseOut = function() {
+		d3.select(this).classed("hover", false);
+	};
+
+	chart.reorderRow = function(f){
+		if(f == "flip"){
+			chart.get_heatmapRow("__flip__");
+			return chart;
+		}
+		chart.svg.select(".row").selectAll(".label")
+			.classed("selected", false);
+
+		var ids = chart.get_rowIds().slice(), ind;
+		ids = ids.sort(f);
+		chart.heatmapRow(function(rowId){
+			if(rowId == "__flip__"){
+				ids = ids.reverse();
+				return;
+			}
+			if(rowId == "__order__")
+				return ids.sort(f);
+			var actIds = chart.get_dispRowIds(),
+				orderedIds = ids.filter(function(e) {
+					return actIds.indexOf(e) != -1;
+				});
+			if(orderedIds.length != actIds.length) {
+				orderedIds = actIds.sort(f);
+				ids = orderedIds.slice();
+			} 
+			
+			ind = orderedIds.indexOf(rowId);
+			if(ind > -1)
+				 return ind
+			else
+				throw "Wrong rowId in chart.get_heatmapRow";
+		});
+		
+		chart.updateLabelPosition();
+		return chart;
+	}
+	chart.reorderCol = function(f){
+		if(f == "flip"){
+			chart.get_heatmapCol("__flip__");
+			return chart;
+		}
+		chart.svg.select(".col").selectAll(".label")
+			.classed("selected", false);
+		var ids = chart.get_colIds().slice(), ind;
+		ids = ids.sort(f);
+		chart.heatmapCol(function(colId){
+			if(colId == "__flip__"){
+				ids = ids.reverse();
+				return;
+			}
+			if(colId == "__order__")
+				return ids.sort(f);
+
+			var actIds = chart.get_dispColIds(),
+				orderedIds = ids.filter(function(e) {
+					return actIds.indexOf(e) != -1;
+				});
+			if(orderedIds.length != actIds.length) {
+				orderedIds = actIds.sort(f);
+				ids = orderedIds.slice();
+			}
+			
+			ind = orderedIds.indexOf(colId);
+			if(ind > -1)
+				 return ind
+			else
+				throw "Wrong rowId in chart.get_heatmapRow";
+		});
+		chart.updateLabelPosition();
+		return chart;
+	}
+	
+	var inherited_updateSize = chart.updateSize;
+	chart.updateSize = function(){
+		inherited_updateSize();
+		if(typeof chart.transition !== undefined){
+			chart.svg.selectAll(".label_panel").transition(chart.transition)
+				.attr("transform", "translate(" + chart.get_margin().left + ", " +
+					chart.get_margin().top + ")");
+			chart.g.transition(chart.transition)
+				.attr("transform", "translate(" + chart.get_margin().left + ", " +
+					chart.get_margin().top + ")");
+		} else {
+			chart.svg.selectAll(".label_panel")
+				.attr("transform", "translate(" + chart.get_margin().left + ", " +
+					chart.get_margin().top + ")");
+			chart.g
+				.attr("transform", "translate(" + chart.get_margin().left + ", " +
+					chart.get_margin().top + ")");								
+		}
+
+		chart.updateLabelPosition();
+		return chart;
 	}
 
-	layer.zoom = function(lu, rb){
-		var selectedCells = layer.findPoints(lu, rb),
+	chart.updateLabelPosition = function(){
+		var ncols = chart.get_dispColIds().length,
+			nrows = chart.get_dispRowIds().length;
+
+		//calculate cell size
+		chart.cellSize = {
+			width: chart.get_plotWidth() / ncols,
+			height: chart.get_plotHeight() / nrows
+		}
+		//create scales
+		chart.axes.scale_x = d3.scaleLinear()
+			.domain( [0, ncols - 1] )
+			.range( [0, chart.get_plotWidth() - chart.cellSize.width] )
+			.nice();
+		chart.axes.scale_y = d3.scaleLinear()
+			.domain( [0, nrows - 1] )
+			.range( [0, chart.get_plotHeight() - chart.cellSize.height] )
+			.nice();
+
+		if(typeof chart.transition !== undefined){
+			chart.svg.select(".col").selectAll(".label").transition(chart.transition)
+				.attr("font-size", d3.min([chart.cellSize.width, 12]))
+				.attr("dy", function(d) {return chart.axes.scale_x(chart.get_heatmapCol(d) + 1);});
+			chart.svg.select(".row").selectAll(".label").transition(chart.transition)
+				.attr("font-size", d3.min([chart.cellSize.height, 12]))
+				.attr("dy", function(d) {return chart.axes.scale_y(chart.get_heatmapRow(d) + 1);});
+		
+		} else {
+			chart.svg.select(".col").selectAll(".label")
+				.attr("font-size", d3.min([chart.cellSize.width, 12]))
+				.attr("dy", function(d) {return chart.axes.scale_x(chart.get_heatmapCol(d) + 1);});
+			chart.svg.select(".row").selectAll(".label")
+				.attr("font-size", d3.min([chart.cellSize.height, 12]))
+				.attr("dy", function(d) {return chart.axes.scale_y(chart.get_heatmapRow(d) + 1);});
+		}
+		chart.updateCellPosition();
+		return chart;
+	}
+
+	chart.updateLabels = function(){
+		//add column labels
+		var colLabels = chart.svg.select(".col").selectAll(".label")
+				.data(chart.get_dispColIds(), function(d) {return d;});
+		colLabels.exit()
+			.remove();
+		//add row labels
+		var rowLabels = chart.svg.select(".row").selectAll(".label")
+				.data(chart.get_dispRowIds(), function(d) {return d;});
+		rowLabels.exit()
+			.remove();
+		colLabels.enter()
+			.append("text")
+				.attr("class", "label")
+				.attr("transform", "rotate(-90)")
+				.style("text-anchor", "start")
+				.attr("dx", 2)
+				.merge(colLabels)
+					.on("mouseover", chart.labelMouseOver)
+					.on("mouseout", chart.labelMouseOut)
+					.on("click", chart.labelClick);
+		rowLabels.enter()
+			.append("text")
+				.attr("class", "label")
+				.style("text-anchor", "end")
+				.attr("dx", -2)
+				.merge(rowLabels)
+					.on("mouseover", chart.labelMouseOver)
+					.on("mouseout", chart.labelMouseOut)
+					.on("click", chart.labelClick);
+
+		chart.updateCells();
+		return chart;
+	}
+
+	chart.updateLabelText = function(){
+		if(typeof chart.transition !== undefined){
+			chart.svg.select(".col").selectAll(".label").transition(chart.transition)
+				.text(function(d) {return chart.get_colLabels(d);});
+			chart.svg.select(".row").selectAll(".label").transition(chart.transition)
+				.text(function(d) {return chart.get_rowLabels(d)});		
+		} else {
+			chart.svg.select(".col").selectAll(".label").enter().merge(colLabels)
+				.text(function(d) {return chart.get_colLabels(d);});
+			chart.svg.select(".row").selectAll(".label").transition(chart.transition)
+				.text(function(d) {return chart.get_rowLabels(d)});
+		}
+		return chart;		
+	}
+
+	chart.zoom = function(lu, rb){
+		var selectedCells = chart.findPoints(lu, rb),
 			rowIdsAll = selectedCells.data().map(function(d){
 				return d[0];
 			}),
@@ -75,183 +294,226 @@ export function heatmapChart(id, chart){
 			if(colIds.indexOf(colIdsAll[i]) == -1)
 				colIds.push(colIdsAll[i]);
 
-		layer.dispRowIds(rowIds);
-		layer.dispColIds(colIds);
-		layer.chart.update();
-		//if(!layer.reZoom)
+		chart.dispRowIds(rowIds);
+		chart.dispColIds(colIds);
+		chart.updateLabels();
+		chart.updateLabelPosition();
 
-		return layer;
+		return chart;
 	}
 
-	layer.resetDomain = function(){
-		layer.dispColIds(function() {return layer.get_colIds()});
-		layer.dispRowIds(function() {return layer.get_rowIds()});
-		layer.chart.update();
+	chart.resetDomain = function(){
+		chart.dispColIds(chart.get_colIds);
+		chart.dispRowIds(chart.get_rowIds);
+		chart.updateLabels()
+			.updateLabelPosition()
+			.updateCellColour()
+			.updateLabelText();
+		return chart;
 	}
-		
-	//reset a colourScale
-	//by default this function is to be called during each update
-	//yet some transformations, such as zooming, will avoid it
-	layer.resetColourScale = function(){
+
+	chart.resetColourScale = function(){
 	//create colorScale
-		var range = layer.get_colourRange();
-		var scale = d3.scaleSequential(layer.get_palette).domain(range);
-		/*
-		layer.colourScale = function(val){
-			val = (val - range[0]) / 
-				(range[1] - range[0]);
-			return scale(val);
-		} */
-		
-		layer.colourScale = scale;
+		var range = chart.get_colourRange();
+		chart.colourScale = d3.scaleSequential(chart.get_palette).domain(range);		
 	}	
-	
-	/*var inherited_put_static_content = layer.put_static_content;
-	layer.put_static_content = function(element){	
-		inherited_put_static_content(element);
-		layer.resetColourScale();
-	}
-	*/
-	
+
 	//some default onmouseover and onmouseout behaviour for cells and labels
 	//may be later moved out of the main library
-	layer.pointMouseOver(function(d) {
+	chart.pointMouseOver = function(d) {
 		//change colour and class
 		d3.select(this)
 			.attr("fill", function(d) {
-				return d3.rgb(layer.get_colour(layer.get_value(d[0], d[1]))).darker(0.5);
+				return d3.rgb(chart.get_colour(chart.get_value(d[0], d[1]))).darker(0.5);
 			})
 			.classed("hover", true);		
 		//find column and row labels
-		layer.chart.svg.select(".col").selectAll(".label")
+		chart.svg.select(".col").selectAll(".label")
 			.filter(function(dl) {return dl == d[1];})
 				.classed("hover", true);
-		layer.chart.svg.select(".row").selectAll(".label")
+		chart.svg.select(".row").selectAll(".label")
 			.filter(function(dl) {return dl == d[0];})
 				.classed("hover", true);
 		//show label
-		layer.chart.container.select(".inform")
-				.style("left", (d3.event.pageX + 10) + "px")
-				.style("top", (d3.event.pageY - 10) + "px")
-				.select(".value")
-					.html("Row: <b>" + d[0] + "</b>;<br>" + 
+		chart.container.select(".inform")
+			.style("left", (d3.event.pageX + 10) + "px")
+			.style("top", (d3.event.pageY - 10) + "px")
+			.select(".value")
+				.html("Row: <b>" + d[0] + "</b>;<br>" + 
 						"Col: <b>" + d[1] + "</b>;<br>" + 
-						"value = " + layer.get_value(d[0], d[1]));  
-		layer.chart.container.select(".inform")
+						"value = " + chart.get_value(d[0], d[1]));  
+		chart.container.select(".inform")
 			.classed("hidden", false);
-	});
-	layer.pointMouseOut(function(d) {
+	};
+	chart.pointMouseOut = function(d) {
 		//change colour and class
 		d3.select(this)
 			.attr("fill", function(d) {
-				return layer.get_colour(layer.get_value(d[0], d[1]));
+				return chart.get_colour(chart.get_value(d[0], d[1]));
 			})
 			.classed("hover", false);
 		//deselect row and column labels
-		layer.chart.svg.selectAll(".label")
+		chart.svg.selectAll(".label")
 			.classed("hover", false);
-		layer.chart.container.select(".inform")
+		chart.container.select(".inform")
 			.classed("hidden", true);
-	});
+	};
 	
 	//set default clicking behaviour for labels (ordering)
-	layer.labelClick(function(d){
+	chart.labelClick = function(d){
 		//check whether row or col label has been clicked
 		var type;
 		d3.select(this.parentNode).classed("row") ? type = "row" : type = "col";
 		//if this label is already selected, flip the heatmap
 		if(d3.select(this).classed("selected")){
-			type == "col" ? layer.chart.reorderRow("flip") : layer.chart.reorderCol("flip");
-			layer.chart.update();
+			type == "col" ? chart.reorderRow("flip") : chart.reorderCol("flip");
 		} else {
-			//unselect other
-			layer.chart.svg.select("." + type).selectAll(".label")
-				.classed("selected", false);
 			//select new label and chage ordering
-			d3.select(this).classed("selected", true);
 			if(type == "col")
-				layer.chart.reorderRow(function(a, b){
-					return layer.get_value(b, d) - layer.get_value(a, d);
+				chart.reorderRow(function(a, b){
+					return chart.get_value(b, d) - chart.get_value(a, d);
 				})
 			else
-				layer.chart.reorderCol(function(a, b){
-					return layer.get_value(d, b) - layer.get_value(d, a);
+				chart.reorderCol(function(a, b){
+					return chart.get_value(d, b) - chart.get_value(d, a);
 				});
-			layer.chart.update();
+			d3.select(this).classed("selected", true);
 		}
-	});
+	};
 	
-	//layer.update_not_yet_called = true;
-	
-	layer.updateColour = function() {
-		layer.g.selectAll(".data_point")
-			.attr("fill", function(d) {
-				return layer.get_colour(layer.get_value(d[0], d[1]));
+	chart.updateCellColour = function() {
+		if(typeof chart.transition !== "undefined")
+			chart.g.selectAll(".data_point").transition(chart.transition)
+				.attr("fill", function(d) {
+					return chart.get_colour(chart.get_value(d[0], d[1]));
+			})
+		else
+			chart.g.selectAll(".data_point")
+				.attr("fill", function(d) {
+					return chart.get_colour(chart.get_value(d[0], d[1]));
 			});
+
+		return chart;
 	}
-	
-	layer.updateSVG = function() {
-		
-		if(typeof layer.canvas != "undefined")
-			layer.canvas.classed("hidden", true);
-		if(typeof layer.g == "undefined"){
-			layer.g = layer.chart.svg.append("g");
-			layer.add_click_listener();
-		} else {
-			layer.g.classed("hidden", false);
-		}
-				
-		//resize heatmap body
-		layer.g.transition(layer.chart.transition)
-			.attr("transform", "translate(" + layer.get_margin().left + ", " +
-					layer.get_margin().top + ")");
-					
+
+	chart.updateCells = function(){
 		//add rows
-		var rows = layer.g.selectAll(".data_row").data(layer.get_dispRowIds().slice());
+		var rows = chart.g.selectAll(".data_row")
+			.data(chart.get_dispRowIds(), function(d) {return d;});
 		rows.exit()
 			.remove();
 		rows.enter()
 			.append("g")
-				.attr("class", "data_row")
-			.merge(rows).transition(layer.chart.transition)
-				.attr("transform", function(d) {
-					return "translate(0, " + 
-						layer.chart.axes.scale_y(layer.get_heatmapRow(d)) + ")"
-				})
-				.attr("y", function(d) {
-					return layer.chart.axes.scale_y(layer.get_heatmapRow(d))
-				});
-						
+				.attr("class", "data_row");
+
 		//add cells	
-		var cells = layer.g.selectAll(".data_row").selectAll(".data_point")
+		var cells = chart.g.selectAll(".data_row").selectAll(".data_point")
 			.data(function(d) {
-				return layer.get_dispColIds().map(function(e){
+				return chart.get_dispColIds().map(function(e){
 					return [d, e];
 				})
-			});
+			}, function(d) {return d;});
 		cells.exit()
 			.remove();
 		cells.enter()
 			.append("rect")
 				.attr("class", "data_point")
-				.on("mouseover", layer.get_pointMouseOver)
-				.on("mouseout", layer.get_pointMouseOut)
-				.on("click", function(d) {
-					layer.get_on_click(d[0], d[1]);
-				})
-			.merge(cells).transition(layer.chart.transition)
-				.attr("x", function(d){
-					return layer.chart.axes.scale_x(layer.chart.get_heatmapCol(d[1]));
-				})
-				.attr("width", layer.chart.cellSize.width)
-				.attr("height", layer.chart.cellSize.height);
-		layer.updateColour();
-		//TO DO: See if it's better to do something more clever about having several layers
-		layer.chart.svg
-			.selectAll(".label")
-			.on("click", layer.get_labelClick);
+				.merge(cells)
+					.on("mouseover", chart.pointMouseOver)
+					.on("mouseout", chart.pointMouseOut)
+					.on("click", function(d) {
+						chart.get_on_click(d[0], d[1]);
+					});
+		return chart;
 	}
-	layer.updateCanvas = function() {
+
+	chart.updateCellPosition = function(){
+		if(typeof chart.transition !== "undefined")
+			chart.g.selectAll(".data_point").transition(chart.transition)
+				.attr("x", function(d){
+					return chart.axes.scale_x(chart.get_heatmapCol(d[1]));
+				})
+				.attr("width", chart.cellSize.width)
+				.attr("height", chart.cellSize.height)								
+				.attr("y", function(d) {
+					return chart.axes.scale_y(chart.get_heatmapRow(d[0]))
+				})
+		else
+			chart.g.selectAll(".data_point")
+				.attr("x", function(d){
+					return chart.axes.scale_x(chart.get_heatmapCol(d[1]));
+				})
+				.attr("width", chart.cellSize.width)
+				.attr("height", chart.cellSize.height)								
+				.attr("y", function(d) {
+					return chart.axes.scale_y(chart.get_heatmapRow(d[0]))
+				});
+
+		return chart;
+	}
+
+	//type shoud be Row or Col
+	chart.cluster = function(type){
+		if(type != "Row" && type != "Col")
+			throw "Error in 'cluster': type " + type + " cannot be recognised. " +
+					"Please, use either 'Row' or 'Col'";
+		var items = {}, it = [],
+			aIds = chart["get_disp.get_disp" + type + "Ids"](),
+			bIds;
+		type == "Row" ? bIds = chart.get_dispColIds() :
+			bIds = chart.get_dispRowIds();
+
+		for(var i = 0; i < aIds.length; i++) {
+			for(var j = 0; j < bIds.length; j++)
+				type == "Row" ? it.push(chart.get_value(aIds[i], bIds[j])) :
+												it.push(chart.get_value(bIds[j], aIds[i]));
+			items[aIds[i]] = it.slice();
+			it = [];
+		}
+
+		var getDistance = function(a, b) {
+			return chart["get_cluster" + type + "Metric"](items[a], items[b]);
+		};
+
+		var newOrder = [];
+		var traverse = function(node) {
+			if(node.value){
+				newOrder.push(node.value);
+				return;
+			}
+			traverse(node.left);
+			traverse(node.right);
+		}
+
+		var clusters = clusterfck.hcluster(aIds, getDistance, clusterfck.COMPLETE_LINKAGE);
+		traverse(clusters);
+		
+		var oldOrder = chart["get_heatmap" + type]("__order__");
+		chart["reorder" + type](function(a, b){
+			if(newOrder.indexOf(a) != -1 && newOrder.indexOf(b) != -1)
+				return newOrder.indexOf(a) - newOrder.indexOf(b);
+			return oldOrder.indexOf(a) - oldOrder.indexOf(b);
+		});
+		
+		chart.updateLabelPosition();		
+	}
+
+	
+	chart.update = function() {
+		chart.resetColourScale();
+
+		chart.updateLabels()
+			.updateSize()
+			.updateLabelText()
+			.updateCellColour();
+
+		return chart;
+	}
+
+	return chart;	
+}
+
+/*	layer.updateCanvas = function() {
 	
 		if(typeof layer.g != "undefined")
 			layer.g.classed("hidden", true);
@@ -306,111 +568,4 @@ export function heatmapChart(id, chart){
 		heatmapBody.drawImage(pixelHeatmap, 0, 0, 
 			layer.get_dispColIds().length, layer.get_dispRowIds().length,
 			0, 0,	layer.get_width(), layer.get_height());
-	}
-	
-	layer.update = function() {
-		
-		//if(layer.update_not_yet_called){
-		//	layer.update_not_yet_called = false;
-		//	layer.resetColourScale();
-		//}
-		
-		layer.resetColourScale();
-	
-		if(layer.get_mode() == "default")
-			layer.get_ncols() * layer.get_nrows() > 5000 ? layer.mode("canvas") : layer.mode("svg");
-		
-		if(layer.get_mode() == "canvas") {
-			layer.updateCanvas();
-			return layer;
-		}
-		if(layer.get_mode() == "svg") {
-			layer.updateSVG();
-			return layer;
-		}
-		
-		throw "Error in function 'heatmapChart.update': mode did not correspond to any " +
-			"existing type ('canvas', 'svg' or 'default')";
-	}
-	
-	layer.clusterRows = function(){
-		var items = {}, it = [],
-			rowIds = layer.get_dispRowIds(),
-			colIds = layer.get_dispColIds();
-		
-		for(var i = 0; i < rowIds.length; i++) {
-			for(var j = 0; j < colIds.length; j++)
-				it.push(layer.get_value(rowIds[i], colIds[j]));
-			items[rowIds[i]] = it.slice();
-			it = [];
-		}
-		
-		var getDistance = function(a, b) {
-			return layer.get_clusterRowsMetric(items[a], items[b]);
-		}
-		
-		var newOrder = [];
-		var traverse = function(node) {
-			if(node.value){
-				newOrder.push(node.value);
-				return;
-			}
-			traverse(node.left);
-			traverse(node.right);
-		}
-		
-		var clusters = clusterfck.hcluster(rowIds, getDistance, clusterfck.COMPLETE_LINKAGE);
-		traverse(clusters);
-		
-		var oldOrder = chart.get_heatmapRow("__order__");
-		layer.chart.reorderRow(function(a, b){
-			if(newOrder.indexOf(a) != -1 && newOrder.indexOf(b) != -1)
-				return newOrder.indexOf(a) - newOrder.indexOf(b);
-			return oldOrder.indexOf(a) - oldOrder.indexOf(b);
-		});
-		
-		layer.chart.update();
-	}
-	
-	layer.clusterCols = function(){
-		var items = {}, it = [],
-			rowIds = layer.get_dispRowIds(),
-			colIds = layer.get_dispColIds();
-		
-		for(var i = 0; i < colIds.length; i++) {
-			for(var j = 0; j < rowIds.length; j++)
-				it.push(layer.get_value(rowIds[j], colIds[i]));
-			items[colIds[i]] = it.slice();
-			it = [];
-		}
-
-		
-		var getDistance = function(a, b) {
-			return layer.get_clusterColsMetric(items[a], items[b]);
-		}
-		
-		var newOrder = [];
-		var traverse = function(node) {
-			if(node.value){
-				newOrder.push(node.value);
-				return;
-			}
-			traverse(node.left);
-			traverse(node.right);
-		}
-		
-		var clusters = clusterfck.hcluster(colIds, getDistance, clusterfck.COMPLETE_LINKAGE);
-		traverse(clusters);
-
-		var oldOrder = chart.get_heatmapCol("__order__");
-		layer.chart.reorderCol(function(a, b){
-			if(newOrder.indexOf(a) != -1 && newOrder.indexOf(b) != -1)
-				return newOrder.indexOf(a) - newOrder.indexOf(b);
-			return oldOrder.indexOf(a) - oldOrder.indexOf(b);
-		});
-		
-		layer.chart.update();
-	}
-	
-	return layer;
-}
+	}*/
