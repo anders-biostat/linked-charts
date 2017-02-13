@@ -48,10 +48,15 @@ export function chartBase() {
 				.attr("class", "value");
 	}
 
+	chart.defineTransition = function(){
+		chart.transition = 
+			d3.transition().duration(chart.get_transitionDuration());
+		chart.transition.on("end", chart.defineTransition);
+	}
+
 	chart.afterUpdate = function(){
 		if(chart.get_transitionDuration() != 0)
-			chart.transition = 
-				d3.transition().duration(chart.get_transitionDuration());
+			chart.defineTransition();
 	}
 
   chart.place = function( element ) {

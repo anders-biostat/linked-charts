@@ -20,7 +20,10 @@ export function heatmapChart(id, chart){
 		.add_property("palette", d3.interpolateOrRd) //? Do we need it? Really
 		.add_property("colourRange", function() {return chart.dataRange()})
 		.add_property("clusterRowMetric", getEuclideanDistance)
-		.add_property("clusterColMetric", getEuclideanDistance);
+		.add_property("clusterColMetric", getEuclideanDistance)
+		.add_property("on_click", function() {});
+
+	chart.margin({top: 100, left: 100, right: 10, bottom: 10});
 
 	chart.ncols("_override_", "colIds", function(){
 		return d3.range(chart.get_ncols());
@@ -45,6 +48,7 @@ export function heatmapChart(id, chart){
 	var inherited_put_static_content = chart.put_static_content;
 	chart.put_static_content = function(element){
 		inherited_put_static_content(element);
+		add_click_listener(chart);
 		//create main parts of the heatmap
 		chart.svg.append("g")
 			.attr("class", "row label_panel");
@@ -53,17 +57,32 @@ export function heatmapChart(id, chart){
 				//delete canvas if any
 		chart.g = chart.svg.append("g")
 			.attr("class", "chart_g");
-		add_click_listener(chart);
 	}
 
 	chart.findPoints = function(lu, rb){
-		return chart.g.selectAll(".data_point")
-			.filter(function(d) {
+		var selectedPoints = chart.g.selectAll(".data_point")
+			.filter(function() {
 				var loc = [this.x.baseVal.value, this.y.baseVal.value];
 				return (loc[0] <= rb[0]) && (loc[1] <= rb[1]) && 
 					(loc[0] + chart.cellSize.width >= lu[0]) && 
-					(loc[1] + chart.cellSize.height>= lu[1]);
+					(loc[1] + chart.cellSize.height >= lu[1]);
 			});
+		if(!selectedPoints.empty())
+			return selectedPoints;
+		if(lu[0] * lu[1] < 0 && rb[0] * rb[1] < 0 )
+			if(lu[0] < 0)
+				selectedPoints = chart.svg.select(".row").selectAll(".label")
+					.filter(function(){
+						var loc = d3.select(this).attr("dy") * 1;
+						return lu[1] >= loc - chart.cellSize.height && rb[1] <= loc;
+					})
+			else
+				selectedPoints = chart.svg.select(".col").selectAll(".label")
+					.filter(function(){
+						var loc = d3.select(this).attr("dy") * 1;
+						return lu[0] >= loc - chart.cellSize.width && rb[0] <= loc;
+					});
+		return selectedPoints;
 	}	
 	//returns maximum and minimum values of the data
 	chart.dataRange = function(){
@@ -96,10 +115,12 @@ export function heatmapChart(id, chart){
 	chart.reorderRow = function(f){
 		if(f == "flip"){
 			chart.get_heatmapRow("__flip__");
+			chart.updateLabelPosition();
 			return chart;
 		}
 		chart.svg.select(".row").selectAll(".label")
-			.classed("selected", false);
+			.classed("selected", false)
+			.classed("sorted", false);
 
 		var ids = chart.get_rowIds().slice(), ind;
 		ids = ids.sort(f);
@@ -132,10 +153,12 @@ export function heatmapChart(id, chart){
 	chart.reorderCol = function(f){
 		if(f == "flip"){
 			chart.get_heatmapCol("__flip__");
+			chart.updateLabelPosition();
 			return chart;
 		}
 		chart.svg.select(".col").selectAll(".label")
-			.classed("selected", false);
+			.classed("selected", false)
+			.classed("sorted", false);
 		var ids = chart.get_colIds().slice(), ind;
 		ids = ids.sort(f);
 		chart.heatmapCol(function(colId){
@@ -168,7 +191,7 @@ export function heatmapChart(id, chart){
 	var inherited_updateSize = chart.updateSize;
 	chart.updateSize = function(){
 		inherited_updateSize();
-		if(typeof chart.transition !== undefined){
+		if(typeof chart.transition !== "undefined"){
 			chart.svg.selectAll(".label_panel").transition(chart.transition)
 				.attr("transform", "translate(" + chart.get_margin().left + ", " +
 					chart.get_margin().top + ")");
@@ -207,7 +230,7 @@ export function heatmapChart(id, chart){
 			.range( [0, chart.get_plotHeight() - chart.cellSize.height] )
 			.nice();
 
-		if(typeof chart.transition !== undefined){
+		if(typeof chart.transition !== "undefined"){
 			chart.svg.select(".col").selectAll(".label").transition(chart.transition)
 				.attr("font-size", d3.min([chart.cellSize.width, 12]))
 				.attr("dy", function(d) {return chart.axes.scale_x(chart.get_heatmapCol(d) + 1);});
@@ -263,23 +286,25 @@ export function heatmapChart(id, chart){
 	}
 
 	chart.updateLabelText = function(){
-		if(typeof chart.transition !== undefined){
+		if(typeof chart.transition !== "undefined"){
 			chart.svg.select(".col").selectAll(".label").transition(chart.transition)
 				.text(function(d) {return chart.get_colLabels(d);});
 			chart.svg.select(".row").selectAll(".label").transition(chart.transition)
 				.text(function(d) {return chart.get_rowLabels(d)});		
 		} else {
-			chart.svg.select(".col").selectAll(".label").enter().merge(colLabels)
+			chart.svg.select(".col").selectAll(".label")
 				.text(function(d) {return chart.get_colLabels(d);});
-			chart.svg.select(".row").selectAll(".label").transition(chart.transition)
+			chart.svg.select(".row").selectAll(".label")
 				.text(function(d) {return chart.get_rowLabels(d)});
 		}
 		return chart;		
 	}
 
 	chart.zoom = function(lu, rb){
-		var selectedCells = chart.findPoints(lu, rb),
-			rowIdsAll = selectedCells.data().map(function(d){
+		var selectedCells = chart.findPoints(lu, rb);
+		if(selectedCells.size() < 2)
+			return;
+		var rowIdsAll = selectedCells.data().map(function(d){
 				return d[0];
 			}),
 			colIdsAll = selectedCells.data().map(function(d){
@@ -293,7 +318,7 @@ export function heatmapChart(id, chart){
 		for(var i = 0; i < colIdsAll.length; i++)
 			if(colIds.indexOf(colIdsAll[i]) == -1)
 				colIds.push(colIdsAll[i]);
-
+		if(rowIds.length > 0 )
 		chart.dispRowIds(rowIds);
 		chart.dispColIds(colIds);
 		chart.updateLabels();
@@ -363,9 +388,9 @@ export function heatmapChart(id, chart){
 	chart.labelClick = function(d){
 		//check whether row or col label has been clicked
 		var type;
-		d3.select(this.parentNode).classed("row") ? type = "row" : type = "col";
+		d3.select(this.node().parentNode).classed("row") ? type = "row" : type = "col";
 		//if this label is already selected, flip the heatmap
-		if(d3.select(this).classed("selected")){
+		if(this.classed("sorted")){
 			type == "col" ? chart.reorderRow("flip") : chart.reorderCol("flip");
 		} else {
 			//select new label and chage ordering
@@ -377,8 +402,9 @@ export function heatmapChart(id, chart){
 				chart.reorderCol(function(a, b){
 					return chart.get_value(d, b) - chart.get_value(d, a);
 				});
-			d3.select(this).classed("selected", true);
 		}
+		this.classed("selected", true)
+			.classed("sorted", true);		
 	};
 	
 	chart.updateCellColour = function() {

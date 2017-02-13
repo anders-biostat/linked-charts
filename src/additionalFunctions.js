@@ -126,7 +126,7 @@ export function add_click_listener(chart){
 
   var on_mousedown = function(){
     down = d3.mouse(document.body);
-    wait_click = window.setTimeout(function() {wait_click = null;}, 500);
+    wait_click = window.setTimeout(function() {wait_click = null;}, 1000);
     if(self.onSelection != "doNothing"){
       if(!d3.event.shiftKey || this.onSelection == "zoom") {
         chart.svg.selectAll(".data_point").classed("selected",false);
@@ -265,7 +265,7 @@ export function add_click_listener(chart){
   }
   var on_panelClick = function(p, mark){
     var clickedPoints = chart.findPoints(p, p);
-    if(typeof clickedPoints === "function")
+    if(typeof clickedPoints.empty === "function")
       clickedPoints = [clickedPoints];
     var i = 0;
     while(i < clickedPoints.length && clickedPoints[i].empty())
