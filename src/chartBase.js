@@ -17,10 +17,10 @@ export function chartBase() {
   			return chart.get_width() - 
   				(chart.get_margin().right + chart.get_margin().left);
   });
-  chart.plotWidth("_override_", "width", function(){
+/*  chart.plotWidth("_override_", "width", function(){
   			return chart.get_plotWidth() +
   				(chart.get_margin().right + chart.get_margin().left);
-  });
+  }); */
   chart.margin("_override_", "plotWidth", function(){
   			return chart.get_width() - 
   				(chart.get_margin().right + chart.get_margin().left);
@@ -29,10 +29,10 @@ export function chartBase() {
   			return chart.get_height() - 
   				(chart.get_margin().top + chart.get_margin().bottom);
   });
-  chart.plotHeight("_override_", "height", function(){
+ /* chart.plotHeight("_override_", "height", function(){
   			return chart.get_plotHeight() +
   				(chart.get_margin().top + chart.get_margin().bottom);
-  });
+  }); */
   chart.margin("_override_", "plotHeight", function(){
   			return chart.get_height() - 
   				(chart.get_margin().top + chart.get_margin().bottom);
@@ -63,8 +63,9 @@ export function chartBase() {
     if( element === undefined )
       element = "body";
     if( typeof( element ) == "string" ) {
-      element = d3.select( element );
-      if( element.size == 0 )
+      var node = element;
+      element = d3.select( node );
+      if( element.size() == 0 )
         throw "Error in function 'place': DOM selection for string '" +
           node + "' did not find a node."
   	}

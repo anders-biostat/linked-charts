@@ -21,8 +21,8 @@ export function sigmoidColorSlider() {
     .add_property( "slopewidth", undefined )
     .add_property( "on_drag", function() {})
 		.add_property( "on_change", function() {})
-    .margin( { top: 20, right: 5, bottom: 5, left: 5 } )
-    .height( 50 )
+    .margin( { top: 20, right: 10, bottom: 5, left: 10 } )
+    .height( 80 )
     .transitionDuration( 0 );    
 
   obj.straightColorScale(
@@ -156,7 +156,7 @@ export function sigmoidColorSlider() {
       obj.slopewidth( Math.abs(percent_scale( 15 )) );
 
     obj.pos_scale = d3.scaleLinear()
-      .range( [ 0, obj.get_width() ] )
+      .range( [ 0, obj.get_plotWidth() ] )
       .domain( obj.get_straightColorScale.domain() )
 
     d3.axisTop()
@@ -164,7 +164,7 @@ export function sigmoidColorSlider() {
       ( obj.axis );
 
     obj.colorBar
-      .attr( "width", obj.get_width() );
+      .attr( "width", obj.get_plotWidth() );
 
     //obj.the_sigmoid = function(x) { return sigmoid( x, obj.get_midpoint(), 1.38 / obj.get_slopewidth(), 0, 1 ) };
     obj.the_sigmoid = make_stretched_sigmoid( obj.get_midpoint(), 1.38 / obj.get_slopewidth(), 

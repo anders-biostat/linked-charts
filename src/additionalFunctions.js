@@ -261,7 +261,8 @@ export function add_click_listener(chart){
     mark ? chart.get_markedUpdated(chart.svg.selectAll(".marked")) : chart.zoom(lu, rb);      
   }
   var on_dblclick = function(mark){
-    mark ? chart.container.classed("marked", false) : chart.resetDomain();     
+    mark ? chart.container.selectAll(".marked").classed("marked", false) : chart.resetDomain();
+    if(mark) chart.get_markedUpdated();     
   }
   var on_panelClick = function(p, mark){
     var clickedPoints = chart.findPoints(p, p);
@@ -274,7 +275,7 @@ export function add_click_listener(chart){
     if(i < clickedPoints.length){
       if(!mark){
         var click = clickedPoints[i].on("click");
-        click.apply(clickedPoints[i], [clickedPoints[i].datum()]); 
+        click.call(clickedPoints[i].node(), clickedPoints[i].datum()); 
       } else {
         clickedPoints[i].classed("marked") ? clickedPoints[i].classed("marked", false) : clickedPoints[i].classed("marked", true);
         chart.get_markedUpdated(chart.svg.selectAll(".marked"));

@@ -1,0 +1,171 @@
+<html><title>Linked charts with D3</title>
+<link rel="stylesheet" type="text/css" href="../src/style.css">
+<body>
+<table>
+	<tr>
+		<td valign = "top">
+			<table>
+				<tr>
+					<td>
+						Screen: <select id = "screen" onchange = "changeHeatmap();"></select><br>
+					</td>
+					<td>
+						<button onclick = "heatmap.cluster('Row')">Cluster Rows</button><br>
+						<button onclick = "heatmap.cluster('Col')">Cluster Columns</button>
+					</td>
+				</tr>
+			</table>
+			<div id = "heatmap"></div>
+			<div id = "slider"></div>
+		</td>
+		<td>
+			<div id = "inhibition"></div>
+		</td>
+	</tr>	
+</table>
+<script src= "https://d3js.org/d3.v4.min.js"></script>
+<script src = "input_combAssay.js" charset="utf-8"></script>
+<script src = "https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src = "https://d3js.org/d3-color.v1.min.js"></script>
+<script src= "../build/d3-linked-charts.js"></script>
+<script src = "../src/lib/clusterfck.js"></script>
+
+<script>
+
+for(var i = 0; i < inhibitionValues.length; i++){
+	if(inhibitionValues[i].Conc1 === undefined)
+		inhibitionValues[i].Conc1 = 0;
+	if(inhibitionValues[i].Conc2 === undefined)
+		inhibitionValues[i].Conc2 = 0;
+	inhibitionValues[i].id = "c" + inhibitionValues[i].Conc1 + "_" + inhibitionValues[i].Conc2;
+	if(inhibitionValues[i].CellLine == "Hep G2")
+		inhibitionValues[i].CellLine = "Hep.G2";
+}
+inhibitionValues = d3.separateBy(inhibitionValues, ["Screen", "CellLine", "Drug1", "Drug2", "id"]);
+CTGindex = d3.separateBy(CTGindex, ["CellLine", "Drug2", "Drug1"]);
+CTxGindex = d3.separateBy(CTxGindex, ["CellLine", "Drug2", "Drug1"]);
+var index = {};
+index["CTG"] = CTGindex;
+index["CTxG"]  = CTxGindex;
+
+//fill the <select> list
+var screen = "CTG";
+d3.select("#screen").selectAll("option")
+	.data(Object.keys(inhibitionValues))
+	.enter().append("option")
+		.attr("value", function(d) {return d;})
+		.text(function(d) {return d;});
+
+var changeHeatmap = function(){
+	screen = document.getElementById("screen")
+		.options[document.getElementById("screen").selectedIndex].value;
+	heatmap.updateCellColour();
+}
+var get_rowIds = function(){
+	var ids = [];
+	var cl = Object.keys(index[screen])[0];
+	for(var d1 in index[screen][cl])
+		for(var d2 in index[screen][cl][d1])
+			ids.push(d1 + "/" + d2);
+	return ids;
+}
+var showPlots = {};
+
+var addPlot = function(id){
+	var cont = d3.select("#inhibition").append("div")
+		.attr("id", id);
+	var spl = id.split("__"),
+		drug1 = spl[0],
+		drug2 = spl[1],
+		cl = spl[2],
+		conc1 = [], conc2 = [];
+	cont.append("h5").text(cl);
+	for(var i in inhibitionValues[screen][cl][drug1]["none"])
+		conc1.push(inhibitionValues[screen][cl][drug1]["none"][i]["Conc1"]);
+	for(var i in inhibitionValues[screen][cl]["none"][drug2])
+		conc2.push(inhibitionValues[screen][cl]["none"][drug2][i]["Conc2"]);
+
+	conc1.push(0);
+	conc1.sort(function(a, b) {return a - b;});
+	conc2.push(0)
+	conc2.sort(function(a, b) {return a - b;});
+	showPlots[id] = d3.heatmapChart()
+		.width(300)
+		.height(300)
+		.margin({top: 40, left: 40, bottom: 15, right: 15})
+		.rowIds(conc1)
+		.colIds(conc2)
+		.value(function(rowId, colId){
+			var id = "c" + rowId + "_" + colId;
+			if(rowId == 0)
+				if(colId == 0)
+					return 0
+				else
+					return inhibitionValues[screen][cl]["none"][drug2][id]["inhib"]
+			else
+				if(colId == 0)
+					return inhibitionValues[screen][cl][drug1]["none"][id]["inhib"]
+				else
+					if(inhibitionValues[screen][cl][drug1][drug2][id])
+						return inhibitionValues[screen][cl][drug1][drug2][id]["inhib"]
+					else
+						return 100;
+		})
+		.colourRange([-100, 100])
+		.palette(function(t) {return d3.interpolateRdYlBu(1 - t);})
+		.rowTitle(drug1)
+		.colTitle(drug2)
+		.showValue(false)
+		.place(cont);
+
+}
+var removePlot = function(id){
+	d3.select("#inhibition").select("#" + id).remove();
+	delete showPlots[id];
+}
+
+var heatmap = d3.heatmapChart()
+	.width(700)
+	.height(900)
+	.margin({top: 100, left: 150, bottom: 10, right: 10})
+	.rowIds(d3.cache(get_rowIds))
+	.colIds(Object.keys(index[screen]))
+	.value(function(rowId, colId){
+		var d1 = rowId.split("/")[0],
+			d2 = rowId.split("/")[1];
+		return index[screen][colId][d1][d2]["ZIPind"];
+	})
+	.colourRange([0, 60])
+	.on_click(function(){
+		var cell = d3.select(this);
+		cell.classed("marked") ? cell.classed("marked", false) : cell.classed("marked", true);
+		heatmap.get_markedUpdated(); 
+	})
+	.markedUpdated(function() {
+		var idList = heatmap.svg.selectAll(".marked").data()
+			.map(function(e) {
+				return e[0].split("/")[0] + "__" + e[0].split("/")[1] + "__" + e[1]
+			});
+		var existingPlots = Object.keys(showPlots);
+		for(var i = 0; i < existingPlots.length; i++)
+			if(idList.indexOf(existingPlots[i]) == -1)
+				removePlot(existingPlots[i]);
+		for(var i = 0; i < idList.length; i++)
+			if(existingPlots.indexOf(idList[i]) == -1)
+				addPlot(idList[i]);
+	})
+	.place("#heatmap");
+
+var slider = d3.sigmoidColorSlider()
+	.straightColorScale(heatmap.colourScale)
+	.margin({top: 20, bottom: 10, left: 150, right: 10})
+	.on_change(function(){
+		heatmap.colour(function(val){
+			return heatmap.get_palette(slider.the_sigmoid(val));
+		});
+		heatmap.updateCellColour();
+	})
+  .place("#slider");
+
+
+</script>

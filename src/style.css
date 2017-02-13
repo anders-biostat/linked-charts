@@ -17,6 +17,11 @@ rect.selected{
 	stroke-width: 2px;
 	stroke: #ccc;
 }
+rect.marked{
+	stroke-width: 3px;
+	stroke: #000;
+
+}
 circle.selected{
 	stroke-width: 2px;
 	stroke: #ccc;	

@@ -21,7 +21,11 @@ export function heatmapChart(id, chart){
 		.add_property("colourRange", function() {return chart.dataRange()})
 		.add_property("clusterRowMetric", getEuclideanDistance)
 		.add_property("clusterColMetric", getEuclideanDistance)
-		.add_property("on_click", function() {});
+		.add_property("on_click", function() {})
+		.add_property("markedUpdated", function() {})
+		.add_property("rowTitle", "")
+		.add_property("showValue", false)
+		.add_property("colTitle", "");
 
 	chart.margin({top: 100, left: 100, right: 10, bottom: 10});
 
@@ -57,6 +61,15 @@ export function heatmapChart(id, chart){
 				//delete canvas if any
 		chart.g = chart.svg.append("g")
 			.attr("class", "chart_g");
+		chart.text = chart.g.append("g")
+			.attr("class", "text_g");
+		chart.axes.x_label = chart.svg.append("text")
+			.attr("class", "axisLabel")
+			.attr("text-anchor", "end");
+		chart.axes.y_label = chart.svg.append("text")
+			.attr("class", "axisLabel")
+			.attr("text-anchor", "end")
+			.attr("transform", "rotate(-90)");
 	}
 
 	chart.findPoints = function(lu, rb){
@@ -198,6 +211,14 @@ export function heatmapChart(id, chart){
 			chart.g.transition(chart.transition)
 				.attr("transform", "translate(" + chart.get_margin().left + ", " +
 					chart.get_margin().top + ")");
+			chart.axes.x_label.transition(chart.transition)
+				.attr("font-size", d3.min([chart.get_margin().bottom - 2, 15]))
+				.attr("x", chart.get_plotWidth() + chart.get_margin().left)
+				.attr("y", chart.get_height());
+			chart.axes.y_label.transition(chart.transition)
+				.attr("font-size", d3.min([chart.get_margin().right - 2, 15]))
+				.attr("x", - chart.get_margin().top)
+				.attr("y", chart.get_width());
 		} else {
 			chart.svg.selectAll(".label_panel")
 				.attr("transform", "translate(" + chart.get_margin().left + ", " +
@@ -205,6 +226,15 @@ export function heatmapChart(id, chart){
 			chart.g
 				.attr("transform", "translate(" + chart.get_margin().left + ", " +
 					chart.get_margin().top + ")");								
+			chart.axes.x_label
+				.attr("font-size", d3.min([chart.get_margin().bottom - 2, 15]))
+				.attr("x", chart.get_plotWidth() + chart.get_margin().left)
+				.attr("y", chart.get_height());
+			chart.axes.y_label
+				.attr("font-size", d3.min([chart.get_margin().right - 2, 15]))
+				.attr("x", - chart.get_margin().top)
+				.attr("y", chart.get_width());
+
 		}
 
 		chart.updateLabelPosition();
@@ -388,9 +418,9 @@ export function heatmapChart(id, chart){
 	chart.labelClick = function(d){
 		//check whether row or col label has been clicked
 		var type;
-		d3.select(this.node().parentNode).classed("row") ? type = "row" : type = "col";
+		d3.select(this.parentNode).classed("row") ? type = "row" : type = "col";
 		//if this label is already selected, flip the heatmap
-		if(this.classed("sorted")){
+		if(d3.select(this).classed("sorted")){
 			type == "col" ? chart.reorderRow("flip") : chart.reorderCol("flip");
 		} else {
 			//select new label and chage ordering
@@ -403,7 +433,7 @@ export function heatmapChart(id, chart){
 					return chart.get_value(d, b) - chart.get_value(d, a);
 				});
 		}
-		this.classed("sorted", true);
+		d3.select(this).classed("sorted", true);
 		chart.svg.selectAll(".sorted").classed("selected", true);
 	};
 	
@@ -418,7 +448,12 @@ export function heatmapChart(id, chart){
 				.attr("fill", function(d) {
 					return chart.get_colour(chart.get_value(d[0], d[1]));
 			});
+		chart.svg.selectAll(".sorted")
+			.classed("selected", false)
+			.classed("sorted", false);
 
+		if(chart.get_showValue())
+			chart.updateTextValues();
 		return chart;
 	}
 
@@ -448,8 +483,12 @@ export function heatmapChart(id, chart){
 					.on("mouseover", chart.pointMouseOver)
 					.on("mouseout", chart.pointMouseOut)
 					.on("click", function(d) {
-						chart.get_on_click(d[0], d[1]);
+						chart.get_on_click.apply(this, [d[0], d[1]]);
 					});
+		
+		if(chart.get_showValue())
+			chart.updateTexts();
+		
 		return chart;
 	}
 
@@ -474,6 +513,9 @@ export function heatmapChart(id, chart){
 				.attr("y", function(d) {
 					return chart.axes.scale_y(chart.get_heatmapRow(d[0]))
 				});
+
+		if(chart.get_showValue())
+			chart.updateTextPosition();
 
 		return chart;
 	}
@@ -524,10 +566,71 @@ export function heatmapChart(id, chart){
 		chart.updateLabelPosition();		
 	}
 
+	chart.updateTexts = function(){
+		//add rows
+		var rows = chart.g.selectAll(".text_row")
+			.data(chart.get_dispRowIds(), function(d) {return d;});
+		rows.exit()
+			.remove();
+		rows.enter()
+			.append("g")
+				.attr("class", "text_row");
+
+		//add text	
+		var text = chart.g.selectAll(".text_row").selectAll(".tval")
+			.data(function(d) {
+				return chart.get_dispColIds().map(function(e){
+					return [d, e];
+				})
+			}, function(d) {return d;});
+		text.exit()
+			.remove();
+		text.enter()
+			.append("text")
+				.attr("class", "tval");
+		return chart;		
+	}
+	chart.updateTextPosition = function(){
+		if(typeof chart.transition !== "undefined")
+			chart.g.selectAll(".tval").transition(chart.transition)
+				.attr("x", function(d){
+					return chart.axes.scale_x(chart.get_heatmapCol(d[1]));
+				})
+				.attr("font-size", chart.cellSize.height * 0.5)								
+				.attr("y", function(d) {
+					return chart.axes.scale_y(chart.get_heatmapRow(d[0]))
+				})
+		else
+			chart.g.selectAll(".tval")
+				.attr("x", function(d){
+					return chart.axes.scale_x(chart.get_heatmapCol(d[1]));
+				})
+				.attr("font-size", chart.cellSize.height * 0.5)								
+				.attr("y", function(d) {
+					return chart.axes.scale_y(chart.get_heatmapRow(d[0])) + chart.cellSize.height;
+				})
+		return chart;
+	}
+	chart.updateTextValues = function(){
+		if(typeof chart.transition !== "undefined")
+			chart.g.selectAll(".tval").transition(chart.transition)
+				.text(function(d) {
+					return chart.get_value(d[0], d[1]);
+			})
+		else
+			chart.g.selectAll(".tval")
+				.text(function(d) {
+					return chart.get_value(d[0], d[1]);
+			});
+		return chart;
+	}
 	
 	chart.update = function() {
 		chart.resetColourScale();
-
+		chart.axes.x_label
+			.text(chart.get_colTitle());
+		chart.axes.y_label
+			.text(chart.get_rowTitle());
 		chart.updateLabels()
 			.updateSize()
 			.updateLabelText()
