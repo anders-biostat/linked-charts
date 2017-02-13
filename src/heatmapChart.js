@@ -118,7 +118,7 @@ export function heatmapChart(id, chart){
 			chart.updateLabelPosition();
 			return chart;
 		}
-		chart.svg.select(".row").selectAll(".label")
+		chart.svg.select(".col").selectAll(".label")
 			.classed("selected", false)
 			.classed("sorted", false);
 
@@ -156,7 +156,7 @@ export function heatmapChart(id, chart){
 			chart.updateLabelPosition();
 			return chart;
 		}
-		chart.svg.select(".col").selectAll(".label")
+		chart.svg.select(".row").selectAll(".label")
 			.classed("selected", false)
 			.classed("sorted", false);
 		var ids = chart.get_colIds().slice(), ind;
@@ -403,8 +403,8 @@ export function heatmapChart(id, chart){
 					return chart.get_value(d, b) - chart.get_value(d, a);
 				});
 		}
-		this.classed("selected", true)
-			.classed("sorted", true);		
+		this.classed("sorted", true);
+		chart.svg.selectAll(".sorted").classed("selected", true);
 	};
 	
 	chart.updateCellColour = function() {
@@ -484,7 +484,7 @@ export function heatmapChart(id, chart){
 			throw "Error in 'cluster': type " + type + " cannot be recognised. " +
 					"Please, use either 'Row' or 'Col'";
 		var items = {}, it = [],
-			aIds = chart["get_disp.get_disp" + type + "Ids"](),
+			aIds = chart["get_disp" + type + "Ids"](),
 			bIds;
 		type == "Row" ? bIds = chart.get_dispColIds() :
 			bIds = chart.get_dispRowIds();
