@@ -29,6 +29,7 @@
 <script src = "https://d3js.org/d3-color.v1.min.js"></script>
 <script src= "../build/d3-linked-charts.js"></script>
 <script src = "../src/lib/clusterfck.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
 <script>
 
@@ -60,6 +61,14 @@ var changeHeatmap = function(){
 	screen = document.getElementById("screen")
 		.options[document.getElementById("screen").selectedIndex].value;
 	heatmap.updateCellColour();
+	var plotlyGr;
+	for(var i in showPlots){
+		showPlots[i].updateCellColour();
+		plotlyGr = document.getElementById(i + "_plotly");
+		plotlyGr.data = makePlotlyData(i);
+		plotlyGr.layout =  makePlotlyLayout(i);
+		Plotly.redraw(plotlyGr);
+	}
 }
 var get_rowIds = function(){
 	var ids = [];
@@ -69,11 +78,55 @@ var get_rowIds = function(){
 			ids.push(d1 + "/" + d2);
 	return ids;
 }
+var makePlotlyData = function(id){
+	//make plot-ly surface plot
+	var conc1 = showPlots[id].get_rowIds();
+	var conc2 = showPlots[id].get_colIds();
+	var z_row = [], z_data = [];
+	for(var i = 0; i < conc1.length; i++){
+		for(var j = 0; j < conc2.length; j++){
+			z_row.unshift(showPlots[id].get_value(conc1[i], conc2[j]));
+		}
+		z_data.unshift(z_row);
+		z_row = []; 
+	}
+	var data = [{z: z_data, type: 'surface'}];
+	return data;
+}
+var makePlotlyLayout = function(id){
+	var layout = {
+  	autosize: false,
+  	width: 340,
+  	height: 340,
+  	margin: {
+    	l: 25,
+    	r: 15,
+    	b: 25,
+    	t: 15,
+  	},
+  	scene: {
+	  	xaxis: {
+	  		title: showPlots[id].get_rowTitle(),
+	  		ticktext: showPlots[id].get_rowIds(),
+	  		tickvals: d3.range(0, 8).reverse()
+	  	},
+	  	yaxis: {
+	  		title: showPlots[id].get_colTitle(),
+	  		ticktext: showPlots[id].get_colIds(),
+	  		tickvals: d3.range(0, 8).reverse()
+	  	}
+  	}
+	};
+	return layout;
+}
+
 var showPlots = {};
 
 var addPlot = function(id){
 	var cont = d3.select("#inhibition").append("div")
-		.attr("id", id);
+		.attr("id", id)
+		.html("<table><tr><td><div class = 'hm'></div></td><td><div id = " + id + "_plotly></div></td></tr></table>")
+		.select(".hm");
 	var spl = id.split("__"),
 		drug1 = spl[0],
 		drug2 = spl[1],
@@ -115,9 +168,14 @@ var addPlot = function(id){
 		.palette(function(t) {return d3.interpolateRdYlBu(1 - t);})
 		.rowTitle(drug1)
 		.colTitle(drug2)
-		.showValue(false)
-		.place(cont);
-
+		.showValue(true)
+	showPlots[id].labelClick = function() {};
+	showPlots[id].place(cont);
+	var data = makePlotlyData(id);
+	var layout = makePlotlyLayout(id);
+	Plotly.newPlot(id + "_plotly", data, layout);
+//	d3.select("#" + id).selectAll("div")
+//		.attr("style", "display: inline;");
 }
 var removePlot = function(id){
 	d3.select("#inhibition").select("#" + id).remove();

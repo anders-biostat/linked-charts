@@ -390,6 +390,12 @@ export function heatmapChart(id, chart){
 			.filter(function(dl) {return dl == d[0];})
 				.classed("hover", true);
 		//show label
+		if(chart.get_showValue()){
+			chart.g.selectAll(".tval").filter(function(fd){
+				return fd[0] == d[0] && fd[1] == d[1];
+			})
+			.classed("hidden", false);
+		} else {
 		chart.container.select(".inform")
 			.style("left", (d3.event.pageX + 10) + "px")
 			.style("top", (d3.event.pageY - 10) + "px")
@@ -399,6 +405,7 @@ export function heatmapChart(id, chart){
 						"value = " + chart.get_value(d[0], d[1]));  
 		chart.container.select(".inform")
 			.classed("hidden", false);
+		}
 	};
 	chart.pointMouseOut = function(d) {
 		//change colour and class
@@ -410,8 +417,12 @@ export function heatmapChart(id, chart){
 		//deselect row and column labels
 		chart.svg.selectAll(".label")
 			.classed("hover", false);
-		chart.container.select(".inform")
-			.classed("hidden", true);
+		if(chart.get_showValue()){
+			chart.g.selectAll(".tval").classed("hidden", true);
+		} else {
+			chart.container.select(".inform")
+				.classed("hidden", true);
+		}
 	};
 	
 	//set default clicking behaviour for labels (ordering)
@@ -587,7 +598,7 @@ export function heatmapChart(id, chart){
 			.remove();
 		text.enter()
 			.append("text")
-				.attr("class", "tval");
+				.attr("class", "tval hidden");
 		return chart;		
 	}
 	chart.updateTextPosition = function(){
@@ -598,7 +609,7 @@ export function heatmapChart(id, chart){
 				})
 				.attr("font-size", chart.cellSize.height * 0.5)								
 				.attr("y", function(d) {
-					return chart.axes.scale_y(chart.get_heatmapRow(d[0]))
+					return chart.axes.scale_y(chart.get_heatmapRow(d[0]) ) + chart.cellSize.height * 0.75
 				})
 		else
 			chart.g.selectAll(".tval")
@@ -607,7 +618,7 @@ export function heatmapChart(id, chart){
 				})
 				.attr("font-size", chart.cellSize.height * 0.5)								
 				.attr("y", function(d) {
-					return chart.axes.scale_y(chart.get_heatmapRow(d[0])) + chart.cellSize.height;
+					return chart.axes.scale_y(chart.get_heatmapRow(d[0])) + chart.cellSize.height * 0.75;
 				})
 		return chart;
 	}
@@ -615,12 +626,12 @@ export function heatmapChart(id, chart){
 		if(typeof chart.transition !== "undefined")
 			chart.g.selectAll(".tval").transition(chart.transition)
 				.text(function(d) {
-					return chart.get_value(d[0], d[1]);
+					return chart.get_value(d[0], d[1]).toFixed(1);
 			})
 		else
 			chart.g.selectAll(".tval")
 				.text(function(d) {
-					return chart.get_value(d[0], d[1]);
+					return chart.get_value(d[0], d[1]).toFixed(1);
 			});
 		return chart;
 	}
