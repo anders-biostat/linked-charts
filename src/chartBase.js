@@ -42,6 +42,10 @@ export function chartBase() {
 		chart.container = element.append("div");
 		chart.container.node().ondragstart = function() { return false; };
 		chart.svg = chart.container.append("svg");
+		chart.viewBox = chart.svg.append("defs")
+			.append("clipPath")
+				.attr("id", "viewBox")
+				.append("rect");
 		chart.container.append("div")
 			.attr("class", "inform hidden")
 			.append("p")
@@ -78,6 +82,11 @@ export function chartBase() {
 	
 	//update parts
 	chart.updateSize = function(){
+		chart.viewBox
+			.attr("x", -5) //Let's leave some margin for a view box so that not to cut
+			.attr("y", -5) //points that are exactly on the edge
+			.attr("width", chart.get_plotWidth() + 10) 
+			.attr("height", chart.get_plotHeight() + 10);
 		if(typeof chart.transition !== "undefined"){
 			chart.svg.transition(chart.transition)
 				.attr("width", chart.get_width())
@@ -233,7 +242,7 @@ export function axisChart() {
 								domain = chart.get_layer(k)["get_layerDomain" + axis]()
 							else {
 								domain[0] = d3.min([domain[0], chart.get_layer(k)["get_layerDomain" + axis]()[0]]);
-								domain[1] = d3.min([domain[1], chart.get_layer(k)["get_layerDomain" + axis]()[1]]);
+								domain[1] = d3.max([domain[1], chart.get_layer(k)["get_layerDomain" + axis]()[1]]);
 							}
 				} else { //if scale is categorical, find unique values from each layer
 					for(var k in chart.layers)

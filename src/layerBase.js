@@ -27,7 +27,8 @@ export function layerBase(id) {
 	layer.put_static_content = function() {
     layer.g = layer.chart.svg.append("g")
       .attr("class", "chart_g")
-      .attr("id", layer.id);
+      .attr("id", layer.id)
+      .attr("clip-path", "url(#viewBox)");
     //layer.chart.svg.select(".clickPanel").raise();
 	};
 	

@@ -156,15 +156,12 @@ var rtgSlider = d3.sigmoidColorSlider()
 	.straightColorScale( d3.scaleLinear().range( [ "black", "green" ] ).domain([0, 30]) )
   .place("#greenSlider");
 	
-var heatmap = d3.tableChartBase()
+var heatmap = d3.heatmapChart()
 	.width(1000)
 	.height(700)
 	.margin({top: 100, bottom: 50, left: 150, right: 20})
 	.rowIds(d3.cache(get_rowIds))
-	.colIds(d3.cache(get_colIds));
-	
-d3.heatmapChart("main", heatmap)
-	.mode("svg")
+	.colIds(d3.cache(get_colIds))
 	.value(function(rowId, colId){
 		var ids = colId.split("/");
 		return [inputData.rtg[ids[1]].dss[rowId][ids[0]],
@@ -175,8 +172,8 @@ d3.heatmapChart("main", heatmap)
 			+ Math.round(rtgSlider.the_sigmoid(val[0]) * 255) + ", 30)";
 	})
 	.colourRange([0, 30])
-	.clusterRowsMetric(clusterMetric)
-	.clusterColsMetric(clusterMetric);
+	.clusterRowMetric(clusterMetric)
+	.clusterColMetric(clusterMetric);
 heatmap.place("#heatmap");
 
 

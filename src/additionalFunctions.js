@@ -292,3 +292,23 @@ export function add_click_listener(chart){
       
   return chart;
 }
+
+export function pearsonCorr( v1, v2 ) {
+   var sum1 = 0;
+   var sum2 = 0;
+   for( var i = 0; i < v1.length; i++ ) {
+      sum1 += v1[i];
+      sum2 += v2[i];
+   }
+   var mean1 = sum1 / v1.length;
+   var mean2 = sum2 / v2.length;
+   var cov = 0
+   var var1 = 0
+   var var2 = 0
+   for( var i = 0; i < v1.length; i++ ) {
+      cov += ( v1[i] - mean1 ) * ( v2[i] - mean2 );
+      var1 += ( v1[i] - mean1 ) * ( v1[i] - mean1 );
+      var2 += ( v2[i] - mean2 ) * ( v2[i] - mean2 );
+   } 
+   return cov / Math.sqrt( var1 * var2 );
+} 

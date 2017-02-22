@@ -60,7 +60,8 @@ export function heatmapChart(id, chart){
 			.attr("class", "col label_panel");
 				//delete canvas if any
 		chart.g = chart.svg.append("g")
-			.attr("class", "chart_g");
+			.attr("class", "chart_g")
+			.attr("clip-path", "url(#viewBox)");
 		chart.text = chart.g.append("g")
 			.attr("class", "text_g");
 		chart.axes.x_label = chart.svg.append("text")
@@ -574,7 +575,9 @@ export function heatmapChart(id, chart){
 			return oldOrder.indexOf(a) - oldOrder.indexOf(b);
 		});
 		
-		chart.updateLabelPosition();		
+		chart.updateLabelPosition();
+
+		return chart;		
 	}
 
 	chart.updateTexts = function(){
