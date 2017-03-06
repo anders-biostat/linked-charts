@@ -10,19 +10,9 @@ export function scatterChart(id, chart) {
   var layer = chart.add_layer(id).get_layer(id)
 		.add_property("x")
 		.add_property("y")
-		.add_property("npoints")
-		.add_property("dataIds")
     .add_property("size", 4)
-    .add_property("colour", "black")
 		.add_property("groupName", function(i){return i;});
 	chart.syncProperties(layer);
-
-  layer.dataIds( "_override_", "npoints", function(){
-    return layer.get_dataIds().length;
-  });
-  layer.npoints( "_override_", "dataIds", function() {
-    return d3.range( layer.get_npoints() );
-  });
 
   // Set default for numPoints, namely to count the data provided for x
   layer.npoints( function() {
@@ -142,7 +132,7 @@ export function scatterChart(id, chart) {
   });
 
   layer.updatePoints = function(){
-  var sel = layer.g.selectAll( ".data_point" )
+    var sel = layer.g.selectAll( ".data_point" )
       .data( layer.get_dataIds(), function(d) {return d;} );
     sel.exit()
       .remove();  

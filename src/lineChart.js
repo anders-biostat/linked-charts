@@ -8,24 +8,14 @@ export function lineChart(id, chart){
 		id = "layer" + chart.get_nlayers();
 	
 	var layer = chart.add_layer(id).get_layer(id)
-		.add_property("nlines")
-		.add_property("lineIds", function() {return d3.range(layer.get_nlines());})
 		.add_property("lineFun")
 		.add_property("lineStepNum", 100)
-		.add_property("colour", "black")
 		.add_property("lineWidth", 1.5);
 	chart.syncProperties(layer);
-
-  layer.lineIds( "_override_", "nlines", function(){
-    return layer.get_lineIds().length;
-  });
-  layer.nlines( "_override_", "lineIds", function() {
-    return d3.range( layer.get_nlines() );
-  });
 	
 	layer.updatePoints = function(){
 		var lines = layer.g.selectAll(".data_point")
-			.data(layer.get_lineIds(), function(d) {return d;});
+			.data(layer.get_dataIds(), function(d) {return d;});
 		lines.exit()
 			.remove();
 		lines.enter()

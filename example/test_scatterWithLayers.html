@@ -28,7 +28,7 @@
 		} )
 		.groupName(function(i) {return data[i].cyl;});
 	d3.lineChart("line", sc)
-		.nlines(1)
+		.npoints(1)
 		.lineFun(function(id, x) {return x*30;});
 
 	sc.place();
