@@ -25,9 +25,10 @@ export function heatmapChart(id, chart){
 		.add_property("markedUpdated", function() {})
 		.add_property("rowTitle", "")
 		.add_property("showValue", false)
-		.add_property("colTitle", "");
+		.add_property("colTitle", "")
+		.add_property("showLabel", true);
 
-	chart.margin({top: 100, left: 100, right: 10, bottom: 10});
+	chart.margin({top: 100, left: 100, right: 10, bottom: 40});
 
 	chart.ncols("_override_", "colIds", function(){
 		return d3.range(chart.get_ncols());
@@ -71,6 +72,8 @@ export function heatmapChart(id, chart){
 			.attr("class", "axisLabel")
 			.attr("text-anchor", "end")
 			.attr("transform", "rotate(-90)");
+		chart.svg.append("g")
+			.attr("class", "legend_panel");
 	}
 
 	chart.findPoints = function(lu, rb){
@@ -209,6 +212,9 @@ export function heatmapChart(id, chart){
 			chart.svg.selectAll(".label_panel").transition(chart.transition)
 				.attr("transform", "translate(" + chart.get_margin().left + ", " +
 					chart.get_margin().top + ")");
+			chart.svg.select(".legend_panel").transition(chart.transition)
+				.attr("transform", "translate(0, " + 
+					(chart.get_margin().top + chart.get_plotHeight()) + ")");
 			chart.g.transition(chart.transition)
 				.attr("transform", "translate(" + chart.get_margin().left + ", " +
 					chart.get_margin().top + ")");
@@ -224,6 +230,9 @@ export function heatmapChart(id, chart){
 			chart.svg.selectAll(".label_panel")
 				.attr("transform", "translate(" + chart.get_margin().left + ", " +
 					chart.get_margin().top + ")");
+			chart.svg.select(".legend_panel")
+				.attr("transform", "translate(0, " + 
+					(chart.get_margin().top + chart.get_plotHeight()) + ")");
 			chart.g
 				.attr("transform", "translate(" + chart.get_margin().left + ", " +
 					chart.get_margin().top + ")");								
@@ -238,6 +247,7 @@ export function heatmapChart(id, chart){
 
 		}
 
+		chart.updateLegendSize();
 		chart.updateLabelPosition();
 		return chart;
 	}
@@ -371,7 +381,8 @@ export function heatmapChart(id, chart){
 	chart.resetColourScale = function(){
 	//create colorScale
 		var range = chart.get_colourRange();
-		chart.colourScale = d3.scaleSequential(chart.get_palette).domain(range);		
+		chart.colourScale = d3.scaleSequential(chart.get_palette).domain(range);
+		chart.updateLegend();		
 	}	
 
 	//some default onmouseover and onmouseout behaviour for cells and labels
@@ -637,6 +648,43 @@ export function heatmapChart(id, chart){
 					return chart.get_value(d[0], d[1]).toFixed(1);
 			});
 		return chart;
+	}
+
+	chart.updateLegendSize = function(){
+		//calculate the size of element of legend
+		var height = d3.min([chart.get_margin().bottom * 0.5, 20]),
+			width = d3.min([chart.get_width()/23, 20]),
+			fontSize = d3.min([chart.get_margin().bottom * 0.3, width / 2, 15]),
+			blocks = chart.svg.select(".legend_panel").selectAll(".legend_block")
+			.attr("transform", function(d) {
+				return "translate(" + (d + 1) * width + ", 0)";
+			});
+		blocks.selectAll("text")
+			.attr("font-size", fontSize)
+			.attr("dy", chart.get_margin().bottom * 0.4)
+			.attr("dx", width);
+		blocks.selectAll("rect")
+			.attr("height", height)
+			.attr("width", width)
+			.attr("y", chart.get_margin().bottom * 0.5);
+	}
+
+	chart.updateLegend = function(){
+		var range = chart.get_colourRange(),
+			step = (range[1] - range[0]) / 20,
+			blocks = chart.svg.select(".legend_panel")
+			.selectAll(".legend_block").data(d3.range(21))
+				.enter().append("g")
+					.attr("class", "legend_block");
+		blocks.append("text")
+			.attr("text-anchor", "end");
+		blocks.append("rect");
+		chart.svg.select(".legend_panel")
+			.selectAll(".legend_block").selectAll("text")
+				.text(function(d) {return (range[0] + step * d).toFixed(2);});
+		chart.svg.select(".legend_panel")
+			.selectAll(".legend_block").selectAll("rect")
+				.attr("fill", function(d) {return chart.colourScale(range[0] + step * d)});
 	}
 	
 	chart.update = function() {
