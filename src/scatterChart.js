@@ -51,8 +51,8 @@ export function scatterChart(id, chart) {
         .style("top", (d3.event.pageY - 10) + "px")
         .select(".value")
           .html("ID: <b>" + d + "</b>;<br>" + 
-            "x = " + layer.get_x(d) + ";<br>" + 
-            "y = " + layer.get_y(d));  
+            "x = " + layer.get_x(d).toFixed(2) + ";<br>" + 
+            "y = " + layer.get_y(d).toFixed(2));  
     layer.chart.container.select(".inform")
       .classed("hidden", false);
   });

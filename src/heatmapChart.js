@@ -415,7 +415,7 @@ export function heatmapChart(id, chart){
 			.select(".value")
 				.html("Row: <b>" + d[0] + "</b>;<br>" + 
 						"Col: <b>" + d[1] + "</b>;<br>" + 
-						"value = " + chart.get_value(d[0], d[1]));  
+						"value = " + chart.get_value(d[0], d[1]).toFixed(2));  
 		chart.container.select(".inform")
 			.classed("hidden", false);
 		}
@@ -682,13 +682,20 @@ export function heatmapChart(id, chart){
 		blocks.append("rect");
 		chart.svg.select(".legend_panel")
 			.selectAll(".legend_block").selectAll("text")
-				.text(function(d) {return (range[0] + step * d).toFixed(2);});
+				.text(function(d) {
+					if(d % 2 == 0)
+						return (range[0] + step * d).toFixed(2)
+					else
+						return "";
+				});
 		chart.svg.select(".legend_panel")
 			.selectAll(".legend_block").selectAll("rect")
 				.attr("fill", function(d) {return chart.colourScale(range[0] + step * d)});
 	}
 	
 	chart.update = function() {
+		chart.svg.select(".title")
+			.text(chart.title());
 		chart.resetColourScale();
 		chart.axes.x_label
 			.text(chart.get_colTitle());

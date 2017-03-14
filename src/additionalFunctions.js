@@ -321,7 +321,7 @@ function wrapText(text, width, height, minSize, maxSize, fontRatio){
     if(spl.length == 1) return;
     var mult = 0, bestSep, leftSide = 0,
       rightSide = text.length;
-    for(var i = 0; i < spl.length; i++){
+    for(var i = 0; i < spl.length - 1; i++){
       leftSide += (spl[i].length + 1);
       rightSide -= (spl[i].length + 1);
       if(mult < leftSide * rightSide){
@@ -329,8 +329,8 @@ function wrapText(text, width, height, minSize, maxSize, fontRatio){
         bestSep = i;
       }
     }
-    return [spl.slice(0, i).join(symbol) + symbol, 
-            spl.slice(i + 1, spl.length - 1).join(symbol)];
+    return [spl.slice(0, bestSep + 1).join(symbol) + symbol, 
+            spl.slice(bestSep + 1, spl.length - bestSep).join(symbol)];
   }
 
   var splitByVowel = function(text){
@@ -374,37 +374,42 @@ function wrapText(text, width, height, minSize, maxSize, fontRatio){
     if(maxLength == 1)
       fontSize = width / fontRatio * 0.95
     else {
-      var charachters = [" ", ".", ",", "/", "\\", "-", "_", "+", "*", "&", "(", ")", "?", "!"],
-        spl, i = 0;
-      while(typeof spl === "undefined" && i < charachters.length){
-        spl = splitBy(spans[longestSpan], charachters[i]);
-        i++;
+      if(height / (spans.length + 1) < width / (maxLength * fontRatio) * 0.95)
+        fontSize = width / (maxLength * fontRatio) * 0.95
+      else {
+        var charachters = [" ", ".", ",", "/", "\\", "-", "_", "+", "*", "&", "(", ")", "?", "!"],
+          spl, i = 0;
+        while(typeof spl === "undefined" && i < charachters.length){
+          spl = splitBy(spans[longestSpan], charachters[i]);
+          i++;
+        }
+        if(typeof spl === "undefined")
+          spl = splitByVowel(spans[longestSpan]);
+        spans.splice(longestSpan, 1, spl[0], spl[1]);
+
+        allowedLength = Math.floor(width / (fontSize * fontRatio));
+
+        for(var i = 0; i < spans.length - 1; i++)
+          if(spans[i].length + spans[i + 1].length <= allowedLength &&
+              spans[i].length + spans[i + 1].length < maxLength){
+            spans.splice(i, 2, spans[i] + spans[i + 1]);
+            fontSize = d3.min([height / (spans.length - 1), maxSize]);
+            allowedLength = Math.floor(width / (fontSize * fontRatio));
+          }
+
+        fontSize = d3.min([height / spans.length, maxSize]);
+        maxLength = spans[0].length;
+        longestSpan = 0;
+        for(var i = 1; i < spans.length; i++)
+          if(spans[i].length > maxLength){
+            maxLength = spans[i].length;
+            longestSpan = i;
+          }
       }
-      if(typeof spl === "undefined")
-        spl = splitByVowel(spans[longestSpan]);
-      spans.splice(longestSpan, 1, spl[0], spl[1]);
-
-      allowedLength = Math.floor(width / (fontSize * fontRatio));
-
-      for(var i = 0; i < spans.length - 1; i++)
-        if(spans[i].length + spans[i + 1].length <= allowedLength &&
-            spans[i].length + spans[i + 1].length < maxLength){
-          spans.splice(i, 2, spans[i] + spans[i + 1]);
-          fontSize = d3.min([height / (spans.length - 1), maxSize]);
-          allowedLength = Math.floor(width / (fontSize * fontRatio));
-        }
-
-      fontSize = d3.min([height / spans.length, maxSize]);
-      maxLength = spans[0].length;
-      longestSpan = 0;
-      for(var i = 1; i < spans.length; i++)
-        if(spans[i].length > maxLength){
-          maxLength = spans[i].length;
-          longestSpan = i;
-        }
     }     
   }
 
+ // fontSize = d3.min([height / spans.length, width / (maxLength * fontRatio)]);
 
   return {spans: spans, fontSize: fontSize};
 }
@@ -415,6 +420,7 @@ export function fillTextBlock(g, width, height, text, minSize, maxSize, fontRati
     spans.exit().remove();
     spans.enter().append("text")
       .merge(spans)
+        .attr("class", "plainText")
         .attr("text-anchor", "left")
         .attr("font-size", fit.fontSize)
         .attr("y", function(d) {return (d + 1) * fit.fontSize;})

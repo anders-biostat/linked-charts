@@ -18,6 +18,33 @@ export function legend(chart) {
 		//scale can be an array or d3 scale. If scale is an array,
 		//we need to turn it into a scale
 		var block = {};
+		if(typeof scale === "function")
+			block.scale = scale
+		else
+			block.scale = function() {return scale;};
+		if(typeof layer !== "undefined")
+			block.layer = layer;
+		if(["colour", "size", "style"].indexOf(type) == -1)
+			throw "Error in 'legend.add': " + type + " is not a suitable type of legend block. " +
+				"Please, use one of these: 'colour', 'size', 'style'";
+		block.type = type;
+
+		legend.blocks[id] = block;
+		//legend.update();
+
+		return legend.chart;
+	}
+
+	legend.convertScale = function(id) {
+		var scale, newScale;
+		try{
+			scale = legend.blocks[id].scale();
+		} catch (exc) {
+			scale = legend.blocks[id].scale;
+		}
+		if(typeof scale !== "function" && typeof scale.splice === "undefined")
+			scale = legend.blocks[id].scale;
+		
 		if(typeof scale !== "function"){
 			var scCont = false,
 				rCont = false;
@@ -26,40 +53,40 @@ export function legend(chart) {
 			if(scale[0].length == 2 && typeof scale[0][0] === "number" && 
 																typeof scale[0][1] === "number")
 				scCont = true;
-			if(type == "colour" && scale[0].length != scale[1].length)
+			if(legend.blocks[id].type == "colour" && scale[0].length != scale[1].length)
 				rCont = true;
 			if(scale[1].length == 2 && typeof scale[0][0] === "number" && 
 																typeof scale[0][1] === "number")
 				rCont = true;
 			if(scCont && rCont){
-				block.scale = d3.scaleLinear()
+				newScale = d3.scaleLinear()
 					.domain(scale[0])
 					.range(scale[1]);
-				scale.steps ? block.steps = scale.steps : block.steps = 9;
+				scale.steps ? newScale.steps = scale.steps : newScale.steps = 9;
 			}
 			if(scCont && !rCont){
-				block.scale = d3.scaleQuantize()
+				newScale = d3.scaleQuantize()
 					.domain(scale[0])
 					.range(scale[1]);
-				block.steps = scale[1].length;
+				newScale.steps = scale[1].length;
 			}
 			if(!scCont && rCont){
-				block.scale = d3.scalePoint()
+				newScale = d3.scalePoint()
 					.domain(scale[0])
 					.range(scale[1]);
-				block.steps = scale[0].length;
+				newScale.steps = scale[0].length;
 			}
-			if(scCont && rCont){
+			if(!scCont && !rCont){
 				if(scale[0].length > scale[1].length)
 					scale[0].splice(scale[1].length);
 				if(scale[1].length > scale[0].length)
 					scale[1].splice(scale[0].length);
-				block.scale = d3.scaleOrdinal()
+				newScale = d3.scaleOrdinal()
 					.domain(scale[0])
 					.range(scale[1]);
-				block.steps = scale[0].length;				
+				newScale.steps = scale[0].length;				
 			}
-			block.domain = scale[0];
+			legend.blocks[id].domain = scale[0];
 		} else {
 			//scale is a function it is either a d3 scale or it has a domain property
 			if(typeof scale !== "function")
@@ -69,25 +96,15 @@ export function legend(chart) {
 			scale().domain ? domain = scale().domain() : domain = scale.domain;
 			if(typeof domain === "undefined")
 				throw "Error in 'legend.add': the domain of the scale is not defined.";
-			block.domain = domain;
-			block.scale = scale;
+			legend.blocks[id].domain = domain;
+			newScale = scale;
 			if(scale.steps)
-				block.steps = scale.steps
+				newScale.steps = scale.steps
 			else {
-				domain.length == 2 ? block.steps = 9 : block.steps = domain.length;
+				domain.length == 2 ? newScale.steps = 9 : newScale.steps = domain.length;
 			} 
 		}
-		if(typeof layer !== "undefined")
-			block.layer = layer;
-		if(["colour", "size", "style"].indexOf(type) == -1)
-			throw "Error in 'legend.add': " + type + " is not a suitable type of legend block. " +
-				"Please, use one of these: 'colour', 'size', 'style'";
-		block.type = type;
-
-		legend.blocks[id] = block;
-		legend.update();
-
-		return legend.chart;
+		return newScale;
 	}
 
 	legend.remove = function(id) {
@@ -138,7 +155,7 @@ export function legend(chart) {
 		var row = 0, col = 0;
 		for(var i in legend.blocks){
 			legend.blocks[i].width = blockWidth;
-			legend.blocks[i].height = d3.min([blockHeight, legend.blocks[i].steps * 20]);;
+			legend.blocks[i].height = blockHeight;
 			legend.blocks[i].x = col * blockWidth;
 			legend.blocks[i].y = row * blockHeight;
 			col++;
@@ -149,6 +166,8 @@ export function legend(chart) {
 		} 
 	}
 	legend.updateBlock = function(id){
+		var scale = legend.convertScale(id);
+		legend.blocks[id].height = d3.min([legend.blocks[id].height, scale.steps * 20]);
 		if(typeof legend.blocks[id] === "undefined")
 			throw "Error in 'legend.updateBlock': block with ID " + id +
 				" is not defined."
@@ -168,12 +187,12 @@ export function legend(chart) {
 		title.attr("transform", "rotate(-90)translate(-" + legend.blocks[id].height + ", 0)");
 
 		var sampleValues;
-		if(legend.blocks[id].domain.length == legend.blocks[id].steps)
+		if(legend.blocks[id].domain.length == scale.steps)
 			sampleValues = legend.blocks[id].domain;
 		else
-			sampleValues = d3.range(legend.blocks[id].steps).map(function(e) {
+			sampleValues = d3.range(scale.steps).map(function(e) {
 				return legend.blocks[id].domain[0] + e * (legend.blocks[id].domain[1] - legend.blocks[id].domain[0]) / 
-																			(legend.blocks[id].steps - 1)
+																			(scale.steps - 1)
 			})
 		var sampleData = [];
 		for(var i = 0; i < sampleValues.length; i++)
@@ -186,7 +205,7 @@ export function legend(chart) {
 			.merge(samples)
 				.attr("transform", function(d, i) {
 					return "translate(" + legend.blocks[id].width*0.2 + ", " + 
-									(i * legend.blocks[id].height / legend.blocks[id].steps) + ")";
+									(i * legend.blocks[id].height / scale.steps) + ")";
 				});
 
 		if(legend.blocks[id].type == "colour"){
@@ -196,8 +215,8 @@ export function legend(chart) {
 			rect.enter().append("rect")
 				.merge(rect)
 					.attr("width", d3.min([legend.blocks[id].width * 0.2 ,20]))
-					.attr("height", legend.blocks[id].height / legend.blocks[id].steps)
-					.attr("fill", function(d) {return legend.blocks[id].scale(d)});
+					.attr("height", legend.blocks[id].height / scale.steps)
+					.attr("fill", function(d) {return scale(d)});
 			
 			var sampleText = block_g.selectAll(".sample").selectAll("g").data(function(d){
 				return (typeof d[0] === "number") ? [d[0].toString()] : d;
@@ -207,7 +226,7 @@ export function legend(chart) {
 					.attr("transform", "translate(" + (legend.blocks[id].width * 0.25) + ", 0)");
 			block_g.selectAll(".sample").selectAll("g").each(function(d) {
 				fillTextBlock(d3.select(this), legend.blocks[id].width * 0.55, 
-												legend.blocks[id].height / legend.blocks[id].steps, d
+												legend.blocks[id].height / scale.steps, d
 											);
 			});	
 		}

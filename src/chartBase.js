@@ -9,7 +9,8 @@ export function chartBase() {
 		.add_property("height", 500)
 		.add_property("plotWidth", 440)
 		.add_property("plotHeight", 440)
-		.add_property("margin", { top: 10, right: 10, bottom: 50, left: 50 })
+		.add_property("margin", { top: 15, right: 10, bottom: 50, left: 50 })
+		.add_property("title", "")
 		.add_property("transitionDuration", 1000); //may be set to zero
 	
 	chart.transition = undefined;
@@ -64,6 +65,9 @@ export function chartBase() {
 			.attr("class", "inform hidden")
 			.append("p")
 				.attr("class", "value");
+		chart.svg.append("text")
+			.attr("class", "title plainText")
+			.attr("text-anchor", "middle");
 	}
 
 	chart.defineTransition = function(){
@@ -108,6 +112,10 @@ export function chartBase() {
 			chart.container.transition(chart.transition)
 				.style("width", chart.get_width() + "px")
 				.style("height", chart.get_height() + "px");
+			chart.svg.select(".title").transition(chart.transition)
+				.attr("font-size", d3.min([15, chart.margin().top * 0.8]))
+				.attr("x", chart.width()/2)
+				.attr("y", d3.min([17, chart.margin().top * 0.9]));
 		} else {
 			chart.svg
 				.attr("width", chart.get_width())
@@ -115,12 +123,18 @@ export function chartBase() {
 			chart.container
 				.style("width", chart.get_width() + "px")
 				.style("height", chart.get_height() + "px");
+			chart.svg.select(".title")
+				.attr("font-size", d3.min([15, chart.margin().top * 0.8]))
+				.attr("x", chart.width()/2)
+				.attr("y", d3.min([17, chart.margin().top * 0.9]));
 		}
 		return chart;			
 	}
 
 	chart.update = function(){
 		chart.updateSize();
+		chart.svg.select(".title")
+			.text(chart.title());
 		return chart;
 	}
   return chart;

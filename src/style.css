@@ -1,6 +1,10 @@
+text.plainText{
+	fill: #555;
+	font-family: Consolas, courier;
+}
+
 text.label{
 	fill: #aaa;
-	font-family: Consolas, courier;
 }
 
 text.hover{
