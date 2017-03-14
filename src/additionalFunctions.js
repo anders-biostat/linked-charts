@@ -312,3 +312,111 @@ export function pearsonCorr( v1, v2 ) {
    } 
    return cov / Math.sqrt( var1 * var2 );
 } 
+
+function wrapText(text, width, height, minSize, maxSize, fontRatio){
+  var splitBy = function(text, symbol){
+    var spl = text.split(symbol);
+    if(spl[spl.length - 1] == "")
+      spl.pop();
+    if(spl.length == 1) return;
+    var mult = 0, bestSep, leftSide = 0,
+      rightSide = text.length;
+    for(var i = 0; i < spl.length; i++){
+      leftSide += (spl[i].length + 1);
+      rightSide -= (spl[i].length + 1);
+      if(mult < leftSide * rightSide){
+        mult = leftSide *  rightSide;
+        bestSep = i;
+      }
+    }
+    return [spl.slice(0, i).join(symbol) + symbol, 
+            spl.slice(i + 1, spl.length - 1).join(symbol)];
+  }
+
+  var splitByVowel = function(text){
+    var vowelInd = Array.apply(null, Array(text.length)).map(Number.prototype.valueOf,0),
+      vowels = ["a", "A", "o", "O", "e", "E", "u", "U", "i", "I"];
+    
+    for(var i = 0; i < text.length; i++)
+      if(vowels.indexOf(text[i]) != -1)
+        vowelInd[i] = 1;
+    for(var i = 0; i < vowelInd.length - 1; i++)
+      vowelInd[i] = (vowelInd[i] - vowelInd[i + 1]) * vowelInd[i];
+    vowelInd[vowelInd.length - 1] = 0;
+    vowelInd[vowelInd.length - 2] = 0;
+    if(vowelInd.indexOf(1) == -1)
+      return [text.substring(0, Math.ceil(text.length / 2)) + "-", 
+              text.substring(Math.ceil(text.length / 2))];
+    var mult = 0, bestSep;
+    for(var i = 0; i < text.length; i++)
+      if(vowelInd[i] == 1)
+        if(mult < (i + 2) * (text.length - i - 1)){
+          mult = (i + 2) * (text.length - i - 1);
+          bestSep = i;
+        }
+
+      return [text.substring(0, bestSep + 1) + "-", 
+              text.substring(bestSep + 1)];
+  }
+
+  if(typeof minSize === "undefined")
+    minSize = 8;
+  if(typeof maxSize === "undefined")
+    maxSize = 13;
+  if(typeof fontRatio === "undefined")
+    fontRatio = 0.6;
+  var fontSize = d3.min([height, maxSize]),
+    spans = [text], maxLength = text.length,
+    allowedLength, longestSpan = 0,
+    mult, br;
+
+  while(maxLength * fontSize * fontRatio > width && fontSize >= minSize){
+    if(maxLength == 1)
+      fontSize = width / fontRatio * 0.95
+    else {
+      var charachters = [" ", ".", ",", "/", "\\", "-", "_", "+", "*", "&", "(", ")", "?", "!"],
+        spl, i = 0;
+      while(typeof spl === "undefined" && i < charachters.length){
+        spl = splitBy(spans[longestSpan], charachters[i]);
+        i++;
+      }
+      if(typeof spl === "undefined")
+        spl = splitByVowel(spans[longestSpan]);
+      spans.splice(longestSpan, 1, spl[0], spl[1]);
+
+      allowedLength = Math.floor(width / (fontSize * fontRatio));
+
+      for(var i = 0; i < spans.length - 1; i++)
+        if(spans[i].length + spans[i + 1].length <= allowedLength &&
+            spans[i].length + spans[i + 1].length < maxLength){
+          spans.splice(i, 2, spans[i] + spans[i + 1]);
+          fontSize = d3.min([height / (spans.length - 1), maxSize]);
+          allowedLength = Math.floor(width / (fontSize * fontRatio));
+        }
+
+      fontSize = d3.min([height / spans.length, maxSize]);
+      maxLength = spans[0].length;
+      longestSpan = 0;
+      for(var i = 1; i < spans.length; i++)
+        if(spans[i].length > maxLength){
+          maxLength = spans[i].length;
+          longestSpan = i;
+        }
+    }     
+  }
+
+
+  return {spans: spans, fontSize: fontSize};
+}
+
+export function fillTextBlock(g, width, height, text, minSize, maxSize, fontRatio){
+  var fit = wrapText(text, width, height, minSize, maxSize, fontRatio),
+    spans = g.selectAll("text").data(d3.range(fit.spans.length));
+    spans.exit().remove();
+    spans.enter().append("text")
+      .merge(spans)
+        .attr("text-anchor", "left")
+        .attr("font-size", fit.fontSize)
+        .attr("y", function(d) {return (d + 1) * fit.fontSize;})
+        .text(function(d) {return fit.spans[d]});
+}

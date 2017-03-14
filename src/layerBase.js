@@ -16,9 +16,10 @@ export function layerBase(id) {
     .add_property("colour", function(id) {
       return layer.colourScale(layer.get_colourValue(id));
     })
+    .add_property("addColourScaleToLegend", true)
     .add_property("palette")
     .add_property("colourRange")
-    .add_property("colourValue", "black")
+    .add_property("colourValue", undefined)
 		.add_property("dresser", function(){});
 
 	layer.id = id;
@@ -29,21 +30,29 @@ export function layerBase(id) {
   layer.npoints( "_override_", "dataIds", function() {
     return d3.range( layer.get_npoints() );
   });
+  layer.colour( "_override_", "addColourScaleToLegend", false );
 
   layer.colourRange(function() {
     var ids = layer.get_dataIds();
-    var range = [];
-    for(var i = 0 ; i < ids.length; i++)
-      //colour range can contain only unique values
-      if(range.indexOf(layer.get_colourValue(ids[i])) == -1)
-        range.push(layer.get_colourValue(ids[i]));
+    if(layer.get_colourValue(ids[0]) !== undefined){
+      var range = [];
+      for(var i = 0 ; i < ids.length; i++)
+        //colour range can contain only unique values
+        if(range.indexOf(layer.get_colourValue(ids[i])) == -1)
+          range.push(layer.get_colourValue(ids[i]));
 
-    return range;
+      return range;
+    }
   });
+
+  layer.colourScale = function(){
+    return "black";
+  }
 
   layer.resetColourScale = function() {
     var range = layer.get_colourRange();
-
+    if(range === undefined)
+      return;
     //first of all, let's check if the colour scale supposed to be
     //categorical or continuous
     var allNum = true;
@@ -61,7 +70,7 @@ export function layerBase(id) {
           layer.palette(["red", "yellow", "green", "blue"]);
       //if palette is an array of colors, make a linear colour scale using all
       //values of the palette as intermideate points
-      if(layer.get_palette().length){
+      if(layer.get_palette().splice){
         var palette = layer.get_palette();
         if(palette.length != range.length)
           range = [d3.min(range), d3.max(range)];
@@ -127,8 +136,20 @@ export function layerBase(id) {
         }
       } 
     }
+
+    var scale = layer.colourScale;
+    scale.domain = layer.colourRange();
+    layer.addLegend(scale, "colour", layer.id);
   }
 
+  layer.legendBloccks = [];
+
+  layer.addLegend = function(scale, type, id){
+    layer.chart.legend.add(scale, type, id, layer);
+    layer.legendBloccks.push(id);
+
+    return layer; 
+  }
 
 	layer.update = function() {
     

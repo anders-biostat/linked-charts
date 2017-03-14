@@ -1,7 +1,7 @@
 import { base } from "./base";
 import { layerBase } from "./layerBase";
 import { add_click_listener } from "./additionalFunctions";
-
+import { legend } from "./legend";
 //basic chart object
 export function chartBase() {
 	var chart = base()
@@ -37,6 +37,20 @@ export function chartBase() {
   			return chart.get_height() - 
   				(chart.get_margin().top + chart.get_margin().bottom);
   });
+
+  chart.set_margin = function(margin){
+  	if(typeof margin.top === "undefined")
+  		margin.top = chart.margin().top;
+  	if(typeof margin.bottom === "undefined")
+  		margin.bottom = chart.margin().bottom;
+  	if(typeof margin.left === "undefined")
+  		margin.left = chart.margin().left;
+  	if(typeof margin.right === "undefined")
+  		margin.right === chart.margin().right;
+  	
+  	chart.margin(margin);
+  	return chart;
+  }
 
   chart.put_static_content = function( element ) {
 		chart.container = element.append("div");
@@ -114,8 +128,11 @@ export function chartBase() {
 
 export function layerChartBase(){
 	var chart = chartBase()
-		.add_property("activeLayer", undefined);
+		.add_property("activeLayer", undefined)
+		.add_property("showLegend", true);
 	
+	chart.legend = legend(chart);
+
 	//Basic layer functionality
 	chart.layers = {};
 	var findLayerProperty = function(propname){
@@ -173,6 +190,7 @@ export function layerChartBase(){
 	chart.put_static_content = function(element){
 		inherited_put_static_content(element);
 		add_click_listener(chart);
+		chart.legend.g = chart.svg.append("g");
 		for(var k in chart.layers)
 			chart.get_layer(k).put_static_content();		
 	}
@@ -184,6 +202,8 @@ export function layerChartBase(){
 			chart.get_layer(k).updatePointStyle();
 		}
 		inherited_update();
+		if(chart.showLegend() && Object.keys(chart.legend.blocks).length > 0)
+			chart.legend.update();
 		return chart;
 	}
 

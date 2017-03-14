@@ -11,7 +11,7 @@ export function base() {
     obj[ propname ] = function( vf, propname, overrideFunc ) {
 
       if( vf === undefined )
-        throw "No value passed in setter for property '" + propname + "'.";
+        return obj[ getter ]();      
 
       if( vf == "_override_"){
         if(typeof overrideFunc === "function")

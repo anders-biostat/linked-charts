@@ -26,7 +26,7 @@ export function heatmapChart(id, chart){
 		.add_property("rowTitle", "")
 		.add_property("showValue", false)
 		.add_property("colTitle", "")
-		.add_property("showLabel", true);
+		.add_property("showLegend", true);
 
 	chart.margin({top: 100, left: 100, right: 10, bottom: 40});
 
@@ -382,7 +382,8 @@ export function heatmapChart(id, chart){
 	//create colorScale
 		var range = chart.get_colourRange();
 		chart.colourScale = d3.scaleSequential(chart.get_palette).domain(range);
-		chart.updateLegend();		
+		if(chart.get_showLegend())
+			chart.updateLegend();		
 	}	
 
 	//some default onmouseover and onmouseout behaviour for cells and labels
@@ -653,7 +654,7 @@ export function heatmapChart(id, chart){
 	chart.updateLegendSize = function(){
 		//calculate the size of element of legend
 		var height = d3.min([chart.get_margin().bottom * 0.5, 20]),
-			width = d3.min([chart.get_width()/23, 20]),
+			width = d3.min([chart.get_width()/23, 30]),
 			fontSize = d3.min([chart.get_margin().bottom * 0.3, width / 2, 15]),
 			blocks = chart.svg.select(".legend_panel").selectAll(".legend_block")
 			.attr("transform", function(d) {
