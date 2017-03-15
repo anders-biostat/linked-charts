@@ -303,13 +303,13 @@ export function axisChart() {
 	chart.domainX = function(domain){
 		//set default getter
 		if(domain == "reset"){
-			chart.domainX(get_domain("X"));
+			chart.domainX(chart.origDomainX);
 			return chart;
 		}
 		//if user provided function, use this function
 		if(typeof domain === "function")
 			chart.get_domainX = domain;
-		if(domain.length)
+		if(domain.splice)
 			chart.get_domainX = function() {
 				return domain;
 			};
@@ -318,12 +318,12 @@ export function axisChart() {
 	}
 	chart.domainY = function(domain){
 		if(domain == "reset"){
-			chart.domainY(get_domain("Y"));
+			chart.domainY(chart.origDomainY);
 			return chart;
 		}
 		if(typeof domain === "function")
 			chart.get_domainY = domain;
-		if(domain.length)
+		if(domain.splice)
 			chart.get_domainY = function() {
 				return domain;
 			};
@@ -375,6 +375,7 @@ export function axisChart() {
 			chart.axes.scale_x = d3.scalePoint()
 				.padding(0.3);	
 		}
+		chart.origDomainX = chart.get_domainX;
 		
 		var domainY = chart.get_domainY();
 		if(domainY.length == 2 && typeof domainY[0] === "number")
@@ -382,7 +383,8 @@ export function axisChart() {
 				.nice();
 		else
 			chart.axes.scale_y = d3.scalePoint()
-				.padding(0.3); 	
+				.padding(0.3); 
+		chart.origDomainY = chart.get_domainY;	
   }	
 	
 	var inherited_updateSize = chart.updateSize;
@@ -466,7 +468,7 @@ export function axisChart() {
 				j++;
 			}
 			if(ident)
-				tickArray = tickArray.splice(2);
+				tickArray.splice(2);
 			
 			//if we have several label sets, transform the labels into <tspan> blocks
 			var tickLabels = [], value;

@@ -32,7 +32,11 @@ circle.selected{
 }
 circle.marked {
 	stroke-width: 2px;
-	stroke: #4d5;
+	stroke: #4a5;
+}
+circle.clicked {
+	stroke-width: 2px;
+	stroke: #123;
 }
 
 rect.hover{
