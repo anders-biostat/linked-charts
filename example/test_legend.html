@@ -9,10 +9,13 @@
 <script src="../build/d3-linked-charts.js"></script>
 <script src="mtcars.json.js">></script>
 <script>
+var ticks = [[2, 3, 4, 4.5], ["a", "b", "c", "d"], ["aa", "bb", "cc", "dd"]];
+ticks.colour = ["red", "blue"];
 var sc = d3.scatterChart()
   .x( function(i) { return data[i].wt } )
   .y( function(i) { return data[i].hp } )
   .colourValue(function(i) {return data[i].gear})
+  .ticksX(ticks)
   .place();
 
 </script>

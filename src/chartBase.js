@@ -249,6 +249,8 @@ export function axisChart() {
 		.add_property("aspectRatio", null)
 		.add_property("labelX")
 		.add_property("labelY")
+		.add_property("ticksX", undefined)
+		.add_property("ticksY", undefined)
 		.add_property("markedUpdated", function() {});
 
 	chart.axes = {};
@@ -432,6 +434,66 @@ export function axisChart() {
 	   } 
 	} 
 
+	var get_ticks = function(axis){
+		var ticks = {tickValues: null, tickFormat: null},
+			tickArray = chart["ticks" + axis]();
+		
+		if(tickArray){
+			//check if the ticks are set correctly
+			if(typeof tickArray.splice === "undefined")
+				throw "Error in 'get_ticks': new tick values and labels should be passed " +
+							"as an array";
+			if(typeof tickArray[0].splice === "undefined")
+				tickArray = [tickArray];
+			for(var i = 1; i < tickArray.length; i++)
+				if(tickArray[0].length != tickArray[i].length)
+					throw "Error in 'get_ticks': the amount of tick labels must be equal to the " +
+								"amount of tick values";
+
+			//if only tick values (not tick labels) then return 					
+			ticks.tickValues = tickArray[0];
+			if(tickArray.length == 1)
+				return ticks;
+
+			//if all the labels sets are identical, leave only one of them
+			var ident = tickArray.length > 2, j = 1, i;
+			while(ident && j < tickArray.length - 1){
+				i = 0;
+				while(ident && i < tickArray[j].length){
+					ident = (tickArray[j][i] == tickArray[j + 1][i]);
+					i++;
+				}
+				j++;
+			}
+			if(ident)
+				tickArray = tickArray.splice(2);
+			
+			//if we have several label sets, transform the labels into <tspan> blocks
+			var tickLabels = [], value;
+			if(tickArray.length > 2){
+				for(var i = 0; i < tickArray[0].length; i++){
+					value = "";
+					for(var j = 1; j < tickArray.length; j++){
+						//location
+						value += "<tspan x = 0.5 dy = " + 1.1 + "em";
+						//colour if any
+						if(tickArray.colour) 
+							value += " fill = '" + tickArray.colour[j - 1] + "'>"
+						else
+							value += ">";
+						value += tickArray[j][i] + "</tspan>";
+					}
+					tickLabels.push(value);
+				}
+			} else {
+				tickLabels = tickArray[1];
+			}
+			ticks.tickFormat = function(d) {return tickLabels[ticks.tickValues.indexOf(d)];};
+		}
+		
+		return ticks;
+	}
+
 	chart.updateAxes = function(){
     chart.axes.x_label
     	.text( chart.get_labelX());
@@ -439,30 +501,63 @@ export function axisChart() {
    		.text( chart.get_labelY() );
     chart.axes.scale_x.domain(chart.get_domainX());
 		chart.axes.scale_y.domain(chart.get_domainY());
-		if(chart.get_aspectRatio())
+		if(chart.aspectRatio())
 			fix_aspect_ratio(chart.axes.scale_x, chart.axes.scale_y, chart.get_aspectRatio());
+
+		var ticksX = get_ticks("X"),
+			ticksY = get_ticks("Y");
 
     if(typeof chart.transition !== "undefined") {
 	    d3.axisBottom()
 	      .scale( chart.axes.scale_x )
+	      .tickValues(ticksX.tickValues)
+	      .tickFormat(ticksX.tickFormat)
 	      ( chart.axes.x_g.transition(chart.transition) );
 
 	    d3.axisLeft()
 	      .scale( chart.axes.scale_y )
+	      .tickValues(ticksY.tickValues)
+	      .tickFormat(ticksY.tickFormat)
 	      ( chart.axes.y_g.transition(chart.transition) );	
     } else {
 	    d3.axisBottom()
+	      .tickValues(ticksX.tickValues)
+	      .tickFormat(ticksX.tickFormat)
 	      .scale( chart.axes.scale_x )
 	      ( chart.axes.x_g );
 
 	    d3.axisLeft()
 	      .scale( chart.axes.scale_y )
+	      .tickValues(ticksY.tickValues)
+	      .tickFormat(ticksY.tickFormat) 
 	      ( chart.axes.y_g );    	
     }
 
+    var updateX = function() {
+    	chart.axes.x_g.selectAll(".tick").selectAll("text")
+    		.html(ticksX.tickFormat)
+    };
+    if(ticksX.tickFormat)
+    	if(chart.transition)
+    		setTimeout(updateX, chart.transition.duration())
+    	else
+    		updateX();
+
+    var updateY = function() {
+    	chart.axes.y_g.selectAll(".tick").selectAll("text")
+    		.html(ticksX.tickFormat)
+    };
+    if(ticksY.tickFormat)
+    	if(chart.transition)
+    		setTimeout(updateY, chart.transition.duration())
+    	else
+    		updateY();
+
     for(var k in chart.layers)
     	chart.get_layer(k).updatePointLocation();
+
+    return chart;
 	}
-	
+
 	return chart;
 }
