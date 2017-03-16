@@ -176,6 +176,12 @@ export function sigmoidColorSlider() {
         return obj.get_straightColorScale( 
           percent_scale( 100 * obj.the_sigmoid( percent_scale(d) ) ) ) } ) ;
 
+    obj.colourScale = function(val){
+      return obj.get_straightColorScale( 
+          percent_scale( 100 * obj.the_sigmoid( val ) ) );
+    }
+
+
     obj.mainMarker
       .attr( "x", obj.pos_scale( obj.get_midpoint() ) );
     obj.rightMarker

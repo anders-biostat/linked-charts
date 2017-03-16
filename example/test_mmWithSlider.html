@@ -16,29 +16,27 @@
 <button onclick = "layer.clusterCols()">Cluster Columns</button>
 
 <script>
-var heatmap = d3.tableChartBase()
+var heatmap = d3.heatmapChart()
 	.width(700)
 	.height(700)
 	.margin({top: 100, bottom: 10, left: 150, right: 10})
 	.rowIds(inputData.samplenames)
-	.colIds(inputData.samplenames);
-
-var layer = d3.heatmapChart("main", heatmap)
-	.mode("svg")
+	.colIds(inputData.samplenames)
+	.showLegend(false)
 	.value(function(rowId, colId){
-		return inputData.distmatrix[heatmap.get_rowIds().indexOf(rowId)]
-																[heatmap.get_colIds().indexOf(colId)];
+		return inputData.distmatrix[inputData.samplenames.indexOf(rowId)]
+																[inputData.samplenames.indexOf(colId)];
 	})
-heatmap.place("#heatmap");
+	.place("#heatmap");
 
 var slider = d3.sigmoidColorSlider()
-	.straightColorScale(layer.colourScale)
-	.margin({top: 30, bottom: 10, left: 150, right: 10})
+	.straightColorScale(heatmap.colourScale)
+	.set_margin({left: 150})
 	.on_change(function(){
-		layer.colour(function(val){
-			return layer.get_palette(slider.the_sigmoid(val));
+		heatmap.colour(function(val){
+			return heatmap.get_palette(slider.the_sigmoid(val));
 		});
-		layer.updateColour();
+		heatmap.updateCellColour();
 	})
   .place("#slider");
 

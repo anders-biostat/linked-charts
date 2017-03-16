@@ -137,9 +137,9 @@ export function layerBase(id) {
       } 
     }
 
-    var scale = layer.colourScale;
-    scale.domain = layer.colourRange();
-    layer.addLegend(scale, "colour", layer.id);
+    layer.colourScale.domain = layer.get_colourRange;
+    if(layer.chart.showLegend())
+      layer.addLegend(layer.colourScale, "colour", layer.id);
   }
 
   layer.legendBloccks = [];

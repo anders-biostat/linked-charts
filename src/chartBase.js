@@ -47,7 +47,7 @@ export function chartBase() {
   	if(typeof margin.left === "undefined")
   		margin.left = chart.margin().left;
   	if(typeof margin.right === "undefined")
-  		margin.right === chart.margin().right;
+  		margin.right = chart.margin().right;
   	
   	chart.margin(margin);
   	return chart;
