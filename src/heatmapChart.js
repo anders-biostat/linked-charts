@@ -22,11 +22,15 @@ export function heatmapChart(id, chart){
 		.add_property("clusterRowMetric", getEuclideanDistance)
 		.add_property("clusterColMetric", getEuclideanDistance)
 		.add_property("on_click", function() {})
-		.add_property("markedUpdated", function() {})
 		.add_property("rowTitle", "")
 		.add_property("showValue", false)
 		.add_property("colTitle", "")
-		.add_property("showLegend", true);
+		.add_property("showLegend", true)
+		.add_property("informText", function(rowId, colId) {
+			return "Row: <b>" + rowId + "</b>;<br>" + 
+						"Col: <b>" + colId + "</b>;<br>" + 
+						"value = " + chart.get_value(rowId, colId).toFixed(2)
+			});
 
 	chart.margin({top: 100, left: 100, right: 10, bottom: 40});
 
@@ -371,6 +375,7 @@ export function heatmapChart(id, chart){
 	chart.resetDomain = function(){
 		chart.dispColIds(chart.get_colIds);
 		chart.dispRowIds(chart.get_rowIds);
+		chart.mark("__clear__");
 		chart.updateLabels()
 			.updateLabelPosition()
 			.updateCellColour()
@@ -413,9 +418,7 @@ export function heatmapChart(id, chart){
 			.style("left", (d3.event.pageX + 10) + "px")
 			.style("top", (d3.event.pageY - 10) + "px")
 			.select(".value")
-				.html("Row: <b>" + d[0] + "</b>;<br>" + 
-						"Col: <b>" + d[1] + "</b>;<br>" + 
-						"value = " + chart.get_value(d[0], d[1]).toFixed(2));  
+				.html(function() {return chart.get_informText(d[0], d[1])});  
 		chart.container.select(".inform")
 			.classed("hidden", false);
 		}
@@ -694,8 +697,7 @@ export function heatmapChart(id, chart){
 	}
 	
 	chart.update = function() {
-		chart.svg.select(".title")
-			.text(chart.title());
+		chart.updateTitle();
 		chart.resetColourScale();
 		chart.axes.x_label
 			.text(chart.get_colTitle());

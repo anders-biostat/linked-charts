@@ -21,19 +21,12 @@ rect.selected{
 	stroke-width: 2px;
 	stroke: #ccc;
 }
-rect.marked{
-	stroke-width: 3px;
-	stroke: #000;
 
-}
 circle.selected{
 	stroke-width: 2px;
 	stroke: #ccc;	
 }
-circle.marked {
-	stroke-width: 2px;
-	stroke: #4a5;
-}
+
 circle.clicked {
 	stroke-width: 2px;
 	stroke: #123;

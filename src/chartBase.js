@@ -11,7 +11,11 @@ export function chartBase() {
 		.add_property("plotHeight", 440)
 		.add_property("margin", { top: 15, right: 10, bottom: 50, left: 50 })
 		.add_property("title", "")
-		.add_property("transitionDuration", 1000); //may be set to zero
+		.add_property("titleX", function() {return chart.width() / 2;})
+		.add_property("titleY", function() {return d3.min([17, chart.margin().top * 0.9]);})
+		.add_property("titleSize", function() {return d3.min([15, chart.margin().top * 0.8]);})
+		.add_property("transitionDuration", 1000)
+		.add_property("markedUpdated", function() {}); //may be set to zero
 	
 	chart.transition = undefined;
   chart.width("_override_", "plotWidth", function(){
@@ -72,8 +76,38 @@ export function chartBase() {
 
 	chart.defineTransition = function(){
 		chart.transition = 
-			d3.transition().duration(chart.get_transitionDuration());
-		chart.transition.on("end", chart.defineTransition);
+			d3.transition().duration(chart.transitionDuration());
+		chart.transition
+			.on("end", chart.defineTransition);
+	}
+
+	chart.mark = function(selection) {
+		if(selection == "__clear__"){
+			chart.svg.selectAll(".data_point.marked")
+				.classed("marked", false);
+			chart.svg.selectAll(".data_point")
+				.attr("opacity", 1);
+			return;
+		}
+
+		if(chart.svg.selectAll(".data_point.marked").empty())
+			chart.svg.selectAll(".data_point")
+				.attr("opacity", 0.5);
+		selection.classed("switch", true);
+		if(selection.size() < 2)
+			selection.filter(function() {return d3.select(this).classed("marked");})
+				.classed("switch", false)
+				.classed("marked", false)
+				.attr("opacity", 0.5);
+		selection.filter(function() {return d3.select(this).classed("switch");})
+			.classed("marked", true)
+			.classed("switch", false)
+			.attr("opacity", 1);
+		if(chart.svg.selectAll(".data_point.marked").empty())
+			chart.svg.selectAll(".data_point")
+				.attr("opacity", 1);
+
+		chart.markedUpdated();
 	}
 
 	chart.afterUpdate = function(){
@@ -113,9 +147,9 @@ export function chartBase() {
 				.style("width", chart.get_width() + "px")
 				.style("height", chart.get_height() + "px");
 			chart.svg.select(".title").transition(chart.transition)
-				.attr("font-size", d3.min([15, chart.margin().top * 0.8]))
-				.attr("x", chart.width()/2)
-				.attr("y", d3.min([17, chart.margin().top * 0.9]));
+				.attr("font-size", chart.titleSize())
+				.attr("x", chart.titleX())
+				.attr("y", chart.titleY());
 		} else {
 			chart.svg
 				.attr("width", chart.get_width())
@@ -124,17 +158,20 @@ export function chartBase() {
 				.style("width", chart.get_width() + "px")
 				.style("height", chart.get_height() + "px");
 			chart.svg.select(".title")
-				.attr("font-size", d3.min([15, chart.margin().top * 0.8]))
-				.attr("x", chart.width()/2)
-				.attr("y", d3.min([17, chart.margin().top * 0.9]));
+				.attr("font-size", chart.titleSize())
+				.attr("x", chart.titleX())
+				.attr("y", chart.titleY());
 		}
 		return chart;			
+	}
+	chart.updateTitle = function(){
+		chart.svg.select(".title")
+			.text(chart.title());		
 	}
 
 	chart.update = function(){
 		chart.updateSize();
-		chart.svg.select(".title")
-			.text(chart.title());
+		chart.updateTitle();
 		return chart;
 	}
   return chart;
@@ -250,8 +287,7 @@ export function axisChart() {
 		.add_property("labelX")
 		.add_property("labelY")
 		.add_property("ticksX", undefined)
-		.add_property("ticksY", undefined)
-		.add_property("markedUpdated", function() {});
+		.add_property("ticksY", undefined);
 
 	chart.axes = {};
 	
@@ -332,6 +368,8 @@ export function axisChart() {
 	}
 
 	chart.zoom = function(lu, rb){
+		if(lu[0] == rb[0] || lu[1] == rb[1])
+			return;
     chart.domainX([chart.axes.scale_x.invert(lu[0]), 
                         chart.axes.scale_x.invert(rb[0])]);
     chart.domainY([chart.axes.scale_y.invert(rb[1]),

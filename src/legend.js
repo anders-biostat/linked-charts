@@ -93,7 +93,7 @@ export function legend(chart) {
 				throw "Error in 'legend.add': the type of scale argument is not suported. " +
 					"Scale should be an array or a function."
 			var domain;
-			scale().domain ? domain = scale().domain() : domain = scale.domain;
+			typeof scale.domain === "function" ? domain = scale.domain() : domain = scale.domain;
 			if(typeof domain === "undefined")
 				throw "Error in 'legend.add': the domain of the scale is not defined.";
 			legend.blocks[id].domain = domain;

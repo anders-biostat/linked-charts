@@ -105,7 +105,7 @@ export function getEuclideanDistance(a, b) {
 export function add_click_listener(chart){
 
   var wait_dblClick = null, down, wait_click = null,
-    tolerance = 5, click_coord,
+    tolerance = 5, click_coord, downThis,
     event = d3.dispatch('click', 'dblclick');
 
   //add a transparent rectangle to detect clicks
@@ -126,23 +126,15 @@ export function add_click_listener(chart){
 
   var on_mousedown = function(){
     down = d3.mouse(document.body);
+    downThis = d3.mouse(this)
     wait_click = window.setTimeout(function() {wait_click = null;}, 1000);
-    if(self.onSelection != "doNothing"){
-      if(!d3.event.shiftKey || this.onSelection == "zoom") {
-        chart.svg.selectAll(".data_point").classed("selected",false);
-        chart.svg.selectAll(".label").classed("selected",false);
-      }
-      var p = d3.mouse(this);  //Mouse position on the heatmap
-      chart.svg.append("rect")
-        .attr("class", "selection")
-        .attr("rx", 0)
-        .attr("ry", 0)
-        .attr("x", p[0])
-        .attr("y", p[1])
-        .attr("width", 1)
-        .attr("height", 1);
-      //chart.svg.select(".clickPanel").raise();
-    }
+    var p = d3.mouse(this);  //Mouse position on the heatmap
+    chart.svg.append("rect")
+      .attr("class", "selection")
+      .attr("x", p[0])
+      .attr("y", p[1])
+      .attr("width", 1)
+      .attr("height", 1);
     chart.container.select(".inform")
       .classed("blocked", true);
   }
@@ -150,37 +142,12 @@ export function add_click_listener(chart){
     var s = chart.svg.select(".selection");
         
     if(!s.empty()) {
-      var p = d3.mouse(this),
-      //The latest position and size of the selection rectangle
-      d = {
-        x: parseInt(s.attr("x"), 10),
-        y: parseInt(s.attr("y"), 10),
-        width: parseInt(s.attr("width"), 10),
-        height: parseInt(s.attr("height"), 10)
-      },
-      move = {
-        x: p[0] - d.x,
-        y: p[1] - d.y
-      };
-        
-      if(move.x < 1 || (move.x * 2 < d.width)) {
-        d.x = p[0];
-        d.width -= move.x;
-      } else {
-        d.width = move.x;       
-      }
-        
-      if(move.y < 1 || (move.y * 2 < d.height)) {
-        d.y = p[1];
-        d.height -= move.y;
-      } else {
-        d.height = move.y;       
-      }
-         
-      s.attr("x", d.x)
-        .attr("y", d.y)
-        .attr("width", d.width)
-        .attr("height", d.height);
+      var p = d3.mouse(this);
+
+      s.attr("x", d3.min([p[0], downThis[0]]))
+        .attr("y", d3.min([downThis[1], p[1]]))
+        .attr("width", Math.abs(downThis[0] - p[0]))
+        .attr("height", Math.abs(downThis[1] - p[1]));
         
       // deselect all temporary selected state objects
       d3.selectAll('.tmp-selection.selected')
@@ -188,8 +155,8 @@ export function add_click_listener(chart){
 
       //here we need to go through all layers
       var selPoints = chart.findPoints(
-        [d.x - chart.get_margin().left, d.y - chart.get_margin().top], 
-        [d.x + d.width - chart.get_margin().left, d.y + d.height - chart.get_margin().top]
+        [+s.attr("x") - chart.get_margin().left, +s.attr("y") - chart.get_margin().top], 
+        [+s.attr("x") + +s.attr("width") - chart.get_margin().left, +s.attr("y") + +s.attr("height") - chart.get_margin().top]
       );
       if(typeof selPoints.empty === "function")
         selPoints = [selPoints];
@@ -253,16 +220,15 @@ export function add_click_listener(chart){
     }
     // remove temporary selection marker class
     if(mark)
-      d3.selectAll(".selected")
-        .classed("marked", true);
-    d3.selectAll(".tmp-selection")
+      chart.mark(chart.svg.selectAll(".selected"));
+    chart.svg.selectAll(".tmp-selection")
       .classed("tmp-selection",false)
       .classed("selected", false)
-    mark ? chart.get_markedUpdated(chart.svg.selectAll(".marked")) : chart.zoom(lu, rb);      
+    if(!mark)
+      chart.zoom(lu, rb);      
   }
   var on_dblclick = function(mark){
-    mark ? chart.container.selectAll(".marked").classed("marked", false) : chart.resetDomain();
-    if(mark) chart.get_markedUpdated();     
+    mark ? chart.mark("__clear__") : chart.resetDomain();
   }
   var on_panelClick = function(p, mark){
     var clickedPoints = chart.findPoints(p, p);
@@ -277,8 +243,7 @@ export function add_click_listener(chart){
         var click = clickedPoints[i].on("click");
         click.call(clickedPoints[i].node(), clickedPoints[i].datum()); 
       } else {
-        clickedPoints[i].classed("marked") ? clickedPoints[i].classed("marked", false) : clickedPoints[i].classed("marked", true);
-        chart.get_markedUpdated(chart.svg.selectAll(".marked"));
+        chart.mark(clickedPoints[i]);
       }
     }
   }
