@@ -87,6 +87,7 @@ export function chartBase() {
 				.classed("marked", false);
 			chart.svg.selectAll(".data_point")
 				.attr("opacity", 1);
+			chart.markedUpdated();
 			return;
 		}
 
@@ -219,6 +220,9 @@ export function layerChartBase(){
 		chart.activeLayer(chart.get_layer(id));
 
 		return chart;
+	}
+	chart.remove_layer = function(id) {
+		
 	}
 
 	chart.findPoints = function(lu, rb){
