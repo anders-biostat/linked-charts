@@ -87,6 +87,7 @@ export function chartBase() {
 				.classed("marked", false);
 			chart.svg.selectAll(".data_point")
 				.attr("opacity", 1);
+			chart.markedUpdated();
 			return;
 		}
 
