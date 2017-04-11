@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "rollup": "0.27",
+    "rollup-watch": "^3.2.2",
     "tape": "4",
     "uglify-js": "2"
   }

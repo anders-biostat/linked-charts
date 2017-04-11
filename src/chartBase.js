@@ -2,6 +2,9 @@ import { base } from "./base";
 import { layerBase } from "./layerBase";
 import { add_click_listener } from "./additionalFunctions";
 import { legend } from "./legend";
+import { scatterChart } from "./scatterChart";
+import { lineChart } from "./lineChart";
+
 //basic chart object
 export function chartBase() {
 	var chart = base()
@@ -181,7 +184,9 @@ export function chartBase() {
 export function layerChartBase(){
 	var chart = chartBase()
 		.add_property("activeLayer", undefined)
-		.add_property("showLegend", true);
+		.add_property("showLegend", true)
+		.add_property("layerIds", function() {return Object.keys(chart.layers);})
+		.add_property("layerType", function(id) {return chart.get_layer(id).type;});
 	
 	chart.legend = legend(chart);
 
@@ -200,26 +205,113 @@ export function layerChartBase(){
 		}
 	}
 	chart.syncProperties = function(layer){
-		for(var i in layer)
-			if(typeof chart[i] === "undefined")
-				chart[i] = findLayerProperty(i);
+		for(var i = 0; i < layer.propList.length; i++)
+			if(typeof chart[layer.propList[i]] === "undefined")
+				chart[layer.propList[i]] = findLayerProperty(layer.propList[i]);
 	}
 
 	chart.get_nlayers = function() {
 		return Object.keys(chart.layers).length;
 	}
 	chart.get_layer = function(id) {
+		if(Object.keys(chart.layers).indexOf(id) == -1)
+			throw "Error in 'get_layer': layer with id " + id +
+				" is not defined";
+
 		return chart.layers[id];
 	}
-	chart.add_layer = function(id) {
+	chart.create_layer = function(id) {
 		if(typeof id === "undefined")
 			id = "layer" + chart.get_nlayers();
+
 		var layer = layerBase(id);
 		layer.chart = chart;
 		chart.layers[id] = layer;
 		chart.activeLayer(chart.get_layer(id));
 
 		return chart;
+	}
+	chart.add_layer = function(id) {
+		if(typeof id === "undefined")
+			id = "layer" + chart.get_nlayers();
+
+		var type;
+		try {
+			type = chart.get_layerType(id);
+		} catch (exc) {};
+		if(typeof type === "undefined"){
+			chart.create_layer(id);
+		} else {
+			if(type == "scatter")
+				scatterChart(id, chart);
+			if(type == "xLine")
+				lineChart(id, chart);
+		}
+		return chart;
+	}
+	chart.remove_layer = function(id) {
+		if( Object.keys(chart.layers).indexOf(id) == -1)
+			return -1;
+		//clean the legend
+		for(i in chart.layers[id].legendBlocks)
+			chart.legend.remove(i);
+		try {
+			chart.layers[id].g.remove();
+		} catch(exc) {};
+		delete chart.layers[id];
+
+		return 0;
+	}
+	chart.select_layers = function(ids) {
+		if(typeof ids === "undefined")
+			ids = chart.layerIds();
+
+		var layerSelection = {};
+		layerSelection.layers = {};
+		//extract or initialise all the requested layers
+		for(var i = 0; i < ids.length; i++)
+			if(chart.layerIds().indexOf(ids[i]) != -1) {
+				if(typeof chart.layers[ids[i]] === "undefined"){
+					chart.add_layer(ids[i]);
+					chart.placeLayer(ids[i]);
+				}
+				layerSelection.layers[ids[i]] = chart.get_layer(ids[i]);
+			} else {
+				ids.splice(i, 1);
+				i--;
+			}
+		if(Object.keys(layerSelection.layers).length == 0){
+			for(i in chart)
+				layerSelection[i] = function() {return layerSelection};
+			return layerSelection;
+		}
+		//construct generalised property functions
+		//note, that only the properties shared between layers
+		//can  be generalized
+		var prop, flag, j;
+		for(var j = 0; j < ids.length; j++)
+			for(var i = 0; i < layerSelection.layers[ids[j]].propList.length; i++){
+				prop = layerSelection.layers[ids[j]].propList[i];
+				if(typeof layerSelection[prop] === "undefined")
+					layerSelection[prop] = (function(prop) {return function(val){
+						var vf;
+						if(typeof val !== "function")
+							vf = function() {return val;}
+						else
+							vf = val;
+						for(var i = 0; i < ids.length; i++)
+							layerSelection.layers[ids[i]][prop]( (function(id) {return function(){ 
+								var args = []
+								for(var j = 0; j < arguments.length; j++)
+									args.push(arguments[j]);
+								args.unshift(id);
+								return vf.apply(undefined, args); 
+							} })(ids[i]));
+						return layerSelection;
+					} })(prop);
+			}
+
+		return layerSelection;
 	}
 
 	chart.findPoints = function(lu, rb){
@@ -249,10 +341,22 @@ export function layerChartBase(){
 
 	var inherited_update = chart.update;
 	chart.update = function() {
+		var ids = chart.layerIds(), type;
+		for(var i = 0; i < ids.length; i++)
+			if(typeof chart.layers[ids[i]] === "undefined"){
+				chart.add_layer(ids[i]);
+//				chart.placeLayer(ids[i]);
+			}
+
 		for(var k in chart.layers){
-			chart.get_layer(k).updatePoints();
-			chart.get_layer(k).updatePointStyle();
+			if(ids.indexOf(k) == -1)
+				chart.remove_layer(k)
+			else {
+				chart.get_layer(k).updatePoints();
+				chart.get_layer(k).updatePointStyle();
+			}	
 		}
+		
 		inherited_update();
 		if(chart.showLegend() && Object.keys(chart.legend.blocks).length > 0)
 			chart.legend.update();

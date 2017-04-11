@@ -2,9 +2,11 @@
 export function base() {
 	
   var obj = {};
+  obj.propList = [];
 	
   obj.add_property = function( propname, defaultval ) {
 		
+    obj.propList.push(propname);
 		var getter = "get_" + propname;
     var overrideList = {};
 

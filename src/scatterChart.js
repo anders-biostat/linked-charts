@@ -7,12 +7,14 @@ export function scatterChart(id, chart) {
 	if(id === undefined)
 		id = "layer" + chart.get_nlayers();
 
-  var layer = chart.add_layer(id).get_layer(id)
+  var layer = chart.create_layer(id).get_layer(id)
 		.add_property("x")
 		.add_property("y")
     .add_property("size", 4)
 		.add_property("groupName", function(i){return i;});
 	chart.syncProperties(layer);
+
+  layer.type = "scatterChart";
 
   // Set default for numPoints, namely to count the data provided for x
   layer.npoints( function() {
