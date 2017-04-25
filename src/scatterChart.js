@@ -10,7 +10,14 @@ export function scatterChart(id, chart) {
   var layer = chart.create_layer(id).get_layer(id)
 		.add_property("x")
 		.add_property("y")
-    .add_property("size", 4)
+    .add_property("size", 6)
+    .add_property("stroke", function(d) {
+      return d3.rgb(layer.get_colour(d)).darker(0.8)
+    })
+    .add_property("strokeWidth", function(d) {
+      return layer.get_size(d) * 0.1;
+    })
+    .add_property("symbolType", "Circle")
 		.add_property("groupName", function(i){return i;});
 	chart.syncProperties(layer);
 
@@ -100,12 +107,16 @@ export function scatterChart(id, chart) {
   layer.updatePointLocation = function(){
     if(typeof layer.chart.transition !== "undefined"){
       layer.g.selectAll(".data_point").transition(layer.chart.transition)
-        .attr( "cx", function(d) { return layer.chart.axes.scale_x( layer.get_x(d) ) } )
-        .attr( "cy", function(d) { return layer.chart.axes.scale_y( layer.get_y(d) ) } );
+        .attr("transform", function(d) {
+          return "translate(" + layer.chart.axes.scale_x( layer.get_x(d) ) + ", " + 
+          layer.chart.axes.scale_y( layer.get_y(d) ) + ")"
+        });
     } else {
       layer.g.selectAll(".data_point")
-        .attr( "cx", function(d) { return layer.chart.axes.scale_x( layer.get_x(d) ) } )
-        .attr( "cy", function(d) { return layer.chart.axes.scale_y( layer.get_y(d) ) } );     
+        .attr("transform", function(d) {
+          return "translate(" + layer.chart.axes.scale_x( layer.get_x(d) ) + ", " + 
+          layer.chart.axes.scale_y( layer.get_y(d) ) + ")"
+        });
     }
     return layer;
   }
@@ -128,6 +139,42 @@ export function scatterChart(id, chart) {
     return layer;
   }
 
+  function get_symbolSize(type, r) {
+    var sizeCoef = {
+      "Circle": 28.2,
+      "Cross": 35,
+      "Diamond": 46,
+      "Square": 36,
+      "Star": 47,
+      "Triangle": 44,
+      "Wye": 37
+    };
+
+    return Math.pow(r * 28.2 / sizeCoef[type], 2) * 3.14;
+  }
+
+  layer.updatePointStyle = function() {
+    layer.resetColourScale();
+    var ids = layer.get_dataIds(),
+      symbolSet = {};
+    for(var i = 0; i < ids.length; i++)
+      symbolSet[ids[i]] = d3.symbol()
+        .type(d3["symbol" + layer.get_symbolType(ids[i])])
+        .size(get_symbolSize(layer.get_symbolType(ids[i]), layer.get_size(ids[i])));
+    if(typeof layer.chart.transition !== "undefined")
+      layer.g.selectAll(".data_point").transition(layer.chart.transition)
+        .attr("d", function(d) {return symbolSet[d]()})
+        .attr("fill", function(d) {return layer.get_colour(d)})
+        .attr("stroke", function(d) {return layer.get_stroke(d)})
+        .attr("stroke-width", function(d) {return layer.get_strokeWidth(d)})
+    else
+      layer.g.selectAll(".data_point")
+        .attr("d", function(d) {return symbolSet[d]()})
+        .attr("fill", function(d) {return layer.get_colour(d)})
+        .attr("stroke", function(d) {return layer.get_stroke(d)})
+        .attr("stroke-width", function(d) {return layer.get_strokeWidth(d)});
+  }
+
   layer.dresser(function(sel) {
     sel.attr("fill", function(d) {return layer.get_colour(d);})
       .attr("r", function(d) {return layer.get_size(d);});
@@ -138,7 +185,7 @@ export function scatterChart(id, chart) {
       .data( layer.get_dataIds(), function(d) {return d;} );
     sel.exit()
       .remove();  
-    sel.enter().append( "circle" )
+    sel.enter().append( "path" )
       .attr( "class", "data_point" )
       .merge(sel)
         .on( "click", layer.get_on_click )
