@@ -147,9 +147,9 @@ export function chartBase() {
 			chart.svg.transition(chart.transition)
 				.attr("width", chart.get_width())
 				.attr("height", chart.get_height());
-			chart.container.transition(chart.transition)
-				.style("width", chart.get_width() + "px")
-				.style("height", chart.get_height() + "px");
+			//chart.container.transition(chart.transition)
+			//	.style("width", chart.get_width() + "px")
+			//	.style("height", chart.get_height() + "px");
 			chart.svg.select(".title").transition(chart.transition)
 				.attr("font-size", chart.titleSize())
 				.attr("x", chart.titleX())
@@ -158,9 +158,9 @@ export function chartBase() {
 			chart.svg
 				.attr("width", chart.get_width())
 				.attr("height",	chart.get_height());
-			chart.container
-				.style("width", chart.get_width() + "px")
-				.style("height", chart.get_height() + "px");
+			//chart.container
+			//	.style("width", chart.get_width() + "px")
+			//	.style("height", chart.get_height() + "px");
 			chart.svg.select(".title")
 				.attr("font-size", chart.titleSize())
 				.attr("x", chart.titleX())
@@ -273,7 +273,7 @@ export function layerChartBase(){
 			if(chart.layerIds().indexOf(ids[i]) != -1) {
 				if(typeof chart.layers[ids[i]] === "undefined"){
 					chart.add_layer(ids[i]);
-					chart.placeLayer(ids[i]);
+					chart.get_layer(ids[i]).put_static_content();
 				}
 				layerSelection.layers[ids[i]] = chart.get_layer(ids[i]);
 			} else {
@@ -300,13 +300,14 @@ export function layerChartBase(){
 						else
 							vf = val;
 						for(var i = 0; i < ids.length; i++)
-							layerSelection.layers[ids[i]][prop]( (function(id) {return function(){ 
-								var args = []
-								for(var j = 0; j < arguments.length; j++)
-									args.push(arguments[j]);
-								args.unshift(id);
-								return vf.apply(undefined, args); 
-							} })(ids[i]));
+							if(typeof layerSelection.layers[ids[i]][prop] !== "undefined")
+								layerSelection.layers[ids[i]][prop]( (function(id) {return function(){ 
+									var args = []
+									for(var j = 0; j < arguments.length; j++)
+										args.push(arguments[j]);
+									args.unshift(id);
+									return vf.apply(undefined, args); 
+								} })(ids[i]));
 						return layerSelection;
 					} })(prop);
 			}
@@ -333,8 +334,25 @@ export function layerChartBase(){
 	var inherited_put_static_content = chart.put_static_content;
 	chart.put_static_content = function(element){
 		inherited_put_static_content(element);
+		//Redefine svg to put it inside a table
+		chart.svg.remove();
+		chart.svg = chart.container
+			.append("table")
+				.append("tr")
+					.append("td")
+						.append("svg");
+		chart.viewBox = chart.svg.append("defs")
+			.append("clipPath")
+				.attr("id", "viewBox")
+				.append("rect");
+		chart.svg.append("text")
+			.attr("class", "title plainText")
+			.attr("text-anchor", "middle");
+		//add a cell for the legend
+		chart.legend.location(chart.container.select("tr")
+													.append("td").attr("id", "legend"));
+
 		add_click_listener(chart);
-		chart.legend.g = chart.svg.append("g");
 		for(var k in chart.layers)
 			chart.get_layer(k).put_static_content();		
 	}
@@ -342,11 +360,13 @@ export function layerChartBase(){
 	var inherited_update = chart.update;
 	chart.update = function() {
 		var ids = chart.layerIds(), type;
-		for(var i = 0; i < ids.length; i++)
-			if(typeof chart.layers[ids[i]] === "undefined"){
+		for(var i = 0; i < ids.length; i++){
+			if(typeof chart.layers[ids[i]] === "undefined")
 				chart.add_layer(ids[i]);
+//			if(typeof chart.layers[ids[i]].g === "undefined")
 //				chart.placeLayer(ids[i]);
-			}
+		}
+		
 
 		for(var k in chart.layers){
 			if(ids.indexOf(k) == -1)

@@ -1,4 +1,5 @@
 import { axisChart } from "./chartBase";
+import { get_symbolSize } from "./additionalFunctions";
 
 export function scatterChart(id, chart) {
 
@@ -139,31 +140,16 @@ export function scatterChart(id, chart) {
     return layer;
   }
 
-  function get_symbolSize(type, r) {
-    var sizeCoef = {
-      "Circle": 28.2,
-      "Cross": 35,
-      "Diamond": 46,
-      "Square": 36,
-      "Star": 47,
-      "Triangle": 44,
-      "Wye": 37
-    };
-
-    return Math.pow(r * 28.2 / sizeCoef[type], 2) * 3.14;
-  }
-
   layer.updatePointStyle = function() {
     layer.resetColourScale();
-    var ids = layer.get_dataIds(),
-      symbolSet = {};
-    for(var i = 0; i < ids.length; i++)
-      symbolSet[ids[i]] = d3.symbol()
-        .type(d3["symbol" + layer.get_symbolType(ids[i])])
-        .size(get_symbolSize(layer.get_symbolType(ids[i]), layer.get_size(ids[i])));
+    var ids = layer.get_dataIds();
     if(typeof layer.chart.transition !== "undefined")
       layer.g.selectAll(".data_point").transition(layer.chart.transition)
-        .attr("d", function(d) {return symbolSet[d]()})
+        .attr("d", function(d) {
+          return d3.symbol()
+            .type(d3["symbol" + layer.get_symbolType(d)])
+            .size(get_symbolSize(layer.get_symbolType(d), layer.get_size(d)))();
+        })
         .attr("fill", function(d) {return layer.get_colour(d)})
         .attr("stroke", function(d) {return layer.get_stroke(d)})
         .attr("stroke-width", function(d) {return layer.get_strokeWidth(d)})

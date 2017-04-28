@@ -1,20 +1,19 @@
 import { base } from "./base";
-import { fillTextBlock } from "./additionalFunctions"
+import { fillTextBlock } from "./additionalFunctions";
+import { get_symbolSize } from "./additionalFunctions";
 
 export function legend(chart) {
 	var legend = base()
-		.add_property("width", function() {return chart.margin().right;})
-		.add_property("height", function() {return chart.plotHeight();})
-		.add_property("x", function() {return chart.plotWidth() + chart.margin().left;})
-		.add_property("y", function() {return chart.margin().top;})
-		.add_property("alignX")
-		.add_property("alignY");
+		.add_property("width", 200)
+		.add_property("height", function() {return chart.height();})
+		.add_property("sampleHeight", 20)
+		.add_property("ncol", undefined)
+		.add_property("location");
 
 	legend.blocks = {};
 	legend.chart = chart;
 
 	legend.add = function(scale, type, id, layer){
-		legend.chart.set_margin({right: d3.max([75, legend.chart.margin().right])});
 		//scale can be an array or d3 scale. If scale is an array,
 		//we need to turn it into a scale
 		var block = {};
@@ -24,25 +23,33 @@ export function legend(chart) {
 			block.scale = function() {return scale;};
 		if(typeof layer !== "undefined")
 			block.layer = layer;
-		if(["colour", "size", "style"].indexOf(type) == -1)
+		if(["colour", "size", "style", "symbol", "dash"].indexOf(type) == -1)
 			throw "Error in 'legend.add': " + type + " is not a suitable type of legend block. " +
-				"Please, use one of these: 'colour', 'size', 'style'";
+				"Please, use one of these: 'colour', 'size', 'symbol', 'dash'";
 		block.type = type;
 
 		legend.blocks[id] = block;
-		//legend.update();
+		legend.updateGrid();
+
+		return legend.chart;
+	}
+
+	legend.updateScale = function(scale, id){
+		if(typeof legend.blocks[id] === "undefined")
+			throw "Error in 'legend.updateScale': A block with ID " + id +
+				" is not defined";
+		legend.blocks[id].scale = scale;
+		legend.updateBlock(id);
 
 		return legend.chart;
 	}
 
 	legend.convertScale = function(id) {
 		var scale, newScale;
-		try{
+		if(typeof legend.blocks[id].scale === "function")
 			scale = legend.blocks[id].scale();
-		} catch (exc) {
-			scale = legend.blocks[id].scale;
-		}
-		if(typeof scale !== "function" && typeof scale.splice === "undefined")
+		if(typeof scale === "undefined" || 
+				(typeof scale !== "function" && typeof scale.splice === "undefined"))
 			scale = legend.blocks[id].scale;
 		
 		if(typeof scale !== "function"){
@@ -87,6 +94,8 @@ export function legend(chart) {
 				newScale.steps = scale[0].length;				
 			}
 			legend.blocks[id].domain = scale[0];
+			if(typeof newScale.domain === "undefined")
+				newScale.domain = legend.blocks[id].domain;
 		} else {
 			//scale is a function it is either a d3 scale or it has a domain property
 			if(typeof scale !== "function")
@@ -117,7 +126,7 @@ export function legend(chart) {
 			);
 		delete legend.blocks[id];
 		legend.g.select("#" + id).remove();
-		legend.update();
+		legend.updateGrid();
 
 		return legend.chart;
 	}
@@ -136,112 +145,150 @@ export function legend(chart) {
 		return legend.chart;
 	}
 	legend.updateGrid = function() {
-		//assume that optimal side ratio of each block is 2:1
 		//define optimal layout for all the blocks
-		var n = Object.keys(legend.blocks).length,
-			minVacantArea = legend.width() * legend.height(),
-			bestLayout, j, blockHeight, blockWidth; 
-		for(var i = 1; i <= Math.floor(Math.sqrt(n)); i++){
-			j =  Math.ceil(n / i);
-			blockHeight = d3.min([legend.height() / i, legend.width() * 2 / j]);
-			blockWidth = d3.min([blockHeight / 2, legend.width() / j]);
-			if(minVacantArea > legend.height() * legend.width() - blockHeight * blockWidth * n){
-				minVacantArea = legend.height() * legend.width() - blockHeight * blockWidth * n;
-				bestLayout = [i, j];
+		//and create a table
+		var bestWidth, bestHeight,
+			n = Object.keys(legend.blocks).length;
+
+		if(typeof legend.ncol() === "undefined"){
+			var minSum = 1 + n, j;
+			bestHeight = 1; 
+			for(var i = 2; i <= Math.ceil(Math.sqrt(n)); i++){
+				j =  Math.ceil(n / i);
+				if(i + j <= minSum){
+					minSum = i + j;
+					bestHeight = i;
+				}
 			}
+			bestWidth = Math.ceil(n / bestHeight);
+		} else {
+			bestWidth = legend.ncol();
+			bestHeight = Math.ceil(n / bestWidth);
 		}
-		blockWidth = legend.width() / bestLayout[1];
-		blockHeight = legend.height() / bestLayout[0];
-		var row = 0, col = 0;
-		for(var i in legend.blocks){
-			legend.blocks[i].width = blockWidth;
-			legend.blocks[i].height = blockHeight;
-			legend.blocks[i].x = col * blockWidth;
-			legend.blocks[i].y = row * blockHeight;
-			col++;
-			if(col == bestLayout[1]){
-				col = 0;
-				row++;
-			}
-		} 
+		legend.location().select(".legendTable").remove();
+		legend.location().append("table")
+			.attr("class", "legendTable")
+			.selectAll("tr").data(d3.range(bestHeight))
+				.enter().append("tr");
+		legend.location().selectAll("tr").selectAll("td")
+			.data(function(d) {
+				return d3.range(bestWidth).map(function(e) {
+					return [d, e];
+				})
+			})	
+			.enter().append("td")
+				.attr("id", function(d) {
+					try{
+						return Object.keys(legend.blocks)[d[0] * bestWidth + d[1]]
+										.replace(/ /g, "_");
+					} catch(exc) {return undefined;}
+				});
+		for(var i in legend.blocks)
+			legend.updateBlock(i);
 	}
+
+
 	legend.updateBlock = function(id){
-		var scale = legend.convertScale(id);
-		legend.blocks[id].height = d3.min([legend.blocks[id].height, scale.steps * 20]);
 		if(typeof legend.blocks[id] === "undefined")
 			throw "Error in 'legend.updateBlock': block with ID " + id +
-				" is not defined."
-		//redraw the block
-		var block_g = legend.g.select("#" + id);
-		if(block_g.empty())
-			block_g = legend.g.append("g")
-				.attr("id", id);
-		block_g.attr("transform", "translate(" + legend.blocks[id].x + ", " 
-																+ legend.blocks[id].y + ")");
-		
-		var title = block_g.select(".title");
+				" is not defined";
+
+		var scale = legend.convertScale(id),
+			tableCell = legend.location().select("#" + id.replace(/ /g, "_")),
+			cellWidth = legend.width() / legend.location().select("tr").selectAll("td").size(),
+			steps = scale.steps,
+			cellHeight = legend.sampleHeight() * steps;
+
+		var blockSvg = tableCell.selectAll("svg");
+		if(blockSvg.empty())
+			blockSvg = tableCell.append("svg");
+		blockSvg.attr("width", cellWidth)
+			.attr("height", cellHeight);
+	
+		var title = blockSvg.select(".title");
 		if(title.empty())
-			title = block_g.append("g")
+			title = blockSvg.append("g")
 				.attr("class", "title");
-		fillTextBlock(title, legend.blocks[id].height, legend.blocks[id].width * 0.2, id);
-		title.attr("transform", "rotate(-90)translate(-" + legend.blocks[id].height + ", 0)");
+		var titleWidth = d3.min([20, cellWidth * 0.2]);
+		fillTextBlock(title, cellHeight, titleWidth, id);
+		title.attr("transform", "rotate(-90)translate(-" + cellHeight + ", 0)");
 
 		var sampleValues;
-		if(legend.blocks[id].domain.length == scale.steps)
+		if(legend.blocks[id].domain.length == steps)
 			sampleValues = legend.blocks[id].domain;
 		else
-			sampleValues = d3.range(scale.steps).map(function(e) {
-				return legend.blocks[id].domain[0] + e * (legend.blocks[id].domain[1] - legend.blocks[id].domain[0]) / 
-																			(scale.steps - 1)
+			sampleValues = d3.range(steps).map(function(e) {
+				return legend.blocks[id].domain[0] + e * 
+								(legend.blocks[id].domain[1] - legend.blocks[id].domain[0]) / 
+								(steps - 1)
 			})
 		var sampleData = [];
 		for(var i = 0; i < sampleValues.length; i++)
 			sampleData.push([sampleValues[i]]);
 		
-		var samples = block_g.selectAll(".sample").data(sampleData);
+		var samples = blockSvg.selectAll(".sample").data(sampleData);
 		samples.exit().remove();
 		samples.enter().append("g")
 			.attr("class", "sample")
 			.merge(samples)
 				.attr("transform", function(d, i) {
-					return "translate(" + legend.blocks[id].width*0.2 + ", " + 
-									(i * legend.blocks[id].height / scale.steps) + ")";
+					return "translate(" + (titleWidth + 1) + ", " + 
+									(i * legend.sampleHeight()) + ")";
 				});
 
 		if(legend.blocks[id].type == "colour"){
-			var rect = block_g.selectAll(".sample").selectAll("rect").data(function(d){
+			var rect = blockSvg.selectAll(".sample").selectAll("rect").data(function(d){
 				return d;
 			});
 			rect.enter().append("rect")
 				.merge(rect)
-					.attr("width", d3.min([legend.blocks[id].width * 0.2 ,20]))
-					.attr("height", legend.blocks[id].height / scale.steps)
+					.attr("width", titleWidth)
+					.attr("height", legend.sampleHeight())
 					.attr("fill", function(d) {return scale(d)});
-			
-			var sampleText = block_g.selectAll(".sample").selectAll("g").data(function(d){
-				return (typeof d[0] === "number") ? [d[0].toString()] : d;
+		}
+		if(legend.blocks[id].type == "symbol"){
+			var size = d3.min([legend.sampleHeight() / 2, 
+													titleWidth / 2]);
+			var symbols = blockSvg.selectAll(".sample").selectAll("path").data(function(d){
+				return d;
 			});
-			sampleText.enter().append("g")
-				.merge(sampleText)
-					.attr("transform", "translate(" + (legend.blocks[id].width * 0.25) + ", 0)");
-			block_g.selectAll(".sample").selectAll("g").each(function(d) {
-				fillTextBlock(d3.select(this), legend.blocks[id].width * 0.55, 
-												legend.blocks[id].height / scale.steps, d
-											);
-			});	
+			symbols.enter().append("path")
+				.merge(symbols)
+					.attr("d", function(d) {
+						return d3.symbol()
+							.type(d3["symbol" + scale(d)])
+							.size(get_symbolSize(scale(d), size))();
+					})
+					.attr("transform", "translate(" + size + ", " + size + ")");
 		}
-		if(legend.blocks[id].type == "size"){
+		if(legend.blocks[id].type == "dash"){
+			var lines = blockSvg.selectAll(".sample").selectAll("line").data(function(d){
+				return d;
+			});
+			lines.enter().append("line")
+				.style("stroke", "black")
+			 	.merge(lines)
+			 		.attr("x1", 0)
+			 		.attr("x2", titleWidth)
+			 		.attr("y1", legend.sampleHeight() / 2)
+			 		.attr("y2", legend.sampleHeight() / 2)
+			 		.attr("stroke-dasharray", function(d) {return scale(d)});
+		}
 
-		}
+		var sampleText = blockSvg.selectAll(".sample").selectAll("g").data(function(d){
+			return (typeof d[0] === "number") ? [d[0].toString()] : d;
+		});
+		sampleText.enter().append("g")
+			.merge(sampleText)
+				.attr("transform", "translate(" + (titleWidth + 5) + ", 0)");
+		blockSvg.selectAll(".sample").selectAll("g").each(function(d) {
+			fillTextBlock(d3.select(this), cellWidth - 2 * titleWidth - 5, 
+											legend.sampleHeight(), d
+										);
+		});		
 	}
 	legend.update = function() {
-		legend.g
-			.attr("transform", "translate(" + legend.x() + ", " + legend.y() + ")");
 		legend.updateGrid();
-		for(var k in legend.blocks)
-			legend.updateBlock(k);
-
-		return legend.chart;
 	}
 
 	return legend;

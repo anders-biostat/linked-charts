@@ -391,3 +391,17 @@ export function fillTextBlock(g, width, height, text, minSize, maxSize, fontRati
         .attr("y", function(d) {return (d + 1) * fit.fontSize;})
         .text(function(d) {return fit.spans[d]});
 }
+
+export function get_symbolSize(type, r) {
+  var sizeCoef = {
+    "Circle": 28.2,
+    "Cross": 35,
+    "Diamond": 46,
+    "Square": 36,
+    "Star": 47,
+    "Triangle": 44,
+    "Wye": 37
+  };
+
+  return Math.pow(r * 28.2 / sizeCoef[type], 2) * 3.14;
+}
