@@ -4,22 +4,9 @@ users to rapidly set up "mini-apps" to explore their data set. These mini apps d
 charts. By "linking", we mean that a user's interaction with one chart controls what another chart shows. For example, clicking
 on a data point in a summary chart can show the data underlying this data point in the second plot.
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-First example script: https://simon-anders.github.io/demos/linked-charts.html
-
-=======
 The following example demonstrates how this looks in practice and how to code in "linked-charts":
 First example script: https://simon-anders.github.io/demos/linked-charts.html
 
-A more complete documentation is work-in-progress.
+A more complete documentation is work-in-progress; first drafts for a tutorial can be seen here: https://kloivenn.github.io/linked-charts/simpleExample.html
 
-If you already want to try out linked-charts, send us an e-mail (or give us a month or two to bundle everything uip nicely).
->>>>>>> refs/remotes/origin/master
-=======
-The following example demonstrates how this looks in practice and how to code in "linked-charts":
-First example script: https://simon-anders.github.io/demos/linked-charts.html
-
-A more complete documentation is work-in-progress.
-
->>>>>>> origin/Layers
+If you already want to try out linked-charts, send us an e-mail (or give us a bit of time to bundle everything up nicely).
