@@ -143,22 +143,18 @@ export function scatterChart(id, chart) {
   layer.updatePointStyle = function() {
     layer.resetColourScale();
     var ids = layer.get_dataIds();
+    var sel = layer.g.selectAll(".data_point");
     if(typeof layer.chart.transition !== "undefined")
-      layer.g.selectAll(".data_point").transition(layer.chart.transition)
-        .attr("d", function(d) {
-          return d3.symbol()
-            .type(d3["symbol" + layer.get_symbolType(d)])
-            .size(get_symbolSize(layer.get_symbolType(d), layer.get_size(d)))();
-        })
-        .attr("fill", function(d) {return layer.get_colour(d)})
-        .attr("stroke", function(d) {return layer.get_stroke(d)})
-        .attr("stroke-width", function(d) {return layer.get_strokeWidth(d)})
-    else
-      layer.g.selectAll(".data_point")
-        .attr("d", function(d) {return symbolSet[d]()})
-        .attr("fill", function(d) {return layer.get_colour(d)})
-        .attr("stroke", function(d) {return layer.get_stroke(d)})
-        .attr("stroke-width", function(d) {return layer.get_strokeWidth(d)});
+      sel = sel.transition(layer.chart.transition);
+    sel
+      .attr("d", function(d) {
+        return d3.symbol()
+          .type(d3["symbol" + layer.get_symbolType(d)])
+          .size(get_symbolSize(layer.get_symbolType(d), layer.get_size(d)))();
+      })
+      .attr("fill", function(d) {return layer.get_colour(d)})
+      .attr("stroke", function(d) {return layer.get_stroke(d)})
+      .attr("stroke-width", function(d) {return layer.get_strokeWidth(d)})
   }
 
   layer.dresser(function(sel) {
