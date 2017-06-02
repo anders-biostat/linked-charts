@@ -161,7 +161,7 @@ export function layerBase(id) {
   };
 
 	layer.put_static_content = function() {
-    layer.g = layer.chart.svg.append("g")
+    layer.g = layer.chart.svg.select(".plotArea").append("g")
       .attr("class", "chart_g")
       .attr("id", layer.id)
       .attr("clip-path", "url(#viewBox)");
@@ -171,19 +171,6 @@ export function layerBase(id) {
 	layer.afterUpdate = function(){};
   
   layer.updateSize = function(){
-    if(typeof layer.chart.transition !== "undefined"){
-      layer.g.transition(layer.chart.transition)
-        .attr("transform", "translate(" + 
-          layer.chart.get_margin().left + ", " +
-          layer.chart.get_margin().top + ")");
-      layer.g.selectAll(".data_point")
-    } else {
-      layer.g
-        .attr("transform", "translate(" + 
-          layer.chart.get_margin().left + ", " +
-          layer.chart.get_margin().top + ")");
-    }
-    return layer;
   }
   layer.updatePoints = function() {
   };

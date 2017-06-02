@@ -81,7 +81,7 @@ export function scatterChart(id, chart) {
   layer.findPoints = function(lu, rb){
     return layer.g.selectAll(".data_point")
       .filter(function(d) {
-        var loc = [layer.chart.axes.scale_x(layer.chart.get_x(d)), 
+        var loc = [layer.chart.axes.scale_x(layer.get_x(d)), 
                   layer.chart.axes.scale_y(layer.get_y(d))]
         return (loc[0] - layer.get_size(d) <= rb[0]) && 
           (loc[1] - layer.get_size(d) <= rb[1]) && 

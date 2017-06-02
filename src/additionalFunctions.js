@@ -110,7 +110,7 @@ export function add_click_listener(chart){
 
   //add a transparent rectangle to detect clicks
   //and make changes to update function
-  chart.svg.append("rect")
+  chart.svg.select(".plotArea").append("rect")
     .attr("class", "clickPanel")
     .attr("fill", "transparent")
     .lower();
@@ -119,8 +119,8 @@ export function add_click_listener(chart){
   chart.updateSize = function(){
     inherited_updateSize();
      chart.svg.selectAll(".clickPanel")
-      .attr("width", chart.get_width())
-      .attr("height", chart.get_height());
+      .attr("width", chart.plotWidth())
+      .attr("height", chart.plotHeight());
     return chart;
   }
 
@@ -129,7 +129,7 @@ export function add_click_listener(chart){
     downThis = d3.mouse(this)
     wait_click = window.setTimeout(function() {wait_click = null;}, 1000);
     var p = d3.mouse(this);  //Mouse position on the heatmap
-    chart.svg.append("rect")
+    chart.svg.select(".plotArea").append("rect")
       .attr("class", "selection")
       .attr("x", p[0])
       .attr("y", p[1])
@@ -155,8 +155,8 @@ export function add_click_listener(chart){
 
       //here we need to go through all layers
       var selPoints = chart.findPoints(
-        [+s.attr("x") - chart.get_margin().left, +s.attr("y") - chart.get_margin().top], 
-        [+s.attr("x") + +s.attr("width") - chart.get_margin().left, +s.attr("y") + +s.attr("height") - chart.get_margin().top]
+        [+s.attr("x"), +s.attr("y")], 
+        [+s.attr("x") + +s.attr("width"), +s.attr("y") + +s.attr("height")]
       );
       if(typeof selPoints.empty === "function")
         selPoints = [selPoints];
@@ -194,8 +194,6 @@ export function add_click_listener(chart){
       points = d3.select(this),
       pos = d3.mouse(this);
     chart.svg.selectAll("rect.selection").remove();
-    pos[0] = pos[0] - chart.get_margin().left;
-    pos[1] = pos[1] - chart.get_margin().top;
 
     if(wait_click && getEuclideanDistance(down, d3.mouse(document.body)) < tolerance){
       window.clearTimeout(wait_click);
@@ -248,7 +246,7 @@ export function add_click_listener(chart){
     }
   }
 
-  chart.svg
+  chart.svg.select(".plotArea")
     .on("mousedown", on_mousedown)
     .on("mousemove", on_mousemove)
     .on("mouseup", on_mouseup)

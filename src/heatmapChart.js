@@ -64,7 +64,7 @@ export function heatmapChart(id, chart){
 		chart.svg.append("g")
 			.attr("class", "col label_panel");
 				//delete canvas if any
-		chart.g = chart.svg.append("g")
+		chart.g = chart.svg.select(".plotArea").append("g")
 			.attr("class", "chart_g")
 			.attr("clip-path", "url(#viewBox)");
 		chart.text = chart.g.append("g")
@@ -219,9 +219,6 @@ export function heatmapChart(id, chart){
 			chart.svg.select(".legend_panel").transition(chart.transition)
 				.attr("transform", "translate(0, " + 
 					(chart.get_margin().top + chart.get_plotHeight()) + ")");
-			chart.g.transition(chart.transition)
-				.attr("transform", "translate(" + chart.get_margin().left + ", " +
-					chart.get_margin().top + ")");
 			chart.axes.x_label.transition(chart.transition)
 				.attr("font-size", d3.min([chart.get_margin().bottom - 2, 15]))
 				.attr("x", chart.get_plotWidth() + chart.get_margin().left)
@@ -237,9 +234,6 @@ export function heatmapChart(id, chart){
 			chart.svg.select(".legend_panel")
 				.attr("transform", "translate(0, " + 
 					(chart.get_margin().top + chart.get_plotHeight()) + ")");
-			chart.g
-				.attr("transform", "translate(" + chart.get_margin().left + ", " +
-					chart.get_margin().top + ")");								
 			chart.axes.x_label
 				.attr("font-size", d3.min([chart.get_margin().bottom - 2, 15]))
 				.attr("x", chart.get_plotWidth() + chart.get_margin().left)

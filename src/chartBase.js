@@ -77,6 +77,8 @@ export function chartBase() {
 		chart.svg.append("text")
 			.attr("class", "title plainText")
 			.attr("text-anchor", "middle");
+		chart.svg.append("g")
+			.attr("class", "plotArea");
 		if(chart.showPanel()){
 			chart.panel = panel(chart);
 			chart.panel.put_static_content();
@@ -148,30 +150,30 @@ export function chartBase() {
 		chart.viewBox
 			.attr("x", -5) //Let's leave some margin for a view box so that not to cut
 			.attr("y", -5) //points that are exactly on the edge
-			.attr("width", chart.get_plotWidth() + 10) 
-			.attr("height", chart.get_plotHeight() + 10);
+			.attr("width", chart.plotWidth() + 10) 
+			.attr("height", chart.plotHeight() + 10);
 		if(typeof chart.transition !== "undefined"){
 			chart.svg.transition(chart.transition)
-				.attr("width", chart.get_width())
-				.attr("height", chart.get_height());
-			//chart.container.transition(chart.transition)
-			//	.style("width", chart.get_width() + "px")
-			//	.style("height", chart.get_height() + "px");
+				.attr("width", chart.width())
+				.attr("height", chart.height());
 			chart.svg.select(".title").transition(chart.transition)
 				.attr("font-size", chart.titleSize())
 				.attr("x", chart.titleX())
 				.attr("y", chart.titleY());
+			chart.svg.select(".plotArea").transition(chart.transition)
+				.attr("transform", "translate(" + chart.margin().left + 
+															", " + chart.margin().top + ")");
 		} else {
 			chart.svg
-				.attr("width", chart.get_width())
-				.attr("height",	chart.get_height());
-			//chart.container
-			//	.style("width", chart.get_width() + "px")
-			//	.style("height", chart.get_height() + "px");
+				.attr("width", chart.width())
+				.attr("height",	chart.height());
 			chart.svg.select(".title")
 				.attr("font-size", chart.titleSize())
 				.attr("x", chart.titleX())
 				.attr("y", chart.titleY());
+			chart.svg.select(".plotArea")
+				.attr("transform", "translate(" + chart.margin().left + 
+															", " + chart.margin().top + ")");
 		}
 		if(chart.showPanel())
 			chart.panel.updateSize();
