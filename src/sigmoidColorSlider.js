@@ -25,6 +25,8 @@ export function sigmoidColorSlider() {
     .height( 80 )
     .transitionDuration( 0 );    
 
+  obj.showPanel(false);
+  
   obj.straightColorScale(
     d3.scaleLinear()
       .range( [ "white", "darkblue" ] ) );

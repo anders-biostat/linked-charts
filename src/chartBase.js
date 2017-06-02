@@ -2,6 +2,7 @@ import { base } from "./base";
 import { layerBase } from "./layerBase";
 import { add_click_listener } from "./additionalFunctions";
 import { legend } from "./legend";
+import { panel } from "./panel";
 import { scatterChart } from "./scatterChart";
 import { lineChart } from "./lineChart";
 
@@ -17,8 +18,9 @@ export function chartBase() {
 		.add_property("titleX", function() {return chart.width() / 2;})
 		.add_property("titleY", function() {return d3.min([17, chart.margin().top * 0.9]);})
 		.add_property("titleSize", function() {return d3.min([15, chart.margin().top * 0.8]);})
-		.add_property("transitionDuration", 1000)
-		.add_property("markedUpdated", function() {}); //may be set to zero
+		.add_property("transitionDuration", 1000) //may be set to zero
+		.add_property("markedUpdated", function() {})
+		.add_property("showPanel", true); 
 	
 	chart.transition = undefined;
   chart.width("_override_", "plotWidth", function(){
@@ -75,6 +77,11 @@ export function chartBase() {
 		chart.svg.append("text")
 			.attr("class", "title plainText")
 			.attr("text-anchor", "middle");
+		if(chart.showPanel()){
+			chart.panel = panel(chart);
+			chart.panel.put_static_content();
+		}
+
 	}
 
 	chart.defineTransition = function(){
@@ -166,6 +173,8 @@ export function chartBase() {
 				.attr("x", chart.titleX())
 				.attr("y", chart.titleY());
 		}
+		if(chart.showPanel())
+			chart.panel.updateSize();
 		return chart;			
 	}
 	chart.updateTitle = function(){
@@ -334,20 +343,18 @@ export function layerChartBase(){
 	var inherited_put_static_content = chart.put_static_content;
 	chart.put_static_content = function(element){
 		inherited_put_static_content(element);
-		//Redefine svg to put it inside a table
-		chart.svg.remove();
-		chart.svg = chart.container
+		chart.container
 			.append("table")
 				.append("tr")
-					.append("td")
-						.append("svg");
+					.append("td").node()
+						.appendChild(chart.svg.node());
+		//chart.svg.remove();
+		//chart.svg = chart.container.select("svg");
+
 		chart.viewBox = chart.svg.append("defs")
 			.append("clipPath")
 				.attr("id", "viewBox")
 				.append("rect");
-		chart.svg.append("text")
-			.attr("class", "title plainText")
-			.attr("text-anchor", "middle");
 		//add a cell for the legend
 		chart.legend.location(chart.container.select("tr")
 													.append("td").attr("id", "legend"));
