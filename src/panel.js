@@ -10,37 +10,36 @@ export function panel(chart) {
 		})
 		.add_property("orientation", "horizontal")
 		.add_property("height", function(){
-			if(panel.orientation() == "horizontal")
-				return Math.ceil(panel.width() / panel.buttonSize) * 
-					panel.buttonSize
-			else
-				return Math.floor(chart.height() - panel.y() / panel.buttonSize) * 
-					panel.buttonSize;  
-		})
-		.add_property("widht", function() {
 			if(panel.orientation() == "vertical")
-				return Math.ceil(panel.height() / panel.buttonSize) * 
+				return Math.floor(chart.height() - panel.y() / panel.buttonSize) * 
 					panel.buttonSize
 			else
+				return undefined;
+		})
+		.add_property("width", function() {
+			if(panel.orientation() == "horizontal")
 				return Math.floor(chart.width() - panel.x() / panel.buttonSize) * 
-					panel.buttonSize;
+					panel.buttonSize
+			else
+				return undefined;
 		});
 
 	panel.chart = chart;
 	panel.buttons = [];
-	panel.buttonSize = 20;
+	panel.buttonSize = 30;
 
 
 	panel.put_static_content = function(){
 		panel.g = panel.chart.svg.append("g")
-			.attr("class", "panel_g")
-			.lower();
+			.attr("class", "panel_g");
 
 		panel.initDefs();
+		
 		panel.g.append("use")
 			.attr("xlink:href", "#toggleOff")
 			.attr("id", "toggle")
 			.attr("opacity", 0.7)
+			.attr("title", "Click to show instrument panel")
 			.on("mouseover", function() {
 				d3.select(this)
 					.attr("opacity", 1);
@@ -49,34 +48,145 @@ export function panel(chart) {
 				d3.select(this)
 					.attr("opacity", 0.7);
 			})
-			.on("click", panel.show);
+			.on("click", panel.show)
+			.append("title")
+				.text("Click to show instrument panel");
+
+		panel.g.append("g")
+			.attr("id", "buttonPanel")
+			.attr("class", "hidden");
+
+		var buttons = panel.g.select("#buttonPanel")
+			.selectAll(".button").data(panel.buttons);
+		buttons.enter().append("use")
+			.attr("opacity", 0.6)
+			.attr("class", "button")
+			.attr("xlink:href", function(d) {return d.icon})
+			.on("click", function(d) {d.fun(panel.chart, d3.select(this))})
+			.on("mouseover", function() {
+				d3.select(this)
+					.attr("opacity", 1);
+			})
+			.on("mouseout", function() {
+				d3.select(this)
+					.attr("opacity", 0.6);
+			})
+			.append("title")
+				.text(function(d) {return d.name});		
 	}
 	
 	panel.updateSize = function() {
-		panel.g
-			.attr("transform", "translate(" + panel.x() + 
-															", " + panel.y() + ")");
+		var layout = panel.placeButtons();
+		if(panel.orientation() == "vertical"){
+			panel.g.attr("transform", "translate(" + panel.x() + 
+																", " + panel.y() + ")");
+			panel.g.select("#toggle")
+				.attr("transform", "translate(0, 0)");
+			panel.g.select("#buttonPanel")
+				.attr("transform", "translate(0, " + panel.buttonSize + ")");
+		} else {
+			panel.g
+				.attr("transform", "translate(" + 
+														(panel.x() - panel.buttonSize * panel.buttons.length) + 
+																", " + panel.y() + ")");
+			panel.g.select("#toggle")
+				.attr("transform", "translate(" + (panel.buttonSize * panel.buttons.length) + ", 0)");
+			panel.g.select("#buttonPanel")
+				.attr("transform", "translate(0, 0)");			
+		}
+
 	}
 
-	panel.add_button = function(name, icon, fun){
+	panel.placeButtons = function() {
+		var rowLength;
+		if(panel.orientation()  == "horizontal"){
+				rowLength = panel.optimizeSize(panel.buttons.length, panel.width(), panel.height());
+				panel.g.selectAll(".button")
+					.attr("transform", function(d, i){
+						return "translate(" + (i % rowLength * panel.buttonSize) + ", " +
+							(Math.floor(i / rowLength) * panel.buttonSize) + ")";
+					})
+		} else {
+				rowLength = panel.optimizeSize(panel.buttons.length, panel.height(), panel.width());
+				panel.g.selectAll(".button")
+					.attr("transform", function(d, i){
+						return "translate(" + (Math.floor(i / rowLength) * panel.buttonSize) + ", " 
+							+ ((i % rowLength + 1) * panel.buttonSize) + ")";
+					})
+		}
+	}
+	panel.optimizeSize = function(n, width, height){
+		var rows, size;
+		if(height){
+			size = d3.min([width, height]);
+			rows = 1;
+			while(Math.floor(width / size) * rows < n){
+				rows++;
+				size = d3.min([height / rows, size]);
+			}
+			panel.buttonSize = size;
+		} else {
+			size = panel.buttonSize;
+			rows = Math.ceil(width / size);
+		}
+		if(panel.orientation() == "horizontal"){
+			panel.width(size * Math.floor(width / size));
+			//panel.height(size * rows)
+		} else {
+			panel.height(size * Math.floor(width / size));
+			//panel.width(size * rows);
+		}
 
+		return Math.floor(width / size);
+	}
+
+
+	panel.add_button = function(name, icon, fun){
+		panel.buttons.push({
+			name: name,
+			icon: icon,
+			fun: fun
+		});
 	}
 
 	panel.show = function(){
 		panel.g.select("#toggle")
-			.attr("xlink:href", "#toggleOnHor")
 			.attr("opacity", 1)
 			.on("click", panel.hide)
-			.on("mouseout", function() {});
+			.on("mouseout", function() {})
+			.select("title")
+				.text("Click to hide instrument panel");
+		if(panel.orientation() == "horizontal")
+			panel.g.select("#toggle")
+				.attr("xlink:href", "#toggleOnHor")
+		else
+			panel.g.select("#toggle")
+				.attr("xlink:href", "#toggleOnVer");
+
+		panel.g.select("#buttonPanel")
+			.classed("hidden", false);
+
 	}
 
 	panel.hide = function(){
+		panel.g.select("#toggle")
+			.attr("xlink:href", "#toggleOff")
+			.attr("opacity", 0.7)
+			.on("click", panel.show)
+			.on("mouseout", function() {
+				d3.select(this)
+					.attr("opacity", 0.7);
+			})
+			.select("title")
+				.text("Click to show instrument panel");
+		panel.g.select("#buttonPanel")
+			.classed("hidden", true);
 
 	}
 
 	panel.initDefs = function(){
 		var defs = panel.g.append("def"),
-			bs = panel.buttonSize;
+			bs = panel.buttonSize - 10;
 		
 		var d = defs.append("g")
 			.attr("id", "toggleOff");
@@ -87,7 +197,7 @@ export function panel(chart) {
 			.attr("fill", "#aaa")
 			.attr("stroke", "#444");
 		d.append("path")
-			.attr("d", "M " + bs/2 + " " + Math.floor(bs/3) + 
+			.attr("d", "M " + bs/2  + " " + Math.floor(bs/3) + 
 									" L " + Math.ceil(bs * 2 / 3) + " " + Math.ceil(bs * 2 / 3) + 
 									" H " + Math.floor(bs/3) + 
 									" L " + bs/2 + " " + Math.floor(bs/3))
@@ -125,6 +235,129 @@ export function panel(chart) {
 									" L " + bs/2 + " " + Math.ceil(bs * 2 / 3))
 			.attr("fill", "#444")
 			.attr("stroke-width", 0);
+
+		d = defs.append("g")
+			.attr("id", "save");
+		d.append("rect")
+			.attr("stroke-width", 0)
+			.attr("width", bs)
+			.attr("height", bs)
+			.attr("fill", "#444")
+			.attr("rx", bs/10)
+			.attr("ry", bs/10);
+		d.append("path")
+			.attr("d", "M " + Math.floor(4 * bs / 5) + " 0" + 
+									" H " + bs + 
+									" V " + Math.ceil(bs/5) + 
+									" L " + Math.floor(4 * bs / 5) + " 0")
+			.attr("fill", "#fff")
+			.attr("stroke-width", 0);
+		d.append("rect")
+			.attr("x", Math.floor(bs/3))
+			.attr("height", Math.floor(bs/3))
+			.attr("width", Math.ceil(bs * 2 / 5))
+			.attr("fill", "#fff")
+			.attr("stroke-width", 0);
+		d.append("rect")
+			.attr("x", Math.floor(44 * bs / 75))
+			.attr("width", Math.ceil(2 * bs / 25))
+			.attr("height", Math.ceil(bs/4))
+			.attr("fill", "#444")
+			.attr("stroke-width", 0);
+		d.append("rect")
+			.attr("x", Math.floor(bs/4))
+			.attr("width", Math.ceil(5 * bs / 12))
+			.attr("y", bs/2)
+			.attr("height", bs/2)
+			.attr("rx", bs/10)
+			.attr("ry", bs/10)
+			.attr("fill", "#fff")
+			.attr("stroke-width", 0);
+
+		d = defs.append("g")
+			.attr("id", "svg");
+		d.append("text")
+			.attr("font-size", bs * 1.5)
+			.attr("textLength", bs)
+			.attr("lengthAdjust", "spacingAndGlyphs")
+			.attr("fill", "#444")
+			.attr("y", bs)
+			.attr("font-weight", 900)
+			.attr("font-family", "Verdana")
+			.text("SVG");
+		
+		d = defs.append("g")
+			.attr("id", "selection");
+		d.append("rect")
+			.attr("fill-opacity", 0)
+			.attr("width", Math.floor(bs * 2 / 3))
+			.attr("height", Math.floor(bs * 2 / 3))
+			.attr("x", Math.ceil(bs/3))
+			.attr("stroke", "#444")
+			.attr("stroke-width", 1)
+			.attr("stroke-dasharray", 2);
+		d.append("path")
+			.attr("fill", "#444")
+			.attr("stroke-width", 0)
+			.attr("stroke", "#444")
+			.attr("d", "M " + Math.ceil(bs/3) + " " + Math.floor(bs * 2 / 3) + 
+								" L 0 " + Math.ceil(3 * bs / 4) + 
+								" l " + bs/12 + " " + bs/12 + 
+								" L 0 " + (9 * bs / 10) +
+								" L " + bs/10 + " " + bs +
+								" L " + (11 * bs / 60) + " " + (11 * bs / 12) + 
+								" L " + Math.floor(bs/4) + " " + bs + 
+								" L " + Math.ceil(bs/3) + " " + Math.floor(bs * 2 / 3));
+		d.append("circle")
+			.attr("cx", Math.floor(bs/5))
+			.attr("cy", Math.floor(bs/5))
+			.attr("r", 2)
+			.attr("fill", "#444");
+		d.append("circle")
+			.attr("cx", Math.floor(4 * bs / 5))
+			.attr("cy", Math.floor(4 * bs / 5))
+			.attr("r", 2)
+			.attr("fill", "#444");
+		d.append("circle")
+			.attr("cx", Math.floor(2 * bs / 3))
+			.attr("cy", Math.floor(bs / 3))
+			.attr("r", 3)
+			.attr("fill", "#111");
+
+		d = defs.append("g")
+			.attr("id", "zoomIn");
+		d.append("path")
+			.attr("fill", "#444")
+			.attr("d", "M " + (2 * bs / 5) + " 0" + 
+								" h " + bs/5 + 
+								" v " + (2 * bs / 5) + 
+								" h " + (2 * bs / 5) +
+								" v " + bs/5 +
+								" h -" + (2 * bs / 5) +
+								" v " + (2 * bs / 5) +
+								" h -" + bs/5 + 
+								" v -" + (2 * bs / 5) +
+								" h -" + (2 * bs / 5) +
+								" v -" + bs/5 + 
+								" h " + (2 * bs / 5) +
+								" v -"+ (2 * bs / 5));
+
+		d = defs.append("g")
+			.attr("id", "zoomOut");
+		d.append("rect")
+			.attr("y", 3 * bs / 8)
+			.attr("height", bs/4)
+			.attr("width", bs)
+			.attr("fill", "#444");
+
+		defs.selectAll("rect")
+			.attr("transform", "translate(5, 5)");
+		defs.selectAll("path")
+			.attr("transform", "translate(5, 5)");
+		defs.selectAll("text")
+			.attr("transform", "translate(5, 5)");
+		defs.selectAll("circle")
+			.attr("transform", "translate(5, 5)");
 	}
 
 	return panel;

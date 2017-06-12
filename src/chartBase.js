@@ -22,6 +22,7 @@ export function chartBase() {
 		.add_property("markedUpdated", function() {})
 		.add_property("showPanel", true); 
 	
+	chart.selectMode = false;
 	chart.transition = undefined;
   chart.width("_override_", "plotWidth", function(){
   			return chart.get_width() - 
@@ -81,6 +82,83 @@ export function chartBase() {
 			.attr("class", "plotArea");
 		if(chart.showPanel()){
 			chart.panel = panel(chart);
+
+			chart.panel.add_button("Save plot as png", "#save", function(chart){
+				function drawInlineSVG(svgElement, ctx, callback){
+  				var svgURL = new XMLSerializer().serializeToString(svgElement);
+  				var img  = new Image();
+  				img.onload = function(){
+    				ctx.drawImage(this, 0,0);
+    				callback();
+    			}
+  			img.src = 'data:image/svg+xml; charset=utf8, '+encodeURIComponent(svgURL);
+ 				}
+
+ 				chart.svg.select(".panel_g")
+ 					.style("display", "none");
+
+				var canvas = document.createElement('canvas');
+				canvas.height = chart.svg.attr('height');
+				canvas.width = chart.svg.attr('width');
+
+				chart.svg.selectAll("text").attr("fill", "black");
+				drawInlineSVG(chart.svg.node(), canvas.getContext("2d"), 
+					function(){
+						var dataURL = canvas.toDataURL('image/png');
+						var data = atob(dataURL.substring('data:image/png;base64,'.length)),
+		        								asArray = new Uint8Array(data.length);
+
+						for (var i = 0, len = data.length; i < len; ++i)
+		    			asArray[i] = data.charCodeAt(i);
+
+						var blob = new Blob([asArray.buffer], {type: 'image/png'});
+						saveAs(blob, 'export_' + Date.now() + '.png');
+					});
+ 				chart.svg.select(".panel_g")
+ 					.style("display", undefined);
+			});
+
+			chart.panel.add_button("Save plot as svg", "#svg", function(chart){
+ 				chart.svg.select(".panel_g")
+ 					.style("display", "none");
+
+				var html = chart.svg
+    	    .attr("xmlns", "http://www.w3.org/2000/svg")
+      	  .node().parentNode.innerHTML;
+
+		    var blob = new Blob([html], {type: "image/svg+xml"});
+				saveAs(blob, 'export_' + Date.now() + '.svg');
+
+ 				chart.svg.select(".panel_g")
+ 					.style("display", undefined);
+			});
+
+			chart.panel.add_button("Select elements", "#selection", function(chart, button){
+				if(button.classed("clicked")){
+					button
+						.classed("clicked", false)
+						.attr("opacity", 0.6)
+						.on("mouseout", function() {
+							d3.select(this)
+								.attr("opacity", 0.6);
+						})
+					chart.selectMode = false;
+				} else {
+					button
+						.classed("clicked", true)
+						.attr("opacity", 1)
+						.on("mouseout", function() {});
+					chart.selectMode = true;
+				}
+			});
+
+			chart.panel.add_button("Zoom in", "#zoomIn", function(chart){
+
+			});
+			chart.panel.add_button("Zoom out", "#zoomOut", function(chart){
+
+			});
+
 			chart.panel.put_static_content();
 		}
 
@@ -351,12 +429,8 @@ export function layerChartBase(){
 					.append("td").node()
 						.appendChild(chart.svg.node());
 		//chart.svg.remove();
-		//chart.svg = chart.container.select("svg");
+		chart.svg = chart.container.select("svg");
 
-		chart.viewBox = chart.svg.append("defs")
-			.append("clipPath")
-				.attr("id", "viewBox")
-				.append("rect");
 		//add a cell for the legend
 		chart.legend.location(chart.container.select("tr")
 													.append("td").attr("id", "legend"));

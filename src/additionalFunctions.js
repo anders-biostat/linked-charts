@@ -180,7 +180,7 @@ export function add_click_listener(chart){
   }
 
   var on_mouseup = function(){
-    var mark = d3.event.shiftKey;
+    var mark = d3.event.shiftKey || chart.selectMode;
     // remove selection frame
     chart.container.select(".inform")
       .classed("blocked", false);
