@@ -64,7 +64,8 @@ export function chartBase() {
   }
 
   chart.put_static_content = function( element ) {
-		chart.container = element.append("div");
+		chart.container = element.append("div")
+			.style("position", "relative");
 		chart.container.node().ondragstart = function() { return false; };
 		chart.svg = chart.container.append("svg");
 		chart.viewBox = chart.svg.append("defs")
@@ -171,8 +172,8 @@ export function chartBase() {
 			.on("end", chart.defineTransition);
 	}
 
-	chart.mark = function(selection) {
-		if(selection == "__clear__"){
+	chart.mark = function(markIds) {
+		if(markIds == "__clear__"){
 			chart.svg.selectAll(".data_point.marked")
 				.classed("marked", false);
 			chart.svg.selectAll(".data_point")
@@ -180,7 +181,14 @@ export function chartBase() {
 			chart.markedUpdated();
 			return;
 		}
-
+		markIds = markIds.map(function(e) {return lc.escapeRegExp(e).replace(/ /g, "_")});
+		if(markIds.length > 0){
+			var selection = chart.svg.selectAll(
+		 		"#" + markIds.join(", #"));
+		} else{
+			var selection = char.svg.select("_____");
+		}
+		
 		if(chart.svg.selectAll(".data_point.marked").empty())
 			chart.svg.selectAll(".data_point")
 				.attr("opacity", 0.5);
@@ -407,7 +415,7 @@ export function layerChartBase(){
 	chart.findPoints = function(lu, rb){
 		var selPoints = [];
 		chart.svg.selectAll(".chart_g").each(function(){
-			selPoints.unshift(
+			selPoints = selPoints.concat(
 				chart.get_layer(d3.select(this).attr("id")).findPoints(lu, rb)
 			);
 		});

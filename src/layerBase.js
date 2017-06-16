@@ -180,7 +180,7 @@ export function layerBase(id) {
   	return layer;
   };
   layer.updatePointLocation = function() {};
-  layer.findPoints = function() {return layer.g.select("___");}; //return empty selection	
+  layer.findPoints = function() {return [];}; //return empty selection	
 	
 	return layer;
 }

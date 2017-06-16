@@ -16,6 +16,7 @@ export function heatmapChart(id, chart){
 		.add_property("heatmapRow", function(rowId) {return chart.get_dispRowIds().indexOf(rowId);})
 		.add_property("heatmapCol", function(colId) {return chart.get_dispColIds().indexOf(colId);})
 		.add_property("value")
+		.add_property("mode", "default")
 		.add_property("colour", function(val) {return chart.colourScale(val);})
 		.add_property("palette", d3.interpolateOrRd) //? Do we need it? Really
 		.add_property("colourRange", function() {return chart.dataRange()})
@@ -46,12 +47,12 @@ export function heatmapChart(id, chart){
 	chart.colIds("_override_", "ncols", function(){
 		return chart.get_colIds().length;
 	});
-/*	chart.dispRowIds("_override_", "nrows", function(){
+	chart.dispRowIds("_override_", "nrows", function(){
 		return chart.get_dispRowIds().length;
 	});
 	chart.dispColIds("_override_", "ncols", function(){
 		return chart.get_dispColIds().length;
-	}); */
+	}); 
 	chart.axes = {};
 
 	var inherited_put_static_content = chart.put_static_content;
@@ -63,7 +64,9 @@ export function heatmapChart(id, chart){
 			.attr("class", "row label_panel");
 		chart.svg.append("g")
 			.attr("class", "col label_panel");
-				//delete canvas if any
+		chart.canvas = chart.container.append("canvas")
+			.style("position", "absolute")
+			.style("z-index", -5);		
 		chart.g = chart.svg.select(".plotArea").append("g")
 			.attr("class", "chart_g")
 			.attr("clip-path", "url(#viewBox)");
@@ -78,32 +81,47 @@ export function heatmapChart(id, chart){
 			.attr("transform", "rotate(-90)");
 		chart.svg.append("g")
 			.attr("class", "legend_panel");
+
+		(get_mode() == "svg") ? chart.g.classed("active", true) : 
+														chart.canvas.classed("active", true);
+	}
+
+	var get_mode = function() {
+		if(chart.mode() == "default")
+			return chart.ncols() * chart.nrows() > 5000 ? "canvas" : "svg";
+		return chart.mode();
 	}
 
 	chart.findPoints = function(lu, rb){
-		var selectedPoints = chart.g.selectAll(".data_point")
-			.filter(function() {
-				var loc = [this.x.baseVal.value, this.y.baseVal.value];
-				return (loc[0] <= rb[0]) && (loc[1] <= rb[1]) && 
-					(loc[0] + chart.cellSize.width >= lu[0]) && 
-					(loc[1] + chart.cellSize.height >= lu[1]);
+		var selectedIds = [];
+		if(get_mode() == "svg") {
+			var selectedPoints = chart.g.selectAll(".data_point")
+				.filter(function() {
+					var loc = [this.x.baseVal.value, this.y.baseVal.value];
+					return (loc[0] <= rb[0]) && (loc[1] <= rb[1]) && 
+						(loc[0] + chart.cellSize.width >= lu[0]) && 
+						(loc[1] + chart.cellSize.height >= lu[1]);
+				});
+			selectedIds = selectedPoints.data().map(function(e){
+				return "p" + e[0] + "_-sep-_" + e[1];
 			});
-		if(!selectedPoints.empty())
-			return selectedPoints;
-		if(lu[0] * lu[1] < 0 && rb[0] * rb[1] < 0 )
-			if(lu[0] < 0)
-				selectedPoints = chart.svg.select(".row").selectAll(".label")
-					.filter(function(){
-						var loc = d3.select(this).attr("dy") * 1;
-						return lu[1] >= loc - chart.cellSize.height && rb[1] <= loc;
-					})
-			else
-				selectedPoints = chart.svg.select(".col").selectAll(".label")
-					.filter(function(){
-						var loc = d3.select(this).attr("dy") * 1;
-						return lu[0] >= loc - chart.cellSize.width && rb[0] <= loc;
-					});
-		return selectedPoints;
+		} else {
+			var selCols = chart.svg.select(".col").selectAll(".label")
+				.filter(function() {
+					var loc = this.y.baseVal[0].value;
+					return (loc >= lu[0] && loc <= rb[0] + chart.cellSize.width)
+				}).data(),
+				selRows = chart.svg.select(".row").selectAll(".label")
+				.filter(function() {
+					var loc = this.y.baseVal[0].value;
+					return (loc >= lu[1] && loc <= rb[1] + chart.cellSize.height)
+				}).data();
+			for(var i = 0; i < selRows.length; i++)
+				for(var j = 0; j < selCols.length; j++)
+					selectedIds.push("p" + selRows[i] + "_-sep-_" + selCols[j]);
+		}
+
+		return selectedIds;
 	}	
 	//returns maximum and minimum values of the data
 	chart.dataRange = function(){
@@ -227,6 +245,11 @@ export function heatmapChart(id, chart){
 				.attr("font-size", d3.min([chart.get_margin().right - 2, 15]))
 				.attr("x", - chart.get_margin().top)
 				.attr("y", chart.get_width());
+			chart.canvas.transition(chart.transition)
+				.style("left", chart.margin().left)
+				.style("top", chart.margin().top)
+				.attr("width", chart.plotWidth())
+				.attr("height", chart.plotHeight());
 		} else {
 			chart.svg.selectAll(".label_panel")
 				.attr("transform", "translate(" + chart.get_margin().left + ", " +
@@ -242,7 +265,11 @@ export function heatmapChart(id, chart){
 				.attr("font-size", d3.min([chart.get_margin().right - 2, 15]))
 				.attr("x", - chart.get_margin().top)
 				.attr("y", chart.get_width());
-
+			chart.canvas
+				.style("left", chart.margin().left)
+				.style("top", chart.margin().top)
+				.attr("width", chart.plotWidth())
+				.attr("height", chart.plotHeight());
 		}
 
 		chart.updateLegendSize();
@@ -272,18 +299,18 @@ export function heatmapChart(id, chart){
 		if(typeof chart.transition !== "undefined"){
 			chart.svg.select(".col").selectAll(".label").transition(chart.transition)
 				.attr("font-size", d3.min([chart.cellSize.width, 12]))
-				.attr("dy", function(d) {return chart.axes.scale_x(chart.get_heatmapCol(d) + 1);});
+				.attr("y", function(d) {return chart.axes.scale_x(chart.get_heatmapCol(d) + 1);});
 			chart.svg.select(".row").selectAll(".label").transition(chart.transition)
 				.attr("font-size", d3.min([chart.cellSize.height, 12]))
-				.attr("dy", function(d) {return chart.axes.scale_y(chart.get_heatmapRow(d) + 1);});
+				.attr("y", function(d) {return chart.axes.scale_y(chart.get_heatmapRow(d) + 1);});
 		
 		} else {
 			chart.svg.select(".col").selectAll(".label")
 				.attr("font-size", d3.min([chart.cellSize.width, 12]))
-				.attr("dy", function(d) {return chart.axes.scale_x(chart.get_heatmapCol(d) + 1);});
+				.attr("y", function(d) {return chart.axes.scale_x(chart.get_heatmapCol(d) + 1);});
 			chart.svg.select(".row").selectAll(".label")
 				.attr("font-size", d3.min([chart.cellSize.height, 12]))
-				.attr("dy", function(d) {return chart.axes.scale_y(chart.get_heatmapRow(d) + 1);});
+				.attr("y", function(d) {return chart.axes.scale_y(chart.get_heatmapRow(d) + 1);});
 		}
 		chart.updateCellPosition();
 		return chart;
@@ -307,6 +334,7 @@ export function heatmapChart(id, chart){
 				.style("text-anchor", "start")
 				.attr("dx", 2)
 				.merge(colLabels)
+					.attr("id", function(d) {return d.replace(/ /g,"_")})
 					.on("mouseover", chart.labelMouseOver)
 					.on("mouseout", chart.labelMouseOut)
 					.on("click", chart.labelClick);
@@ -316,6 +344,7 @@ export function heatmapChart(id, chart){
 				.style("text-anchor", "end")
 				.attr("dx", -2)
 				.merge(rowLabels)
+					.attr("id", function(d) {return d.replace(/ /g,"_")})
 					.on("mouseover", chart.labelMouseOver)
 					.on("mouseout", chart.labelMouseOut)
 					.on("click", chart.labelClick);
@@ -341,15 +370,14 @@ export function heatmapChart(id, chart){
 
 	chart.zoom = function(lu, rb){
 		var selectedCells = chart.findPoints(lu, rb);
-		if(selectedCells.size() < 2)
+		if(selectedCells.length < 2)
 			return;
-		var rowIdsAll = selectedCells.data().map(function(d){
-				return d[0];
-			}),
-			colIdsAll = selectedCells.data().map(function(d){
-				return d[1];
-			}),
-			rowIds = [], colIds = [];
+		var rowIdsAll = [], colIdsAll = [];
+		selectedCells.map(function(e){
+			rowIdsAll.push(e.substr(1).split("_-sep-_")[0]);
+			colIdsAll.push(e.substr(1).split("_-sep-_")[1]);
+		});
+		var rowIds = [], colIds = [];
 
 		for(var i = 0; i < rowIdsAll.length; i++)
 			if(rowIds.indexOf(rowIdsAll[i]) == -1)
@@ -369,7 +397,6 @@ export function heatmapChart(id, chart){
 	chart.resetDomain = function(){
 		chart.dispColIds(chart.get_colIds);
 		chart.dispRowIds(chart.get_rowIds);
-		chart.mark("__clear__");
 		chart.updateLabels()
 			.updateLabelPosition()
 			.updateCellColour()
@@ -388,6 +415,7 @@ export function heatmapChart(id, chart){
 	//some default onmouseover and onmouseout behaviour for cells and labels
 	//may be later moved out of the main library
 	chart.pointMouseOver = function(d) {
+		var pos = d3.mouse(chart.container.node());
 		//change colour and class
 		d3.select(this)
 			.attr("fill", function(d) {
@@ -409,8 +437,8 @@ export function heatmapChart(id, chart){
 			.classed("hidden", false);
 		} else {
 		chart.container.select(".inform")
-			.style("left", (d3.event.pageX + 10) + "px")
-			.style("top", (d3.event.pageY - 10) + "px")
+			.style("left", (pos[0] + 10) + "px")
+			.style("top", (pos[1] + 10) + "px")
 			.select(".value")
 				.html(function() {return chart.get_informText(d[0], d[1])});  
 		chart.container.select(".inform")
@@ -459,84 +487,118 @@ export function heatmapChart(id, chart){
 	};
 	
 	chart.updateCellColour = function() {
-		if(typeof chart.transition !== "undefined")
-			chart.g.selectAll(".data_point").transition(chart.transition)
-				.attr("fill", function(d) {
-					return chart.get_colour(chart.get_value(d[0], d[1]));
-			})
-		else
-			chart.g.selectAll(".data_point")
-				.attr("fill", function(d) {
-					return chart.get_colour(chart.get_value(d[0], d[1]));
-			});
-		chart.svg.selectAll(".sorted")
-			.classed("selected", false)
-			.classed("sorted", false);
+		if(!chart.checkMode())
+			return chart;
 
-		if(chart.get_showValue())
-			chart.updateTextValues();
+		if(get_mode() == "svg") {
+			if(typeof chart.transition !== "undefined")
+				chart.g.selectAll(".data_point").transition(chart.transition)
+					.attr("fill", function(d) {
+						return chart.get_colour(chart.get_value(d[0], d[1]));
+				})
+			else
+				chart.g.selectAll(".data_point")
+					.attr("fill", function(d) {
+						return chart.get_colour(chart.get_value(d[0], d[1]));
+				});
+			chart.svg.selectAll(".sorted")
+				.classed("selected", false)
+				.classed("sorted", false);
+
+			if(chart.get_showValue())
+				chart.updateTextValues();
+		} else {
+			if(!chart.updateStarted)
+				chart.updateCanvas();
+		}
+		
 		return chart;
 	}
 
 	chart.updateCells = function(){
-		//add rows
-		var rows = chart.g.selectAll(".data_row")
-			.data(chart.get_dispRowIds(), function(d) {return d;});
-		rows.exit()
-			.remove();
-		rows.enter()
-			.append("g")
-				.attr("class", "data_row");
+		if(!chart.checkMode())
+			return chart;
 
-		//add cells	
-		var cells = chart.g.selectAll(".data_row").selectAll(".data_point")
-			.data(function(d) {
-				return chart.get_dispColIds().map(function(e){
-					return [d, e];
-				})
-			}, function(d) {return d;});
-		cells.exit()
-			.remove();
-		cells.enter()
-			.append("rect")
-				.attr("class", "data_point")
-				.merge(cells)
-					.on("mouseover", chart.pointMouseOver)
-					.on("mouseout", chart.pointMouseOut)
-					.on("click", function(d) {
-						chart.get_on_click.apply(this, [d[0], d[1]]);
-					});
-		
-		if(chart.get_showValue())
-			chart.updateTexts();
+		var markedCells = chart.g.selectAll(".marked").size();
+		if(get_mode() == "svg") {
+			//add rows
+			var rows = chart.g.selectAll(".data_row")
+				.data(chart.get_dispRowIds(), function(d) {return d;});
+			rows.exit()
+				.remove();
+			rows.enter()
+				.append("g")
+					.attr("class", "data_row");
+
+			//add cells	
+			var cells = chart.g.selectAll(".data_row").selectAll(".data_point")
+				.data(function(d) {
+					return chart.get_dispColIds().map(function(e){
+						return [d, e];
+					})
+				}, function(d) {return d;});
+			cells.exit()
+				.remove();
+			cells.enter()
+				.append("rect")
+					.attr("class", "data_point")
+					.attr("opacity", 0.5)
+					.merge(cells)
+						.attr("id", function(d) {return "p" + (d[0] + "_-sep-_" + d[1]).replace(/ /g,"_")})
+						.attr("rowId", function(d) {return d[0];})
+						.attr("colId", function(d) {return d[1];})
+						.on("mouseover", chart.pointMouseOver)
+						.on("mouseout", chart.pointMouseOut)
+						.on("click", function(d) {
+							chart.get_on_click.apply(this, [d[0], d[1]]);
+						});
+			if(chart.get_showValue())
+				chart.updateTexts();
+		} else {
+			chart.updateCanvas();
+		}
+
+		var newMarked = chart.g.selectAll(".marked");
+		if(markedCells > newMarked.size())
+			chart.markedUpdated();
+		if(newMarked.size() == 0)
+			chart.g.selectAll(".data_point")
+				.attr("opacity", 1);
+
 		
 		return chart;
 	}
 
 	chart.updateCellPosition = function(){
-		if(typeof chart.transition !== "undefined")
-			chart.g.selectAll(".data_point").transition(chart.transition)
-				.attr("x", function(d){
-					return chart.axes.scale_x(chart.get_heatmapCol(d[1]));
-				})
-				.attr("width", chart.cellSize.width)
-				.attr("height", chart.cellSize.height)								
-				.attr("y", function(d) {
-					return chart.axes.scale_y(chart.get_heatmapRow(d[0]))
-				})
-		else
-			chart.g.selectAll(".data_point")
-				.attr("x", function(d){
-					return chart.axes.scale_x(chart.get_heatmapCol(d[1]));
-				})
-				.attr("width", chart.cellSize.width)
-				.attr("height", chart.cellSize.height)								
-				.attr("y", function(d) {
-					return chart.axes.scale_y(chart.get_heatmapRow(d[0]))
-				});
+		if(!chart.checkMode())
+			return chart;
 
-		if(chart.get_showValue())
-			chart.updateTextPosition();
+		if(get_mode() == "svg"){
+			if(typeof chart.transition !== "undefined")
+				chart.g.selectAll(".data_point").transition(chart.transition)
+					.attr("x", function(d){
+						return chart.axes.scale_x(chart.get_heatmapCol(d[1]));
+					})
+					.attr("width", chart.cellSize.width)
+					.attr("height", chart.cellSize.height)								
+					.attr("y", function(d) {
+						return chart.axes.scale_y(chart.get_heatmapRow(d[0]))
+					})
+			else
+				chart.g.selectAll(".data_point")
+					.attr("x", function(d){
+						return chart.axes.scale_x(chart.get_heatmapCol(d[1]));
+					})
+					.attr("width", chart.cellSize.width)
+					.attr("height", chart.cellSize.height)								
+					.attr("y", function(d) {
+						return chart.axes.scale_y(chart.get_heatmapRow(d[0]))
+					});
+			if(chart.get_showValue())
+				chart.updateTextPosition();
+		} else {
+			chart.updateCanvas();
+		}
 
 		return chart;
 	}
@@ -689,6 +751,72 @@ export function heatmapChart(id, chart){
 			.selectAll(".legend_block").selectAll("rect")
 				.attr("fill", function(d) {return chart.colourScale(range[0] + step * d)});
 	}
+
+	chart.checkMode = function(){
+		if((get_mode() == "svg") && (chart.canvas.classed("active"))) {
+			chart.canvas.classed("active", false);
+			chart.g.classed("active", true);
+			chart.canvas.node().getContext("2d")
+				.clearRect(0, 0, chart.plotWidth(), chart.plotHeight());
+			add_click_listener(chart);
+			if(chart.updateStarted)
+				return true;
+			else{			
+				chart.update();
+				return false;
+			}
+		}
+		if((get_mode() == "canvas") && chart.g.classed("active")){
+			chart.canvas.classed("active", true);
+			chart.g.classed("active", false);
+			while (chart.g.node().firstChild) 
+    		chart.g.node().removeChild(chart.g.node().firstChild);
+		}
+		return true;
+	}
+
+	chart.updateCanvas = function(){
+		var ctx = chart.canvas.node().getContext("2d");
+		var ncols = chart.ncols(), nrows = chart.nrows(),
+			rowIds = chart.dispRowIds(),
+			colIds = chart.dispColIds();
+		var pixelHeatmap = document.createElement("canvas");
+		pixelHeatmap.width = ncols;
+		pixelHeatmap.height = nrows;
+		
+		//store colour of each cell
+		var rgbColour, position;
+		//create an object to store information on each cell of a heatmap
+		var pixelData = new ImageData(ncols, nrows);
+
+		for(var i = 0; i < nrows; i++)
+			for(var j = 0; j < ncols; j++) {
+					rgbColour = d3.rgb(chart.get_colour(chart.get_value(rowIds[i], 
+																													colIds[j])));
+					position = chart.get_heatmapRow(rowIds[i]) * ncols * 4 +
+						chart.get_heatmapCol(colIds[j]) * 4;
+					pixelData.data[position] = rgbColour.r;
+					pixelData.data[position + 1] = rgbColour.g;
+					pixelData.data[position + 2] = rgbColour.b;
+			}
+		//set opacity of all the pixels to 1
+		for(var i = 0; i < ncols * nrows; i++)
+			pixelData.data[i * 4 + 3] = 255;
+		
+		//put a small heatmap on screen and then rescale it
+		pixelHeatmap.getContext("2d").putImageData(pixelData, 0 , 0);
+
+		ctx.imageSmoothingEnabled = false;
+		//probaly no longer required, but let it stay here just in case
+    //heatmapBody.mozImageSmoothingEnabled = false;
+		//heatmapBody.webkitImageSmoothingEnabled = false;
+    //heatmapBody.msImageSmoothingEnabled = false;
+
+		ctx.drawImage(pixelHeatmap, 0, 0, 
+			ncols, nrows,
+			0, 0,	chart.width(), chart.height());
+
+	}
 	
 	chart.update = function() {
 		chart.updateTitle();
@@ -697,10 +825,12 @@ export function heatmapChart(id, chart){
 			.text(chart.get_colTitle());
 		chart.axes.y_label
 			.text(chart.get_rowTitle());
+		chart.updateStarted = true;
 		chart.updateLabels()
 			.updateSize()
 			.updateLabelText()
 			.updateCellColour();
+		chart.updateStarted = false;
 
 		return chart;
 	}

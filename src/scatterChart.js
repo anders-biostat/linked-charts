@@ -49,6 +49,7 @@ export function scatterChart(id, chart) {
 
   //default hovering behaviour
   layer.pointMouseOver(function(d){
+    var pos = d3.mouse(chart.container.node());
     //change colour and class
     d3.select(this)
       .attr("fill", function(d) {
@@ -57,8 +58,8 @@ export function scatterChart(id, chart) {
       .classed("hover", true);
     //show label
     layer.chart.container.select(".inform")
-        .style("left", (d3.event.pageX + 10) + "px")
-        .style("top", (d3.event.pageY - 10) + "px")
+        .style("left", (pos[0] + 10) + "px")
+        .style("top", (pos[1] + 10) + "px")
         .select(".value")
           .html("ID: <b>" + d + "</b>;<br>" + 
             "x = " + layer.get_x(d).toFixed(2) + ";<br>" + 
@@ -87,7 +88,7 @@ export function scatterChart(id, chart) {
           (loc[1] - layer.get_size(d) <= rb[1]) && 
           (loc[0] + layer.get_size(d) >= lu[0]) && 
           (loc[1] + layer.get_size(d) >= lu[1]);
-      });
+      }).nodes().map(function(e) {return e.getAttribute("id")});
   }
 
 	layer.layerDomainX(function() {
@@ -170,6 +171,7 @@ export function scatterChart(id, chart) {
     sel.enter().append( "path" )
       .attr( "class", "data_point" )
       .merge(sel)
+        .attr("id", function(d) {return "p" + (layer.id + "_" + d).replace(/ /g,"_");})
         .on( "click", layer.get_on_click )
         .on( "mouseover", layer.get_pointMouseOver )
         .on( "mouseout", layer.get_pointMouseOut );

@@ -26,6 +26,7 @@ export function lineChart(id, chart){
 				.attr("class", "data_point")
 				.attr("fill", "none")
 			.merge(lines)
+				.attr("id", function(d) {return "p" + (layer.id + "_" + d).replace(/ /g,"_");})
         .on( "click", layer.get_on_click )
         .on( "mouseover", layer.get_pointMouseOver )
         .on( "mouseout", layer.get_pointMouseOut );			
