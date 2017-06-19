@@ -54,6 +54,7 @@ export function heatmapChart(id, chart){
 		return chart.get_dispColIds().length;
 	}); 
 	chart.axes = {};
+	chart.marked = [];
 
 	var inherited_put_static_content = chart.put_static_content;
 	chart.put_static_content = function(element){
@@ -351,23 +352,21 @@ export function heatmapChart(id, chart){
 	}
 
 	chart.updateLabelPosition = function(){
-		var ncols = chart.get_dispColIds().length,
-			nrows = chart.get_dispRowIds().length;
+		var ncols = chart.dispColIds().length,
+			nrows = chart.dispRowIds().length;
 
 		//calculate cell size
 		chart.cellSize = {
-			width: chart.get_plotWidth() / ncols,
-			height: chart.get_plotHeight() / nrows
+			width: chart.plotWidth() / ncols,
+			height: chart.plotHeight() / nrows
 		}
 		//create scales
 		chart.axes.scale_x = d3.scaleLinear()
 			.domain( [0, ncols - 1] )
-			.range( [0, chart.get_plotWidth() - chart.cellSize.width] )
-			.nice();
+			.range( [0, chart.plotWidth() - chart.cellSize.width] );
 		chart.axes.scale_y = d3.scaleLinear()
 			.domain( [0, nrows - 1] )
-			.range( [0, chart.get_plotHeight() - chart.cellSize.height] )
-			.nice();
+			.range( [0, chart.plotHeight() - chart.cellSize.height] );
 
 		if(typeof chart.transition !== "undefined"){
 			chart.svg.select(".col").selectAll(".label").transition(chart.transition)
@@ -594,7 +593,8 @@ export function heatmapChart(id, chart){
 		if(!chart.checkMode())
 			return chart;
 
-		var markedCells = chart.g.selectAll(".marked").size();
+		var markedCells = chart.get_marked().length;
+
 		if(get_mode() == "svg") {
 			//add rows
 			var rows = chart.g.selectAll(".data_row")
@@ -630,14 +630,25 @@ export function heatmapChart(id, chart){
 			if(chart.get_showValue())
 				chart.updateTexts();
 		} else {
+			var dispRowIds = chart.dispRowIds(),
+				dispColIds = chart.dispColIds(),
+				i = 0;
+
+			while(i < chart.marked.length)
+				if(dispRowIds.indexOf(chart.marked[i][0]) == -1 || dispColIds.indexOf(chart.marked[i][1]) == -1)
+					chart.marked.splice(i, 1);
+				else
+					i++;
+
 			if(!chart.updateStarted)
 				chart.updateCanvas();
 		}
 
-		var newMarked = chart.g.selectAll(".marked");
-		if(markedCells > newMarked.size())
+		var newMarked = chart.get_marked().length;
+
+		if(markedCells > newMarked)
 			chart.markedUpdated();
-		if(newMarked.size() == 0)
+		if(newMarked == 0)
 			chart.g.selectAll(".data_point")
 				.attr("opacity", 1);
 
@@ -854,6 +865,7 @@ export function heatmapChart(id, chart){
 	chart.updateCanvas = function(){
 		console.log("Canvas");
 		var ctx = chart.canvas.node().getContext("2d");
+		ctx.clearRect(0, 0, chart.plotWidth(), chart.plotHeight());
 		var ncols = chart.ncols(), nrows = chart.nrows(),
 			rowIds = chart.dispRowIds(),
 			colIds = chart.dispColIds();
@@ -876,9 +888,18 @@ export function heatmapChart(id, chart){
 					pixelData.data[position + 1] = rgbColour.g;
 					pixelData.data[position + 2] = rgbColour.b;
 			}
-		//set opacity of all the pixels to 1
-		for(var i = 0; i < ncols * nrows; i++)
-			pixelData.data[i * 4 + 3] = 255;
+		//set opacity of pixels
+		if(chart.marked.length == 0)
+			for(var i = 0; i < ncols * nrows; i++)
+				pixelData.data[i * 4 + 3] = 255
+		else
+			for(var i = 0; i < ncols * nrows; i++)
+				pixelData.data[i * 4 + 3] = 75;
+		for(var i = 0; i < chart.marked.length; i++){
+			position = chart.get_heatmapRow(chart.marked[i][0]) * ncols * 4 +
+						chart.get_heatmapCol(chart.marked[i][1]) * 4;			
+			pixelData.data[position + 3] = 255;
+		}
 		
 		//put a small heatmap on screen and then rescale it
 		pixelHeatmap.getContext("2d").putImageData(pixelData, 0 , 0);
@@ -891,15 +912,57 @@ export function heatmapChart(id, chart){
 
 		ctx.drawImage(pixelHeatmap, 0, 0, 
 			ncols, nrows,
-			0, 0,	chart.width(), chart.height());
+			0, 0,	chart.plotWidth(), chart.plotHeight());
 
 	}
 
 	chart.getPoints = function(data){
-		if(data.length == 2 && data[0].substr)
-			data = [data];
-		data = data.map(function(e) {return lc.escapeRegExp(e.join("_-sep-_")).replace(/ /g, "_")});
-		return chart.svg.selectAll("#p" + data.join(", #p"));
+		if(get_mode() == "svg") {
+			if(data.length == 2 && data[0].substr)
+				data = [data];
+			data = data.map(function(e) {return lc.escapeRegExp(e.join("_-sep-_")).replace(/ /g, "_")});
+			return chart.svg.selectAll("#p" + data.join(", #p"));
+		} else {
+			return data;
+		}
+	}
+
+	var inherited_get_marked = chart.get_marked;
+	chart.get_marked = function(){
+		if(get_mode() == "svg")
+			return inherited_get_marked()
+		else
+			return chart.marked;
+	}
+
+	var inherited_mark = chart.mark;
+	chart.mark = function(marked){
+		if(get_mode() == "svg")
+			inherited_mark(marked)
+		else {
+			if(marked == "__clear__")
+				chart.marked = []
+			else {
+				if(marked.length == 2 && marked[0].substr)
+					marked = [marked];
+				var ids = chart.marked.map(function(e) {return e.join("_")}),
+					ind;
+				for(var i = 0; i < marked.length; i++){
+					ind = ids.indexOf(marked[i].join("_"));
+					if(ind == -1)
+						chart.marked.push(marked[i])
+					else {
+						chart.marked.splice(ind, 1);
+						ids.splice(ind, 1);
+					}
+				}
+			}
+		}
+
+		if(get_mode() == "canvas")
+			chart.updateCanvas();
+		chart.markedUpdated();
+		return chart;
 	}	
 	
 	chart.update = function() {

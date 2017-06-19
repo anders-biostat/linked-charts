@@ -204,6 +204,10 @@ export function chartBase() {
 		chart.markedUpdated();
 	}
 
+	chart.get_marked = function(){
+		return chart.svg.selectAll(".marked").data();
+	}
+
 	chart.afterUpdate = function(){
 		if(chart.get_transitionDuration() != 0)
 			chart.defineTransition();
