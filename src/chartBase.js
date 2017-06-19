@@ -83,6 +83,7 @@ export function chartBase() {
 			.attr("class", "plotArea");
 		if(chart.showPanel()){
 			chart.panel = panel(chart);
+			chart.panel.put_static_content();
 
 			chart.panel.add_button("Save plot as png", "#save", function(chart){
 				function drawInlineSVG(svgElement, ctx, callback){
@@ -152,15 +153,6 @@ export function chartBase() {
 					chart.selectMode = true;
 				}
 			});
-
-			chart.panel.add_button("Zoom in", "#zoomIn", function(chart){
-
-			});
-			chart.panel.add_button("Zoom out", "#zoomOut", function(chart){
-
-			});
-
-			chart.panel.put_static_content();
 		}
 
 	}
@@ -626,7 +618,7 @@ export function axisChart() {
 			chart.axes.scale_x = d3.scaleLinear()
 				.nice();
 		else{
-			chart.axes.scale_x = d3.scalePoint()
+			chart.axes.scale_x = d3.scalePoint() 
 				.padding(0.3);	
 		}
 		chart.origDomainX = chart.get_domainX;
@@ -638,7 +630,29 @@ export function axisChart() {
 		else
 			chart.axes.scale_y = d3.scalePoint()
 				.padding(0.3); 
+
 		chart.origDomainY = chart.get_domainY;	
+		if(chart.showPanel()) {
+			chart.panel.add_button("Zoom in", "#zoomIn", function(chart){
+				var xDomain = chart.axes.scale_x.domain(),
+					yDomain = chart.axes.scale_y.domain();
+				chart.domainX([(xDomain[0] * 4 + xDomain[1])/5, 
+											(xDomain[0] + xDomain[1] * 4)/5]);
+				chart.domainY([(yDomain[0] * 4 + yDomain[1])/5, 
+											(yDomain[0] + yDomain[1] * 4)/5]);
+				chart.updateAxes();
+
+			});
+			chart.panel.add_button("Zoom out", "#zoomOut", function(chart){
+				var xDomain = chart.axes.scale_x.domain(),
+					yDomain = chart.axes.scale_y.domain();
+				chart.domainX([(xDomain[0] * 6 - xDomain[1])/5, 
+											(-xDomain[0] + xDomain[1] * 6)/5]);
+				chart.domainY([(yDomain[0] * 6 - yDomain[1])/5, 
+											(-yDomain[0] + yDomain[1] * 6)/5]);
+				chart.updateAxes();			
+			});
+		}
   }	
 	
 	var inherited_updateSize = chart.updateSize;

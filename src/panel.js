@@ -54,25 +54,7 @@ export function panel(chart) {
 
 		panel.g.append("g")
 			.attr("id", "buttonPanel")
-			.attr("class", "hidden");
-
-		var buttons = panel.g.select("#buttonPanel")
-			.selectAll(".button").data(panel.buttons);
-		buttons.enter().append("use")
-			.attr("opacity", 0.6)
-			.attr("class", "button")
-			.attr("xlink:href", function(d) {return d.icon})
-			.on("click", function(d) {d.fun(panel.chart, d3.select(this))})
-			.on("mouseover", function() {
-				d3.select(this)
-					.attr("opacity", 1);
-			})
-			.on("mouseout", function() {
-				d3.select(this)
-					.attr("opacity", 0.6);
-			})
-			.append("title")
-				.text(function(d) {return d.name});		
+			.attr("class", "hidden");		
 	}
 	
 	panel.updateSize = function() {
@@ -147,6 +129,24 @@ export function panel(chart) {
 			icon: icon,
 			fun: fun
 		});
+
+		var buttons = panel.g.select("#buttonPanel")
+			.selectAll(".button").data(panel.buttons, function(d) {return d.name;});
+		buttons.enter().append("use")
+			.attr("opacity", 0.6)
+			.attr("class", "button")
+			.attr("xlink:href", function(d) {return d.icon})
+			.on("click", function(d) {d.fun(panel.chart, d3.select(this))})
+			.on("mouseover", function() {
+				d3.select(this)
+					.attr("opacity", 1);
+			})
+			.on("mouseout", function() {
+				d3.select(this)
+					.attr("opacity", 0.6);
+			})
+			.append("title")
+				.text(function(d) {return d.name});		
 	}
 
 	panel.show = function(){

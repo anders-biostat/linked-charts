@@ -231,7 +231,7 @@ export function add_click_listener(chart){
           clickFun.call(click.node(), click.datum());
         } else { //required for canvas and therefore supposed to be used only in case of a heatmap
           data = clickedPoints[i].substr(1).split("_-sep-_");
-          chart.get_on_click(data);
+          chart.get_on_click(data[0], data[1]);
         }
       }
     } else {
