@@ -164,8 +164,8 @@ export function chartBase() {
 			.on("end", chart.defineTransition);
 	}
 
-	chart.mark = function(markIds) {
-		if(markIds == "__clear__"){
+	chart.mark = function(marked) {
+		if(marked == "__clear__"){
 			chart.svg.selectAll(".data_point.marked")
 				.classed("marked", false);
 			chart.svg.selectAll(".data_point")
@@ -173,24 +173,27 @@ export function chartBase() {
 			chart.markedUpdated();
 			return;
 		}
-		markIds = markIds.map(function(e) {return lc.escapeRegExp(e).replace(/ /g, "_")});
-		if(markIds.length > 0){
-			var selection = chart.svg.selectAll(
-		 		"#" + markIds.join(", #"));
-		} else{
-			var selection = char.svg.select("_____");
+		//marked can be either an array of IDs or a selection
+		if(typeof marked.empty === "undefined") {
+			marked = marked.map(function(e) {return lc.escapeRegExp(e).replace(/ /g, "_")});
+			if(marked.length > 0){
+				var marked = chart.svg.selectAll(
+			 		"#" + marked.join(", #"));
+			} else{
+				var marked = chart.svg.select("_____");
+			}
 		}
 		
 		if(chart.svg.selectAll(".data_point.marked").empty())
 			chart.svg.selectAll(".data_point")
 				.attr("opacity", 0.5);
-		selection.classed("switch", true);
-		if(selection.size() < 2)
-			selection.filter(function() {return d3.select(this).classed("marked");})
+		marked.classed("switch", true);
+		if(marked.size() < 2)
+			marked.filter(function() {return d3.select(this).classed("marked");})
 				.classed("switch", false)
 				.classed("marked", false)
 				.attr("opacity", 0.5);
-		selection.filter(function() {return d3.select(this).classed("switch");})
+		marked.filter(function() {return d3.select(this).classed("switch");})
 			.classed("marked", true)
 			.classed("switch", false)
 			.attr("opacity", 1);
@@ -260,6 +263,11 @@ export function chartBase() {
 	chart.updateTitle = function(){
 		chart.svg.select(".title")
 			.text(chart.title());		
+	}
+
+	chart.getPoints = function(data){
+		data = data.map(function(e) {return lc.escapeRegExp(e).replace(/ /g, "_")});
+		return chart.svg.selectAll("#p" + data.join(", #p"));
 	}
 
 	chart.update = function(){
@@ -400,7 +408,8 @@ export function layerChartBase(){
 						return layerSelection;
 					} })(prop);
 			}
-
+		if(layerSelection.length == 0)
+			return chart;
 		return layerSelection;
 	}
 

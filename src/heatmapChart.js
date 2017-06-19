@@ -894,6 +894,13 @@ export function heatmapChart(id, chart){
 			0, 0,	chart.width(), chart.height());
 
 	}
+
+	chart.getPoints = function(data){
+		if(data.length == 2 && data[0].substr)
+			data = [data];
+		data = data.map(function(e) {return lc.escapeRegExp(e.join("_-sep-_")).replace(/ /g, "_")});
+		return chart.svg.selectAll("#p" + data.join(", #p"));
+	}	
 	
 	chart.update = function() {
 		chart.updateTitle();
