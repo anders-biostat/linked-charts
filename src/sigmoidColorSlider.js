@@ -48,6 +48,7 @@ export function sigmoidColorSlider() {
   obj.put_static_content = function( element ) {
     inherited_put_static_content( element );
 
+
     var g = obj.svg.append( "g" )
       .attr( "class", "sigmoidColorSlider" )
       .attr( "transform", "translate(" + obj.get_margin().left + ", " + 
@@ -59,7 +60,7 @@ export function sigmoidColorSlider() {
     var defs = g.append( "defs" );
 
     obj.gradient = defs.append( "linearGradient" )
-      .attr( "id", "scaleGradient")
+      .attr( "id", "scaleGradient" + Math.random().toString(36).substring(2, 6))
       .attr( "x1", "0%")
       .attr( "y1", "0%")
       .attr( "x2", "100%")
@@ -70,11 +71,13 @@ export function sigmoidColorSlider() {
       .enter().append( "stop" )
         .attr( "offset", function(d) { return d + "%" } )
 
+    var gradId = obj.gradient.attr("id");
+
     obj.colorBar = g.append( "rect" )
       .attr( "x", "0" )
       .attr( "y", "5" )
       .attr( "height", 20 )
-      .attr( "fill", "url(#scaleGradient)" )
+      .attr( "fill", "url(#" + gradId +")" )
       .style( "stroke", "black" )
       .style( "stroke-width", "1");
 
