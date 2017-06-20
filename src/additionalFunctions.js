@@ -106,6 +106,7 @@ export function add_click_listener(chart){
 
   var wait_dblClick = null, down, wait_click = null,
     tolerance = 5, click_coord, downThis,
+    parcer = call_pacer(150);
     event = d3.dispatch('click', 'dblclick');
 
   //add a transparent rectangle to detect clicks
@@ -138,12 +139,12 @@ export function add_click_listener(chart){
     chart.container.select(".inform")
       .classed("blocked", true);
   }
+  var wait = false;
   var on_mousemove = function(){
-    var s = chart.svg.select(".selection");
+    var s = chart.svg.select(".selection"),
+      p = d3.mouse(this);
         
     if(!s.empty()) {
-      var p = d3.mouse(this);
-
       s.attr("x", d3.min([p[0], downThis[0]]))
         .attr("y", d3.min([downThis[1], p[1]]))
         .attr("width", Math.abs(downThis[0] - p[0]))
@@ -170,6 +171,19 @@ export function add_click_listener(chart){
                 " v -" + s.attr("height") +                  
                 " h -" + s.attr("width")) 
      // .lower();
+     return;
+    }
+
+    if(chart.canvas && chart.canvas.classed("active")){
+      parcer.do(function(){
+        var point = chart.findPoints(p, p)[0].substr(1).split("_-sep-_");
+        chart.container.select(".inform")
+          .style("left", (p[0] + 10 + chart.margin().left) + "px")
+          .style("top", (p[1] + 10 + chart.margin().top) + "px")
+          .select(".value")
+            .html(function() {return chart.get_informText(point[0], point[1])});
+
+      })
     }
   }
 
@@ -405,4 +419,42 @@ export function get_symbolSize(type, r) {
 
 export function escapeRegExp(str) {
   return str.replace(/[\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}
+
+function call_pacer( interval ) {
+
+   /*
+   This "call pacer" serves to avoid jerky appearance when a redraw
+   function is triggered to often because events fire to rapidly.
+   
+   Say, you have a handler, e.g., for a 'drag' event, which is supposed
+   to call an 'update' function. Usually you would write
+      some_object.on( "drag", update );
+   If 'update' is complex, you may want to make sure that it is not called
+   more often than, say, once in 30 ms. If the drag event fires more often,
+   intermittant calls to 'update' should be skipped. For this, write.
+     var pacer = call_pacer( 30 );
+     some_object.on( "drag", function() { pacer.do( update ) } )
+   Now, pacer.do will call 'update', but only if the last call was more than
+   30 ms ago. It also ensures that after a lapse of more than 30 ms without
+   event, the last lapsed call is then called, to draw the final state.
+   */
+
+   var obj = {
+      interval: interval,
+      prev_time: -Infinity,
+      timer: null }
+
+   obj.do = function( callback ) {
+      if( obj.timer )
+         obj.timer.stop();
+      if( d3.now() - obj.prev_time >= interval ) {         
+         callback();
+         obj.prev_time = d3.now();
+      } else {
+         obj.timer = d3.timeout( callback, 1.5 * interval )
+      }
+   }
+
+   return obj;
 }

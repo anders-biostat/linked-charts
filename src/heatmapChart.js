@@ -85,6 +85,15 @@ export function heatmapChart(id, chart){
 
 		(get_mode() == "svg") ? chart.g.classed("active", true) : 
 														chart.canvas.classed("active", true);
+
+		chart.svg.select(".clickPanel")
+			.on("mouseover", function() {
+				chart.container.select(".inform").classed("hidden", false);
+			})
+			.on("mouseout", function() {
+				chart.container.select(".inform").classed("hidden", true);
+			})
+
 		if(chart.showPanel()){
 			chart.panel.add_button("Zoom in", "#zoomIn", function(chart){
 				var removeRows = d3.max([chart.nrows() * 0.1, 1]),
@@ -845,7 +854,6 @@ export function heatmapChart(id, chart){
 			chart.g.classed("active", true);
 			chart.canvas.node().getContext("2d")
 				.clearRect(0, 0, chart.plotWidth(), chart.plotHeight());
-			add_click_listener(chart);
 			if(chart.updateStarted)
 				return true;
 			else{			
