@@ -116,7 +116,7 @@ export function heatmapChart(id, chart){
 				chart.updateLabels();
 				chart.updateLabelPosition();
 				chart.updateStarted = false;				
-			});
+			}, "Double click to return to original scales");
 			chart.panel.add_button("Zoom out", "#zoomOut", function(chart){
 				var addRows = d3.max([chart.nrows() * 0.1, 1]),
 					addCols = d3.max([chart.ncols() * 0.1, 1]),
@@ -170,7 +170,7 @@ export function heatmapChart(id, chart){
 				chart.updateCellColour();
 				chart.updateLabelText();
 				chart.updateStarted = false;
-			});			
+			}, "Double click to return to original scales");			
 		}
 	}
 
@@ -854,6 +854,9 @@ export function heatmapChart(id, chart){
 			chart.g.classed("active", true);
 			chart.canvas.node().getContext("2d")
 				.clearRect(0, 0, chart.plotWidth(), chart.plotHeight());
+
+			chart.mark(chart.marked.map(function(e) {return "p" + e.join("_-sep-_")}));
+
 			if(chart.updateStarted)
 				return true;
 			else{			
@@ -863,6 +866,7 @@ export function heatmapChart(id, chart){
 		}
 		if((get_mode() == "canvas") && chart.g.classed("active")){
 			chart.canvas.classed("active", true);
+			chart.marked = chart.g.selectAll(".marked").data();
 			chart.g.classed("active", false);
 			while (chart.g.node().firstChild) 
     		chart.g.node().removeChild(chart.g.node().firstChild);
@@ -925,14 +929,16 @@ export function heatmapChart(id, chart){
 	}
 
 	chart.getPoints = function(data){
-		if(get_mode() == "svg") {
-			if(data.length == 2 && data[0].substr)
-				data = [data];
-			data = data.map(function(e) {return lc.escapeRegExp(e.join("_-sep-_")).replace(/ /g, "_")});
-			return chart.svg.selectAll("#p" + data.join(", #p"));
-		} else {
+		if(data.length == 2 && data[0].substr)
+			data = [data];
+		data = data.map(function(e) {return "p" + e.join("_-sep-_")});
+
+		if(get_mode() == "svg") 
+			return (data.length > 0) ?
+				chart.svg.selectAll("#" + lc.escapeRegExp(data.join(", #").replace(/ /g, "_"))) :
+				chart.svg.selectAll("______");
+		else
 			return data;
-		}
 	}
 
 	var inherited_get_marked = chart.get_marked;
@@ -951,8 +957,8 @@ export function heatmapChart(id, chart){
 			if(marked == "__clear__")
 				chart.marked = []
 			else {
-				if(marked.length == 2 && marked[0].substr)
-					marked = [marked];
+				if(marked.length && marked[0].substr)
+					marked = marked.map(function(e) {return e.substr(1).split("_-sep-_")});
 				var ids = chart.marked.map(function(e) {return e.join("_")}),
 					ind;
 				for(var i = 0; i < marked.length; i++){

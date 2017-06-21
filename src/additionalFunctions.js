@@ -106,7 +106,7 @@ export function add_click_listener(chart){
 
   var wait_dblClick = null, down, wait_click = null,
     tolerance = 5, click_coord, downThis,
-    parcer = call_pacer(150);
+    parcer = call_pacer(100);
     event = d3.dispatch('click', 'dblclick');
 
   //add a transparent rectangle to detect clicks
@@ -126,6 +126,10 @@ export function add_click_listener(chart){
   }
 
   var on_mousedown = function(){
+    //remove all the hints if there are any
+    chart.container.selectAll(".hint")
+      .remove();
+
     down = d3.mouse(document.body);
     downThis = d3.mouse(this)
     wait_click = window.setTimeout(function() {wait_click = null;}, 1000);

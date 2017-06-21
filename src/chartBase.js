@@ -152,7 +152,7 @@ export function chartBase() {
 						.on("mouseout", function() {});
 					chart.selectMode = true;
 				}
-			});
+			}, "You can also select elements by pressing 'Shift'");
 		}
 
 	}
@@ -655,7 +655,7 @@ export function axisChart() {
 											(yDomain[0] + yDomain[1] * 4)/5]);
 				chart.updateAxes();
 
-			});
+			}, "Double click to return to original scales");
 			chart.panel.add_button("Zoom out", "#zoomOut", function(chart){
 				var xDomain = chart.axes.scale_x.domain(),
 					yDomain = chart.axes.scale_y.domain();
@@ -664,7 +664,7 @@ export function axisChart() {
 				chart.domainY([(yDomain[0] * 6 - yDomain[1])/5, 
 											(-yDomain[0] + yDomain[1] * 6)/5]);
 				chart.updateAxes();			
-			});
+			}, "Double click to return to original scales");
 		}
   }	
 	

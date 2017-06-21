@@ -123,11 +123,21 @@ export function panel(chart) {
 	}
 
 
-	panel.add_button = function(name, icon, fun){
+	panel.add_button = function(name, icon, fun, hint){
+		//if hint is defined, modify the provided f
+		var hintFired = false;
+		var wrapped = function(chart, button){
+			if(!hintFired){
+				panel.showHint(hint); //hints are showed just once if defined
+				hintFired = true;
+			}
+			fun(chart, button);
+		}
+
 		panel.buttons.push({
 			name: name,
 			icon: icon,
-			fun: fun
+			fun: wrapped
 		});
 
 		var buttons = panel.g.select("#buttonPanel")
@@ -147,6 +157,16 @@ export function panel(chart) {
 			})
 			.append("title")
 				.text(function(d) {return d.name});		
+	}
+
+	panel.showHint = function(hint) {
+		if(hint){
+			chart.container.append("div")
+				.attr("class", "hint")
+				.style("left", (panel.chart.width() - 105) + "px")
+				.style("top", (panel.y() + panel.g.node().getBBox().height) + "px")
+				.text(hint);
+		}
 	}
 
 	panel.show = function(){
