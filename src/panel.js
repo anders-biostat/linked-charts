@@ -370,6 +370,31 @@ export function panel(chart) {
 			.attr("width", bs)
 			.attr("fill", "#444");
 
+		d = defs.append("g")
+			.attr("id", "home");
+		d.append("rect")
+			.attr("x", bs/5)
+			.attr("y", 2 * bs / 5)
+			.attr("width", 3 * bs / 5)
+			.attr("height", 3 * bs / 5)
+			.attr("fill", "#444");
+		d.append("rect")
+			.attr("x", bs * 2 / 5)
+			.attr("y", bs * 3 / 5)
+			.attr("width", bs/5)
+			.attr("height", bs/5)
+			.attr("fill", "#fff");
+		d.append("path")
+			.attr("fill", "#444")
+			.attr("d", "M 0 " + (2 * bs / 5) + 
+								" L " + bs/2 + " 0" +
+								" L " + bs + " " + (2 * bs / 5));
+		d.append("path")
+			.attr("stroke", "#fff")
+			.attr("stroke-width", 1)
+			.attr("d", "M 0 " + (2 * bs / 5) +
+								" L " + bs + " " + (2 * bs / 5));
+
 		defs.selectAll("rect")
 			.attr("transform", "translate(5, 5)");
 		defs.selectAll("path")

@@ -153,6 +153,10 @@ export function chartBase() {
 					chart.selectMode = true;
 				}
 			}, "You can also select elements by pressing 'Shift'");
+
+			chart.panel.add_button("Reset scales", "#home", function(chart){
+				chart.resetDomain();
+			}, "You can also use double click to reset scales");
 		}
 
 	}
