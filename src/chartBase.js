@@ -70,7 +70,7 @@ export function chartBase() {
 		chart.svg = chart.container.append("svg");
 		chart.viewBox = chart.svg.append("defs")
 			.append("clipPath")
-				.attr("id", "viewBox")
+				.attr("id", "viewBox" + Math.random().toString(36).substring(2, 6))
 				.append("rect");
 		chart.container.append("div")
 			.attr("class", "inform hidden")
