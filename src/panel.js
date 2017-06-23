@@ -145,6 +145,7 @@ export function panel(chart) {
 		buttons.enter().append("use")
 			.attr("opacity", 0.6)
 			.attr("class", "button")
+			.attr("id", function(d) {return "b_" + d.icon.substr(1)})
 			.attr("xlink:href", function(d) {return d.icon})
 			.on("click", function(d) {d.fun(panel.chart, d3.select(this))})
 			.on("mouseover", function() {
@@ -394,6 +395,36 @@ export function panel(chart) {
 			.attr("stroke-width", 1)
 			.attr("d", "M 0 " + (2 * bs / 5) +
 								" L " + bs + " " + (2 * bs / 5));
+
+		d = defs.append("g")
+			.attr("id", "pan");
+		d.append("path")
+			.attr("fill", "#444")
+			.attr("d", "M 0 " + bs/2 + 
+								" l " + bs/5 + " -" + bs/5 + 
+								" v " + bs/10 + 
+								" h " + bs/5 + 
+								" v -" + bs/5 +
+								" h -" + bs/10 +
+								" L " + bs/2 + " 0" + 
+								" l " + bs/5 + " " + bs/5 +
+								" h -" + bs/10 +
+								" v " + bs/5 + 
+								" h " + bs/5 +
+								" v -" + bs/10 +
+								" L " + bs + " " + bs/2 +
+								" l -" + bs/5 + " " + bs/5 +
+								" v -" + bs/10 + 
+								" h -" + bs/5 +
+								" v " + bs/5 +
+								" h " + bs/10 +
+								" L " + bs/2 + " " + bs +
+								" l -" + bs/5 + " -" + bs/5 +
+								" h " + bs/10 + 
+								" v -" + bs/5 +
+								" h -" + bs/5 +
+								" v " + bs/10 + 
+								" L 0 " + bs/2);
 
 		defs.selectAll("rect")
 			.attr("transform", "translate(5, 5)");

@@ -106,9 +106,9 @@ export function add_click_listener(chart){
 
   var wait_dblClick = null, down, wait_click = null,
     tolerance = 5, click_coord, downThis,
-    parcer = call_pacer(100);
-    event = d3.dispatch('click', 'dblclick');
-
+    parcer = call_pacer(100), panStarted = false,
+    transitionDuration;
+ 
   //add a transparent rectangle to detect clicks
   //and make changes to update function
   chart.svg.select(".plotArea").append("rect")
@@ -134,12 +134,20 @@ export function add_click_listener(chart){
     downThis = d3.mouse(this)
     wait_click = window.setTimeout(function() {wait_click = null;}, 1000);
     var p = d3.mouse(this);  //Mouse position on the heatmap
-    chart.svg.select(".plotArea").append("rect")
-      .attr("class", "selection")
-      .attr("x", p[0])
-      .attr("y", p[1])
-      .attr("width", 1)
-      .attr("height", 1);
+    if(!chart.pan.mode)
+      chart.svg.select(".plotArea").append("rect")
+        .attr("class", "selection")
+        .attr("x", p[0])
+        .attr("y", p[1])
+        .attr("width", 1)
+        .attr("height", 1);
+    if(chart.pan.mode){
+      panStarted = true;
+      chart.pan.down = downThis;
+      transitionDuration = chart.transitionDuration();
+      chart.transitionDuration(0)
+      chart.defineTransition();
+    }
     chart.container.select(".inform")
       .classed("blocked", true);
   }
@@ -148,6 +156,15 @@ export function add_click_listener(chart){
     var s = chart.svg.select(".selection"),
       p = d3.mouse(this);
         
+    if(panStarted){
+      if(!wait){
+        wait = true;
+        setTimeout(function() {wait = false}, 100);
+        chart.pan.move(p);
+      }
+      return;
+    }
+
     if(!s.empty()) {
       s.attr("x", d3.min([p[0], downThis[0]]))
         .attr("y", d3.min([downThis[1], p[1]]))
@@ -192,6 +209,17 @@ export function add_click_listener(chart){
   }
 
   var on_mouseup = function(){
+    var pos = d3.mouse(this);
+    if(panStarted) {
+      panStarted = false;
+      chart.pan.move(pos);
+      chart.container.select(".inform").classed("blocked", false);
+      chart.transitionDuration(transitionDuration);
+      chart.defineTransition();
+      chart.pan.down = undefined;
+      return;
+    }
+
     var mark = d3.event.shiftKey || chart.selectMode;
     // remove selection frame
     chart.container.select(".inform")
@@ -203,8 +231,7 @@ export function add_click_listener(chart){
       h = chart.svg.selectAll("rect.selection").attr("height") * 1,
       lu = [x, y], 
       rb = [x + w, y + h],
-      points = d3.select(this),
-      pos = d3.mouse(this);
+      points = d3.select(this);
     chart.svg.selectAll("rect.selection").remove();
     chart.svg.select(".shadow").remove();
 
@@ -239,6 +266,8 @@ export function add_click_listener(chart){
     mark ? chart.mark("__clear__") : chart.resetDomain();
   }
   var on_panelClick = function(p, mark){
+    if(typeof p === "undefined")
+      return;
     var clickedPoints = chart.findPoints(p, p);
     if(!mark){
       var click, clickFun, data;
@@ -449,11 +478,15 @@ function call_pacer( interval ) {
       prev_time: -Infinity,
       timer: null }
 
-   obj.do = function( callback ) {
+   obj.do = function() {
+      var callback = arguments[0],
+        args = [];
+      for(var i = 1; i < arguments.length; i++)
+        args.push(arguments[i]);
       if( obj.timer )
          obj.timer.stop();
       if( d3.now() - obj.prev_time >= interval ) {         
-         callback();
+         callback.call(this, args);
          obj.prev_time = d3.now();
       } else {
          obj.timer = d3.timeout( callback, 1.5 * interval )

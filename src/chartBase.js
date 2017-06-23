@@ -12,7 +12,7 @@ export function chartBase() {
 		.add_property("width", 500)
 		.add_property("height", 500)
 		.add_property("plotWidth", 440)
-		.add_property("plotHeight", 440)
+		.add_property("plotHeight", 435)
 		.add_property("margin", { top: 15, right: 10, bottom: 50, left: 50 })
 		.add_property("title", "")
 		.add_property("titleX", function() {return chart.width() / 2;})
@@ -23,6 +23,7 @@ export function chartBase() {
 		.add_property("showPanel", true); 
 	
 	chart.selectMode = false;
+	chart.pan = {mode: false, down: undefined};
 	chart.transition = undefined;
   chart.width("_override_", "plotWidth", function(){
   			return chart.get_width() - 
@@ -143,17 +144,41 @@ export function chartBase() {
 						.on("mouseout", function() {
 							d3.select(this)
 								.attr("opacity", 0.6);
-						})
+						});
 					chart.selectMode = false;
+
 				} else {
 					button
 						.classed("clicked", true)
 						.attr("opacity", 1)
 						.on("mouseout", function() {});
 					chart.selectMode = true;
+					var panButton = chart.panel.g.select("#b_pan");
+					if(panButton.classed("clicked"))
+						panButton.on("click").call(panButton.node(), panButton.datum());					
 				}
 			}, "You can also select elements by pressing 'Shift'");
-
+			chart.panel.add_button("Togle pan mode", "#pan", function(chart, button){
+				if(button.classed("clicked")){
+					button
+						.classed("clicked", false)
+						.attr("opacity", 0.6)
+						.on("mouseout", function() {
+							d3.select(this)
+								.attr("opacity", 0.6);
+						})
+					chart.pan.mode = false;
+				} else {
+					button
+						.classed("clicked", true)
+						.attr("opacity", 1)
+						.on("mouseout", function() {});
+					chart.pan.mode = true;
+					var selectButton = chart.panel.g.select("#b_selection");
+					if(selectButton.classed("clicked"))
+						selectButton.on("click").call(selectButton.node(), selectButton.datum());
+				}
+			});
 			chart.panel.add_button("Reset scales", "#home", function(chart){
 				chart.resetDomain();
 			}, "You can also use double click to reset scales");
@@ -162,10 +187,14 @@ export function chartBase() {
 	}
 
 	chart.defineTransition = function(){
-		chart.transition = 
-			d3.transition().duration(chart.transitionDuration());
-		chart.transition
-			.on("end", chart.defineTransition);
+		if(chart.transitionDuration() > 0){
+			chart.transition = 
+				d3.transition().duration(chart.transitionDuration());
+			chart.transition
+				.on("end", chart.defineTransition);
+		} else {
+			chart.transition = undefined;
+		}
 	}
 
 	chart.mark = function(marked) {
@@ -779,6 +808,18 @@ export function axisChart() {
 		}
 		
 		return ticks;
+	}
+
+	chart.pan.move = function(p){
+		var invertedP = [chart.axes.scale_x.invert(p[0]), chart.axes.scale_y.invert(p[1])];
+		var move = [invertedP[0] - chart.axes.scale_x.invert(chart.pan.down[0]), 
+								invertedP[1] - chart.axes.scale_y.invert(chart.pan.down[1])];
+		chart.pan.down = p;
+		var domainX = chart.axes.scale_x.domain(),
+			domainY = chart.axes.scale_y.domain();
+		chart.domainX([domainX[0] - move[0], domainX[1] - move[0]]);
+		chart.domainY([domainY[0] - move[1], domainY[1] - move[1]]);
+		chart.updateAxes();
 	}
 
 	chart.updateAxes = function(){

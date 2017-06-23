@@ -96,74 +96,27 @@ export function heatmapChart(id, chart){
 
 		if(chart.showPanel()){
 			chart.panel.add_button("Zoom in", "#zoomIn", function(chart){
-				var removeRows = d3.max([chart.nrows() * 0.1, 1]),
-					removeCols = d3.max([chart.ncols() * 0.1, 1]);
-				var rowLabels = chart.svg.select(".row").selectAll(".label")
-					.filter(function() {
-						return this.y.baseVal[0].value > removeRows * chart.cellSize.height &&
-										this.y.baseVal[0].value < chart.plotHeight() - (removeRows - 1) * chart.cellSize.height;
-					}).data(),
-				colLabels = chart.svg.select(".col").selectAll(".label")
-					.filter(function() {
-						return this.y.baseVal[0].value > removeCols * chart.cellSize.width &&
-										this.y.baseVal[0].value < chart.plotWidth() - (removeCols - 1) * chart.cellSize.width;
-					}).data();
-				if(colLabels.length > 0)
-					chart.dispColIds(colLabels);
-				if(rowLabels.length > 0)
-					chart.dispRowIds(rowLabels);
+				var removeRows = -Math.ceil(chart.nrows() * 0.1),
+					removeCols = -Math.ceil(chart.ncols() * 0.1);
+				chart.dispRowIds(chart.addLines(removeRows, "top"));
+				chart.dispRowIds(chart.addLines(removeRows, "bottom"));
+				chart.dispColIds(chart.addLines(removeCols, "left"));
+				chart.dispColIds(chart.addLines(removeCols, "right"));
+
 				chart.updateStarted = true;
 				chart.updateLabels();
 				chart.updateLabelPosition();
 				chart.updateStarted = false;				
 			}, "Double click to return to original scales");
 			chart.panel.add_button("Zoom out", "#zoomOut", function(chart){
-				var addRows = d3.max([chart.nrows() * 0.1, 1]),
-					addCols = d3.max([chart.ncols() * 0.1, 1]),
-					rowIds = chart.get_heatmapRow("__order__"),
-					colIds = chart.get_heatmapCol("__order__"),
-					dispRowIds = chart.dispRowIds(),
-					dispColIds = chart.dispColIds();
-				if(typeof rowIds.splice === "undefined")
-					rowIds = chart.rowIds();
-				if(typeof colIds.splice === "undefined")
-					colIds = chart.colIds();
+				var addRows = Math.ceil(chart.nrows() * 0.1),
+					addCols = Math.ceil(chart.ncols() * 0.1);
+				
+				chart.dispRowIds(chart.addLines(addRows, "top"));
+				chart.dispRowIds(chart.addLines(addRows, "bottom"));
+				chart.dispColIds(chart.addLines(addCols, "left"));
+				chart.dispColIds(chart.addLines(addCols, "right"));
 
-				var flag = true, first = -1, last = rowIds.length;
-				while(flag && first < rowIds.length){
-					first++;
-					flag = dispRowIds.indexOf(rowIds[first]) == -1;
-				}
-				flag = true;
-				while(flag && last >= 0){
-					last--;
-					flag = dispRowIds.indexOf(rowIds[last]) == -1;
-				}
-				for(var i = 0; i < addRows; i++){
-					if(first - i - 1 >= 0)
-						dispRowIds.unshift(rowIds[first - i - 1]);
-					if(last + i + 1 < rowIds.length)
-						dispRowIds.push(rowIds[last + i + 1]);
-				}
-				flag = true, first = -1, last = colIds.length;
-				while(flag && first < colIds.length){
-					first++;
-					flag = dispColIds.indexOf(colIds[first]) == -1;
-				}
-				flag = true;
-				while(flag && last >= 0){
-					last--;
-					flag = dispColIds.indexOf(colIds[last]) == -1;
-				}
-				for(var i = 0; i < addCols; i++){
-					if(first - i - 1 >= 0)
-						dispColIds.unshift(colIds[first - i - 1]);
-					if(last + i + 1 < colIds.length)
-						dispColIds.push(colIds[last + i + 1]);
-				}
-
-				chart.dispColIds(dispColIds);
-				chart.dispRowIds(dispRowIds);
 				chart.updateStarted = true;
 				chart.updateLabels();
 				chart.updateLabelPosition();
@@ -249,16 +202,25 @@ export function heatmapChart(id, chart){
 			.classed("selected", false)
 			.classed("sorted", false);
 
-		var ids = chart.get_rowIds().slice(), ind;
-		ids = ids.sort(f);
+		var ids = chart.rowIds().slice(), ind,
+			dispRowIds = chart.dispRowIds(),
+			inds = [];
+		for(var i = 0; i < dispRowIds.length; i++){
+			inds.push(ids.indexOf(dispRowIds[i]));
+		}
+		dispRowIds = dispRowIds.sort(f);
+		for(var i = 0; i < dispRowIds.length; i++){
+			ids[inds[i]] = dispRowIds[i];
+		}
+						
 		chart.heatmapRow(function(rowId){
 			if(rowId == "__flip__"){
 				ids = ids.reverse();
 				return;
 			}
 			if(rowId == "__order__")
-				return ids.sort(f);
-			var actIds = chart.get_dispRowIds(),
+				return ids;
+			var actIds = chart.dispRowIds(),
 				orderedIds = ids.filter(function(e) {
 					return actIds.indexOf(e) != -1;
 				});
@@ -286,15 +248,24 @@ export function heatmapChart(id, chart){
 		chart.svg.select(".row").selectAll(".label")
 			.classed("selected", false)
 			.classed("sorted", false);
-		var ids = chart.get_colIds().slice(), ind;
-		ids = ids.sort(f);
+		var ids = chart.colIds().slice(), ind,
+			dispColIds = chart.dispColIds(),
+			inds = [];
+		for(var i = 0; i < dispColIds.length; i++){
+			inds.push(ids.indexOf(dispColIds[i]));
+		}
+		dispColIds = dispColIds.sort(f);
+		for(var i = 0; i < dispColIds.length; i++){
+			ids[inds[i]] = dispColIds[i];
+		}
+
 		chart.heatmapCol(function(colId){
 			if(colId == "__flip__"){
 				ids = ids.reverse();
 				return;
 			}
 			if(colId == "__order__")
-				return ids.sort(f);
+				return ids;
 
 			var actIds = chart.get_dispColIds(),
 				orderedIds = ids.filter(function(e) {
@@ -313,6 +284,48 @@ export function heatmapChart(id, chart){
 		});
 		chart.updateLabelPosition();
 		return chart;
+	}
+
+	chart.addLines = function(k, side){
+		var orderedIds, dispIds;
+		if(side == "top" || side == "bottom"){
+			orderedIds = chart.get_heatmapRow("__order__");
+			if(orderedIds == -1)
+				orderedIds = chart.rowIds();
+			dispIds = chart.dispRowIds();
+		}
+		if(side == "left" || side == "right"){
+			orderedIds = chart.get_heatmapCol("__order__");
+			if(orderedIds == -1)
+				orderedIds = chart.colIds();
+			dispIds = chart.dispColIds();
+		}
+		if(k == 0) return dispIds;
+		if(k < 0){
+			k = -k;
+			if(side == "top" || side == "left")
+				return dispIds.slice(k)
+			else
+				return dispIds.slice(0, dispIds.length - k);
+		}
+
+		var border;
+		if(side == "top" || side == "left"){
+			border = orderedIds.length
+			for(var i = 0; i < dispIds.length; i++)
+				if(border > orderedIds.indexOf(dispIds[i]))
+					border = orderedIds.indexOf(dispIds[i]);
+			for(var i = border - 1; i >= d3.max([0, border - k]); i--)
+				dispIds.unshift(orderedIds[i]);
+		} else { 
+			border = -1;
+			for(var i = 0; i < dispIds.length; i++)
+				if(border < orderedIds.indexOf(dispIds[i]))
+					border = orderedIds.indexOf(dispIds[i]);
+				for(var i = border + 1; i < d3.min([orderedIds.length, border + k + 1]); i++)
+					dispIds.push(orderedIds[i]);
+		}
+		return dispIds;
 	}
 	
 	var inherited_updateSize = chart.updateSize;
@@ -415,7 +428,7 @@ export function heatmapChart(id, chart){
 				.style("text-anchor", "start")
 				.attr("dx", 2)
 				.merge(colLabels)
-					.attr("id", function(d) {return d.replace(/ /g,"_")})
+					.attr("id", function(d) {return d.toString().replace(/ /g,"_")})
 					.on("mouseover", chart.labelMouseOver)
 					.on("mouseout", chart.labelMouseOut)
 					.on("click", chart.labelClick);
@@ -425,7 +438,7 @@ export function heatmapChart(id, chart){
 				.style("text-anchor", "end")
 				.attr("dx", -2)
 				.merge(rowLabels)
-					.attr("id", function(d) {return d.replace(/ /g,"_")})
+					.attr("id", function(d) {return d.toString().replace(/ /g,"_")})
 					.on("mouseover", chart.labelMouseOver)
 					.on("mouseout", chart.labelMouseOut)
 					.on("click", chart.labelClick);
@@ -979,6 +992,26 @@ export function heatmapChart(id, chart){
 		return chart;
 	}	
 	
+	chart.pan.move = function(p) {
+		var move = [p[0] - chart.pan.down[0], p[1] - chart.pan.down[1]],
+			addRows = Math.floor(Math.abs(move[1] / chart.cellSize.height)),
+			addCols = Math.floor(Math.abs(move[0] / chart.cellSize.width));
+		chart.pan.down[0] += Math.sign(move[0]) * addCols * chart.cellSize.width;
+		chart.pan.down[1] += Math.sign(move[1]) * addRows * chart.cellSize.height;
+
+		chart.dispColIds(chart.addLines(-Math.sign(move[0]) * addCols, "right"));
+		chart.dispColIds(chart.addLines(Math.sign(move[0]) * addCols, "left"));
+		chart.dispRowIds(chart.addLines(Math.sign(move[1]) * addRows, "top"));
+		chart.dispRowIds(chart.addLines(-Math.sign(move[1]) * addRows, "bottom"));
+
+		chart.updateStarted = true;
+		chart.updateLabels();
+		chart.updateLabelPosition();
+		chart.updateCellColour();
+		chart.updateLabelText();
+		chart.updateStarted = false;			
+	}
+
 	chart.update = function() {
 		chart.updateTitle();
 		chart.resetColourScale();
