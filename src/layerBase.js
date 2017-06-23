@@ -181,6 +181,7 @@ export function layerBase(id) {
   };
   layer.updatePointLocation = function() {};
   layer.findPoints = function() {return [];}; //return empty selection	
-	
+	layer.get_position = function(id) {return undefined;}
+
 	return layer;
 }

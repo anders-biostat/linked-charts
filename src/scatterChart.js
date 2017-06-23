@@ -90,6 +90,10 @@ export function scatterChart(id, chart) {
           (loc[1] + layer.get_size(d) >= lu[1]);
       }).nodes().map(function(e) {return e.getAttribute("id")});
   }
+  layer.get_position = function(id){
+    return [layer.chart.axes.scale_x(layer.get_x(id)), 
+            layer.chart.axes.scale_y(layer.get_y(id))];
+  } 
 
 	layer.layerDomainX(function() {
 		if(layer.get_contScaleX()){

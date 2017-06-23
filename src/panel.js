@@ -425,6 +425,47 @@ export function panel(chart) {
 								" h -" + bs/5 +
 								" v " + bs/10 + 
 								" L 0 " + bs/2);
+		d = defs.append("g")
+			.attr("id", "fitSelected");
+		d.append("rect")
+			.attr("x", bs/5)
+			.attr("y", bs/5)
+			.attr("width", 3 * bs / 5)
+			.attr("height", 3 * bs / 5)
+			.attr("fill", "#fff")
+			.attr("stroke", "#444")
+			.attr("stroke-width", 1)
+			.attr("stroke-dasharray", 2);
+		d.append("circle")
+			.attr("cx", bs/5 - 3)
+			.attr("cy", bs/2)
+			.attr("r", 2)
+			.attr("fill", "#444");
+		d.append("circle")
+			.attr("cx", 3 * bs / 5)
+			.attr("cy", bs/5 -3)
+			.attr("r", 2)
+			.attr("fill", "#444");
+		d.append("circle")
+			.attr("cx", 4 * bs / 5 + 3)
+			.attr("cy", 2 * bs / 5)
+			.attr("r", 2)
+			.attr("fill", "#444");
+		d.append("circle")
+			.attr("cx", 2 * bs / 5)
+			.attr("cy", 4 * bs / 5 + 3)
+			.attr("r", 2)
+			.attr("fill", "#444");
+		d.append("circle")
+			.attr("cx", 4 * bs / 5 - 3)
+			.attr("cy", bs / 5 + 3)
+			.attr("r", 3)
+			.attr("fill", "#111");
+		d.append("circle")
+			.attr("cx", bs / 5 + 3)
+			.attr("cy", 4 * bs / 5 - 3)
+			.attr("r", 3)
+			.attr("fill", "#111");
 
 		defs.selectAll("rect")
 			.attr("transform", "translate(5, 5)");

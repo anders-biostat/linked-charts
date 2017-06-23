@@ -163,6 +163,10 @@ export function heatmapChart(id, chart){
 		}
 
 		return selectedIds;
+	}
+	chart.get_position = function(id){
+		return [chart.axes.scale_x(chart.get_heatmapCol(id[1])) + chart.cellSize.width/2,
+						chart.axes.scale_y(chart.get_heatmapRow(id[0])) + chart.cellSize.height/2]
 	}	
 	//returns maximum and minimum values of the data
 	chart.dataRange = function(){

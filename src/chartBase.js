@@ -182,6 +182,20 @@ export function chartBase() {
 			chart.panel.add_button("Reset scales", "#home", function(chart){
 				chart.resetDomain();
 			}, "You can also use double click to reset scales");
+			chart.panel.add_button("Fit selected", "#fitSelected", function(chart){
+				var marked = chart.get_marked();
+				if(marked.length == 0)
+					return;
+				var pos = {x: [], y: []};
+				marked.map(function(e) {
+					var pointPos = chart.get_position(e); 
+					pos.x.push(pointPos[0]);
+					pos.y.push(pointPos[1]);
+				});
+				var x_range = d3.extent(pos.x),
+					y_range = d3.extent(pos.y);
+				chart.zoom([x_range[0], y_range[0]], [x_range[1], y_range[1]]);
+			});
 		}
 
 	}
@@ -238,7 +252,12 @@ export function chartBase() {
 	}
 
 	chart.get_marked = function(){
-		return chart.svg.selectAll(".marked").data();
+		var points = [];
+		chart.svg.selectAll(".marked").each(function() {
+			points.push([d3.select(this.parentNode).attr("id"), 
+										d3.select(this).datum()]);
+		});
+		return points;
 	}
 
 	chart.afterUpdate = function(){
@@ -458,6 +477,10 @@ export function layerChartBase(){
 			);
 		});
 		return selPoints;
+	}
+
+	chart.get_position = function(id){
+		return chart.get_layer(id[0]).get_position(id[1]);
 	}
 
 	chart.placeLayer = function(id){
