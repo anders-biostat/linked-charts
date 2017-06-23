@@ -434,6 +434,11 @@ export function panel(chart) {
 			.attr("transform", "translate(5, 5)");
 		defs.selectAll("circle")
 			.attr("transform", "translate(5, 5)");
+		defs.selectAll("g").append("rect")
+			.attr("fill", "transparent")
+			.attr("width", panel.buttonSize)
+			.attr("height", panel.buttonSize)
+			.lower();
 	}
 
 	return panel;
