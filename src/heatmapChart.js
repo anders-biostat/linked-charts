@@ -47,6 +47,7 @@ export function heatmapChart(id, chart){
 	chart.colIds("_override_", "ncols", function(){
 		return chart.get_colIds().length;
 	});
+
 //	chart.dispRowIds("_override_", "nrows", function(){
 //		return chart.get_dispRowIds().length;
 //	});
