@@ -1,0 +1,48 @@
+<html>
+  <head>
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="../build/linked-charts.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../build/linked-charts.css">
+    <script src = '../build/input_data.js'></script>
+  </head>
+  
+    <table><tr>
+      <td id="heatmap" valign="top"></td>
+      <td id="scatterplot" valign="top"></td>
+    </tr></table>
+  
+  <script>
+
+var selGene = 1;                                               
+var selDrug = 1;
+
+var scatterplot = lc.scatterChart()
+  .x( function( k ) { return geneExprs[selGene][k] } )
+  .y( function( k ) { return drugScores[selDrug][k] } )
+  .place("#scatterplot");
+
+var heatmap = lc.heatmapChart()
+  .nrows( geneNames.length )
+  .ncols( drugNames.length )
+  .height( 650 )
+  .width( 400 )
+  .colourRange( [ -1, 1 ] )
+  .palette( d3.interpolateRdBu )
+  .value( function( row, col ) {  
+     return lc.pearsonCorr( geneExprs[row], drugScores[col] ) 
+   } )
+  .rowLabels( function(row) { 
+     return geneNames[row] 
+   } )
+  .colLabels( function(col) { 
+     return drugNames[col] 
+   } )
+  .on_click( function( rowId, colId ) {
+     alert(rowId);
+     selGene = rowId;
+     selDrug = colId;
+     scatterplot.update();
+  })
+  .place( "#heatmap")
+  </script>
+</html>
