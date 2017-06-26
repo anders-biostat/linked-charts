@@ -36,10 +36,10 @@ export function heatmapChart(id, chart){
 	chart.margin({top: 100, left: 100, right: 10, bottom: 40});
 
 	chart.ncols("_override_", "colIds", function(){
-		return d3.range(chart.get_ncols());
+		return d3.range(chart.get_ncols()).map(function(e) {return e.toString()});
 	});
 	chart.nrows("_override_", "rowIds", function(){
-		return d3.range(chart.get_nrows());
+		return d3.range(chart.get_nrows()).map(function(e) {return e.toString()});
 	});
 	chart.rowIds("_override_", "nrows", function(){
 		return chart.get_rowIds().length;
@@ -47,12 +47,12 @@ export function heatmapChart(id, chart){
 	chart.colIds("_override_", "ncols", function(){
 		return chart.get_colIds().length;
 	});
-	chart.dispRowIds("_override_", "nrows", function(){
-		return chart.get_dispRowIds().length;
-	});
-	chart.dispColIds("_override_", "ncols", function(){
-		return chart.get_dispColIds().length;
-	}); 
+//	chart.dispRowIds("_override_", "nrows", function(){
+//		return chart.get_dispRowIds().length;
+//	});
+//	chart.dispColIds("_override_", "ncols", function(){
+//		return chart.get_dispColIds().length;
+//	}); 
 	chart.axes = {};
 	chart.marked = [];
 
@@ -96,8 +96,8 @@ export function heatmapChart(id, chart){
 
 		if(chart.showPanel()){
 			chart.panel.add_button("Zoom in", "#zoomIn", function(chart){
-				var removeRows = -Math.ceil(chart.nrows() * 0.1),
-					removeCols = -Math.ceil(chart.ncols() * 0.1);
+				var removeRows = -Math.ceil(chart.dispRowIds().length * 0.1),
+					removeCols = -Math.ceil(chart.dispColIds().length * 0.1);
 				chart.dispRowIds(chart.addLines(removeRows, "top"));
 				chart.dispRowIds(chart.addLines(removeRows, "bottom"));
 				chart.dispColIds(chart.addLines(removeCols, "left"));
@@ -109,8 +109,8 @@ export function heatmapChart(id, chart){
 				chart.updateStarted = false;				
 			}, "Double click to return to original scales");
 			chart.panel.add_button("Zoom out", "#zoomOut", function(chart){
-				var addRows = Math.ceil(chart.nrows() * 0.1),
-					addCols = Math.ceil(chart.ncols() * 0.1);
+				var addRows = Math.ceil(chart.dispRowIds().length * 0.1),
+					addCols = Math.ceil(chart.dispColIds().length * 0.1);
 				
 				chart.dispRowIds(chart.addLines(addRows, "top"));
 				chart.dispRowIds(chart.addLines(addRows, "bottom"));
@@ -129,7 +129,7 @@ export function heatmapChart(id, chart){
 
 	var get_mode = function() {
 		if(chart.mode() == "default")
-			return chart.ncols() * chart.nrows() > 5000 ? "canvas" : "svg";
+			return chart.dispColIds().length * chart.dispRowIds().length > 5000 ? "canvas" : "svg";
 		return chart.mode();
 	}
 
@@ -202,9 +202,6 @@ export function heatmapChart(id, chart){
 			chart.updateLabelPosition();
 			return chart;
 		}
-		chart.svg.select(".col").selectAll(".label")
-			.classed("selected", false)
-			.classed("sorted", false);
 
 		var ids = chart.rowIds().slice(), ind,
 			dispRowIds = chart.dispRowIds(),
@@ -239,8 +236,12 @@ export function heatmapChart(id, chart){
 			else
 				throw "Wrong rowId in chart.get_heatmapRow";
 		});
-		
-		chart.updateLabelPosition();
+		if(chart.svg){
+			chart.svg.select(".col").selectAll(".label")
+				.classed("selected", false)
+				.classed("sorted", false);		
+				chart.updateLabelPosition();
+		}
 		return chart;
 	}
 	chart.reorderCol = function(f){
@@ -249,9 +250,6 @@ export function heatmapChart(id, chart){
 			chart.updateLabelPosition();
 			return chart;
 		}
-		chart.svg.select(".row").selectAll(".label")
-			.classed("selected", false)
-			.classed("sorted", false);
 		var ids = chart.colIds().slice(), ind,
 			dispColIds = chart.dispColIds(),
 			inds = [];
@@ -286,7 +284,12 @@ export function heatmapChart(id, chart){
 			else
 				throw "Wrong rowId in chart.get_heatmapRow";
 		});
-		chart.updateLabelPosition();
+		if(chart.svg){
+			chart.svg.select(".col").selectAll(".label")
+				.classed("selected", false)
+				.classed("sorted", false);		
+				chart.updateLabelPosition();
+		}
 		return chart;
 	}
 
@@ -493,8 +496,8 @@ export function heatmapChart(id, chart){
 	}
 
 	chart.resetDomain = function(){
-		chart.dispColIds(chart.get_colIds);
-		chart.dispRowIds(chart.get_rowIds);
+		chart.dispColIds(chart.get_colIds());
+		chart.dispRowIds(chart.get_rowIds());
 		chart.updateStarted = true;
 		chart.updateLabels()
 			.updateLabelPosition()
@@ -739,27 +742,30 @@ export function heatmapChart(id, chart){
 			return chart["get_cluster" + type + "Metric"](items[a], items[b]);
 		};
 
-		var newOrder = [];
-		var traverse = function(node) {
+		/*var traverse = function(node) {
 			if(node.value){
 				newOrder.push(node.value);
 				return;
 			}
 			traverse(node.left);
 			traverse(node.right);
-		}
+		}*/
+		var dist_mat = calc_dist(items);
+		var clusters = hcluster(dist_mat);
+		var newOrder = clusters.val_inds;
 
-		var clusters = clusterfck.hcluster(aIds, getDistance, clusterfck.COMPLETE_LINKAGE);
-		traverse(clusters);
-		
 		var oldOrder = chart["get_heatmap" + type]("__order__");
+		if(oldOrder == -1)
+			oldOrder = chart["disp" + type + "Ids" ]();
+
+
 		chart["reorder" + type](function(a, b){
 			if(newOrder.indexOf(a) != -1 && newOrder.indexOf(b) != -1)
 				return newOrder.indexOf(a) - newOrder.indexOf(b);
 			return oldOrder.indexOf(a) - oldOrder.indexOf(b);
 		});
 		
-		chart.updateLabelPosition();
+		//chart.updateLabelPosition();
 
 		return chart;		
 	}
@@ -895,9 +901,9 @@ export function heatmapChart(id, chart){
 		console.log("Canvas");
 		var ctx = chart.canvas.node().getContext("2d");
 		ctx.clearRect(0, 0, chart.plotWidth(), chart.plotHeight());
-		var ncols = chart.ncols(), nrows = chart.nrows(),
-			rowIds = chart.dispRowIds(),
-			colIds = chart.dispColIds();
+		var rowIds = chart.dispRowIds(),
+			colIds = chart.dispColIds(),
+			ncols = colIds.length, nrows = rowIds.length;
 		var pixelHeatmap = document.createElement("canvas");
 		pixelHeatmap.width = ncols;
 		pixelHeatmap.height = nrows;
