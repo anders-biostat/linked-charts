@@ -753,7 +753,7 @@ export function heatmapChart(id, chart){
 		var dist_mat = calc_dist(items);
 		var clusters = hcluster(dist_mat);
 		var newOrder = clusters.val_inds;
-
+		var cl = 'fg';
 		var oldOrder = chart["get_heatmap" + type]("__order__");
 		if(oldOrder == -1)
 			oldOrder = chart["disp" + type + "Ids" ]();
@@ -765,7 +765,7 @@ export function heatmapChart(id, chart){
 			return oldOrder.indexOf(a) - oldOrder.indexOf(b);
 		});
 		
-		//chart.updateLabelPosition();
+		//	chart.updateLabelPosition();
 
 		return chart;		
 	}
