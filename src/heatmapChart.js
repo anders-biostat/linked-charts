@@ -15,6 +15,8 @@ export function heatmapChart(id, chart){
 		.add_property("dispRowIds", function() {return chart.get_rowIds();})
 		.add_property("heatmapRow", function(rowId) {return chart.get_dispRowIds().indexOf(rowId);})
 		.add_property("heatmapCol", function(colId) {return chart.get_dispColIds().indexOf(colId);})
+		.add_property("dendogramCol")
+		.add_property("dendogramRow")
 		.add_property("value")
 		.add_property("mode", "default")
 		.add_property("colour", function(val) {return chart.colourScale(val);})
@@ -750,10 +752,10 @@ export function heatmapChart(id, chart){
 			traverse(node.left);
 			traverse(node.right);
 		}*/
-		var dist_mat = calc_dist(items);
-		var clusters = hcluster(dist_mat);
-		var newOrder = clusters.val_inds;
-		console.log(newOrder);
+		//console.log(dist_mat);
+		var clusters = hcluster(items);
+		//console.log(clusters);
+		var newOrder = clusters.val_inds.map(function(e) {return e.toString()});
 		var oldOrder = chart["get_heatmap" + type]("__order__");
 		if(oldOrder == -1)
 			oldOrder = chart["disp" + type + "Ids" ]();
@@ -764,12 +766,66 @@ export function heatmapChart(id, chart){
 				return newOrder.indexOf(a) - newOrder.indexOf(b);
 			return oldOrder.indexOf(a) - oldOrder.indexOf(b);
 		});
-		
-			chart.updateLabelPosition();
+		if(type == 'Col')		
+		{
+			chart.dendogramCol(new dendoGram(clusters));
+			var dend = chart.get_dendogramCol();
+			dend.width(chart.get_width())
+				.height(chart.get_margin().top)
+				.padding({left:chart.get_margin().left, 
+						  right:chart.get_margin().right,
+						  top:0, bottom:0});
+		}
+		if(type == 'Row')
+		{
+			chart.dendogramRow(new dendoGram(clusters));
+			var dend = chart.get_dendogramRow();
+			//console.log(chart.get_dendogramRow())
+			dend.width(chart.get_height())
+				.height(chart.get_margin().left)
+				.orientation('v')
+				.padding({left:chart.get_margin().top, 
+						  right:chart.get_margin().bottom,
+						  top:0, bottom:0});	
+		}
+		//dend.place(null, chart.svg, true);
+			//chart.updateLabelPosition();
 
 		return chart;		
 	}
 
+	chart.place = function(element)
+	{
+		if( element === undefined )
+     	 element = "body";
+    	if( typeof( element ) == "string" )
+    	 {
+      		var node = element;
+      		element = d3.select( node );
+      		if( element.size() == 0 )
+        		throw "Error in function 'place': DOM selection for string '" +
+          		node + "' did not find a node."
+  		}
+
+		chart.put_static_content( element );
+		if(chart.get_dendogramCol() != undefined)
+		{
+			var dend = chart['get_dendogramCol']();
+			console.log("Col");
+			dend.place(element, chart.svg, true)
+		}
+		if(chart.get_dendogramRow() != undefined)
+		{
+			var dend = chart.get_dendogramRow();
+			console.log("Row");			
+			//console.log(dend.get_hclus())
+			dend.place(element, chart.svg, true)	
+		}
+
+    	chart.update();
+    	chart.afterUpdate();
+    	return chart;
+	}
 	chart.updateTexts = function(){
 		//add rows
 		var rows = chart.g.selectAll(".text_row")
