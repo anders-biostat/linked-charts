@@ -124,6 +124,40 @@ export function scatterChart(id, chart) {
           layer.chart.axes.scale_y( layer.get_y(d) ) + ")"
         });
     }
+    var domainX = layer.chart.axes.scale_x.domain(),
+      domainY = layer.chart.axes.scale_y.domain();
+    var notShown = layer.g.selectAll(".data_point")
+      .filter(function(d) {
+        return layer.get_x(d) > domainX[1] || layer.get_x(d) < domainX[0] ||
+                layer.get_y(d) > domainY[1] || layer.get_y(d) < domainY[0];
+      }).data();
+    var outTicks = layer.g.selectAll(".out_tick").data(notShown, function(d) {return d});
+    outTicks.exit().remove();
+    outTicks.enter()
+      .append("rect")
+        .attr("class", "out_tick")
+        .attr("fill", function(d){return layer.get_colour(d)})
+        .merge(outTicks)
+          .attr("width", function(d){
+            return layer.get_y(d) > domainY[1] || layer.get_y(d) < domainY[0] ? 4 : 12;
+          })
+          .attr("height", function(d){
+            return layer.get_x(d) > domainX[1] || layer.get_x(d) < domainX[0] ? 4 : 12;
+          })
+          .attr("x", function(d){
+            return d3.max([layer.chart.axes.scale_x(domainX[0]), 
+              layer.chart.axes.scale_x(d3.min([layer.get_x(d), domainX[1]])) - d3.select(this).attr("width")]);
+          })
+          .attr("y", function(d){
+            return d3.min([layer.chart.axes.scale_y(domainY[0]) - d3.select(this).attr("height"), 
+              layer.chart.axes.scale_y(d3.min([layer.get_y(d), domainY[1]]))]);
+          })
+          .on("mousedown", function(d){
+            layer.chart.domainX([d3.min([domainX[0], layer.get_x(d)]), d3.max([domainX[1], layer.get_x(d)])]);
+            layer.chart.domainY([d3.min([domainY[0], layer.get_y(d)]), d3.max([domainY[1], layer.get_y(d)])]);
+            layer.chart.updateAxes();
+          });
+    
     return layer;
   }
 

@@ -286,19 +286,13 @@ export function add_click_listener(chart){
     }
   }
 
-  chart.svg.select(".plotArea")
-    .on("mousedown", on_mousedown)
-    .on("mousemove", on_mousemove)
-    .on("mouseup", on_mouseup)
-    .on("dblclick", on_dblclick)
-    .on("click", on_panelClick);
-//  if(chart.canvas)
-//    chart.canvas
-//      .on("mousedown", on_mousedown)
-//      .on("mousemove", on_mousemove)
-//      .on("mouseup", on_mouseup)
-//      .on("dblclick", on_dblclick)
-//      .on("click", on_panelClick);      
+  chart.svg.selectAll(".plotArea")
+    .on("mousedown", on_mousedown, true)
+    .on("mousemove", on_mousemove, true)
+    .on("mouseup", on_mouseup, true)
+    .on("dblclick", on_dblclick, true)
+    .on("click", on_panelClick, true);
+  
   return chart;
 }
 

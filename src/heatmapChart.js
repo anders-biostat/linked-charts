@@ -743,17 +743,19 @@ export function heatmapChart(id, chart){
 			return chart["get_cluster" + type + "Metric"](items[a], items[b]);
 		};
 
-		/*var traverse = function(node) {
+		var traverse = function(node) {
 			if(node.value){
 				newOrder.push(node.value);
 				return;
 			}
 			traverse(node.left);
 			traverse(node.right);
-		}*/
-		var dist_mat = calc_dist(items);
-		var clusters = hcluster(dist_mat);
-		var newOrder = clusters.val_inds;
+		}
+		
+		var newOrder = [];
+		var clusters = clusterfck.hcluster(aIds, getDistance, clusterfck.COMPLETE_LINKAGE); 
+    traverse(clusters); 
+
 
 		var oldOrder = chart["get_heatmap" + type]("__order__");
 		if(oldOrder == -1)
