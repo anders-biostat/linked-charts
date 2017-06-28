@@ -11,8 +11,8 @@ export function heatmapChart(id, chart){
 		.add_property("rowLabels", function(i) {return i;})
 		.add_property("colIds", function() {return undefined})
 		.add_property("rowIds", function() {return undefined})
-		.add_property("clusterRowIds", function() {return chart.get_colIds()})
-		.add_property("clusterColIds", function() {return chart.get_rowIds()})
+		.add_property("clusterRowIds", function() {return chart.get_rowIds()})
+		.add_property("clusterColIds", function() {return chart.get_colIds()})
 		.add_property("dispColIds", function() {return chart.get_colIds();})
 		.add_property("dispRowIds", function() {return chart.get_rowIds();})
 		.add_property("heatmapRow", function(rowId) {return chart.get_dispRowIds().indexOf(rowId);})
@@ -493,6 +493,8 @@ export function heatmapChart(id, chart){
 		if(rowIds.length > 0 )
 		chart.dispRowIds(rowIds);
 		chart.dispColIds(colIds);
+		chart.clusterRowIds(rowIds)
+		chart.clusterColIds(colIds)
 		chart.updateLabels();
 		chart.updateLabelPosition();
 		chart.cluster('Row')
@@ -511,6 +513,12 @@ export function heatmapChart(id, chart){
 			.updateCellColour()
 			.updateLabelText();
 		chart.updateStarted = false;
+		chart.clusterColIds(chart.get_colIds());
+		chart.clusterRowIds(chart.get_rowIds());
+		chart.cluster('Row');
+		chart.cluster('Col');
+		chart.get_dendogramRow().draw();
+		chart.get_dendogramCol().draw();
 		return chart;
 	}
 
@@ -732,10 +740,10 @@ export function heatmapChart(id, chart){
 			throw "Error in 'cluster': type " + type + " cannot be recognised. " +
 					"Please, use either 'Row' or 'Col'";
 		var items = {}, it = [],
-			aIds = chart["get_disp" + type + "Ids"](),
+			aIds = chart["get_cluster" + type + "Ids"](),
 			bIds;
-		type == "Row" ? bIds = chart.get_dispColIds() :
-			bIds = chart.get_dispRowIds();
+		type == "Row" ? bIds = chart.get_clusterColIds() :
+			bIds = chart.get_clusterRowIds();
 
 		for(var i = 0; i < aIds.length; i++) {
 			for(var j = 0; j < bIds.length; j++)
@@ -783,6 +791,7 @@ export function heatmapChart(id, chart){
 					.padding({left:chart.get_margin().left, 
 							  right:chart.get_margin().right,
 							  top:0, bottom:0});
+				dend.heatmap(chart);
 			}
 			else
 				chart.get_dendogramCol().hclus(clusters);
@@ -801,6 +810,7 @@ export function heatmapChart(id, chart){
 					.padding({left:chart.get_margin().top, 
 							  right:chart.get_margin().bottom,
 							  top:0, bottom:0});	
+				dend.heatmap(chart);
 			}
 			else
 				chart.get_dendogramRow().hclus(clusters);			
