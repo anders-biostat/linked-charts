@@ -11,6 +11,8 @@ export function heatmapChart(id, chart){
 		.add_property("rowLabels", function(i) {return i;})
 		.add_property("colIds", function() {return undefined})
 		.add_property("rowIds", function() {return undefined})
+		.add_property("clusterRowIds", function() {return chart.get_colIds()})
+		.add_property("clusterColIds", function() {return chart.get_rowIds()})
 		.add_property("dispColIds", function() {return chart.get_colIds();})
 		.add_property("dispRowIds", function() {return chart.get_rowIds();})
 		.add_property("heatmapRow", function(rowId) {return chart.get_dispRowIds().indexOf(rowId);})
@@ -493,7 +495,10 @@ export function heatmapChart(id, chart){
 		chart.dispColIds(colIds);
 		chart.updateLabels();
 		chart.updateLabelPosition();
-
+		chart.cluster('Row')
+			 .cluster('Col');
+		chart.get_dendogramRow().draw()
+		chart.get_dendogramCol().draw()
 		return chart;
 	}
 
@@ -754,6 +759,7 @@ export function heatmapChart(id, chart){
 		}*/
 		//console.log(dist_mat);
 		var clusters = hcluster(items);
+		//console.log(clusters)
 		//console.log(clusters);
 		var newOrder = clusters.val_inds.map(function(e) {return e.toString()});
 		var oldOrder = chart["get_heatmap" + type]("__order__");
@@ -768,25 +774,36 @@ export function heatmapChart(id, chart){
 		});
 		if(type == 'Col')		
 		{
-			chart.dendogramCol(new dendoGram(clusters));
-			var dend = chart.get_dendogramCol();
-			dend.width(chart.get_width())
-				.height(chart.get_margin().top)
-				.padding({left:chart.get_margin().left, 
-						  right:chart.get_margin().right,
-						  top:0, bottom:0});
+			if(chart.get_dendogramCol() == undefined)
+			{
+				chart.dendogramCol(new dendoGram(clusters));
+				var dend = chart.get_dendogramCol();
+				dend.width(chart.get_width())
+					.height(chart.get_margin().top)
+					.padding({left:chart.get_margin().left, 
+							  right:chart.get_margin().right,
+							  top:0, bottom:0});
+			}
+			else
+				chart.get_dendogramCol().hclus(clusters);
+
+			
 		}
 		if(type == 'Row')
 		{
-			chart.dendogramRow(new dendoGram(clusters));
-			var dend = chart.get_dendogramRow();
-			//console.log(chart.get_dendogramRow())
-			dend.width(chart.get_height())
-				.height(chart.get_margin().left)
-				.orientation('v')
-				.padding({left:chart.get_margin().top, 
-						  right:chart.get_margin().bottom,
-						  top:0, bottom:0});	
+			if(chart.get_dendogramRow() == undefined)
+			{
+				chart.dendogramRow(new dendoGram(clusters));
+				var dend = chart.get_dendogramRow();
+				dend.width(chart.get_height())
+					.height(chart.get_margin().left)
+					.orientation('v')
+					.padding({left:chart.get_margin().top, 
+							  right:chart.get_margin().bottom,
+							  top:0, bottom:0});	
+			}
+			else
+				chart.get_dendogramRow().hclus(clusters);			
 		}
 		//dend.place(null, chart.svg, true);
 			//chart.updateLabelPosition();
@@ -811,13 +828,11 @@ export function heatmapChart(id, chart){
 		if(chart.get_dendogramCol() != undefined)
 		{
 			var dend = chart['get_dendogramCol']();
-			console.log("Col");
 			dend.place(element, chart.svg, true)
 		}
 		if(chart.get_dendogramRow() != undefined)
 		{
 			var dend = chart.get_dendogramRow();
-			console.log("Row");			
 			//console.log(dend.get_hclus())
 			dend.place(element, chart.svg, true)	
 		}
