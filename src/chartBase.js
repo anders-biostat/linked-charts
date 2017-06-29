@@ -731,20 +731,61 @@ export function axisChart() {
 			chart.panel.add_button("Zoom in", "#zoomIn", function(chart){
 				var xDomain = chart.axes.scale_x.domain(),
 					yDomain = chart.axes.scale_y.domain();
-				chart.domainX([(xDomain[0] * 4 + xDomain[1])/5, 
-											(xDomain[0] + xDomain[1] * 4)/5]);
-				chart.domainY([(yDomain[0] * 4 + yDomain[1])/5, 
-											(yDomain[0] + yDomain[1] * 4)/5]);
+				if(xDomain.length == 2 && typeof xDomain[0] == "number" && typeof xDomain[1])
+					chart.domainX([(xDomain[0] * 4 + xDomain[1])/5, 
+												(xDomain[0] + xDomain[1] * 4)/5])
+				else {
+					var removeElements = Math.ceil(xDomain.length * 0.1);
+					xDomain.splice(0, removeElements);
+					xDomain.splice(xDomain.length - removeElements);
+					if(xDomain.length > 0)
+						chart.domainX(xDomain);
+				}
+				if(yDomain.length == 2 && typeof yDomain[0] == "number" && typeof yDomain[1])
+					chart.domainY([(yDomain[0] * 4 + yDomain[1])/5, 
+												(yDomain[0] + yDomain[1] * 4)/5]);
+				else {
+					var removeElements = Math.ceil(yDomain.length * 0.1);
+					yDomain.splice(0, removeElements);
+					yDomain.splice(yDomain.length - removeElements );
+					if(yDomain.length > 0)
+						chart.domainY(yDomain);
+				}
 				chart.updateAxes();
 
 			}, "Double click to return to original scales");
 			chart.panel.add_button("Zoom out", "#zoomOut", function(chart){
 				var xDomain = chart.axes.scale_x.domain(),
 					yDomain = chart.axes.scale_y.domain();
-				chart.domainX([(xDomain[0] * 6 - xDomain[1])/5, 
-											(-xDomain[0] + xDomain[1] * 6)/5]);
-				chart.domainY([(yDomain[0] * 6 - yDomain[1])/5, 
-											(-yDomain[0] + yDomain[1] * 6)/5]);
+				if(xDomain.length == 2 && typeof xDomain[0] == "number" && typeof xDomain[1])
+					chart.domainX([(xDomain[0] * 6 - xDomain[1])/5, 
+												(-xDomain[0] + xDomain[1] * 6)/5])
+				else{
+					var addElements = Math.ceil(xDomain.length * 0.1),
+						origDomainX = chart.origDomainX(),
+						start = origDomainX.indexOf(xDomain[0]),
+						end = origDomainX.indexOf(xDomain[xDomain.length - 1]);
+					for(var i = start - 1; i >= d3.max([0, start - addElements]); i--)
+						xDomain.unshift(origDomainX[i]);
+					for(var i = end + 1; i < d3.min([origDomainX.length, end + addElements + 1]); i++)
+						xDomain.push(origDomainX[i]);
+					chart.domainX(xDomain);
+				}
+				if(yDomain.length == 2 && typeof yDomain[0] == "number" && typeof yDomain[1])
+					chart.domainY([(yDomain[0] * 6 - yDomain[1])/5, 
+												(-yDomain[0] + yDomain[1] * 6)/5])
+				else{
+					var addElements = Math.ceil(yDomain.length * 0.1),
+						origDomainY = chart.origDomainY(),
+						start = origDomainY.indexOf(yDomain[0]),
+						end = origDomainY.indexOf(yDomain[yDomain.length - 1]);
+					for(var i = origDomainY[start - 1]; i >= d3.max([0, start - addElements]); i--)
+						yDomain.unshift(origDomainY[i]);
+					for(var i = end + 1; i < d3.min([origDomainY.length, end + addElements + 1]); i++)
+						yDomain.push(origDomainY[i]);
+
+					chart.domainY(yDomain);
+				}
 				chart.updateAxes();			
 			}, "Double click to return to original scales");
 		}
@@ -860,14 +901,56 @@ export function axisChart() {
 	}
 
 	chart.pan.move = function(p){
-		var invertedP = [chart.axes.scale_x.invert(p[0]), chart.axes.scale_y.invert(p[1])];
-		var move = [invertedP[0] - chart.axes.scale_x.invert(chart.pan.down[0]), 
-								invertedP[1] - chart.axes.scale_y.invert(chart.pan.down[1])];
-		chart.pan.down = p;
 		var domainX = chart.axes.scale_x.domain(),
 			domainY = chart.axes.scale_y.domain();
-		chart.domainX([domainX[0] - move[0], domainX[1] - move[0]]);
-		chart.domainY([domainY[0] - move[1], domainY[1] - move[1]]);
+		if(chart.axes.scale_x.invert){
+			var invPx = chart.axes.scale_x.invert(p[0]),
+				moveX = invPx - chart.axes.scale_x.invert(chart.pan.down[0]);
+			chart.pan.down[0] = p[0];
+			chart.domainX([domainX[0] - moveX, domainX[1] - moveX]);
+		} else {
+			var moveX = p[0] - chart.pan.down[0],
+				steps = Math.floor(Math.abs(moveX) / chart.axes.scale_x.step() * 2);
+			if(steps > 0){
+				chart.pan.down[0] += Math.sign(moveX) * steps * chart.axes.scale_x.step() /2;
+				var origDomainX = chart.origDomainX(),
+					start = origDomainX.indexOf(domainX[0]),
+					end = origDomainX.indexOf(domainX[domainX.length - 1]);
+				if(moveX < 0){
+					domainX.splice(0, steps);
+					domainX = domainX.concat(origDomainX.slice(end + 1, d3.min([origDomainX.length, end + steps + 1])));
+				} else {
+					domainX.splice(domainX.length - steps);
+					domainX = origDomainX.slice(d3.max([0, start - steps]), start).concat(domainX);
+				}
+				if(domainX.length > 0) chart.domainX(domainX);
+			}
+		}
+
+		if(chart.axes.scale_y.invert){
+			var invPy = chart.axes.scale_y.invert(p[1]),
+				moveY = invPy - chart.axes.scale_y.invert(chart.pan.down[1]);
+			chart.pan.down[1] = p[1];
+			chart.domainY([domainY[0] - moveY, domainY[1] - moveY]);
+		} else {
+			var moveY = p[1] - chart.pan.down[1],
+				steps = Math.floor(Math.abs(moveY) / chart.axes.scale_y.step() * 2);
+			if(steps > 0){
+				chart.pan.down[1] += Math.sign(moveY) * steps * chart.axes.scale_y.step() / 2;
+				var origDomainY = chart.origDomainY(),
+					start = origDomainY.indexOf(domainY[0]),
+					end = origDomainY.indexOf(domainY[domainY.length - 1]);
+				if(moveY > 0){
+					domainY.splice(0, steps);
+					domainY = domainY.concat(origDomainY.slice(end + 1, d3.min([origDomainY.length, end + steps + 1])));
+				} else {
+					domainY.splice(domainY.length - steps);
+					domainY = origDomainY.slice(d3.max([0, start - steps]), start).concat(domainY);
+				}
+				if(domainY.length > 0) chart.domainY(domainY);
+			}
+		}
+
 		chart.updateAxes();
 	}
 
