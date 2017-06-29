@@ -647,10 +647,36 @@ export function axisChart() {
 	chart.zoom = function(lu, rb){
 		if(lu[0] == rb[0] || lu[1] == rb[1])
 			return;
-    chart.domainX([chart.axes.scale_x.invert(lu[0]), 
-                        chart.axes.scale_x.invert(rb[0])]);
-    chart.domainY([chart.axes.scale_y.invert(rb[1]),
-                        chart.axes.scale_y.invert(lu[1])]);
+    if(chart.axes.scale_x.invert)
+    	chart.domainX([chart.axes.scale_x.invert(lu[0]), 
+      	             chart.axes.scale_x.invert(rb[0])])
+    else {
+    	var newDomainX = [], domainX = chart.get_domainX(),
+    		i = 0;
+    	while(chart.axes.scale_x(domainX[i]) <= rb[0]){
+				if(chart.axes.scale_x(domainX[i]) >= lu[0])
+					newDomainX.push(domainX[i]);
+				i++;    	
+    	}
+    	if(newDomainX.length > 0)
+    		chart.domainX(newDomainX);
+    }
+
+    if(chart.axes.scale_y.invert)
+	    chart.domainY([chart.axes.scale_y.invert(rb[1]),
+                    chart.axes.scale_y.invert(lu[1])]);
+    else {
+    	var newDomainY = [], domainY = chart.get_domainY(),
+    		i = 0;
+    	while(chart.axes.scale_y(domainY[i]) <= rb[1]){
+				if(chart.axes.scale_y(domainY[i]) >= lu[1])
+					newDomainY.push(domainY[i]);
+				i++;    	
+    	}
+    	if(newDomainY.length > 0)
+    		chart.domainY(newDomainY);
+    }
+
     chart.updateAxes();
   }
   chart.resetDomain = function(){

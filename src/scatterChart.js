@@ -19,7 +19,12 @@ export function scatterChart(id, chart) {
       return layer.get_size(d) * 0.1;
     })
     .add_property("symbolType", "Circle")
-		.add_property("groupName", function(i){return i;});
+		.add_property("groupName", function(i){return i;})
+    .add_property("informText", function(id){
+      return "ID: <b>" + id + "</b>;<br>" + 
+            "x = " + layer.get_x(id).toFixed(2) + ";<br>" + 
+            "y = " + layer.get_y(id).toFixed(2)
+    });
 	chart.syncProperties(layer);
 
   layer.type = "scatterChart";
@@ -61,9 +66,7 @@ export function scatterChart(id, chart) {
         .style("left", (pos[0] + 10) + "px")
         .style("top", (pos[1] + 10) + "px")
         .select(".value")
-          .html("ID: <b>" + d + "</b>;<br>" + 
-            "x = " + layer.get_x(d).toFixed(2) + ";<br>" + 
-            "y = " + layer.get_y(d).toFixed(2));  
+          .html(layer.get_informText(d));  
     layer.chart.container.select(".inform")
       .classed("hidden", false);
   });

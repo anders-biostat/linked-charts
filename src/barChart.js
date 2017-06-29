@@ -17,7 +17,14 @@ export function barChart(id, chart){
 		.add_property("value")
 		.add_property("groupWidth", 0.6)
 		.add_property("stroke", "#444")
-		.add_property("strokeWidth", 0);
+		.add_property("strokeWidth", 0)
+		.add_property("informText", function(groupId, barId, stackId){
+			var id = groupId;
+			if(layer.nbars() > 1) id += ", " + barId;
+			if(layer.nstacks() > 1) id += ", " + stackId;
+			return "ID: <b>" + id + "</b>;<br>" + 
+            "value = " + layer.get_value(groupId, barId, stackId).toFixed(2)
+		});
 	chart.syncProperties(layer);
 
 	layer.type = "barChart";
@@ -45,10 +52,22 @@ export function barChart(id, chart){
 	layer.nstacks(1);
 	layer.contScaleX(false);
 	layer.dataIds(function(){
-		return layer.stackIds();
+		if(layer.nbars() == 1)
+			return layer.stackIds();
+		var ids = [], barIds = layer.barIds(), stackIds = layer.stackIds();
+		for(var i = 0; i < layer.nbars(); i++)
+			for(var j = 0; j < layer.nstacks(); j++)
+				ids.push(barIds[i] + ", " + stackIds[j]);
+		return ids;
 	});
 	layer.colourValue(function(id) {return id;});
-	
+	layer.colour(function(gropuId, barId, stackId) {
+      if(layer.nbars() == 1)
+      	return layer.colourScale(layer.get_colourValue(stackId))
+      else
+      	return layer.colourScale(layer.get_colourValue(barId + ", " + stackId));
+    })
+
 	layer.layerDomainX(function() {
 		return layer.groupIds();
 	});
@@ -69,8 +88,37 @@ export function barChart(id, chart){
 		return [0, maxHeight];
 	});
 
+  //default hovering behaviour
+  layer.pointMouseOver(function(d){
+    var pos = d3.mouse(chart.container.node());
+    //change colour and class
+    d3.select(this)
+      .attr("fill", function(d) {
+        return d3.rgb(layer.get_colour(d[0], d[1], d[2])).darker(0.5);
+      })
+      .classed("hover", true);
+    //show label
+    layer.chart.container.select(".inform")
+        .style("left", (pos[0] + 10) + "px")
+        .style("top", (pos[1] + 10) + "px")
+        .select(".value")
+          .html(layer.get_informText(d[0], d[1], d[2]));  
+    layer.chart.container.select(".inform")
+      .classed("hidden", false);
+  });
+  layer.pointMouseOut(function(d){
+    d3.select(this)
+      .attr("fill", function(d) {
+        return layer.get_colour(d[0], d[1], d[2]);
+      })
+      .classed("hover", false);
+    layer.chart.container.select(".inform")
+      .classed("hidden", true);
+  });
+
+
 	layer.findPoints = function(lu, rb){
-		layer.g.selectAll(".data_point")
+		return layer.g.selectAll(".data_point")
 			.filter(function(){
 				var x = +d3.select(this).attr("x"),
 					y = +d3.select(this).attr("y"),
@@ -93,17 +141,19 @@ export function barChart(id, chart){
 			//for now it's just a linear scale
 			heightMult = Math.abs(layer.chart.axes.scale_y(1) - layer.chart.axes.scale_y(0)),
 			groupScale = d3.scaleLinear()
-				.domain([0, layer.nbars()])
+				.domain([0, layer.nbars() - 1])
 				.range([-groupWidth/2, groupWidth/2 - barWidth]),
 			barIds = layer.barIds(),
 			stackIds = layer.stackIds();
-		if(typeof layer.chart.transition !== "undefined")
+		if(typeof layer.chart.transition !== "undefined"){
 			layer.g.selectAll(".data_point").transition(layer.chart.transition)
 				.attr("width", barWidth)
 				.attr("height", function(d){ 
 					return layer.get_value(d[0], d[1], d[2]) * heightMult;
 				})
 				.attr("x", function(d){
+					if(layer.chart.axes.scale_x(d[0]) == undefined)
+						return -500;
 					return groupScale(barIds.indexOf(d[1])) + 
 						layer.chart.axes.scale_x(d[0]);
 				})
@@ -113,13 +163,15 @@ export function barChart(id, chart){
 						height += layer.get_value(d[0], d[1], stackIds[i]);
 					return layer.chart.axes.scale_y(height);
 				})
-		else
+		}	else {
 			layer.g.selectAll(".data_point")
 				.attr("width", barWidth)
 				.attr("height", function(d){ 
 					return layer.get_value(d[0], d[1], d[2]) * heightMult;
 				})
 				.attr("x", function(d){
+					if(layer.chart.axes.scale_x(d[0]) == undefined)
+						return -500;
 					return groupScale(barIds.indexOf(d[1])) + 
 						layer.chart.axes.scale_x(d[0]);
 				})
@@ -129,6 +181,7 @@ export function barChart(id, chart){
 						height += layer.get_value(d[0], d[1], stackIds[i]);
 					return layer.chart.axes.scale_y(height);
 				});
+		}
 
 		return layer;			
 	}
@@ -149,7 +202,7 @@ export function barChart(id, chart){
 		else
 			layer.g.selectAll(".data_point")
 				.attr("fill", function(d) {
-					return layer.get_colour(d[2], d[1], d[0]);
+					return layer.get_colour(d[0], d[1], d[2]);
 				})
 				.attr("stroke", function(d) {
 					return layer.get_stroke(d[0], d[1], d[2]);
@@ -193,8 +246,10 @@ export function barChart(id, chart){
 			.append("rect")
 				.attr("class", "data_point")
 				.merge(stacks)
-					.attr("id", function(d) {return "p" + d.join("_-sep-_")})
-					.on( "click", layer.get_on_click );		
+					.attr("id", function(d) {return "p" + d.join("_-sep-_").replace(/ /g, "_")})
+					.on( "click", function(d) {layer.get_on_click(d[0], d[1], d[2])} )
+        	.on( "mouseover", layer.get_pointMouseOver )
+        	.on( "mouseout", layer.get_pointMouseOut );		
 	}
 
 	//add legend
