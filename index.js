@@ -7,4 +7,5 @@ export { heatmapChart } from "./src/heatmapChart";
 export { cache, separateBy, getEuclideanDistance, add_click_listener, pearsonCorr, fillTextBlock, get_symbolSize, escapeRegExp } from "./src/additionalFunctions";
 export { sigmoidColorSlider } from "./src/sigmoidColorSlider";
 export { simpleTable } from "./src/simpleTable";
+export { barChart } from "./src/barChart";
 

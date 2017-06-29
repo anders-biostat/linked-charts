@@ -110,7 +110,7 @@ export function legend(chart) {
 			if(scale.steps)
 				newScale.steps = scale.steps
 			else {
-				domain.length == 2 ? newScale.steps = 9 : newScale.steps = domain.length;
+				domain.length == 2 && typeof domain[0] === "number" ? newScale.steps = 9 : newScale.steps = domain.length;
 			} 
 		}
 		return newScale;
