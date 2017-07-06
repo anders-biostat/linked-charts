@@ -98,3 +98,9 @@ text{
 	-ms-user-select: none;       /* Internet Explorer/Edge */
 }
 
+line.normal {
+	stroke: black;
+}
+line.selected {
+	stroke: red;
+}

@@ -1,5 +1,6 @@
 import { getEuclideanDistance, add_click_listener } from "./additionalFunctions";
 import { chartBase } from "./chartBase";
+import { dendogram } from "./dendogram";
 
 export function heatmapChart(id, chart){
 
@@ -11,10 +12,16 @@ export function heatmapChart(id, chart){
 		.add_property("rowLabels", function(i) {return i;})
 		.add_property("colIds", function() {return undefined})
 		.add_property("rowIds", function() {return undefined})
+		//.add_property("clusterRowIds", function() {return chart.get_rowIds()})
+		//.add_property("clusterColIds", function() {return chart.get_colIds()})
 		.add_property("dispColIds", function() {return chart.get_colIds();})
 		.add_property("dispRowIds", function() {return chart.get_rowIds();})
 		.add_property("heatmapRow", function(rowId) {return chart.get_dispRowIds().indexOf(rowId);})
 		.add_property("heatmapCol", function(colId) {return chart.get_dispColIds().indexOf(colId);})
+		//.add_property("dendogramCol")
+		//.add_property("dendogramRow")
+		.add_property("showDendogramRow", true)
+		.add_property("showDendogramCol", true)
 		.add_property("value")
 		.add_property("mode", "default")
 		.add_property("colour", function(val) {return chart.colourScale(val);})
@@ -93,7 +100,9 @@ export function heatmapChart(id, chart){
 			})
 			.on("mouseout", function() {
 				chart.container.select(".inform").classed("hidden", true);
-			})
+			});
+
+
 
 		if(chart.showPanel()){
 			chart.panel.add_button("Zoom in", "#zoomIn", function(chart){
@@ -204,12 +213,16 @@ export function heatmapChart(id, chart){
 			return chart;
 		}
 
-		var ids = chart.rowIds().slice(), ind,
+		var ids = chart.get_heatmapRow("__order__"), ind,
 			dispRowIds = chart.dispRowIds(),
 			inds = [];
+		if(ids == -1)
+			ids = chart.rowIds();
+
 		for(var i = 0; i < dispRowIds.length; i++){
 			inds.push(ids.indexOf(dispRowIds[i]));
 		}
+		inds = inds.sort(function(a, b) {return a - b})
 		dispRowIds = dispRowIds.sort(f);
 		for(var i = 0; i < dispRowIds.length; i++){
 			ids[inds[i]] = dispRowIds[i];
@@ -221,7 +234,7 @@ export function heatmapChart(id, chart){
 				return;
 			}
 			if(rowId == "__order__")
-				return ids;
+				return ids.slice();
 			var actIds = chart.dispRowIds(),
 				orderedIds = ids.filter(function(e) {
 					return actIds.indexOf(e) != -1;
@@ -251,12 +264,16 @@ export function heatmapChart(id, chart){
 			chart.updateLabelPosition();
 			return chart;
 		}
-		var ids = chart.colIds().slice(), ind,
+		var ids = chart.get_heatmapCol("__order__"), ind,
 			dispColIds = chart.dispColIds(),
 			inds = [];
+		if(ids == -1)
+			ids = chart.colIds();
+
 		for(var i = 0; i < dispColIds.length; i++){
 			inds.push(ids.indexOf(dispColIds[i]));
 		}
+		inds = inds.sort(function(a, b) {return a - b})
 		dispColIds = dispColIds.sort(f);
 		for(var i = 0; i < dispColIds.length; i++){
 			ids[inds[i]] = dispColIds[i];
@@ -268,13 +285,13 @@ export function heatmapChart(id, chart){
 				return;
 			}
 			if(colId == "__order__")
-				return ids;
+				return ids.slice();
 
-			var actIds = chart.get_dispColIds(),
+			var actIds = chart.dispColIds(),
 				orderedIds = ids.filter(function(e) {
 					return actIds.indexOf(e) != -1;
 				});
-			if(orderedIds.length != actIds.length) {
+			if(orderedIds.length < actIds.length) {
 				orderedIds = actIds.sort(f);
 				ids = orderedIds.slice();
 			}
@@ -311,10 +328,31 @@ export function heatmapChart(id, chart){
 		if(k == 0) return dispIds;
 		if(k < 0){
 			k = -k;
-			if(side == "top" || side == "left")
-				return dispIds.slice(k)
-			else
-				return dispIds.slice(0, dispIds.length - k);
+			var pos, ind;
+			if(side == "top" || side == "left"){
+				pos = 0;
+				while(k > 0 && dispIds.length > 1){
+					ind = dispIds.indexOf(orderedIds[pos]);
+					if(ind != -1){
+						k--;
+						dispIds.splice(ind, 1);
+					}
+					pos++;
+				}
+				return dispIds;
+			}
+			else{
+				pos = orderedIds.length - 1;
+				while(k > 0 && dispIds.length > 1){
+					ind = dispIds.indexOf(orderedIds[pos]);
+					if(ind != -1){
+						k--;
+						dispIds.splice(ind, 1);
+					}
+					pos--;
+				}
+				return dispIds;
+			}
 		}
 
 		var border;
@@ -341,19 +379,19 @@ export function heatmapChart(id, chart){
 		inherited_updateSize();
 		if(typeof chart.transition !== "undefined"){
 			chart.svg.selectAll(".label_panel").transition(chart.transition)
-				.attr("transform", "translate(" + chart.get_margin().left + ", " +
-					chart.get_margin().top + ")");
+				.attr("transform", "translate(" + chart.margin().left + ", " +
+					chart.margin().top + ")");
 			chart.svg.select(".legend_panel").transition(chart.transition)
 				.attr("transform", "translate(0, " + 
-					(chart.get_margin().top + chart.get_plotHeight()) + ")");
+					(chart.margin().top + chart.plotHeight()) + ")");
 			chart.axes.x_label.transition(chart.transition)
-				.attr("font-size", d3.min([chart.get_margin().bottom - 2, 15]))
-				.attr("x", chart.get_plotWidth() + chart.get_margin().left)
-				.attr("y", chart.get_height());
+				.attr("font-size", d3.min([chart.margin().bottom - 2, 15]))
+				.attr("x", chart.plotWidth() + chart.margin().left)
+				.attr("y", chart.height());
 			chart.axes.y_label.transition(chart.transition)
-				.attr("font-size", d3.min([chart.get_margin().right - 2, 15]))
-				.attr("x", - chart.get_margin().top)
-				.attr("y", chart.get_width());
+				.attr("font-size", d3.min([chart.margin().right - 2, 15]))
+				.attr("x", - chart.margin().top)
+				.attr("y", chart.width());
 		} else {
 			chart.svg.selectAll(".label_panel")
 				.attr("transform", "translate(" + chart.get_margin().left + ", " +
@@ -415,6 +453,12 @@ export function heatmapChart(id, chart){
 				.attr("y", function(d) {return chart.axes.scale_y(chart.get_heatmapRow(d) + 1);});
 		}
 		chart.updateCellPosition();
+		
+		if(chart.showDendogramCol())
+			chart.drawDendogram("Col");
+		if(chart.showDendogramRow())
+			chart.drawDendogram("Row");
+		
 		return chart;
 	}
 
@@ -490,9 +534,14 @@ export function heatmapChart(id, chart){
 		if(rowIds.length > 0 )
 		chart.dispRowIds(rowIds);
 		chart.dispColIds(colIds);
+		//chart.clusterRowIds(rowIds)
+		//chart.clusterColIds(colIds)
 		chart.updateLabels();
 		chart.updateLabelPosition();
-
+		//chart.cluster('Row')
+		//	 .cluster('Col');
+		//if(chart.dendogramRow) chart.drawDendogram("Row");
+		//if(chart.dendogramCol) chart.drawDendogram("Col");
 		return chart;
 	}
 
@@ -505,6 +554,12 @@ export function heatmapChart(id, chart){
 			.updateCellColour()
 			.updateLabelText();
 		chart.updateStarted = false;
+		//chart.clusterColIds(chart.get_colIds());
+		//chart.clusterRowIds(chart.get_rowIds());
+		//chart.cluster('Row');
+		//chart.cluster('Col');
+		//if(chart.dendogramRow) chart.drawDendogram("Row");
+		//if(chart.dendogramCol) chart.drawDendogram("Col");
 		return chart;
 	}
 
@@ -720,16 +775,63 @@ export function heatmapChart(id, chart){
 		return chart;
 	}
 
-	//type shoud be Row or Col
-	chart.cluster = function(type){
+	chart.cluster = function(type, features){
 		if(type != "Row" && type != "Col")
 			throw "Error in 'cluster': type " + type + " cannot be recognised. " +
 					"Please, use either 'Row' or 'Col'";
+		
+		if(chart["dendogram" + type] === undefined){
+			chart["dendogram" + type] = dendogram(chart);
+			type == "Row" ? chart["dendogram" + type].orientation("v") : chart["dendogram" + type].orientation("h"); 
+		};
+
+		chart["dendogram" + type]
+			.dataIds(function() {
+				return chart["disp" + type + "Ids"]();
+			});
+		if(features === undefined)
+			type == "Row" ? features = chart.dispColIds() :
+											features = chart.dispRowIds();
+		//console.log(features);
+
+		if(type == "Row")
+			chart["dendogram" + type]
+				.data(function(id) {
+					return features.map(function(e) {return chart.get_value(id, e)});
+				})
+		else
+			chart["dendogram" + type]
+				.data(function(id) {
+					return features.map(function(e) {return chart.get_value(e, id)});
+				});
+
+		chart["dendogram" + type]
+			.distance(function(a, b){
+				return chart["get_cluster" + type + "Metric"](a, b);
+			})
+			.cluster();
+
+		var newOrder = chart["dendogram" + type].clusters.val_inds.map(function(e) {return e.toString()});
+		var oldOrder = chart["get_heatmap" + type]("__order__");
+		if(oldOrder == -1)
+			oldOrder = chart["disp" + type + "Ids" ]();
+
+		chart["reorder" + type](function(a, b){
+			if(newOrder.indexOf(a) != -1 && newOrder.indexOf(b) != -1)
+				return newOrder.indexOf(a) - newOrder.indexOf(b);
+			return oldOrder.indexOf(a) - oldOrder.indexOf(b);
+		});	
+
+		return chart;
+	}
+
+	//type shoud be Row or Col
+	/*chart.cluster = function(type){
 		var items = {}, it = [],
-			aIds = chart["get_disp" + type + "Ids"](),
+			aIds = chart["get_cluster" + type + "Ids"](),
 			bIds;
-		type == "Row" ? bIds = chart.get_dispColIds() :
-			bIds = chart.get_dispRowIds();
+		type == "Row" ? bIds = chart.get_clusterColIds() :
+			bIds = chart.get_clusterRowIds();
 
 		for(var i = 0; i < aIds.length; i++) {
 			for(var j = 0; j < bIds.length; j++)
@@ -751,12 +853,11 @@ export function heatmapChart(id, chart){
 			traverse(node.left);
 			traverse(node.right);
 		}
-		
-		var newOrder = [];
-		var clusters = clusterfck.hcluster(aIds, getDistance, clusterfck.COMPLETE_LINKAGE); 
-    traverse(clusters); 
-
-
+		//console.log(dist_mat);
+		var clusters = hcluster(items);
+		//console.log(clusters)
+		//console.log(clusters);
+		var newOrder = clusters.val_inds.map(function(e) {return e.toString()});
 		var oldOrder = chart["get_heatmap" + type]("__order__");
 		if(oldOrder == -1)
 			oldOrder = chart["disp" + type + "Ids" ]();
@@ -767,12 +868,91 @@ export function heatmapChart(id, chart){
 				return newOrder.indexOf(a) - newOrder.indexOf(b);
 			return oldOrder.indexOf(a) - oldOrder.indexOf(b);
 		});
-		
-		//chart.updateLabelPosition();
+		if(type == 'Col')		
+		{
+			if(chart.get_dendogramCol() == undefined)
+			{
+				chart.dendogramCol(new dendoGram(clusters));
+				var dend = chart.get_dendogramCol();
+				dend.width(chart.get_width())
+					.height(chart.get_margin().top)
+					.padding({left:chart.get_margin().left, 
+							  right:chart.get_margin().right,
+							  top:0, bottom:0});
+				dend.heatmap(chart);
+			}
+			else
+				chart.get_dendogramCol().hclus(clusters);
+
+			
+		}
+		if(type == 'Row')
+		{
+			if(chart.get_dendogramRow() == undefined)
+			{
+				chart.dendogramRow(new dendoGram(clusters));
+				var dend = chart.get_dendogramRow();
+				dend.width(chart.get_height())
+					.height(chart.get_margin().left)
+					.orientation('v')
+					.padding({left:chart.get_margin().top, 
+							  right:chart.get_margin().bottom,
+							  top:0, bottom:0});	
+				dend.heatmap(chart);
+			}
+			else
+				chart.get_dendogramRow().hclus(clusters);			
+		}
+		//dend.place(null, chart.svg, true);
+			//chart.updateLabelPosition();
 
 		return chart;		
+	} */
+
+	chart.drawDendogram = function(type){
+		//if rows (or columns) are not clustered and 
+		//thus no dendogram is defined, do nothing
+		if(chart["dendogram" + type] === undefined)
+			return chart;
+		if(chart["dendogram" + type].g === undefined)
+			chart["dendogram" + type].place()
+		else
+			chart["dendogram" + type].g.selectAll("line")
+				.remove();
+			chart["dendogram" + type].draw();
+		return chart;
 	}
 
+	/*chart.place = function(element)
+	{
+		if( element === undefined )
+     	 element = "body";
+    	if( typeof( element ) == "string" )
+    	 {
+      		var node = element;
+      		element = d3.select( node );
+      		if( element.size() == 0 )
+        		throw "Error in function 'place': DOM selection for string '" +
+          		node + "' did not find a node."
+  		}
+
+		chart.put_static_content( element );
+		if(chart.get_dendogramCol() != undefined)
+		{
+			var dend = chart['get_dendogramCol']();
+			dend.place(element, chart.svg, true)
+		}
+		if(chart.get_dendogramRow() != undefined)
+		{
+			var dend = chart.get_dendogramRow();
+			//console.log(dend.get_hclus())
+			dend.place(element, chart.svg, true)	
+		}
+
+    	chart.update();
+    	chart.afterUpdate();
+    	return chart;
+	} */
 	chart.updateTexts = function(){
 		//add rows
 		var rows = chart.g.selectAll(".text_row")
