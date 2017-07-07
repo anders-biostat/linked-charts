@@ -12,14 +12,10 @@ export function heatmapChart(id, chart){
 		.add_property("rowLabels", function(i) {return i;})
 		.add_property("colIds", function() {return undefined})
 		.add_property("rowIds", function() {return undefined})
-		//.add_property("clusterRowIds", function() {return chart.get_rowIds()})
-		//.add_property("clusterColIds", function() {return chart.get_colIds()})
-		.add_property("dispColIds", function() {return chart.get_colIds();})
-		.add_property("dispRowIds", function() {return chart.get_rowIds();})
-		.add_property("heatmapRow", function(rowId) {return chart.get_dispRowIds().indexOf(rowId);})
-		.add_property("heatmapCol", function(colId) {return chart.get_dispColIds().indexOf(colId);})
-		//.add_property("dendogramCol")
-		//.add_property("dendogramRow")
+		.add_property("dispColIds", function() {return chart.colIds();})
+		.add_property("dispRowIds", function() {return chart.rowIds();})
+		.add_property("heatmapRow", function(rowId) {return chart.dispRowIds().indexOf(rowId);})
+		.add_property("heatmapCol", function(colId) {return chart.dispColIds().indexOf(colId);})
 		.add_property("showDendogramRow", true)
 		.add_property("showDendogramCol", true)
 		.add_property("value")
@@ -54,13 +50,13 @@ export function heatmapChart(id, chart){
 	chart.colIds("_override_", "ncols", function(){
 		return chart.get_colIds().length;
 	});
+	chart.rowIds("_override_", "dispRowIds", function(){
+		return chart.rowIds();
+	})
+	chart.colIds("_override_", "dispColIds", function(){
+		return chart.colIds();
+	})
 
-//	chart.dispRowIds("_override_", "nrows", function(){
-//		return chart.get_dispRowIds().length;
-//	});
-//	chart.dispColIds("_override_", "ncols", function(){
-//		return chart.get_dispColIds().length;
-//	}); 
 	chart.axes = {};
 	chart.marked = [];
 
@@ -206,102 +202,48 @@ export function heatmapChart(id, chart){
 		d3.select(this).classed("hover", false);
 	};
 
-	chart.reorderRow = function(f){
+	chart.reorder = function(type, f){
 		if(f == "flip"){
-			chart.get_heatmapRow("__flip__");
+			chart["get_heatmap" + type]("__flip__");
 			chart.updateLabelPosition();
 			return chart;
 		}
+		f.domain = chart["disp"+ type + "Ids"]().slice();
+		var orderedIds = chart["get_heatmap" + type]("__order__");
+		if(orderedIds == -1)
+			orderedIds = chart[type.toLowerCase() + "Ids"]();
 
-		var ids = chart.get_heatmapRow("__order__"), ind,
-			dispRowIds = chart.dispRowIds(),
-			inds = [];
-		if(ids == -1)
-			ids = chart.rowIds();
+		var savedOrder = orderedIds.slice();
+		var newF = function(a, b){
+			if(f.domain.indexOf(a) != -1 && f.domain.indexOf(b) != -1)
+				return f(a, b);
+			if(savedOrder.indexOf(a) != -1 && savedOrder.indexOf(b) != -1)
+				return savedOrder.indexOf(a) - savedOrder.indexOf(b);
+			return chart[type.toLowerCase() + "Ids"]().indexOf(a) -
+							chart[type.toLowerCase() + "Ids"]().indexOf(b);
+		}
 
-		for(var i = 0; i < dispRowIds.length; i++){
-			inds.push(ids.indexOf(dispRowIds[i]));
-		}
-		inds = inds.sort(function(a, b) {return a - b})
-		dispRowIds = dispRowIds.sort(f);
-		for(var i = 0; i < dispRowIds.length; i++){
-			ids[inds[i]] = dispRowIds[i];
-		}
-						
-		chart.heatmapRow(function(rowId){
-			if(rowId == "__flip__"){
-				ids = ids.reverse();
+		var dispIds = chart["disp" + type + "Ids"]().sort(f);
+		orderedIds.sort(newF);
+		var mult = 1;
+
+		chart["heatmap" + type](function(id){
+			if(id == "__flip__"){
+				mult *= -1;
+				//dispIds.reverse();
+				orderedIds.reverse();
 				return;
 			}
-			if(rowId == "__order__")
-				return ids.slice();
-			var actIds = chart.dispRowIds(),
-				orderedIds = ids.filter(function(e) {
-					return actIds.indexOf(e) != -1;
-				});
-			if(orderedIds.length != actIds.length) {
-				orderedIds = actIds.sort(f);
-				ids = orderedIds.slice();
-			} 
-			
-			ind = orderedIds.indexOf(rowId);
-			if(ind > -1)
-				 return ind
-			else
-				throw "Wrong rowId in chart.get_heatmapRow";
-		});
-		if(chart.svg){
-			chart.svg.select(".col").selectAll(".label")
-				.classed("selected", false)
-				.classed("sorted", false);		
-				chart.updateLabelPosition();
-		}
-		return chart;
-	}
-	chart.reorderCol = function(f){
-		if(f == "flip"){
-			chart.get_heatmapCol("__flip__");
-			chart.updateLabelPosition();
-			return chart;
-		}
-		var ids = chart.get_heatmapCol("__order__"), ind,
-			dispColIds = chart.dispColIds(),
-			inds = [];
-		if(ids == -1)
-			ids = chart.colIds();
-
-		for(var i = 0; i < dispColIds.length; i++){
-			inds.push(ids.indexOf(dispColIds[i]));
-		}
-		inds = inds.sort(function(a, b) {return a - b})
-		dispColIds = dispColIds.sort(f);
-		for(var i = 0; i < dispColIds.length; i++){
-			ids[inds[i]] = dispColIds[i];
-		}
-
-		chart.heatmapCol(function(colId){
-			if(colId == "__flip__"){
-				ids = ids.reverse();
+			if(id == "__order__")
+				return orderedIds;
+			if(id == "__sort__"){
+				dispIds = chart["disp" + type + "Ids"]().sort(function(a, b){return mult * newF(a, b);});
 				return;
 			}
-			if(colId == "__order__")
-				return ids.slice();
 
-			var actIds = chart.dispColIds(),
-				orderedIds = ids.filter(function(e) {
-					return actIds.indexOf(e) != -1;
-				});
-			if(orderedIds.length < actIds.length) {
-				orderedIds = actIds.sort(f);
-				ids = orderedIds.slice();
-			}
-			
-			ind = orderedIds.indexOf(colId);
-			if(ind > -1)
-				 return ind
-			else
-				throw "Wrong rowId in chart.get_heatmapRow";
+			return dispIds.indexOf(id);
 		});
+
 		if(chart.svg){
 			chart.svg.select(".col").selectAll(".label")
 				.classed("selected", false)
@@ -422,7 +364,8 @@ export function heatmapChart(id, chart){
 	chart.updateLabelPosition = function(){
 		var ncols = chart.dispColIds().length,
 			nrows = chart.dispRowIds().length;
-
+		chart.get_heatmapRow("__sort__");
+		chart.get_heatmapCol("__sort__");
 		//calculate cell size
 		chart.cellSize = {
 			width: chart.plotWidth() / ncols,
@@ -629,15 +572,15 @@ export function heatmapChart(id, chart){
 		d3.select(this.parentNode).classed("row") ? type = "row" : type = "col";
 		//if this label is already selected, flip the heatmap
 		if(d3.select(this).classed("sorted")){
-			type == "col" ? chart.reorderRow("flip") : chart.reorderCol("flip");
+			type == "col" ? chart.reorder("Row", "flip") : chart.reorder("Col", "flip");
 		} else {
 			//select new label and chage ordering
 			if(type == "col")
-				chart.reorderRow(function(a, b){
+				chart.reorder("Row", function(a, b){
 					return chart.get_value(b, d) - chart.get_value(a, d);
 				})
 			else
-				chart.reorderCol(function(a, b){
+				chart.reorder("Col", function(a, b){
 					return chart.get_value(d, b) - chart.get_value(d, a);
 				});
 		}
@@ -812,14 +755,9 @@ export function heatmapChart(id, chart){
 			.cluster();
 
 		var newOrder = chart["dendogram" + type].clusters.val_inds.map(function(e) {return e.toString()});
-		var oldOrder = chart["get_heatmap" + type]("__order__");
-		if(oldOrder == -1)
-			oldOrder = chart["disp" + type + "Ids" ]();
 
-		chart["reorder" + type](function(a, b){
-			if(newOrder.indexOf(a) != -1 && newOrder.indexOf(b) != -1)
-				return newOrder.indexOf(a) - newOrder.indexOf(b);
-			return oldOrder.indexOf(a) - oldOrder.indexOf(b);
+		chart.reorder(type, function(a, b){
+			return newOrder.indexOf(a) - newOrder.indexOf(b);
 		});	
 
 		return chart;
