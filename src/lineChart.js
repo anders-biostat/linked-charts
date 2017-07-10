@@ -114,3 +114,66 @@ export function yLine(id, chart){
 
 	return layer;
 }
+
+export function parametricCurve(id, chart){
+	var layer = lineChart(id, chart);
+
+	layer.type = "paramCurve";
+
+	layer
+		.add_property("xFunction")
+		.add_property("yFunction")
+		.add_property("paramRange", [0, 1]);
+	layer.chart.syncProperties(layer);
+
+	var get_data = function(d){
+		var paramRange = layer.paramRange();
+		
+		if(paramRange[1] < paramRange[0])
+			paramRange = [paramRange[1], paramRange[0]];
+
+		var lineStep = (paramRange[1] - paramRange[0]) / 
+										layer.get_lineStepNum();
+
+		var lineData = [];
+		for(var t = paramRange[0]; t < paramRange[1]; t += lineStep)
+			lineData.push({
+				x: layer.get_xFunction(d, t),
+				y: layer.get_yFunction(d, t)
+			});
+			
+		return lineData;
+	};	
+
+	layer.updatePointLocation = function(){
+		
+		var line = d3.line()
+			.x(function(c) {return layer.chart.axes.scale_x(c.x);})
+			.y(function(c) {return layer.chart.axes.scale_y(c.y);});
+
+		if(typeof layer.chart.transition !== "undefined")
+			layer.g.selectAll(".data_point").transition(layer.chart.transition)
+				.attr("d", function(d) {return line(get_data(d));})
+		else
+			layer.g.selectAll(".data_point")
+				.attr("d", function(d) {return line(get_data(d));});
+	}
+
+	layer.layerDomainX(function() {
+		var dataIds = layer.dataIds(),
+			domainX = [];
+		for(var i = 0; i < dataIds.length; i++)
+			domainX = domainX.concat(d3.extent(get_data(dataIds[i]).map(function(e) {return e.x})));
+		return d3.extent(domainX);
+	});
+
+	layer.layerDomainY(function() {
+		var dataIds = layer.dataIds(),
+			domainY = [];
+		for(var i = 0; i < dataIds.length; i++)
+			domainY = domainY.concat(d3.extent(get_data(dataIds[i]).map(function(e) {return e.y})));
+		return d3.extent(domainY);
+	});
+
+	return layer;
+}

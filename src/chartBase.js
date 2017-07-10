@@ -399,6 +399,10 @@ export function layerChartBase(){
 				lc.xLine(id, chart);
 			if(type == "yLine")
 				lc.yLine(id, chart);
+			if(type == "paramCurve")
+				lc.parametricCurve(id, chart);
+			if(type == "bar")
+				lc.barChart(id, chart);
 		}
 		return chart;
 	}

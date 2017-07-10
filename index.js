@@ -2,7 +2,7 @@ export { base } from "./src/base";
 export { layerBase } from "./src/layerBase";
 export { chartBase, axisChart } from "./src/chartBase";
 export { scatterChart } from "./src/scatterChart";
-export { xLine, yLine } from "./src/lineChart";
+export { xLine, yLine, parametricCurve } from "./src/lineChart";
 export { heatmapChart } from "./src/heatmapChart";
 export { cache, separateBy, getEuclideanDistance, add_click_listener, pearsonCorr, fillTextBlock, get_symbolSize, escapeRegExp } from "./src/additionalFunctions";
 export { sigmoidColorSlider } from "./src/sigmoidColorSlider";
