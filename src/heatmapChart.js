@@ -59,6 +59,15 @@ export function heatmapChart(id, chart){
 
 	chart.axes = {};
 	chart.marked = [];
+	
+	(function() {
+		var show = {Row: true, Col: true};
+		chart.showDendogram = function(type, sh){
+			if(sh === undefined)
+				return show[type];
+			show[type] = sh && chart["showDendogram" + type]();		
+		}
+	})();	 
 
 	var inherited_put_static_content = chart.put_static_content;
 	chart.put_static_content = function(element){
@@ -135,7 +144,7 @@ export function heatmapChart(id, chart){
 
 	var get_mode = function() {
 		if(chart.mode() == "default")
-			return chart.dispColIds().length * chart.dispRowIds().length > 5000 ? "canvas" : "svg";
+			return chart.dispColIds().length * chart.dispRowIds().length > 2500 ? "canvas" : "svg";
 		return chart.mode();
 	}
 
@@ -211,7 +220,7 @@ export function heatmapChart(id, chart){
 		f.domain = chart["disp"+ type + "Ids"]().slice();
 		var orderedIds = chart["get_heatmap" + type]("__order__");
 		if(orderedIds == -1)
-			orderedIds = chart[type.toLowerCase() + "Ids"]();
+			orderedIds = chart[type.toLowerCase() + "Ids"]().slice();
 
 		var savedOrder = orderedIds.slice();
 		var newF = function(a, b){
@@ -223,7 +232,7 @@ export function heatmapChart(id, chart){
 							chart[type.toLowerCase() + "Ids"]().indexOf(b);
 		}
 
-		var dispIds = chart["disp" + type + "Ids"]().sort(f);
+		var dispIds = chart["disp" + type + "Ids"]().slice().sort(f);
 		orderedIds.sort(newF);
 		var mult = 1;
 
@@ -248,7 +257,7 @@ export function heatmapChart(id, chart){
 			chart.svg.select(".col").selectAll(".label")
 				.classed("selected", false)
 				.classed("sorted", false);		
-				chart.updateLabelPosition();
+				//chart.updateLabelPosition();
 		}
 		return chart;
 	}
@@ -320,9 +329,15 @@ export function heatmapChart(id, chart){
 	chart.updateSize = function(){
 		inherited_updateSize();
 		if(typeof chart.transition !== "undefined"){
-			chart.svg.selectAll(".label_panel").transition(chart.transition)
-				.attr("transform", "translate(" + chart.margin().left + ", " +
-					chart.margin().top + ")");
+			if(!chart.showDendogram("Row"))
+				chart.svg.selectAll(".label_panel.row").transition(chart.transition)
+					.attr("transform", "translate(" + chart.margin().left + ", " +
+						chart.margin().top + ")");
+			if(!chart.showDendogram("Col"))
+				chart.svg.selectAll(".label_panel.col").transition(chart.transition)
+					.attr("transform", "translate(" + chart.margin().left + ", " +
+						chart.margin().top + ")");
+
 			chart.svg.select(".legend_panel").transition(chart.transition)
 				.attr("transform", "translate(0, " + 
 					(chart.margin().top + chart.plotHeight()) + ")");
@@ -335,9 +350,15 @@ export function heatmapChart(id, chart){
 				.attr("x", - chart.margin().top)
 				.attr("y", chart.width());
 		} else {
-			chart.svg.selectAll(".label_panel")
-				.attr("transform", "translate(" + chart.get_margin().left + ", " +
-					chart.get_margin().top + ")");
+			if(!chart.showDendogram("Row"))
+				chart.svg.selectAll(".label_panel.row")
+					.attr("transform", "translate(" + chart.margin().left + ", " +
+						chart.margin().top + ")");
+			if(!chart.showDendogram("Col"))
+				chart.svg.selectAll(".label_panel.col")
+					.attr("transform", "translate(" + chart.margin().left + ", " +
+						chart.margin().top + ")");
+
 			chart.svg.select(".legend_panel")
 				.attr("transform", "translate(0, " + 
 					(chart.get_margin().top + chart.get_plotHeight()) + ")");
@@ -351,8 +372,8 @@ export function heatmapChart(id, chart){
 				.attr("y", chart.get_width());
 		}
 		chart.canvas
-			.style("left", chart.margin().left)
-			.style("top", chart.margin().top)
+			.style("left", chart.margin().left + "px")
+			.style("top", chart.margin().top + "px")
 			.attr("width", chart.plotWidth())
 			.attr("height", chart.plotHeight());		
 
@@ -397,9 +418,9 @@ export function heatmapChart(id, chart){
 		}
 		chart.updateCellPosition();
 		
-		if(chart.showDendogramCol())
+		if(chart.showDendogram("Col"))
 			chart.drawDendogram("Col");
-		if(chart.showDendogramRow())
+		if(chart.showDendogram("Row"))
 			chart.drawDendogram("Row");
 		
 		return chart;
@@ -575,14 +596,20 @@ export function heatmapChart(id, chart){
 			type == "col" ? chart.reorder("Row", "flip") : chart.reorder("Col", "flip");
 		} else {
 			//select new label and chage ordering
-			if(type == "col")
+			if(type == "col"){
 				chart.reorder("Row", function(a, b){
 					return chart.get_value(b, d) - chart.get_value(a, d);
-				})
-			else
+				});
+				if(chart.dendogramRow)
+					chart.dendogramRow.remove();
+			} else {
 				chart.reorder("Col", function(a, b){
 					return chart.get_value(d, b) - chart.get_value(d, a);
 				});
+				if(chart.dendogramCol)
+					chart.dendogramCol.remove();
+			}
+			chart.updateLabelPosition();
 		}
 		d3.select(this).classed("sorted", true);
 		chart.svg.selectAll(".sorted").classed("selected", true);
@@ -719,6 +746,7 @@ export function heatmapChart(id, chart){
 	}
 
 	chart.cluster = function(type, features){
+		console.log(type);
 		if(type != "Row" && type != "Col")
 			throw "Error in 'cluster': type " + type + " cannot be recognised. " +
 					"Please, use either 'Row' or 'Col'";
@@ -758,94 +786,13 @@ export function heatmapChart(id, chart){
 
 		chart.reorder(type, function(a, b){
 			return newOrder.indexOf(a) - newOrder.indexOf(b);
-		});	
+		});
+
+		if(chart.g)
+			chart.updateLabelPosition();	
 
 		return chart;
 	}
-
-	//type shoud be Row or Col
-	/*chart.cluster = function(type){
-		var items = {}, it = [],
-			aIds = chart["get_cluster" + type + "Ids"](),
-			bIds;
-		type == "Row" ? bIds = chart.get_clusterColIds() :
-			bIds = chart.get_clusterRowIds();
-
-		for(var i = 0; i < aIds.length; i++) {
-			for(var j = 0; j < bIds.length; j++)
-				type == "Row" ? it.push(chart.get_value(aIds[i], bIds[j])) :
-												it.push(chart.get_value(bIds[j], aIds[i]));
-			items[aIds[i]] = it.slice();
-			it = [];
-		}
-
-		var getDistance = function(a, b) {
-			return chart["get_cluster" + type + "Metric"](items[a], items[b]);
-		};
-
-		var traverse = function(node) {
-			if(node.value){
-				newOrder.push(node.value);
-				return;
-			}
-			traverse(node.left);
-			traverse(node.right);
-		}
-		//console.log(dist_mat);
-		var clusters = hcluster(items);
-		//console.log(clusters)
-		//console.log(clusters);
-		var newOrder = clusters.val_inds.map(function(e) {return e.toString()});
-		var oldOrder = chart["get_heatmap" + type]("__order__");
-		if(oldOrder == -1)
-			oldOrder = chart["disp" + type + "Ids" ]();
-
-
-		chart["reorder" + type](function(a, b){
-			if(newOrder.indexOf(a) != -1 && newOrder.indexOf(b) != -1)
-				return newOrder.indexOf(a) - newOrder.indexOf(b);
-			return oldOrder.indexOf(a) - oldOrder.indexOf(b);
-		});
-		if(type == 'Col')		
-		{
-			if(chart.get_dendogramCol() == undefined)
-			{
-				chart.dendogramCol(new dendoGram(clusters));
-				var dend = chart.get_dendogramCol();
-				dend.width(chart.get_width())
-					.height(chart.get_margin().top)
-					.padding({left:chart.get_margin().left, 
-							  right:chart.get_margin().right,
-							  top:0, bottom:0});
-				dend.heatmap(chart);
-			}
-			else
-				chart.get_dendogramCol().hclus(clusters);
-
-			
-		}
-		if(type == 'Row')
-		{
-			if(chart.get_dendogramRow() == undefined)
-			{
-				chart.dendogramRow(new dendoGram(clusters));
-				var dend = chart.get_dendogramRow();
-				dend.width(chart.get_height())
-					.height(chart.get_margin().left)
-					.orientation('v')
-					.padding({left:chart.get_margin().top, 
-							  right:chart.get_margin().bottom,
-							  top:0, bottom:0});	
-				dend.heatmap(chart);
-			}
-			else
-				chart.get_dendogramRow().hclus(clusters);			
-		}
-		//dend.place(null, chart.svg, true);
-			//chart.updateLabelPosition();
-
-		return chart;		
-	} */
 
 	chart.drawDendogram = function(type){
 		//if rows (or columns) are not clustered and 
@@ -861,36 +808,6 @@ export function heatmapChart(id, chart){
 		return chart;
 	}
 
-	/*chart.place = function(element)
-	{
-		if( element === undefined )
-     	 element = "body";
-    	if( typeof( element ) == "string" )
-    	 {
-      		var node = element;
-      		element = d3.select( node );
-      		if( element.size() == 0 )
-        		throw "Error in function 'place': DOM selection for string '" +
-          		node + "' did not find a node."
-  		}
-
-		chart.put_static_content( element );
-		if(chart.get_dendogramCol() != undefined)
-		{
-			var dend = chart['get_dendogramCol']();
-			dend.place(element, chart.svg, true)
-		}
-		if(chart.get_dendogramRow() != undefined)
-		{
-			var dend = chart.get_dendogramRow();
-			//console.log(dend.get_hclus())
-			dend.place(element, chart.svg, true)	
-		}
-
-    	chart.update();
-    	chart.afterUpdate();
-    	return chart;
-	} */
 	chart.updateTexts = function(){
 		//add rows
 		var rows = chart.g.selectAll(".text_row")
@@ -1146,6 +1063,8 @@ export function heatmapChart(id, chart){
 	chart.update = function() {
 		chart.updateTitle();
 		chart.resetColourScale();
+		chart.dispColIds(function() {return chart.colIds();});
+		chart.dispRowIds(function() {return chart.rowIds();});
 		chart.axes.x_label
 			.text(chart.get_colTitle());
 		chart.axes.y_label
@@ -1163,59 +1082,3 @@ export function heatmapChart(id, chart){
 	return chart;	
 }
 
-/*	layer.updateCanvas = function() {
-	
-		if(typeof layer.g != "undefined")
-			layer.g.classed("hidden", true);
-		if(typeof layer.canvas == "undefined")
-			layer.canvas = layer.chart.container.append("canvas")
-		else
-			layer.canvas.classed("hidden", false);
-
-		//if there is any canvas, remove it as well
-		layer.canvas.remove();
-		
-		//create a canvas object
-		var heatmapBody = layer.chart.container.append("canvas")
-			.style("position", "absolute")
-			.style("left", layer.get_margin().left + "px")
-			.style("top", layer.get_margin().top + "px")
-			.property("width", layer.get_width())
-			.property("height", layer.get_height())
-			.node().getContext("2d");
-		var pixelHeatmap = document.createElement("canvas");
-		pixelHeatmap.width = layer.get_ncols();
-		pixelHeatmap.height = layer.get_nrows();
-		
-		//store colour of each cell
-		var rgbColour, position;
-		//create an object to store information on each cell of a heatmap
-		var pixelData = new ImageData(layer.get_ncols(), layer.get_nrows());
-
-		for(var i = 0; i < layer.get_dispRowIds().length; i++)
-			for(var j = 0; j < layer.get_dispColIds().length; j++) {
-					rgbColour = d3.rgb(layer.get_colour(layer.get_value(layer.get_dispRowIds()[i], 
-																													layer.get_dispColIds()[j])));
-					position = layer.get_heatmapRow(layer.get_dispRowIds()[i]) * layer.get_ncols() * 4 +
-						layer.get_heatmapCol(layer.get_dispColIds()[j]) * 4;
-					pixelData.data[position] = rgbColour.r;
-					pixelData.data[position + 1] = rgbColour.g;
-					pixelData.data[position + 2] = rgbColour.b;
-			}
-		//set opacity of all the pixels to 1
-		for(var i = 0; i < layer.get_ncols() * layer.get_nrows(); i++)
-			pixelData.data[i * 4 + 3] = 255;
-		
-		//put a small heatmap on screen and then rescale it
-		pixelHeatmap.getContext("2d").putImageData(pixelData, 0 , 0);
-
-		heatmapBody.imageSmoothingEnabled = false;
-		//probaly no longer required, but let it stay here just in case
-    //heatmapBody.mozImageSmoothingEnabled = false;
-		//heatmapBody.webkitImageSmoothingEnabled = false;
-    //heatmapBody.msImageSmoothingEnabled = false;
-
-		heatmapBody.drawImage(pixelHeatmap, 0, 0, 
-			layer.get_dispColIds().length, layer.get_dispRowIds().length,
-			0, 0,	layer.get_width(), layer.get_height());
-	}*/

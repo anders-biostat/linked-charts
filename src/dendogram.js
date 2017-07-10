@@ -436,6 +436,8 @@ export function dendogram(heatmap)
 		}
 
 		var newTree = dendogram.trimNodes();
+		if(newTree === undefined)
+			return;
 		dendogram.scales(dendogram.set_scale());
 		dendogram.draw_dendo(newTree, dendogram.g, dendogram.get_scales() )
 		dendogram.set_click(newTree, dendogram.g, dendogram.get_css_class())		
@@ -498,6 +500,10 @@ export function dendogram(heatmap)
 		
 		for(var i = 0; i < dataIds.length; i++){
 			if(dendogram.clusters.val_inds.indexOf(dataIds[i]) == -1){
+				if(dendogram.heatmap){
+					dendogram.remove();
+					return undefined;
+				}
 				dendogram.cluster();
 				dendogram.set_x(dendogram.clusters);
 				return dendogram.clusters;
@@ -564,6 +570,39 @@ export function dendogram(heatmap)
 		}
 
 		return dendogram;		
+	}
+
+	dendogram.remove = function(){
+		dendogram.g.remove();
+		var type;
+		if(dendogram.heatmap){
+			var chart = dendogram.heatmap;
+			dendogram.orientation() == "h" ? type = "Col" : type = "Row";
+			chart.showDendogram(type, false);
+			chart["dendogram" + type] = undefined;
+			if(chart.transition){
+				chart.svg.selectAll(".label_panel." + type.toLowerCase()).transition(chart.transition)
+						.attr("transform", "translate(" + chart.margin().left + ", " +
+									chart.margin().top + ")");
+				if(type == "Row")
+					chart.svg.select(".row").selectAll("text").transition(chart.transition)
+						.style("text-anchor", "end")
+				else
+					chart.svg.select(".col").selectAll("text").transition(chart.transition)
+						.style("text-anchor", "start");
+			}
+			else{ 			
+				chart.svg.selectAll(".label_panel." + type.toLowerCase())
+						.attr("transform", "translate(" + chart.margin().left + ", " +
+									chart.margin().top + ")");
+				if(type == "Row")
+					chart.svg.select(".row").selectAll("text")
+						.style("text-anchor", "end");
+				else	
+					chart.svg.select(".col").selectAll("text")
+						.style("text-anchor", "start");
+			}
+		}
 	}	
 	
   dendogram.place = function( element ) {
@@ -580,7 +619,7 @@ export function dendogram(heatmap)
 
 		dendogram.put_static_content( element );
 		//dendogram.cluster();
-		dendogram.draw();
+		//dendogram.draw();
     return dendogram;
   }
 
