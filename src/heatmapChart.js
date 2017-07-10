@@ -924,12 +924,16 @@ export function heatmapChart(id, chart){
 			chart.canvas.node().getContext("2d")
 				.clearRect(0, 0, chart.plotWidth(), chart.plotHeight());
 
-			chart.mark(chart.marked.map(function(e) {return "p" + e.join("_-sep-_")}));
-
 			if(chart.updateStarted)
 				return true;
 			else{			
-				chart.update();
+				chart.updateStarted = true;
+				chart.updateLabels()
+					.updateLabelText()
+					.updateCellColour();
+				chart.updateStarted = false;
+				chart.mark(chart.marked.map(function(e) {return "p" + e.join("_-sep-_")}));
+				chart.marked = [];
 				return false;
 			}
 		}
