@@ -59,15 +59,6 @@ export function heatmapChart(id, chart){
 
 	chart.axes = {};
 	chart.marked = [];
-	
-	(function() {
-		var show = {Row: true, Col: true};
-		chart.showDendogram = function(type, sh){
-			if(sh === undefined)
-				return show[type];
-			show[type] = sh && chart["showDendogram" + type]();		
-		}
-	})();	 
 
 	var inherited_put_static_content = chart.put_static_content;
 	chart.put_static_content = function(element){
@@ -107,7 +98,14 @@ export function heatmapChart(id, chart){
 				chart.container.select(".inform").classed("hidden", true);
 			});
 
-
+		(function() {
+			var show = {Row: chart.showDendogramRow(), Col: chart.showDendogramCol()};
+			chart.showDendogram = function(type, sh){
+				if(sh === undefined)
+					return show[type];
+				show[type] = sh && chart["showDendogram" + type]();		
+			}
+		})();
 
 		if(chart.showPanel()){
 			chart.panel.add_button("Zoom in", "#zoomIn", function(chart){

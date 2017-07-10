@@ -252,8 +252,7 @@ export function chartBase() {
 	chart.get_marked = function(){
 		var points = [];
 		chart.svg.selectAll(".marked").each(function() {
-			points.push([d3.select(this.parentNode).attr("id"), 
-										d3.select(this).datum()]);
+			points.push(d3.select(this).datum());
 		});
 		return points;
 	}
@@ -471,6 +470,15 @@ export function layerChartBase(){
 		if(layerSelection.length == 0)
 			return chart;
 		return layerSelection;
+	}
+
+	chart.get_marked = function(){
+		var points = [];
+		chart.svg.selectAll(".marked").each(function() {
+			points.push([d3.select(this.parentNode).attr("id"), 
+										d3.select(this).datum()]);
+		});
+		return points;
 	}
 
 	chart.findPoints = function(lu, rb){
