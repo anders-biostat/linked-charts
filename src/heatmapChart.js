@@ -138,7 +138,17 @@ export function heatmapChart(id, chart){
 				chart.updateCellColour();
 				chart.updateLabelText();
 				chart.updateStarted = false;
-			}, "Double click to return to original scales");			
+			}, "Double click to return to original scales");
+			chart.panel.add_button("Cluster rows", "#clusterRows", function(chart){
+				chart.cluster("Row");
+				chart.showDendogram("Row", true);
+				chart.updateLabelPosition();
+			});
+			chart.panel.add_button("Cluster columns", "#clusterCols", function(chart){
+				chart.cluster("Col");
+				chart.showDendogram("Col", true);
+				chart.updateLabelPosition();
+			});			
 		}
 	}
 
@@ -788,8 +798,8 @@ export function heatmapChart(id, chart){
 			return newOrder.indexOf(a) - newOrder.indexOf(b);
 		});
 
-		if(chart.g)
-			chart.updateLabelPosition();	
+		//if(chart.g)
+		//	chart.updateLabelPosition();	
 
 		return chart;
 	}

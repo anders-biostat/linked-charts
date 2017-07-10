@@ -467,6 +467,124 @@ export function panel(chart) {
 			.attr("r", 3)
 			.attr("fill", "#111");
 
+		d = defs.append("g")
+			.attr("id", "clusterRows");
+		d.append("rect")
+			.attr("x", bs * 2 / 5)
+			.attr("width", bs * 3 / 5)
+			.attr("height", bs)
+			.attr("fill", "#444");
+		d.append("rect")
+			.attr("stroke", "#444")
+			.attr("stroke-width", 1)
+			.attr("fill", "#fff")
+			.attr("y", bs/5)
+			.attr("height", bs/2)
+			.attr("width", bs * 2 / 5);
+		d.append("rect")
+			.attr("stroke", "#444")
+			.attr("stroke-width", 1)
+			.attr("fill", "#fff")
+			.attr("y", bs/10)
+			.attr("x", bs/5)
+			.attr("height", bs/5)
+			.attr("width", bs/5);
+		d.append("rect")
+			.attr("stroke", "#444")
+			.attr("stroke-width", 1)
+			.attr("fill", "#fff")
+			.attr("x", bs/10)
+			.attr("y", bs/2)
+			.attr("height", bs * 3 / 10)
+			.attr("width", bs * 3 / 10);
+		d.append("rect")
+			.attr("stroke", "#444")
+			.attr("stroke-width", 1)
+			.attr("fill", "#fff")
+			.attr("x", bs/5)
+			.attr("y", bs * 7 / 10)
+			.attr("height", bs/5)
+			.attr("width", bs/5);
+		d.append("path")
+			.attr("stroke", "#fff")
+			.attr("stroke-width", 1)
+			.attr("d", "M " + bs * 2 / 5 + " " + bs/5 + 
+								" L " + bs + " " + bs/5);
+		d.append("path")
+			.attr("stroke", "#fff")
+			.attr("stroke-width", 1)
+			.attr("d", "M " + bs * 2 / 5 + " " + bs * 2 / 5 + 
+								" L " + bs + " " + bs * 2 / 5);			
+		d.append("path")
+			.attr("stroke", "#fff")
+			.attr("stroke-width", 1)
+			.attr("d", "M " + bs * 2 / 5 + " " + bs * 3 / 5 + 
+								" L " + bs + " " + bs * 3 / 5);
+		d.append("path")
+			.attr("stroke", "#fff")
+			.attr("stroke-width", 1)
+			.attr("d", "M " + bs * 2 / 5 + " " + bs * 4 / 5 + 
+								" L " + bs + " " + bs * 4 / 5);
+
+		d = defs.append("g")
+			.attr("id", "clusterCols");
+		d.append("rect")
+			.attr("y", bs * 2 / 5)
+			.attr("height", bs * 3 / 5)
+			.attr("width", bs)
+			.attr("fill", "#444");
+		d.append("rect")
+			.attr("stroke", "#444")
+			.attr("stroke-width", 1)
+			.attr("fill", "#fff")
+			.attr("x", bs/5)
+			.attr("width", bs/2)
+			.attr("height", bs * 2 / 5);
+		d.append("rect")
+			.attr("stroke", "#444")
+			.attr("stroke-width", 1)
+			.attr("fill", "#fff")
+			.attr("x", bs/10)
+			.attr("y", bs/5)
+			.attr("width", bs/5)
+			.attr("height", bs/5);
+		d.append("rect")
+			.attr("stroke", "#444")
+			.attr("stroke-width", 1)
+			.attr("fill", "#fff")
+			.attr("y", bs/10)
+			.attr("x", bs/2)
+			.attr("width", bs * 3 / 10)
+			.attr("height", bs * 3 / 10);
+		d.append("rect")
+			.attr("stroke", "#444")
+			.attr("stroke-width", 1)
+			.attr("fill", "#fff")
+			.attr("y", bs/5)
+			.attr("x", bs * 7 / 10)
+			.attr("width", bs/5)
+			.attr("height", bs/5);
+		d.append("path")
+			.attr("stroke", "#fff")
+			.attr("stroke-width", 1)
+			.attr("d", "M " + bs/5 + " " + bs * 2 / 5 + 
+								" L " + bs/5 + " " + bs);
+		d.append("path")
+			.attr("stroke", "#fff")
+			.attr("stroke-width", 1)
+			.attr("d", "M " + bs * 2 / 5 + " " + bs * 2 / 5 + 
+								" L " + bs * 2 / 5 + " " + bs);			
+		d.append("path")
+			.attr("stroke", "#fff")
+			.attr("stroke-width", 1)
+			.attr("d", "M " + bs * 3 / 5 + " " + bs * 2 / 5 + 
+								" L " + bs * 3 / 5 + " " + bs);
+		d.append("path")
+			.attr("stroke", "#fff")
+			.attr("stroke-width", 1)
+			.attr("d", "M " + bs * 4 / 5 + " " + bs * 2 / 5 + 
+								" L " + bs * 4 / 5 + " " + bs);
+
 		defs.selectAll("rect")
 			.attr("transform", "translate(5, 5)");
 		defs.selectAll("path")

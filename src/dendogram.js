@@ -285,6 +285,7 @@ export function dendogram(heatmap)
 				dendogram.heatmap.cluster('Col', inds_int)
 				dendogram.heatmap.drawDendogram("Col");
 			}
+			dendogram.heatmap.updateLabelPosition();
 		}
 
 		//dendogram.set_color(g, [], cla, -1);
