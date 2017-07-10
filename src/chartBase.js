@@ -3,8 +3,6 @@ import { layerBase } from "./layerBase";
 import { add_click_listener } from "./additionalFunctions";
 import { legend } from "./legend";
 import { panel } from "./panel";
-import { scatterChart } from "./scatterChart";
-import { lineChart } from "./lineChart";
 
 //basic chart object
 export function chartBase() {
@@ -396,9 +394,11 @@ export function layerChartBase(){
 			chart.create_layer(id);
 		} else {
 			if(type == "scatter")
-				scatterChart(id, chart);
+				lc.scatterChart(id, chart);
 			if(type == "xLine")
-				lineChart(id, chart);
+				lc.xLine(id, chart);
+			if(type == "yLine")
+				lc.yLine(id, chart);
 		}
 		return chart;
 	}

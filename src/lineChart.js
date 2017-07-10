@@ -1,6 +1,6 @@
 import { axisChart } from "./chartBase";
 
-export function lineChart(id, chart){
+function lineChart(id, chart){
 	
 	if(chart === undefined)
 		chart = axisChart();
@@ -13,8 +13,6 @@ export function lineChart(id, chart){
 		.add_property("lineWidth", 1.5)
 		.add_property("dasharray", undefined);
 	chart.syncProperties(layer);
-
-	layer.type = "lineChart";
 	
 	layer.updatePoints = function(){
 		var lines = layer.g.selectAll(".data_point")
@@ -38,6 +36,15 @@ export function lineChart(id, chart){
 			.attr("stroke-dasharray", function(d) {return layer.get_dasharray(d)});
 	});
 
+	return layer;
+}
+
+export function xLine(id, chart){
+	
+	var layer = lineChart(id, chart);
+
+	layer.type = "xLine";
+
 	layer.updatePointLocation = function(){
 		//define the length of each step
 		var lineStep = (layer.chart.axes.scale_x.domain()[1] - 
@@ -50,6 +57,44 @@ export function lineChart(id, chart){
 			lineData.push({
 				x: i,
 				y: layer.get_lineFun(d, i)
+			});
+							
+			var line = d3.line()
+				.x(function(c) {return layer.chart.axes.scale_x(c.x);})
+				.y(function(c) {return layer.chart.axes.scale_y(c.y);});
+							
+			return line(lineData);
+		};
+		
+		if(typeof layer.chart.transition !== "undefined")
+			layer.g.selectAll(".data_point").transition(layer.chart.transition)
+				.attr("d", get_data)
+		else
+			layer.g.selectAll(".data_point")
+				.attr("d", get_data);			
+	};
+
+	return layer;
+}
+
+export function yLine(id, chart){
+	
+	var layer = lineChart(id, chart);
+
+	layer.type = "yLine";
+
+	layer.updatePointLocation = function(){
+		//define the length of each step
+		var lineStep = (layer.chart.axes.scale_y.domain()[1] - 
+										layer.chart.axes.scale_y.domain()[0]) / 
+										layer.get_lineStepNum();
+		var get_data = function(d){
+			var lineData = [];
+			for(var i = layer.chart.axes.scale_y.domain()[0]; 
+					i < layer.chart.axes.scale_y.domain()[1]; i += lineStep)
+			lineData.push({
+				y: i,
+				x: layer.get_lineFun(d, i)
 			});
 							
 			var line = d3.line()
