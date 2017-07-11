@@ -150,6 +150,21 @@ export function add_click_listener(chart){
     }
     chart.container.select(".inform")
       .classed("blocked", true);
+
+    document.addEventListener("mouseup", function() {
+      chart.container.select(".inform")
+        .classed("blocked", false);
+      chart.svg.select("rect.selection").remove();
+      chart.svg.select(".shadow").remove();
+      if(panStarted) {
+        panStarted = false;
+        chart.transitionDuration(transitionDuration);
+        chart.defineTransition();
+        chart.pan.down = undefined;
+      }
+
+      document.onmouseup = null;
+    }, false);
   }
   var wait = false;
   var on_mousemove = function(){
@@ -210,28 +225,22 @@ export function add_click_listener(chart){
 
   var on_mouseup = function(){
     var pos = d3.mouse(this);
-    if(panStarted) {
-      panStarted = false;
-      chart.pan.move(pos);
-      chart.container.select(".inform").classed("blocked", false);
-      chart.transitionDuration(transitionDuration);
-      chart.defineTransition();
-      chart.pan.down = undefined;
-      return;
-    }
 
     var mark = d3.event.shiftKey || chart.selectMode;
     // remove selection frame
     chart.container.select(".inform")
       .classed("blocked", false);
 
-    var x = chart.svg.selectAll("rect.selection").attr("x") * 1,
-      y = chart.svg.selectAll("rect.selection").attr("y") * 1,
-      w = chart.svg.selectAll("rect.selection").attr("width") * 1,
-      h = chart.svg.selectAll("rect.selection").attr("height") * 1,
-      lu = [x, y], 
-      rb = [x + w, y + h],
-      points = d3.select(this);
+    if(!chart.svg.select("rect.selection").empty())
+      var x = chart.svg.selectAll("rect.selection").attr("x") * 1,
+        y = chart.svg.selectAll("rect.selection").attr("y") * 1,
+        w = chart.svg.selectAll("rect.selection").attr("width") * 1,
+        h = chart.svg.selectAll("rect.selection").attr("height") * 1,
+        lu = [x, y], 
+        rb = [x + w, y + h];
+    
+    var points = d3.select(this);
+    
     chart.svg.selectAll("rect.selection").remove();
     chart.svg.select(".shadow").remove();
 
@@ -250,12 +259,32 @@ export function add_click_listener(chart){
           return function() {
             points.on("click").call(points, pos, mark);
             wait_dblClick = null;
+            if(panStarted) {
+              panStarted = false;
+              chart.pan.move(pos);
+              chart.container.select(".inform").classed("blocked", false);
+              chart.transitionDuration(transitionDuration);
+              chart.defineTransition();
+              chart.pan.down = undefined;
+              return;
+            }          
           };
         })(d3.event), 300);
       }
       click_coord = d3.mouse(document.body);
       return;
     }
+
+    if(panStarted) {
+      panStarted = false;
+      chart.pan.move(pos);
+      chart.container.select(".inform").classed("blocked", false);
+      chart.transitionDuration(transitionDuration);
+      chart.defineTransition();
+      chart.pan.down = undefined;
+      return;
+    }
+
     // remove temporary selection marker class
     if(mark)
       chart.mark(chart.findPoints(lu, rb))

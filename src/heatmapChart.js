@@ -1064,12 +1064,14 @@ export function heatmapChart(id, chart){
 		chart.dispRowIds(chart.addLines(Math.sign(move[1]) * addRows, "top"));
 		chart.dispRowIds(chart.addLines(-Math.sign(move[1]) * addRows, "bottom"));
 
-		chart.updateStarted = true;
-		chart.updateLabels();
-		chart.updateLabelPosition();
-		chart.updateCellColour();
-		chart.updateLabelText();
-		chart.updateStarted = false;			
+		if(Math.abs(addRows) + Math.abs(addCols) > 0) {
+			chart.updateStarted = true;
+			chart.updateLabels();
+			chart.updateLabelPosition();
+			chart.updateCellColour();
+			chart.updateLabelText();
+			chart.updateStarted = false;
+		}			
 	}
 
 	chart.update = function() {
