@@ -262,10 +262,11 @@ export function heatmapChart(id, chart){
 		});
 
 		if(chart.svg){
-			chart.svg.select(".col").selectAll(".label")
+			var invType;
+			type == "Row" ? invType = "col" : invType = "row";
+			chart.svg.select("." + invType).selectAll(".sorted")
 				.classed("selected", false)
 				.classed("sorted", false);		
-				//chart.updateLabelPosition();
 		}
 		return chart;
 	}
@@ -619,10 +620,60 @@ export function heatmapChart(id, chart){
 			}
 			chart.updateLabelPosition();
 		}
-		d3.select(this).classed("sorted", true);
-		chart.svg.selectAll(".sorted").classed("selected", true);
+		
+		d3.select(this).classed("sorted", true)
+			.classed("selected", true);
 	};
 	
+	var isSorted = function(label) {
+		var id = d3.select(this).datum(),
+			sorted = true, i = 1, dataIds;
+
+		if(d3.select(label.parentNode).classed("row")){
+			dataIds = chart.dispColIds();
+			while(sorted && i < dataIds.length) {
+				if(chart.get_value(id, dataIds[i]) >= chart.get_value(id, dataIds[i - 1]))
+					sorted = false;
+				i++;
+			}
+			if(sorted) return sorted;
+			i = 1;
+			sorted = true;
+			while(sorted && i < dataIds.length) {
+				if(chart.get_value(id, dataIds[i]) <= chart.get_value(id, dataIds[i - 1]))
+					sorted = false;
+				i++;
+			}
+			return sorted;
+
+		} else {
+			dataIds = chart.dispRowIds();
+			while(sorted && i < dataIds.length) {
+				if(chart.get_value(dataIds[i], id) >= chart.get_value(dataIds[i - 1], id))
+					sorted = false;
+				i++;
+			}
+			if(sorted) return sorted;
+			i = 1;
+			sorted = true;
+			while(sorted && i < dataIds.length) {
+				if(chart.get_value(dataIds[i], id) <= chart.get_value(dataIds[i - 1], id))
+					sorted = false;
+				i++;
+			}
+			return sorted;
+		}
+
+
+		var dataIds = chart["disp" + invType + "Ids"]();
+
+		while(sorted && i < dataIds.length){
+			if(chart.get_value())
+		}
+		
+
+	}
+
 	chart.updateCellColour = function() {
 		if(!chart.checkMode())
 			return chart;
@@ -648,6 +699,12 @@ export function heatmapChart(id, chart){
 			if(!chart.updateStarted)
 				chart.updateCanvas();
 		}
+
+		chart.svg.selectAll(".sorted").fiter(function(d){
+			return !isSorted(this);
+		})
+			.classed("sorted", false)
+			.classed("selected", false);
 		
 		return chart;
 	}
