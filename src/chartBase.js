@@ -356,8 +356,10 @@ export function layerChartBase(){
 	}
 	chart.syncProperties = function(layer){
 		for(var i = 0; i < layer.propList.length; i++)
-			if(typeof chart[layer.propList[i]] === "undefined")
+			if(typeof chart[layer.propList[i]] === "undefined"){
 				chart[layer.propList[i]] = findLayerProperty(layer.propList[i]);
+				chart["get_" + layer.propList[i]] = findLayerProperty("get_" + layer.propList[i]);
+			}
 	}
 
 	chart.get_nlayers = function() {

@@ -39,12 +39,12 @@ export function scatterChart(id, chart) {
       } catch( exc ) {
         // if call failed with exception, report the last successful 
         // index, if any, otherwise zero
-        return i > 0 ? i-1 : 0;  
+        return i >= 0 ? i : 0;  
       }
       if( val === undefined ) {
         // same again: return last index with defines return, if any,
         // otherwise zero
-        return i > 0 ? i-1 : 0;  
+        return i >= 0 ? i : 0;  
       }
     }
     // If we exit the loop, there is either something wrong or there are

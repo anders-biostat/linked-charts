@@ -585,6 +585,18 @@ export function panel(chart) {
 			.attr("d", "M " + bs * 4 / 5 + " " + bs * 2 / 5 + 
 								" L " + bs * 4 / 5 + " " + bs);
 
+		d = defs.append("g")
+			.attr("id", "restoreOrder");
+		d.append("text")
+			.attr("font-size", bs * 1.5)
+			.attr("textLength", bs)
+			.attr("lengthAdjust", "spacingAndGlyphs")
+			.attr("fill", "#444")
+			.attr("y", bs)
+			.attr("font-weight", 900)
+			.attr("font-family", "Verdana")
+			.text("123");	
+
 		defs.selectAll("rect")
 			.attr("transform", "translate(5, 5)");
 		defs.selectAll("path")
