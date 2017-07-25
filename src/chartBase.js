@@ -85,22 +85,45 @@ export function chartBase() {
 			chart.panel.put_static_content();
 
 			chart.panel.add_button("Save plot as png", "#save", function(chart){
-				function drawInlineSVG(svgElement, ctx, callback){
-  				var svgURL = new XMLSerializer().serializeToString(svgElement);
+				function drawInlineSVG(svgElement, ctx, callback, legend){
+  				var svgInnerHTML;
+  				if(legend !== undefined){
+  					var w, h = 0, lsvg, hlist;
+  					svgInnerHTML = "<g>" + svgElement.innerHTML + "</g>";
+  					legend.location().selectAll("tr").each(function(d, i){
+  						w = 0;
+  						hlist = [];
+  						d3.select(this).selectAll("td").each(function(dtd, itd){
+  							lsvg = d3.select(this).select("svg");
+  							svgInnerHTML += "<g transform='translate(" + (legend.chart.width() + w) + ", "+ h + ")'>" +
+  											lsvg.node().innerHTML + "</g>"
+  							hlist.push(lsvg.attr("height"));
+  							w += +lsvg.attr("width");
+  						});
+  						h += +d3.max(hlist);
+  					});
+  					svgInnerHTML = "<svg xmlns='http://www.w3.org/2000/svg'>" + svgInnerHTML + "</svg>";
+  				} else
+  					svgInnerHTML = new XMLSerializer().serializeToString(svgElement);
   				var img  = new Image();
   				img.onload = function(){
     				ctx.drawImage(this, 0,0);
     				callback();
     			}
-  			img.src = 'data:image/svg+xml; charset=utf8, '+encodeURIComponent(svgURL);
+  			img.src = 'data:image/svg+xml; charset=utf8, '+encodeURIComponent(svgInnerHTML);
  				}
 
  				chart.svg.select(".panel_g")
  					.style("display", "none");
 
 				var canvas = document.createElement('canvas');
-				canvas.height = chart.svg.attr('height');
-				canvas.width = chart.svg.attr('width');
+				if(chart.legend === undefined){
+					canvas.height = chart.svg.attr('height');
+					canvas.width = chart.svg.attr('width');
+				} else {
+					canvas.height = d3.max([chart.height(), chart.legend.height()]);
+					canvas.width = chart.width() + chart.legend.width();					
+				}
 
 				chart.svg.selectAll("text").attr("fill", "black");
 				drawInlineSVG(chart.svg.node(), canvas.getContext("2d"), 
@@ -114,7 +137,7 @@ export function chartBase() {
 
 						var blob = new Blob([asArray.buffer], {type: 'image/png'});
 						saveAs(blob, 'export_' + Date.now() + '.png');
-					});
+					}, chart.legend);
  				chart.svg.select(".panel_g")
  					.style("display", undefined);
 			});
@@ -122,10 +145,27 @@ export function chartBase() {
 			chart.panel.add_button("Save plot as svg", "#svg", function(chart){
  				chart.svg.select(".panel_g")
  					.style("display", "none");
-
-				var html = chart.svg
-    	    .attr("xmlns", "http://www.w3.org/2000/svg")
-      	  .node().parentNode.innerHTML;
+ 				var html;
+  			if(chart.legend !== undefined){
+  				var w, h = 0, lsvg, hlist;
+  				html = "<g>" + chart.svg.node().innerHTML + "</g>";
+  				chart.legend.location().selectAll("tr").each(function(){
+  					w = 0;
+  					hlist = [];
+  					d3.select(this).selectAll("td").each(function(){
+  						lsvg = d3.select(this).select("svg");
+  						html += "<g transform='translate(" + (chart.width() + w) + ", "+ h + ")'>" +
+  											lsvg.node().innerHTML + "</g>"
+  						hlist.push(lsvg.attr("height"));
+  						w += +lsvg.attr("width");
+  					});
+  					h += +d3.max(hlist);
+  				});
+  				html = "<svg xmlns='http://www.w3.org/2000/svg'>" + html + "</svg>";
+  				} else
+						html = chart.svg
+		    	    .attr("xmlns", "http://www.w3.org/2000/svg")
+		      	  .node().parentNode.innerHTML;
 
 		    var blob = new Blob([html], {type: "image/svg+xml"});
 				saveAs(blob, 'export_' + Date.now() + '.svg');
