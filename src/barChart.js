@@ -145,8 +145,9 @@ export function barChart(id, chart){
 				.range([-groupWidth/2, groupWidth/2 - barWidth]),
 			barIds = layer.barIds(),
 			stackIds = layer.stackIds();
-		if(typeof layer.chart.transition !== "undefined"){
-			layer.g.selectAll(".data_point").transition(layer.chart.transition)
+		if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff){
+			layer.g.selectAll(".data_point").transition("pointLocation")
+				.duration(layer.chart.transitionDuration())
 				.attr("width", barWidth)
 				.attr("height", function(d){ 
 					return layer.get_value(d[0], d[1], d[2]) * heightMult;
@@ -188,8 +189,9 @@ export function barChart(id, chart){
 	layer.updatePointStyle = function(){
 		layer.resetColourScale();
 
-		if(typeof layer.chart.transition !== "undefined")
-			layer.g.selectAll(".data_point").transition(chart.transition)
+		if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
+			layer.g.selectAll(".data_point").transition("pointStyle")
+				.duration(chart.transitionDuration())
 				.attr("fill", function(d) {
 					return layer.get_colour(d[0], d[1], d[2]);
 				})

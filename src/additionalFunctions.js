@@ -106,8 +106,7 @@ export function add_click_listener(chart){
 
   var wait_dblClick = null, down, wait_click = null,
     tolerance = 5, click_coord, downThis,
-    parcer = call_pacer(100), panStarted = false,
-    transitionDuration;
+    parcer = call_pacer(100), panStarted = false;
  
   //add a transparent rectangle to detect clicks
   //and make changes to update function
@@ -144,9 +143,7 @@ export function add_click_listener(chart){
     if(chart.pan.mode){
       panStarted = true;
       chart.pan.down = downThis;
-      transitionDuration = chart.transitionDuration();
-      chart.transitionDuration(0)
-      chart.defineTransition();
+      chart.transitionOff = true;
     }
     chart.container.select(".inform")
       .classed("blocked", true);
@@ -158,8 +155,7 @@ export function add_click_listener(chart){
       chart.svg.select(".shadow").remove();
       if(panStarted) {
         panStarted = false;
-        chart.transitionDuration(transitionDuration);
-        chart.defineTransition();
+        chart.transitionOff = false;
         chart.pan.down = undefined;
       }
 
@@ -263,8 +259,7 @@ export function add_click_listener(chart){
               panStarted = false;
               chart.pan.move(pos);
               chart.container.select(".inform").classed("blocked", false);
-              chart.transitionDuration(transitionDuration);
-              chart.defineTransition();
+              chart.transitionOff = false;
               chart.pan.down = undefined;
               return;
             }          
@@ -279,8 +274,7 @@ export function add_click_listener(chart){
       panStarted = false;
       chart.pan.move(pos);
       chart.container.select(".inform").classed("blocked", false);
-      chart.transitionDuration(transitionDuration);
-      chart.defineTransition();
+      chart.transitionOff = false;
       chart.pan.down = undefined;
       return;
     }

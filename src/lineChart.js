@@ -66,8 +66,9 @@ export function xLine(id, chart){
 			return line(lineData);
 		};
 		
-		if(typeof layer.chart.transition !== "undefined")
-			layer.g.selectAll(".data_point").transition(layer.chart.transition)
+		if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
+			layer.g.selectAll(".data_point").transition("pointLocation")
+				.duration(layer.chart.transitionDuration())
 				.attr("d", get_data)
 		else
 			layer.g.selectAll(".data_point")
@@ -104,8 +105,9 @@ export function yLine(id, chart){
 			return line(lineData);
 		};
 		
-		if(typeof layer.chart.transition !== "undefined")
-			layer.g.selectAll(".data_point").transition(layer.chart.transition)
+		if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
+			layer.g.selectAll(".data_point").transition("pointLocation")
+				.duration(layer.chart.transitionDuration())
 				.attr("d", get_data)
 		else
 			layer.g.selectAll(".data_point")
@@ -151,8 +153,9 @@ export function parametricCurve(id, chart){
 			.x(function(c) {return layer.chart.axes.scale_x(c.x);})
 			.y(function(c) {return layer.chart.axes.scale_y(c.y);});
 
-		if(typeof layer.chart.transition !== "undefined")
-			layer.g.selectAll(".data_point").transition(layer.chart.transition)
+		if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
+			layer.g.selectAll(".data_point").transition("pointLocation")
+				.duration(layer.chart.transitionDuration())
 				.attr("d", function(d) {return line(get_data(d));})
 		else
 			layer.g.selectAll(".data_point")

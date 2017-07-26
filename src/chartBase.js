@@ -22,7 +22,6 @@ export function chartBase() {
 	
 	chart.selectMode = false;
 	chart.pan = {mode: false, down: undefined};
-	chart.transition = undefined;
   chart.width("_override_", "plotWidth", function(){
   			return chart.get_width() - 
   				(chart.get_margin().right + chart.get_margin().left);
@@ -238,17 +237,6 @@ export function chartBase() {
 
 	}
 
-	chart.defineTransition = function(){
-		if(chart.transitionDuration() > 0){
-			chart.transition = 
-				d3.transition().duration(chart.transitionDuration());
-			chart.transition
-				.on("end", chart.defineTransition);
-		} else {
-			chart.transition = undefined;
-		}
-	}
-
 	chart.mark = function(marked) {
 		if(marked == "__clear__"){
 			chart.svg.selectAll(".data_point.marked")
@@ -297,11 +285,6 @@ export function chartBase() {
 		return points;
 	}
 
-	chart.afterUpdate = function(){
-		if(chart.get_transitionDuration() != 0)
-			chart.defineTransition();
-	}
-
   chart.place = function( element ) {
     if( element === undefined )
       element = "body";
@@ -312,10 +295,10 @@ export function chartBase() {
         throw "Error in function 'place': DOM selection for string '" +
           node + "' did not find a node."
   	}
-
+  	chart.transitionOff = true;
 		chart.put_static_content( element );
     chart.update();
-    chart.afterUpdate();
+    chart.transitionOff = false;
     return chart;
   }
 	
@@ -326,15 +309,17 @@ export function chartBase() {
 			.attr("y", -5) //points that are exactly on the edge
 			.attr("width", chart.plotWidth() + 10) 
 			.attr("height", chart.plotHeight() + 10);
-		if(typeof chart.transition !== "undefined"){
-			chart.svg.transition(chart.transition)
+		if(chart.transitionDuration() > 0 && !chart.transitionOff){
+			var t = d3.transition("size")
+				.duration(chart.transitionDuration());
+			chart.svg.transition(t)
 				.attr("width", chart.width())
 				.attr("height", chart.height());
-			chart.svg.select(".title").transition(chart.transition)
+			chart.svg.select(".title").transition(t)
 				.attr("font-size", chart.titleSize())
 				.attr("x", chart.titleX())
 				.attr("y", chart.titleY());
-			chart.svg.select(".plotArea").transition(chart.transition)
+			chart.svg.select(".plotArea").transition(t)
 				.attr("transform", "translate(" + chart.margin().left + 
 															", " + chart.margin().top + ")");
 		} else {
@@ -587,13 +572,6 @@ export function layerChartBase(){
 		if(chart.showLegend() && Object.keys(chart.legend.blocks).length > 0)
 			chart.legend.update();
 		return chart;
-	}
-
-	var inherited_afterUpdate = chart.afterUpdate;
-	chart.afterUpdate = function(){
-		inherited_afterUpdate();
-		for(var k in chart.layers)
-			chart.get_layer(k).afterUpdate();
 	}
 
 	var inherited_updateSize = chart.updateSize;
@@ -849,13 +827,15 @@ export function axisChart() {
 	chart.updateSize = function() {
 		inherited_updateSize();
 
-		if(typeof chart.transition !== "undefined"){
-			chart.svg.select(".axes_g").transition(chart.transition)
+		if(chart.transitionDuration() > 0 && !chart.transitionOff){
+			var t = d3.transition("size")
+				.duration(chart.transitionDuration());
+			chart.svg.select(".axes_g").transition(t)
 				.attr("transform", "translate(" + chart.get_margin().left + 
 								", " + chart.get_margin().top + ")");
-			chart.axes.x_g.transition(chart.transition)
+			chart.axes.x_g.transition(t)
 				.attr( "transform", "translate(0," + chart.get_plotHeight() + ")" );
-			chart.axes.x_label.transition(chart.transition)
+			chart.axes.x_label.transition(t)
 				.attr("x", chart.get_plotWidth());
 
 		}	else {
@@ -1021,18 +1001,20 @@ export function axisChart() {
 		var ticksX = get_ticks("X"),
 			ticksY = get_ticks("Y");
 
-    if(typeof chart.transition !== "undefined") {
+    if(chart.transitionDuration() > 0 && !chart.transitionOff) {
+	    var t = d3.transition("axes")
+	    	.duration(chart.transitionDuration());
 	    d3.axisBottom()
 	      .scale( chart.axes.scale_x )
 	      .tickValues(ticksX.tickValues)
 	      .tickFormat(ticksX.tickFormat)
-	      ( chart.axes.x_g.transition(chart.transition) );
+	      ( chart.axes.x_g.transition(t) );
 
 	    d3.axisLeft()
 	      .scale( chart.axes.scale_y )
 	      .tickValues(ticksY.tickValues)
 	      .tickFormat(ticksY.tickFormat)
-	      ( chart.axes.y_g.transition(chart.transition) );	
+	      ( chart.axes.y_g.transition(t) );	
     } else {
 	    d3.axisBottom()
 	      .tickValues(ticksX.tickValues)
@@ -1052,8 +1034,8 @@ export function axisChart() {
     		.html(ticksX.tickFormat)
     };
     if(ticksX.tickFormat)
-    	if(chart.transition)
-    		setTimeout(updateX, chart.transition.duration())
+    	if(chart.transitionDuration() > 0 && !chart.transitionOff)
+    		setTimeout(updateX, chart.transitionDuration())
     	else
     		updateX();
 
@@ -1062,8 +1044,8 @@ export function axisChart() {
     		.html(ticksX.tickFormat)
     };
     if(ticksY.tickFormat)
-    	if(chart.transition)
-    		setTimeout(updateY, chart.transition.duration())
+    	if(chart.transitionDuration() > 0 && !chart.transitionOff)
+    		setTimeout(updateY, chart.transitionDuration())
     	else
     		updateY();
 

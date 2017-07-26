@@ -114,8 +114,9 @@ export function scatterChart(id, chart) {
 	});
 
   layer.updatePointLocation = function(){
-    if(typeof layer.chart.transition !== "undefined"){
-      layer.g.selectAll(".data_point").transition(layer.chart.transition)
+    if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff){
+      layer.g.selectAll(".data_point").transition("pointLocation")
+        .duration(layer.chart.transitionDuration())
         .attr("transform", function(d) {
           return "translate(" + layer.chart.axes.scale_x( layer.get_x(d) ) + ", " + 
           layer.chart.axes.scale_y( layer.get_y(d) ) + ")"
@@ -167,9 +168,10 @@ export function scatterChart(id, chart) {
   layer.updateSelPointStyle = function(id){
     if(typeof id.length === "undefined")
       id = [id];
-    if(typeof layer.chart.transition !== "undefined")
+    if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
       for(var i = 0; i < id.length; i++)
-        layer.g.select("#p" + id[i]).transition(chart.layer.transition)
+        layer.g.select("#p" + id[i]).transition("pointStyle")
+          .duration(layer.chart.transitionDuration())
           .attr( "r", function(d) {return layer.get_size(d)})
           .attr( "fill", function(d) { return layer.get_colour(d)})
           .attr( "style", function(d) { return layer.get_style(d)})
@@ -186,8 +188,9 @@ export function scatterChart(id, chart) {
     layer.resetColourScale();
     var ids = layer.get_dataIds();
     var sel = layer.g.selectAll(".data_point");
-    if(typeof layer.chart.transition !== "undefined")
-      sel = sel.transition(layer.chart.transition);
+    if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
+      sel = sel.transition("pointStyle")
+        .duration(layer.chart.transitionDuration());
     sel
       .attr("d", function(d) {
         return d3.symbol()

@@ -167,8 +167,6 @@ export function layerBase(id) {
       .attr("clip-path", "url(#" + layer.chart.svg.select("clipPath").attr("id") + ")");
     //layer.chart.svg.select(".clickPanel").raise();
 	};
-	
-	layer.afterUpdate = function(){};
   
   layer.updateSize = function(){
   }

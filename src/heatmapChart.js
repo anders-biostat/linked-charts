@@ -351,24 +351,25 @@ export function heatmapChart(id, chart){
 	var inherited_updateSize = chart.updateSize;
 	chart.updateSize = function(){
 		inherited_updateSize();
-		if(typeof chart.transition !== "undefined"){
+		if(chart.transitionDuration() > 0 && !chart.transitionOff){
+			var t = d3.transition("size").duration(chart.transitionDuration());
 			if(!chart.showDendogram("Row"))
-				chart.svg.selectAll(".label_panel.row").transition(chart.transition)
+				chart.svg.selectAll(".label_panel.row").transition(t)
 					.attr("transform", "translate(" + chart.margin().left + ", " +
 						chart.margin().top + ")");
 			if(!chart.showDendogram("Col"))
-				chart.svg.selectAll(".label_panel.col").transition(chart.transition)
+				chart.svg.selectAll(".label_panel.col").transition(t)
 					.attr("transform", "translate(" + chart.margin().left + ", " +
 						chart.margin().top + ")");
 
-			chart.svg.select(".legend_panel").transition(chart.transition)
+			chart.svg.select(".legend_panel").transition(t)
 				.attr("transform", "translate(0, " + 
 					(chart.margin().top + chart.plotHeight()) + ")");
-			chart.axes.x_label.transition(chart.transition)
+			chart.axes.x_label.transition(t)
 				.attr("font-size", d3.min([chart.margin().bottom - 2, 15]))
 				.attr("x", chart.plotWidth() + chart.margin().left)
 				.attr("y", chart.height());
-			chart.axes.y_label.transition(chart.transition)
+			chart.axes.y_label.transition(t)
 				.attr("font-size", d3.min([chart.margin().right - 2, 15]))
 				.attr("x", - chart.margin().top)
 				.attr("y", chart.width());
@@ -423,11 +424,12 @@ export function heatmapChart(id, chart){
 			.domain( [0, nrows - 1] )
 			.range( [0, chart.plotHeight() - chart.cellSize.height] );
 
-		if(typeof chart.transition !== "undefined"){
-			chart.svg.select(".col").selectAll(".label").transition(chart.transition)
+		if(chart.transitionDuration() > 0 && !chart.transitionOff){
+			var t = d3.transition("labelPosition").duration(chart.transitionDuration());
+			chart.svg.select(".col").selectAll(".label").transition(t)
 				.attr("font-size", d3.min([chart.cellSize.width, 12]))
 				.attr("y", function(d) {return chart.axes.scale_x(chart.get_heatmapCol(d) + 1);});
-			chart.svg.select(".row").selectAll(".label").transition(chart.transition)
+			chart.svg.select(".row").selectAll(".label").transition(t)
 				.attr("font-size", d3.min([chart.cellSize.height, 12]))
 				.attr("y", function(d) {return chart.axes.scale_y(chart.get_heatmapRow(d) + 1);});
 		
@@ -487,10 +489,11 @@ export function heatmapChart(id, chart){
 	}
 
 	chart.updateLabelText = function(){
-		if(typeof chart.transition !== "undefined"){
-			chart.svg.select(".col").selectAll(".label").transition(chart.transition)
+		if(chart.transitionDuration() > 0 && !chart.transitionOff){
+			var t = d3.transition("labelText").duration(chart.transitionDuration());
+			chart.svg.select(".col").selectAll(".label").transition(t)
 				.text(function(d) {return chart.get_colLabels(d);});
-			chart.svg.select(".row").selectAll(".label").transition(chart.transition)
+			chart.svg.select(".row").selectAll(".label").transition(t)
 				.text(function(d) {return chart.get_rowLabels(d)});		
 		} else {
 			chart.svg.select(".col").selectAll(".label")
@@ -541,12 +544,6 @@ export function heatmapChart(id, chart){
 			.updateCellColour()
 			.updateLabelText();
 		chart.updateStarted = false;
-		//chart.clusterColIds(chart.get_colIds());
-		//chart.clusterRowIds(chart.get_rowIds());
-		//chart.cluster('Row');
-		//chart.cluster('Col');
-		//if(chart.dendogramRow) chart.drawDendogram("Row");
-		//if(chart.dendogramCol) chart.drawDendogram("Col");
 		return chart;
 	}
 
@@ -554,7 +551,7 @@ export function heatmapChart(id, chart){
 	//create colorScale
 		var range = chart.get_colourRange();
 		chart.colourScale = d3.scaleSequential(chart.get_palette).domain(range);
-		if(chart.get_showLegend())
+		if(chart.showLegend())
 			chart.updateLegend();		
 	}	
 
@@ -684,8 +681,8 @@ export function heatmapChart(id, chart){
 			return chart;
 
 		if(get_mode() == "svg") {
-			if(typeof chart.transition !== "undefined")
-				chart.g.selectAll(".data_point").transition(chart.transition)
+			if(chart.transitionDuration() > 0 && !chart.transitionOff)
+				chart.g.selectAll(".data_point").transition("cellColour").duration(chart.transitionDuration())
 					.attr("fill", function(d) {
 						return chart.get_colour(chart.get_value(d[0], d[1]));
 				})
@@ -786,8 +783,9 @@ export function heatmapChart(id, chart){
 			return chart;
 
 		if(get_mode() == "svg"){
-			if(typeof chart.transition !== "undefined")
-				chart.g.selectAll(".data_point").transition(chart.transition)
+			if(chart.transitionDuration() > 0 && !chart.transitionOff)
+				chart.g.selectAll(".data_point").transition("cellPosition")
+					.duration(chart.transitionDuration())
 					.attr("x", function(d){
 						return chart.axes.scale_x(chart.get_heatmapCol(d[1]));
 					})
@@ -903,8 +901,9 @@ export function heatmapChart(id, chart){
 		return chart;		
 	}
 	chart.updateTextPosition = function(){
-		if(typeof chart.transition !== "undefined")
-			chart.g.selectAll(".tval").transition(chart.transition)
+		if(chart.transitionDuration() > 0 && !chart.transitionOff)
+			chart.g.selectAll(".tval").transition("textPosition")
+				.duration(chart.transitionDuration())
 				.attr("x", function(d){
 					return chart.axes.scale_x(chart.get_heatmapCol(d[1]));
 				})
@@ -924,8 +923,9 @@ export function heatmapChart(id, chart){
 		return chart;
 	}
 	chart.updateTextValues = function(){
-		if(typeof chart.transition !== "undefined")
-			chart.g.selectAll(".tval").transition(chart.transition)
+		if(chart.transitionDuration() > 0 && !chart.transitionOff)
+			chart.g.selectAll(".tval").transition("textValues")
+				.duration(chart.transitionDuration())
 				.text(function(d) {
 					return chart.get_value(d[0], d[1]).toFixed(1);
 			})

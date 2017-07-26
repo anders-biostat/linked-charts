@@ -581,15 +581,17 @@ export function dendogram(heatmap)
 			dendogram.orientation() == "h" ? type = "Col" : type = "Row";
 			chart.showDendogram(type, false);
 			chart["dendogram" + type] = undefined;
-			if(chart.transition){
-				chart.svg.selectAll(".label_panel." + type.toLowerCase()).transition(chart.transition)
+			if(chart.transitionDuration() > 0 && !chart.transitionOff){
+				var t = d3.transition("remove")
+					.duration(chart.transitionDuration())
+				chart.svg.selectAll(".label_panel." + type.toLowerCase()).transition(t)
 						.attr("transform", "translate(" + chart.margin().left + ", " +
 									chart.margin().top + ")");
 				if(type == "Row")
-					chart.svg.select(".row").selectAll("text").transition(chart.transition)
+					chart.svg.select(".row").selectAll("text").transition(t)
 						.style("text-anchor", "end")
 				else
-					chart.svg.select(".col").selectAll("text").transition(chart.transition)
+					chart.svg.select(".col").selectAll("text").transition(t)
 						.style("text-anchor", "start");
 			}
 			else{ 			
