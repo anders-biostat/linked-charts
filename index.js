@@ -9,4 +9,4 @@ export { sigmoidColorSlider } from "./src/sigmoidColorSlider";
 export { simpleTable } from "./src/simpleTable";
 export { barChart } from "./src/barChart";
 export { dendogram } from "./src/dendogram";
-
+export { beeswarm } from "./src/beeswarm";

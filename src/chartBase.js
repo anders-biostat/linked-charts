@@ -429,6 +429,8 @@ export function layerChartBase(){
 				lc.parametricCurve(id, chart);
 			if(type == "bar")
 				lc.barChart(id, chart);
+			if(type == "beeswarm")
+				lc.beeswarm(id, chart);
 		}
 		return chart;
 	}
