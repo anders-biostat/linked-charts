@@ -109,7 +109,7 @@ export function dendogram(heatmap)
 		})
 		.add_property("data")
 		.add_property("scales")
-		.add_property("css_class", ['normal', 'selected']);
+		.add_property("lineColours", ['black', 'red']);
 
 	dendogram.npoints("_override_", "dataIds", function()
 	{
@@ -176,7 +176,7 @@ export function dendogram(heatmap)
 			.attr("stroke-width", 3)
 			.attr("id", node.id)	
 			.attr("orient", "h")
-			.attr("class", "normal");
+			.attr("stroke", dendogram.lineColours()[0]);
 
 			var children = [node.left, node.right];
 			for(var i = 0; i < children.length; i++)
@@ -189,7 +189,7 @@ export function dendogram(heatmap)
 				.attr("stroke-width", 3)				
 				.attr("id", children[i].id)
 				.attr("orient", "v")
-				.attr("class", "normal");
+				.attr("stroke", dendogram.lineColours()[0]);
 			}
 			
 			this.draw_dendo(node.left, g, scales);
@@ -208,7 +208,7 @@ export function dendogram(heatmap)
 				.attr("stroke-width", 3)
 				.attr("id", child.id)
 				.attr("orient", "v")
-				.attr("class", "normal");
+				.attr("stroke", dendogram.lineColours()[0]);
 
 			this.draw_dendo(child, g, scales);
 		}
@@ -247,7 +247,7 @@ export function dendogram(heatmap)
 
 	dendogram.set_color = function(g, inds, cla, prop)
 	{
-		g.selectAll('line').attr("class", function(d)
+		g.selectAll('line').attr("stroke", function(d)
 		{
 			return dendogram.check_ele(this.id, inds) ? cla[1]:cla[0];
 		});
@@ -441,7 +441,7 @@ export function dendogram(heatmap)
 			return;
 		dendogram.scales(dendogram.set_scale());
 		dendogram.draw_dendo(newTree, dendogram.g, dendogram.get_scales() )
-		dendogram.set_click(newTree, dendogram.g, dendogram.get_css_class())		
+		dendogram.set_click(newTree, dendogram.g, dendogram.lineColours())		
 		return dendogram;
 	}
 

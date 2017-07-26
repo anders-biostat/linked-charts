@@ -20,10 +20,14 @@ export function scatterChart(id, chart) {
     })
     .add_property("symbolType", "Circle")
 		.add_property("groupName", function(i){return i;})
-    .add_property("informText", function(id){
+    .add_property("informText", function(id){      
+      var x = layer.get_x(id),
+        y = layer.get_y(id);
+      if(x.toFixed) x = x.toFixed(2);
+      if(y.toFixed) y = y.toFixed(2);
       return "ID: <b>" + id + "</b>;<br>" + 
-            "x = " + layer.get_x(id).toFixed(2) + ";<br>" + 
-            "y = " + layer.get_y(id).toFixed(2)
+            "x = " + x + ";<br>" + 
+            "y = " + y
     });
 	chart.syncProperties(layer);
 

@@ -107,6 +107,9 @@ export function chartBase() {
   				var img  = new Image();
   				img.onload = function(){
     				ctx.drawImage(this, 0,0);
+    				if(chart.canvas && chart.canvas.classed("active"))
+    					ctx.drawImage(chart.canvas.node(), 
+    												chart.margin().left, chart.margin().top);
     				callback();
     			}
   			img.src = 'data:image/svg+xml; charset=utf8, '+encodeURIComponent(svgInnerHTML);
