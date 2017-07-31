@@ -26,10 +26,6 @@ export function chartBase() {
   			return chart.get_width() - 
   				(chart.get_margin().right + chart.get_margin().left);
   });
-/*  chart.plotWidth("_override_", "width", function(){
-  			return chart.get_plotWidth() +
-  				(chart.get_margin().right + chart.get_margin().left);
-  }); */
   chart.margin("_override_", "plotWidth", function(){
   			return chart.get_width() - 
   				(chart.get_margin().right + chart.get_margin().left);
@@ -642,6 +638,7 @@ export function axisChart() {
 									}));
 				}
 			}
+			if(domain === undefined) domain = [0, 1];
 			return domain;
 		}
 	}
