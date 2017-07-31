@@ -31,8 +31,8 @@ export function heatmapChart(id, chart){
 		.add_property("colTitle", "")
 		.add_property("showLegend", true)
 		.add_property("informText", function(rowId, colId) {
-			return "Row: <b>" + rowId + "</b>;<br>" + 
-						"Col: <b>" + colId + "</b>;<br>" + 
+			return "Row: <b>" + chart.get_rowLabels(rowId) + "</b>;<br>" + 
+						"Col: <b>" + chart.get_colLabels(colId) + "</b>;<br>" + 
 						"value = " + chart.get_value(rowId, colId).toFixed(2)
 			});
 
@@ -59,6 +59,19 @@ export function heatmapChart(id, chart){
 
 	chart.axes = {};
 	chart.marked = [];
+
+	(function() {
+		var show = {Row: chart.showDendogramRow(), Col: chart.showDendogramCol()};
+		chart.showDendogram = function(type, sh){
+			if(sh === undefined)
+				return show[type];
+			show[type] = sh && chart["showDendogram" + type]();
+			return chart;		
+		}
+	})();
+	chart.showDendogram("Row", false)
+		.showDendogram("Col", false);
+
 
 	var inherited_put_static_content = chart.put_static_content;
 	chart.put_static_content = function(element){
@@ -97,15 +110,6 @@ export function heatmapChart(id, chart){
 			.on("mouseout", function() {
 				chart.container.select(".inform").classed("hidden", true);
 			});
-
-		(function() {
-			var show = {Row: chart.showDendogramRow(), Col: chart.showDendogramCol()};
-			chart.showDendogram = function(type, sh){
-				if(sh === undefined)
-					return show[type];
-				show[type] = sh && chart["showDendogram" + type]();		
-			}
-		})();
 
 		if(chart.showPanel()){
 			chart.panel.add_button("Zoom in", "#zoomIn", function(chart){
@@ -819,6 +823,8 @@ export function heatmapChart(id, chart){
 			throw "Error in 'cluster': type " + type + " cannot be recognised. " +
 					"Please, use either 'Row' or 'Col'";
 		
+		chart.showDendogram(type, true);
+
 		if(chart["dendogram" + type] === undefined){
 			chart["dendogram" + type] = dendogram(chart);
 			type == "Row" ? chart["dendogram" + type].orientation("v") : chart["dendogram" + type].orientation("h"); 
