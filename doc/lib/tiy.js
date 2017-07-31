@@ -1,4 +1,5 @@
 var tiy = {};
+tiy.mirrors = {};
 
 tiy.button_run = function( id ) {
 
@@ -15,13 +16,13 @@ tiy.button_run = function( id ) {
   console.log( tiy.parse_preload( d3.select( "textarea#" + id ).attr( "tiy-preload" ) ) );
   ihead.append("script").attr("src", "https://d3js.org/d3.v4.min.js")
     .on( "load", function () {
-      ibody.append("script").text( "\n" + d3.select( "textarea#" + id ).property('value') );
+      ibody.append("script").text( "\n" + tiy.mirrors[id].doc.getValue() );
     } );
 }
 
 tiy.button_reset = function( id ) {
   var textarea = d3.select( "textarea#" + id );
-  textarea.property( "value", textarea.text() );
+  tiy.mirrors[id].doc.setValue(textarea.text());
 }
 
 tiy.parse_preload = function( preloadString ) {
@@ -53,8 +54,8 @@ tiy.insert_box = function( pre ) {
     preloadAttr = "";
 
   // Default height. (Maybe I should get this from CSS.)
-  if( height == null )
-    height = 300;
+  //if( height == null )
+  //  height = 300;
 
   // Remove pre, add the table
   pre.remove();
@@ -80,6 +81,9 @@ tiy.insert_box = function( pre ) {
     '  <button onclick=\'tiy.button_run("' + id + '")\'>Run</button>' +
     '</td></tr>'
   );
+  tiy.mirrors[id] = CodeMirror.fromTextArea(d3.select("textarea#" + id).node(),
+                      {lineNumbers: true, 
+                        tabSize: 2});
 }
 tiy.insert_box.count = 0;
 

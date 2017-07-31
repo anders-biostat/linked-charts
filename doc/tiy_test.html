@@ -1,28 +1,16 @@
-This is a test
---------------
-
-This file is to test the "tri-it-yourself" (tiy) script.
-
-Here is a box with code that the user can edit and run:
-
+<h2 id="this-is-a-test">This is a test</h2>
+<p>This file is to test the &quot;tri-it-yourself&quot; (tiy) script.</p>
+<p>Here is a box with code that the user can edit and run:</p>
 <pre class="tiy">
 d3.select("body").text("ABC");
 </pre>
-
-And here is another one:
-
+<p>And here is another one:</p>
 <pre class="tiy" height="100">
 d3.select("body").text("ABC");
 </pre>
-
-Compile this markdown file with
-
-```
-pandoc tiy_test.md -o tiy_test.html
-```
-
-And that's it.
-
+<p>Compile this markdown file with</p>
+<pre><code>pandoc tiy_test.md -o tiy_test.html</code></pre>
+<p>And that's it.</p>
 <script src="codeMirror/codemirror.js"></script>
 <link rel="stylesheet" href="codeMirror/codemirror.css">
 <script src="codeMirror/javascript.js"></script>
@@ -30,4 +18,3 @@ And that's it.
 <script src="tiy.js"></script>
 <link rel="stylesheet" href="tiy.css">
 <script>tiy.make_boxes();</script>
-

@@ -1,25 +1,38 @@
 //Basic object that can be chart or layer
+/**
+  * @hideconstructor  
+  * @class
+  * @description Basic object that provides property funtionality.
+  */
 export function base() {
 	
   var obj = {};
   obj.propList = [];
-	
-  obj.add_property = function( propname, defaultval ) {
+/**
+  * @function add_property
+  * @description Adds a property to this object
+  * @memberof base
+  * @param {string} propertyName - Name of a property.
+  * @param {value|function} [defaultValue] - Default value for a property.
+  *   Can also be a function that returns desired value or object.
+  * @return Object
+  */
+  obj.add_property = function( propertyName, defaultValue ) {
 		
-    obj.propList.push(propname);
-		var getter = "get_" + propname;
+    obj.propList.push(propertyName);
+		var getter = "get_" + propertyName;
     var overrideList = {};
 
-    obj[ propname ] = function( vf, propname, overrideFunc ) {
+    obj[ propertyName ] = function( vf, propertyName, overrideFunc ) {
 
       if( vf === undefined )
         return obj[ getter ]();      
 
       if( vf == "_override_"){
         if(typeof overrideFunc === "function")
-          overrideList[propname] = overrideFunc
+          overrideList[propertyName] = overrideFunc
         else
-          overrideList[propname] = function() {return overrideFunc;}
+          overrideList[propertyName] = function() {return overrideFunc;}
       } else {
         if( typeof(vf) === "function" )
           obj[ getter ] = vf
@@ -39,10 +52,10 @@ export function base() {
           return obj;
     }
 
-		if(typeof defaultval === "function")
-			obj[ getter ] = defaultval
+		if(typeof defaultValue === "function")
+			obj[ getter ] = defaultValue
 		else
-			obj[ getter ] = function() { return defaultval };
+			obj[ getter ] = function() { return defaultValue };
     return obj;
   }
 	

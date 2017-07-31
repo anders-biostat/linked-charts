@@ -15,9 +15,9 @@
     "url": "https://github.com/simon-anders/d3-linked-charts.git"
   },
   "scripts": {
-    "rollup": "rm -rf build && mkdir build && rollup -f umd -n d3 -o build/d3-linked-charts.js index.js",
-    "minify": "uglifyjs build/d3-linked-charts.js -c -m -o build/d3-linked-charts.min.js",
-    "zip": "zip -j build/d3-linked-charts.zip -- LICENSE README.md build/d3-linked-charts.js build/d3-linked-charts.min.js",
+    "rollup": "rm -rf build && mkdir build && rollup -f umd -n lc -o build/linked-charts.js index.js",
+    "minify": "uglifyjs build/linked-charts.js -c -m -o build/linked-charts.min.js",
+    "zip": "zip -j build/linked-charts.zip -- LICENSE README.md build/linked-charts.js build/linked-charts.min.js",
     "pretest": "npm run rollup",
     "test": "tape 'test/**/*-test.js'",
     "prepublish": "npm run test && npm run minify",
