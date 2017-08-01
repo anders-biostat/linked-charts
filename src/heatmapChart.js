@@ -368,7 +368,7 @@ export function heatmapChart(id, chart){
 
 			chart.svg.select(".legend_panel").transition(t)
 				.attr("transform", "translate(0, " + 
-					(chart.margin().top + chart.plotHeight()) + ")");
+					d3.min([chart.height() - 40, chart.height() - chart.margin().bottom * 0.9]) + ")");
 			chart.axes.x_label.transition(t)
 				.attr("font-size", d3.min([chart.margin().bottom - 2, 15]))
 				.attr("x", chart.plotWidth() + chart.margin().left)
@@ -389,7 +389,7 @@ export function heatmapChart(id, chart){
 
 			chart.svg.select(".legend_panel")
 				.attr("transform", "translate(0, " + 
-					(chart.get_margin().top + chart.get_plotHeight()) + ")");
+					d3.min([chart.height() - 40, chart.height() - chart.margin().bottom * 0.9]) + ")");
 			chart.axes.x_label
 				.attr("font-size", d3.min([chart.get_margin().bottom - 2, 15]))
 				.attr("x", chart.get_plotWidth() + chart.get_margin().left)
@@ -954,7 +954,7 @@ export function heatmapChart(id, chart){
 			});
 		blocks.selectAll("text")
 			.attr("font-size", fontSize)
-			.attr("dy", chart.get_margin().bottom * 0.4)
+			.attr("dy", chart.get_margin().bottom * 0.45)
 			.attr("dx", width);
 		blocks.selectAll("rect")
 			.attr("height", height)
@@ -970,7 +970,8 @@ export function heatmapChart(id, chart){
 				.enter().append("g")
 					.attr("class", "legend_block");
 		blocks.append("text")
-			.attr("text-anchor", "end");
+			.attr("text-anchor", "end")
+			.attr("class", "plainText");
 		blocks.append("rect");
 		chart.svg.select(".legend_panel")
 			.selectAll(".legend_block").selectAll("text")
