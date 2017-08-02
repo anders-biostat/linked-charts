@@ -151,7 +151,9 @@ tiy.insert_box = function( pre ) {
 
   tiy.mirrors[id] = CodeMirror.fromTextArea(d3.select("textarea#" + id).node(),
                       {lineNumbers: true, 
-                        tabSize: 2});
+                        tabSize: 2,
+                        lineWrapping: true,
+                        theme: "mdn-like"});
 
   if(loadOnStart)
     tiy.button_run(id);

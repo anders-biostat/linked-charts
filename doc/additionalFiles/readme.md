@@ -157,6 +157,7 @@ this API or look at our tutorials.
 
 <script src="lib/codeMirror/codemirror.js"></script>
 <link rel="stylesheet" href="lib/codeMirror/codemirror.css">
+<link rel="stylesheet" href="lib/codeMirror/mdn-like.css">
 <script src="lib/codeMirror/javascript.js"></script>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="lib/tiy.js"></script>
