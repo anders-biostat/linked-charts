@@ -6,3 +6,10 @@
   border: 2px solid #ddd; 
 /*  width: 500px;*/
 }
+.tiy-text {
+	text-align: center;
+	border-bottom: 2px solid #ddd;
+	color: #888;
+	padding-top: 9px;
+	padding-bottom: 9px;
+}

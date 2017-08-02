@@ -16,7 +16,7 @@
         "encoding": "utf8",               // same as -e utf8
         "destination": "./API/",          // same as -d ./out/
         "recurse": false,                  // same as -r
-        "tutorials": "./tutorials" // same as -u path/to/tutorials
+        "tutorials": "./additionalFiles/tutorials" // same as -u path/to/tutorials
     },
     "templates": {
         "monospaceLinks": true,
@@ -31,7 +31,7 @@
         "search": true,
         "default":{
             "staticFiles":{
-                "include": ["./lib/"],
+                "include": ["./additionalFiles/"],
                 "includePattern": ".+\\.(js|css)?$"
             }
         } 

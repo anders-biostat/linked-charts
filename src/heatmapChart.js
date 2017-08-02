@@ -156,8 +156,10 @@ export function heatmapChart(id, chart){
 					colIds = chart.colIds().slice();
 				chart.reorder("Row", function(a, b) {return rowIds.indexOf(a) - rowIds.indexOf(b)});
 				chart.reorder("Col", function(a, b) {return colIds.indexOf(a) - colIds.indexOf(b)});
-				chart.dendogramRow.remove();
-				chart.dendogramCol.remove();
+				if(chart.dendogramRow)
+					chart.dendogramRow.remove();
+				if(chart.dendogramCol)
+					chart.dendogramCol.remove();
 				chart.updateStarted = true;
 				chart.updateLabels()
 					.updateLabelPosition()

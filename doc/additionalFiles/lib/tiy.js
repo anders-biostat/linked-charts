@@ -5,9 +5,11 @@ tiy.button_run = function( id ) {
 
   var rightDiv = d3.select( "div#"+id );
   rightDiv.selectAll("iframe").remove();
+  var width = d3.select( "textarea#" + id ).attr( "width" ),
+    height = d3.select( "textarea#" + id ).attr( "height" );
   var iframe = rightDiv.append("iframe")
-    .style( "width", "100%" )
-    .style( "height", d3.select("table#"+id).select(".result").style("height") )
+    .style( "width", width + (width.includes("%") ? "" : "px"))
+    .style( "height", height + (height.includes("%") ? "" : "px"))
     .attr( "frameBorder", "0" );
   iframe = iframe.node();
   var idocument = ( iframe.contentWindow || iframe.contentDocument ).document;
@@ -39,18 +41,19 @@ tiy.button_run = function( id ) {
           loaded++;
           if(loaded == preload.length){
             ibody.append("script").text( code );
-            if(d3.select( "table#" + id ).select(".result").attr( "fitWidth" ) == "true")
+            if(d3.select( "table#" + id ).select(".tiy-result").attr( "fitWidth" ) == "true")
               d3.select(iframe)
-                .style("width", iframe.contentWindow.document.body.scrollWidth + "px");
-            if(d3.select( "table#" + id ).select(".result").attr( "fitHeight" ) == "true")
+                .style("width", ibody.node().scrollWidth + "px");
+            if(d3.select( "table#" + id ).select(".tiy-result").attr( "fitHeight" ) == "true")
               d3.select(iframe)
-                .style("height", iframe.contentWindow.document.body.scrollHeight + "px");
+                .style("height", ibody.node().scrollHeight + "px");
           }
         });
 
   if(d3.select( "textarea#" + id ).attr( "showCode" ) == "false")
      d3.select("table#"+id).selectAll("tr")
-      .filter(function() {return !d3.select(this).classed("result")})
+      .filter(function() {return !d3.select(this).classed("tiy-result") &&
+                                  !d3.select(this).classed("tiy-text")})
         .remove();
 }
 
@@ -88,7 +91,12 @@ tiy.insert_box = function( pre ) {
   var showCode = pre.attr( "showCode" );
   var fitWidth = pre.attr( "fitWidth" );
   var fitHeight = pre.attr( "fitHeight" );
+  var width = pre.attr( "width" );
+  var subscr = pre.attr( "subscr" );
   
+  console.log(subscr)
+
+
   if( preloadAttr == null ) 
     preloadAttr = "";
   if( loadOnStart == null )
@@ -99,6 +107,10 @@ tiy.insert_box = function( pre ) {
     fitWidth = false;
   if( fitHeight == null )
     fitHeight = false;
+  if( width == null)
+    width = "100%";
+  if( subscr == null )
+    subscr = "";
   // Default height. (Maybe I should get this from CSS.)
   if( height == null )
     height = 150;
@@ -115,7 +127,7 @@ tiy.insert_box = function( pre ) {
     '<tr>' +
     '  <td style="vertical-align:top; height:100%">' +
     '     <textarea class="tiy-leftbox" style="height:100%" id="' + id + '" tiy-preload="' + preloadAttr + '" ' + 
-            'showCode="' + showCode + '">' +
+            'showCode="' + showCode + '" width="' + width + '" height="' + height + '">' +
              code +
     '     </textarea>' +
     '  </td>' +
@@ -124,12 +136,15 @@ tiy.insert_box = function( pre ) {
     '  <button onclick=\'tiy.button_reset("' + id + '")\'>Reset</button>' +
     '  <button onclick=\'tiy.button_run("' + id + '")\'>Run</button>' +
     '</td></tr>' +    
-    '<tr style="vertical-align:top" class="result" fitHeight="' + fitHeight + '" fitWidth="' + fitWidth + '">' +
+    '<tr style="vertical-align:top" class="tiy-result" fitHeight="' + fitHeight + '" fitWidth="' + fitWidth + '">' +
     '  </td>' +
-    '  <td rowspan=2 class="tiy-rightbox" style="vertical-align:top">' +
+    '  <td class="tiy-rightbox" style="vertical-align:top">' +
     '     <div id="'+id+'"></div>' +
     '  </td>' +
-    '</tr>';
+    '</tr>' +
+    '<tr class="tiy-text"><td>' +
+    '  <div class="tiy-text">' + subscr + '</div>' +
+    '</td></tr>';
 
   // Fill the table
   table.html(tableHTML);

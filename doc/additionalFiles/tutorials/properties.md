@@ -1,0 +1,2 @@
+Propreties in Linked-Charts
+===========================
