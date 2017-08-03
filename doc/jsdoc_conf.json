@@ -32,7 +32,7 @@
         "default":{
             "staticFiles":{
                 "include": ["./additionalFiles/"],
-                "includePattern": ".+\\.(js|css)?$"
+                "includePattern": ".+\\.(js|css|svg)?$"
             }
         } 
     }    

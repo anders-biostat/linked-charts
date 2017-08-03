@@ -93,8 +93,6 @@ tiy.insert_box = function( pre ) {
   var fitHeight = pre.attr( "fitHeight" );
   var width = pre.attr( "width" );
   var subscr = pre.attr( "subscr" );
-  
-  console.log(subscr)
 
 
   if( preloadAttr == null ) 
@@ -125,17 +123,13 @@ tiy.insert_box = function( pre ) {
 
   var tableHTML = 
     '<tr>' +
-    '  <td style="vertical-align:top; height:100%">' +
+    '  <td style="vertical-align:top; height:100%; position:relative" class="tiy-code">' +
     '     <textarea class="tiy-leftbox" style="height:100%" id="' + id + '" tiy-preload="' + preloadAttr + '" ' + 
             'showCode="' + showCode + '" width="' + width + '" height="' + height + '">' +
              code +
     '     </textarea>' +
     '  </td>' +
     '</tr>' + 
-    '<tr><td style="text-align:right; vertical-align:bottom">' + 
-    '  <button onclick=\'tiy.button_reset("' + id + '")\'>Reset</button>' +
-    '  <button onclick=\'tiy.button_run("' + id + '")\'>Run</button>' +
-    '</td></tr>' +    
     '<tr style="vertical-align:top" class="tiy-result" fitHeight="' + fitHeight + '" fitWidth="' + fitWidth + '">' +
     '  </td>' +
     '  <td class="tiy-rightbox" style="vertical-align:top">' +
@@ -155,13 +149,47 @@ tiy.insert_box = function( pre ) {
                         lineWrapping: true,
                         theme: "mdn-like"});
 
-  if(loadOnStart)
-    tiy.button_run(id);
-}
-tiy.insert_box.count = 0;
-
-tiy.make_boxes = function() {
-  d3.selectAll("pre.tiy")
-    .each( function( d, j, n ) { tiy.insert_box( d3.select(n[j]) ) } );
+      var x = table.select(".tiy-code").select(".CodeMirror")
+        .node().getBoundingClientRect().right - 15;
+    
+      table.select(".tiy-code")
+        .selectAll("img").data(["reset", "run"]).enter()
+          .append("img")
+          .style("position", "absolute")
+          .style("z-index", 10)
+          .style("left", function(d){
+            return (x - (d == "run" ? 30 : 60)) + "px"; 
+          })
+          .style("top", "15px")
+          .attr("width", "30px")
+          .attr("height", "30px")
+          .on("click", function(d) {tiy["button_" + d](id);})
+          .on("mouseover", function(d){
+            d3.select(this)
+              .attr("src", function(d){
+                return "lib/src/" + d + "_hover.svg"
+              });
+          })
+          .on("mouseout", function(d){
+            d3.select(this)
+              .attr("src", function(d){
+                return "lib/src/" + d + ".svg"
+              });            
+          })
+          .attr("src", function(d){
+            return "lib/src/" + d + ".svg";
+          })
+          .attr("title", function(d){
+            return d == "run" ? "Run code" : "Reset code";
+          });
+    
+      if(loadOnStart)
+        tiy.button_run(id);
+    }
+    tiy.insert_box.count = 0;
+    
+  tiy.make_boxes = function() {
+     d3.selectAll("pre.tiy")
+      .each( function( d, j, n ) { tiy.insert_box( d3.select(n[j]) ) } );
 }
 
