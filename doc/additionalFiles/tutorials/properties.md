@@ -1,2 +1,190 @@
-Propreties in Linked-Charts
-===========================
+Each chart object in the <tt>linked-charts</tt> library has a number of
+properties that define all the aspects of a chart. They are the main 
+interface for the chart and therefore their understandig is crucial for 
+using the library.
+
+Some properties (such as <tt>width</tt> or <tt>height</tt>) are shared
+between all objects in the <tt>linked-charts</tt> library, others are
+specific for a particular chart type. Some are defined for the entire
+chart, while others can be set for each data point separatly. A property
+may be a value, or a function that returns the value, or even a fucntion
+that just perform some actions under certain conditions (like the <tt>on_click</tt>
+property).
+
+### Getters and setters
+
+All properties follow the same logic. Each property has a getter 
+and a setter function. Setters are always called after the name of
+the property and always return the chart object allowing for 
+chained calls.
+
+```
+chart.property1(new_value_for_property1)
+	.property2(new_value_for_property2);
+```
+
+After a property has been set, one of the <tt>update</tt> functions
+should be called to redraw the chart.
+
+Getters are called by <tt>get_[property_name\]()</tt> functions and
+return the current value of the property.
+
+```
+var value = chart.get_property();
+```
+
+Note that calling a setter without any arguements is equivalent to
+calling a corresponding getter.
+
+Try to play with <tt>width</tt> and <tt>height</tt> properties of a 
+scatter plot.
+<pre class="tiy" width="100%" fitHeight="true"
+	tiy-preload="lib/linked-charts.min.js;data/iris.js;lib/linked-charts.css">
+	//create a scatterplot
+	var scatterplot = lc.scatterChart()
+		//set x and y values
+		.x(function(k) {return data[k].sepalLength})
+		.y(function(k) {return data[k].petalLength})
+		//set width and heigh
+		.width(300)
+		.height(400)
+		//put scatterplot on the page
+		.place();
+
+	//to get a value of the property one can
+	//use a getter function or a setter with no
+	//arguements
+	var width = scatterplot.get_width(),
+		height = scatterplot.height();
+
+	d3.select("body").append("p").text("Height: " + height);
+	d3.select("body").append("p").text("Width: " + width);
+
+	//change the width of the chart and update
+	scatterplot.width(700)
+		.updateSize();
+</pre>
+
+### Static and dynamic values
+
+In the previous example we used fixed values for width and height,
+but property setters also accept functions instead of values. The 
+difference being that static value is fixed until you explicitely
+reset the property by calling its setter. A dynamic value is checked
+on each getter call. It's usefult if you think that some external
+factors can influence the property.
+
+In the following example we have two global variables - <tt>width</tt>
+and <tt>height</tt> - that can be changed through input boxes. We will
+set <tt>width</tt> property dynamically and pass <tt>height</tt> as a 
+static value. It makes no difference, when the cahrt is initialised,
+but 
+
+<pre class="tiy" width="100%" fitHeight="true"
+	tiy-preload="lib/linked-charts.min.js;data/iris.js;lib/linked-charts.css">
+	var cells = d3.select("body").append("table")
+		.selectAll("tr").data(["Width", "Height"])
+			.enter().append("tr")
+				.append("td")
+					.attr("class", function(d) {return d});
+	cells.append("text")
+		.text(function(d) {return d + ": "});
+	cells.append("input")
+		.attr("type", "text")
+		.style("width", 50)
+		.on("change", function(d){
+			window[d] = this.value;
+		});
+	//-----Precode end-----
+	var width = 400,
+		height = 300;
+
+	//create a scatterplot
+	var scatterplot = lc.scatterChart()
+		//set x and y values
+		.x(function(k) {return data[k].sepalLength})
+		.y(function(k) {return data[k].petalLength})
+		//set width and height
+		.width(function() {return width;})
+		.height(height)
+		//put scatterplot on the page
+		.place();
+
+	//Add an update button
+	d3.select("body")
+		.append("button")
+			.on("click", scatterplot.updateSize)
+			.text("Update");
+
+	/* As you can see, now changing height has no effect
+		on the chart. To make it work, replace 
+		the onclick function (line 18) with
+		function() {
+			scatterplot.height(height)
+				.updateSize();
+		}
+	*/
+</pre>
+
+### Setting properties for specific points
+
+To change size, colour, symbol etc. of a particular data point
+we need first to identify this poitn. All charts in the 
+<tt>linked-charts</tt> library assign an ID to each point (or to 
+each row and column for heatmaps). User can set the IDs himself 
+using <tt>dataIds</tt> (or <tt>rowIds</tt> and <tt>colIds</tt>) property,
+which expects an array of IDs for all the points in the plot. If not set,
+the IDs are generated as consecutive numbers.
+
+Getters of properties such as colour or size can take ID as an arguement
+and return a values of this property for a point with this ID. You've
+already seen it in previous examples.
+
+```
+scatterplot.x(function(k) {return data[k].sepalLength});
+```
+
+Here <tt>k</tt> is a point ID (a number in our case), and property
+<tt>x</tt> is defined separately for each ID. To get an <tt>x</tt>
+value of a point with ID k, one should use getter like this:
+
+```
+x = scatterplot.get_x(k);
+```
+
+These properties may also be independent of the IDs or even be static.
+In this case the same value will be set for all the points.
+
+In this example we will set to properties: <tt>size</tt> and <tt>colour</tt>.
+Size will be the same for all the points and colour will indicate species 
+(here, we are using Iris data set).
+
+<pre class="tiy" width="100%" fitHeight="true"
+	tiy-preload="lib/linked-charts.min.js;data/iris.js;lib/linked-charts.css">
+	//create a scatterplot
+	var scatterplot = lc.scatterChart()
+		//set x and y values
+		.x(function(k) {return data[k].sepalLength})
+		.y(function(k) {return data[k].petalLength})
+		//set size (default size is 6)
+		.size(3)
+		//set colour
+		.colour(function(k) {return data[k].species})
+		//put scatterplot on the page
+		.place();
+
+	//try to use 'sepalWidth' as size
+</pre>
+
+###Properties and layers
+
+### For developers
+
+<script src="lib/codeMirror/codemirror.js"></script>
+<link rel="stylesheet" href="lib/codeMirror/codemirror.css">
+<link rel="stylesheet" href="lib/codeMirror/mdn-like.css">
+<script src="lib/codeMirror/javascript.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="lib/tiy.js"></script>
+<link rel="stylesheet" href="lib/tiy.css">
+<script>tiy.make_boxes();</script>

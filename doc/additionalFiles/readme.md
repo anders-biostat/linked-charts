@@ -120,7 +120,7 @@ The minimal code, needed to create a set of charts similar to the one on the top
 	tiy-preload="lib/linked-charts.min.js;data/inputdata_simple.js;lib/linked-charts.css"
 	subscr="Minimal code to generate two linked charts.">
 	//global variables to store the clicked cell
-	var selGene = 0;                                               
+	var selGene = 0;
 	var selDrug = 0;
 
 	//generating heatmap

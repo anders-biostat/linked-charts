@@ -1,5 +1,6 @@
 var tiy = {};
 tiy.mirrors = {};
+tiy.precode = {};
 
 tiy.button_run = function( id ) {
 
@@ -40,7 +41,7 @@ tiy.button_run = function( id ) {
         .on("load", function(){
           loaded++;
           if(loaded == preload.length){
-            ibody.append("script").text( code );
+            ibody.append("script").text( tiy.precode[id] + code );
             if(d3.select( "table#" + id ).select(".tiy-result").attr( "fitWidth" ) == "true")
               d3.select(iframe)
                 .style("width", ibody.node().scrollWidth + "px");
@@ -121,6 +122,12 @@ tiy.insert_box = function( pre ) {
     .attr( "class", "tiy" )
     .attr( "id", id );
 
+  if(code.includes("//-----Precode end-----")){
+    tiy.precode[id] = code.split("//-----Precode end-----")[0];
+    code = code.split("//-----Precode end-----")[1];
+  } else
+    tiy.precode[id] = "";
+
   var tableHTML = 
     '<tr>' +
     '  <td style="vertical-align:top; height:100%; position:relative" class="tiy-code">' +
@@ -157,8 +164,8 @@ tiy.insert_box = function( pre ) {
           .append("img")
           .style("position", "absolute")
           .style("z-index", 10)
-          .style("left", function(d){
-            return (x - (d == "run" ? 30 : 60)) + "px"; 
+          .style("right", function(d){
+            return (d == "run" ? 25 : 60) + "px"; 
           })
           .style("top", "15px")
           .attr("width", "30px")
