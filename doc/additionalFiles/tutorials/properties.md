@@ -149,7 +149,7 @@ Here <tt>k</tt> is a point ID (a number in our case), and property
 value of a point with ID k, one should use getter like this:
 
 ```
-x = scatterplot.get_x(k);
+var x = scatterplot.get_x(k);
 ```
 
 These properties may also be independent of the IDs or even be static.
@@ -169,16 +169,89 @@ Size will be the same for all the points and colour will indicate species
 		//set size (default size is 6)
 		.size(3)
 		//set colour
-		.colour(function(k) {return data[k].species})
+		.colourValue(function(k) {return data[k].species})
 		//put scatterplot on the page
 		.place();
 
 	//try to use 'sepalWidth' as size
 </pre>
 
-###Properties and layers
+Note that there is also <tt>colour</tt> property, but it expected to
+return colours in any understable by CSS format. If you have names or
+numeric values and you want them to be converted into a colour scale,
+use <tt>colourValue</tt> property instead.
+Setting <tt>colour</tt> property overrides <tt>colourValue</tt>. Try, 
+for example, adding
+```
+scatterplot.colour("blue");
+```
+
+### Properties and layers
+
+The <tt>linked-charts</tt> library allow some types of plots to have
+several layers that can be of the same or of different types. Properties
+that affect the entire chart (such as <tt>width</tt>, <tt>height</tt> or <tt>title</tt>)
+ are chart-properties and their usage is not influenced by
+the number of layers. But there are also layer-properties which shoud be
+set for each layer individually. The proper way would be
+
+```
+chart.get_layer(layerID).property(newValue);
+```
+
+One may find it really annoying, especially setters always return chart
+object (not layers!). So in the <tt>linked-chart</tt> an acitve layer 
+concept is introduced. Properties of the active layer can be set the
+same way you set chart prperties, without selecting a layer.
+
+So if <tt>property1</tt> is a chart-property, <tt>property2</tt> is
+a property of an active layer and <tt>property3</tt> is a property of
+some other layer, one can set them like this.
+
+```
+chart.property1(newValue1)
+	.property2(newValue2)
+	.get_layer(id)
+		.property3(newValue3);
+``` 
+
+By default, each layer becomes active immediately after it is added to
+the chart, so when you work with a chart that has only one layer, you can
+even not notice that there are any layers at all. You can also change 
+active layer using <tt>activeLayer</tt> property.
+
+```
+chart.activeLayer(layerId);
+```
+
+You can also select several layers and set properties for all of them
+simultaniously.
+
+```
+chart.select_layers([id1, id2])
+	.property(newValue);
+```
+
+<pre class="tiy" width="100%" fitHeight="true"
+	tiy-preload="lib/linked-charts.min.js;data/inputdata.js;lib/linked-charts.css">
+	//create a scatterplot
+	var scatterplot = lc.scatterChart()
+		//set x and y values
+		.x(function(k) {return data[k].sepalLength})
+		.y(function(k) {return data[k].petalLength})
+		//set size (default size is 6)
+		.size(3)
+		//set colour
+		.colourValue(function(k) {return data[k].species})
+		//put scatterplot on the page
+		.place();
+
+	//try to use 'sepalWidth' as size
+</pre>
 
 ### For developers
+
+
 
 <script src="lib/codeMirror/codemirror.js"></script>
 <link rel="stylesheet" href="lib/codeMirror/codemirror.css">

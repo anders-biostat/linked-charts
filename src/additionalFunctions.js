@@ -57,11 +57,13 @@ export function separateBy(data, properties){
   //go through all the elements again and place them in a suitable category
   for(var i = 0; i < keys.length; i++){
     value = data[keys[i]][properties[0]];
+    var newPoint;
     if(typeof value !== "undefined"){
-      delete data[keys[i]][properties[0]];
+      Object.assign(newPoint, data[keys[i]]);
+      delete newPoint[properties[0]];
       if(type == "obj") newData[value][keys[i]] = {};
-      type == "obj" ? Object.assign(newData[value][keys[i]], data[keys[i]]) :
-                      newData[value].push(data[keys[i]]);
+      type == "obj" ? newData[value][keys[i]] = newPoint :
+                      newData[value].push(newPoint);
     }
   }
   //if type is array but all values of the property are unique change arrays in objects
