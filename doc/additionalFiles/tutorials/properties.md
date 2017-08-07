@@ -234,19 +234,45 @@ chart.select_layers([id1, id2])
 
 <pre class="tiy" width="100%" fitHeight="true"
 	tiy-preload="lib/linked-charts.min.js;data/inputdata.js;lib/linked-charts.css">
-	//create a scatterplot
-	var scatterplot = lc.scatterChart()
-		//set x and y values
-		.x(function(k) {return data[k].sepalLength})
-		.y(function(k) {return data[k].petalLength})
-		//set size (default size is 6)
-		.size(3)
-		//set colour
-		.colourValue(function(k) {return data[k].species})
-		//put scatterplot on the page
-		.place();
+	d3.select("body")
+		.append("table")
+			.append("tr")
+				.selectAll("td").data(["scatter", "inhValues"])
+					.enter().append("td")
+						.attr("id", function(d){return d;});
 
-	//try to use 'sepalWidth' as size
+	var data = {};
+	data.Pa16C = lc.separateBy(inputData, ["screen", "CellLine", "Drug"]).RTG.Pa16C;
+	data.Pa14C = lc.separateBy(inputData, ["screen", "CellLine", "Drug"]).RTG.Pa14C;
+	//-----Precode end-----
+	var selDrug = "Filanesib";
+
+	var scatterplot = lc.scatterChart()
+		.dataIds(Object.keys(data.Pa16C))
+		.x(function(id) {return data.Pa16C[id].avInh})
+		.y(function(id) {return data.Pa14C[id].avInh})
+		.on_click(function(id){
+			selDrug = id;
+			inhValues.update();
+		})
+		.place("#scatter");
+
+	var inhValues = lc.scatterChart("Pa16C")
+	  .npoints( 5 )
+	  .x( function( k ) {return k;} )
+	  .y( function( k ) {
+	    return data.Pa16C[selDrug]["D" + (k + 1)];
+	  })
+	  .colour( "blue" );
+	lc.scatterChart("Pa14C", inhValues)
+	  .npoints( 5 )
+	  .x( function( k ) {return k} )
+	  .y( function( k ) {
+	    return data.Pa14C[selDrug]["D" + (k + 1)];
+	  })
+	  .colour("red")
+	  .place( "#inhValues" );
+
 </pre>
 
 ### For developers

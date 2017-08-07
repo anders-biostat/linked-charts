@@ -161,10 +161,10 @@ export function layerBase(id) {
   };
 
 	layer.put_static_content = function() {
-    layer.g = layer.chart.svg.select(".plotArea").append("g")
+    layer.g = layer.chart.svg.selectAll(".plotArea").append("g")
       .attr("class", "chart_g")
       .attr("id", layer.id)
-      .attr("clip-path", "url(#" + layer.chart.svg.select("clipPath").attr("id") + ")");
+      .attr("clip-path", "url(#" + layer.chart.svg.selectAll("clipPath").attr("id") + ")");
     //layer.chart.svg.select(".clickPanel").raise();
 	};
   

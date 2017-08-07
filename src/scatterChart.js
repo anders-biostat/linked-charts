@@ -66,12 +66,12 @@ export function scatterChart(id, chart) {
       })
       .classed("hover", true);
     //show label
-    layer.chart.container.select(".inform")
+    layer.chart.container.selectAll(".inform").data([d])
         .style("left", (pos[0] + 10) + "px")
         .style("top", (pos[1] + 10) + "px")
         .select(".value")
           .html(layer.get_informText(d));  
-    layer.chart.container.select(".inform")
+    layer.chart.container.selectAll(".inform")
       .classed("hidden", false);
   });
   layer.pointMouseOut(function(d){
@@ -80,7 +80,7 @@ export function scatterChart(id, chart) {
         return layer.get_colour(d);
       })
       .classed("hover", false);
-    layer.chart.container.select(".inform")
+    layer.chart.container.selectAll(".inform")
       .classed("hidden", true);
   });
 
@@ -174,14 +174,14 @@ export function scatterChart(id, chart) {
       id = [id];
     if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
       for(var i = 0; i < id.length; i++)
-        layer.g.select("#p" + id[i]).transition("pointStyle")
+        layer.g.selectAll("#p" + id[i]).transition("pointStyle")
           .duration(layer.chart.transitionDuration())
           .attr( "r", function(d) {return layer.get_size(d)})
           .attr( "fill", function(d) { return layer.get_colour(d)})
           .attr( "style", function(d) { return layer.get_style(d)})
     else
       for(var i = 0; i < id.length; i++)
-        layer.g.select("#p" + id[i])
+        layer.g.selectAll("#p" + id[i])
           .attr( "r", layer.get_size(id[i]))
           .attr( "fill", layer.get_colour(id[i]))
           .attr( "style", layer.get_style(id[i]));      

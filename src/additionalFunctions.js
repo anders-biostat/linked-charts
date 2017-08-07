@@ -55,10 +55,11 @@ export function separateBy(data, properties){
     type == "obj" ? newData[uniqueList[i]] = {} : newData[uniqueList[i]] = [];
 
   //go through all the elements again and place them in a suitable category
+  var newPoint;
   for(var i = 0; i < keys.length; i++){
     value = data[keys[i]][properties[0]];
-    var newPoint;
     if(typeof value !== "undefined"){
+      newPoint = {};
       Object.assign(newPoint, data[keys[i]]);
       delete newPoint[properties[0]];
       if(type == "obj") newData[value][keys[i]] = {};
@@ -112,7 +113,7 @@ export function add_click_listener(chart){
  
   //add a transparent rectangle to detect clicks
   //and make changes to update function
-  chart.svg.select(".plotArea").append("rect")
+  chart.svg.selectAll(".plotArea").append("rect")
     .attr("class", "clickPanel")
     .attr("fill", "transparent")
     .lower();
@@ -136,7 +137,7 @@ export function add_click_listener(chart){
     wait_click = window.setTimeout(function() {wait_click = null;}, 1000);
     var p = d3.mouse(this);  //Mouse position on the heatmap
     if(!chart.pan.mode)
-      chart.svg.select(".plotArea").append("rect")
+      chart.svg.selectAll(".plotArea").append("rect")
         .attr("class", "selection")
         .attr("x", p[0])
         .attr("y", p[1])
@@ -147,11 +148,11 @@ export function add_click_listener(chart){
       chart.pan.down = downThis;
       chart.transitionOff = true;
     }
-    chart.container.select(".inform")
+    chart.container.selectAll(".inform")
       .classed("blocked", true);
 
     document.addEventListener("mouseup", function() {
-      chart.container.select(".inform")
+      chart.container.selectAll(".inform")
         .classed("blocked", false);
       chart.svg.select("rect.selection").remove();
       chart.svg.select(".shadow").remove();
@@ -188,7 +189,7 @@ export function add_click_listener(chart){
 
     if(shadow.empty() && 
           Math.abs((downThis[0] - p[0]) * (downThis[1] - p[1])) > 10)
-      shadow = chart.svg.select(".plotArea").append("path")
+      shadow = chart.svg.selectAll(".plotArea").append("path")
         .attr("class", "shadow")
         .attr("fill", "#444")
         .attr("opacity", 0.6);
@@ -211,7 +212,7 @@ export function add_click_listener(chart){
     if(chart.canvas && chart.canvas.classed("active")){
       parcer.do(function(){
         var point = chart.findPoints(p, p)[0].substr(1).split("_-sep-_");
-        chart.container.select(".inform")
+        chart.container.selectAll(".inform")
           .style("left", (p[0] + 10 + chart.margin().left) + "px")
           .style("top", (p[1] + 10 + chart.margin().top) + "px")
           .select(".value")
@@ -226,7 +227,7 @@ export function add_click_listener(chart){
 
     var mark = d3.event.shiftKey || chart.selectMode;
     // remove selection frame
-    chart.container.select(".inform")
+    chart.container.selectAll(".inform")
       .classed("blocked", false);
 
     if(!chart.svg.select("rect.selection").empty())
@@ -260,7 +261,7 @@ export function add_click_listener(chart){
             if(panStarted) {
               panStarted = false;
               chart.pan.move(pos);
-              chart.container.select(".inform").classed("blocked", false);
+              chart.container.selectAll(".inform").classed("blocked", false);
               chart.transitionOff = false;
               chart.pan.down = undefined;
               return;
@@ -275,7 +276,7 @@ export function add_click_listener(chart){
     if(panStarted) {
       panStarted = false;
       chart.pan.move(pos);
-      chart.container.select(".inform").classed("blocked", false);
+      chart.container.selectAll(".inform").classed("blocked", false);
       chart.transitionOff = false;
       chart.pan.down = undefined;
       return;
@@ -291,24 +292,42 @@ export function add_click_listener(chart){
     mark ? chart.mark("__clear__") : chart.resetDomain();
   }
   var on_panelClick = function(p, mark){
+    //if this function wasn't called throug timers and 
+    //therefore didn't get position as arguement, ignore
     if(typeof p === "undefined")
       return;
-    var clickedPoints = chart.findPoints(p, p);
-    if(!mark){
-      var click, clickFun, data;
-      for(var i = 0; i < clickedPoints.length; i++) {
-        click = chart.svg.select("#" + lc.escapeRegExp(clickedPoints[i]).replace(/ /g, "_"));
-        if(!click.empty()) {
-          clickFun = click.on("click");
-          clickFun.call(click.node(), click.datum());
-        } else { //required for canvas and therefore supposed to be used only in case of a heatmap
-          data = clickedPoints[i].substr(1).split("_-sep-_");
-          chart.get_on_click(data[0], data[1]);
-        }
-      }
-    } else {
-      chart.mark(clickedPoints);
+
+    //find all the points that intersect with the cursor position
+    var clicked = chart.findPoints(p, p);
+    if(clicked.length == 0)
+      return;
+
+    if(mark){
+      chart.mark(clicked);
+      return;      
     }
+
+    //if there is an active canvas (only for heatmaps)
+    if(chart.canvas && chart.canvas.classed("active")){
+      for(var i = 0; i < clicked.length; i++){
+        data = clicked[i].substr(1).split("_-sep-_");
+        chart.get_on_click(data[0], data[1]);
+      }
+      return;
+    }
+
+    var clickedPoints = chart.svg.selectAll("#" + clicked.join(",#").replace(/ /g, "_")),
+      activePoint = clickedPoints.filter(function(d){
+        return d == chart.container.selectAll(".inform").datum();
+      });
+    if(!activePoint.empty())
+      clickedPoints = activePoint;
+
+    var clickFun;
+    clickedPoints.each(function(d){
+      clickFun = d3.select(this).on("click");
+      clickFun.call(this, d)
+    })
   }
 
   chart.svg.selectAll(".plotArea")

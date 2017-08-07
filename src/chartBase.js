@@ -89,7 +89,7 @@ export function chartBase() {
   						w = 0;
   						hlist = [];
   						d3.select(this).selectAll("td").each(function(dtd, itd){
-  							lsvg = d3.select(this).select("svg");
+  							lsvg = d3.select(this).selectAll("svg");
   							svgInnerHTML += "<g transform='translate(" + (legend.chart.width() + w) + ", "+ h + ")'>" +
   											lsvg.node().innerHTML + "</g>"
   							hlist.push(lsvg.attr("height"));
@@ -111,7 +111,7 @@ export function chartBase() {
   			img.src = 'data:image/svg+xml; charset=utf8, '+encodeURIComponent(svgInnerHTML);
  				}
 
- 				chart.svg.select(".panel_g")
+ 				chart.svg.selectAll(".panel_g")
  					.style("display", "none");
 
 				var canvas = document.createElement('canvas');
@@ -136,12 +136,12 @@ export function chartBase() {
 						var blob = new Blob([asArray.buffer], {type: 'image/png'});
 						saveAs(blob, 'export_' + Date.now() + '.png');
 					}, chart.legend);
- 				chart.svg.select(".panel_g")
+ 				chart.svg.selectAll(".panel_g")
  					.style("display", undefined);
 			});
 
 			chart.panel.add_button("Save plot as svg", "#svg", function(chart){
- 				chart.svg.select(".panel_g")
+ 				chart.svg.selectAll(".panel_g")
  					.style("display", "none");
  				var html;
   			if(chart.legend !== undefined){
@@ -151,7 +151,7 @@ export function chartBase() {
   					w = 0;
   					hlist = [];
   					d3.select(this).selectAll("td").each(function(){
-  						lsvg = d3.select(this).select("svg");
+  						lsvg = d3.select(this).selectAll("svg");
   						html += "<g transform='translate(" + (chart.width() + w) + ", "+ h + ")'>" +
   											lsvg.node().innerHTML + "</g>"
   						hlist.push(lsvg.attr("height"));
@@ -168,7 +168,7 @@ export function chartBase() {
 		    var blob = new Blob([html], {type: "image/svg+xml"});
 				saveAs(blob, 'export_' + Date.now() + '.svg');
 
- 				chart.svg.select(".panel_g")
+ 				chart.svg.selectAll(".panel_g")
  					.style("display", undefined);
 			});
 
@@ -189,7 +189,7 @@ export function chartBase() {
 						.attr("opacity", 1)
 						.on("mouseout", function() {});
 					chart.selectMode = true;
-					var panButton = chart.panel.g.select("#b_pan");
+					var panButton = chart.panel.g.selectAll("#b_pan");
 					if(panButton.classed("clicked"))
 						panButton.on("click").call(panButton.node(), panButton.datum());					
 				}
@@ -210,7 +210,7 @@ export function chartBase() {
 						.attr("opacity", 1)
 						.on("mouseout", function() {});
 					chart.pan.mode = true;
-					var selectButton = chart.panel.g.select("#b_selection");
+					var selectButton = chart.panel.g.selectAll("#b_selection");
 					if(selectButton.classed("clicked"))
 						selectButton.on("click").call(selectButton.node(), selectButton.datum());
 				}
@@ -289,7 +289,7 @@ export function chartBase() {
       element = "body";
     if( typeof( element ) == "string" ) {
       var node = element;
-      element = d3.select( node );
+      element = d3.selectAll( node );
       if( element.size() == 0 )
         throw "Error in function 'place': DOM selection for string '" +
           node + "' did not find a node."
@@ -314,22 +314,22 @@ export function chartBase() {
 			chart.svg.transition(t)
 				.attr("width", chart.width())
 				.attr("height", chart.height());
-			chart.svg.select(".title").transition(t)
+			chart.svg.selectAll(".title").transition(t)
 				.attr("font-size", chart.titleSize())
 				.attr("x", chart.titleX())
 				.attr("y", chart.titleY());
-			chart.svg.select(".plotArea").transition(t)
+			chart.svg.selectAll(".plotArea").transition(t)
 				.attr("transform", "translate(" + chart.margin().left + 
 															", " + chart.margin().top + ")");
 		} else {
 			chart.svg
 				.attr("width", chart.width())
 				.attr("height",	chart.height());
-			chart.svg.select(".title")
+			chart.svg.selectAll(".title")
 				.attr("font-size", chart.titleSize())
 				.attr("x", chart.titleX())
 				.attr("y", chart.titleY());
-			chart.svg.select(".plotArea")
+			chart.svg.selectAll(".plotArea")
 				.attr("transform", "translate(" + chart.margin().left + 
 															", " + chart.margin().top + ")");
 		}
@@ -338,7 +338,7 @@ export function chartBase() {
 		return chart;			
 	}
 	chart.updateTitle = function(){
-		chart.svg.select(".title")
+		chart.svg.selectAll(".title")
 			.text(chart.title());		
 	}
 
@@ -538,10 +538,10 @@ export function layerChartBase(){
 					.append("td").node()
 						.appendChild(chart.svg.node());
 		//chart.svg.remove();
-		chart.svg = chart.container.select("svg");
+		chart.svg = chart.container.selectAll("svg");
 
 		//add a cell for the legend
-		chart.legend.location(chart.container.select("tr")
+		chart.legend.location(chart.container.selectAll("tr")
 													.append("td").attr("id", "legend"));
 
 		add_click_listener(chart);
@@ -832,7 +832,7 @@ export function axisChart() {
 		if(chart.transitionDuration() > 0 && !chart.transitionOff){
 			var t = d3.transition("size")
 				.duration(chart.transitionDuration());
-			chart.svg.select(".axes_g").transition(t)
+			chart.svg.selectAll(".axes_g").transition(t)
 				.attr("transform", "translate(" + chart.get_margin().left + 
 								", " + chart.get_margin().top + ")");
 			chart.axes.x_g.transition(t)
@@ -841,7 +841,7 @@ export function axisChart() {
 				.attr("x", chart.get_plotWidth());
 
 		}	else {
-			chart.svg.select(".axes_g")
+			chart.svg.selectAll(".axes_g")
 				.attr("transform", "translate(" + chart.get_margin().left + 
 								", " + chart.get_margin().top + ")");
 			chart.axes.x_g
