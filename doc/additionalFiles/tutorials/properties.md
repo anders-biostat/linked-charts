@@ -33,7 +33,7 @@ return the current value of the property.
 var value = chart.get_property();
 ```
 
-Note that calling a setter without any arguements is equivalent to
+Note that calling a setter without any arguments is equivalent to
 calling a corresponding getter.
 
 Try to play with <tt>width</tt> and <tt>height</tt> properties of a 
@@ -53,7 +53,7 @@ scatter plot.
 
 	//to get a value of the property one can
 	//use a getter function or a setter with no
-	//arguements
+	//arguments
 	var width = scatterplot.get_width(),
 		height = scatterplot.height();
 
@@ -136,7 +136,7 @@ using <tt>dataIds</tt> (or <tt>rowIds</tt> and <tt>colIds</tt>) property,
 which expects an array of IDs for all the points in the plot. If not set,
 the IDs are generated as consecutive numbers.
 
-Getters of properties such as colour or size can take ID as an arguement
+Getters of properties such as colour or size can take ID as an argument
 and return a values of this property for a point with this ID. You've
 already seen it in previous examples.
 
@@ -232,6 +232,16 @@ chart.select_layers([id1, id2])
 	.property(newValue);
 ```
 
+You can't do without layers, if you want to put several types of plots
+in one chart. In examples, like the one bellow it's possible to have all
+the points on one layer, but here, for demonstration purpuses, we will 
+utilise layers.
+
+In this example 50 drugs in 5 concentrations that have been tested against 2 pancreatic
+cancer cell lines (Pa16C and Pa14C). Plot to the right shows inhibition percantaged
+averaged between all five concentrarions. Plot to the left shows individual values
+of inhibition percentage for a selected drug.
+
 <pre class="tiy" width="100%" fitHeight="true"
 	tiy-preload="lib/linked-charts.min.js;data/inputdata.js;lib/linked-charts.css">
 	d3.select("body")
@@ -245,18 +255,26 @@ chart.select_layers([id1, id2])
 	data.Pa16C = lc.separateBy(inputData, ["screen", "CellLine", "Drug"]).RTG.Pa16C;
 	data.Pa14C = lc.separateBy(inputData, ["screen", "CellLine", "Drug"]).RTG.Pa14C;
 	//-----Precode end-----
+	//global variable to store the clicked point
 	var selDrug = "Filanesib";
 
+	//create scatter plot with average inhibition values
 	var scatterplot = lc.scatterChart()
+		//id for each point is a corresponding drug name
 		.dataIds(Object.keys(data.Pa16C))
 		.x(function(id) {return data.Pa16C[id].avInh})
 		.y(function(id) {return data.Pa14C[id].avInh})
+		//when point is clicked, change the global variable 
+		//and update the dependant plot
 		.on_click(function(id){
 			selDrug = id;
 			inhValues.update();
 		})
+		//place chart in a container with id = "scatter"
 		.place("#scatter");
 
+	//create the first layer of the chart
+	//note the optional argument that sets layer ID
 	var inhValues = lc.scatterChart("Pa16C")
 	  .npoints( 5 )
 	  .x( function( k ) {return k;} )
@@ -264,6 +282,8 @@ chart.select_layers([id1, id2])
 	    return data.Pa16C[selDrug]["D" + (k + 1)];
 	  })
 	  .colour( "blue" );
+	//to add layer to an existing chart one should pass the
+	//chart as a second argument to 
 	lc.scatterChart("Pa14C", inhValues)
 	  .npoints( 5 )
 	  .x( function( k ) {return k} )
@@ -273,12 +293,57 @@ chart.select_layers([id1, id2])
 	  .colour("red")
 	  .place( "#inhValues" );
 
+	inhValues.colour("green")
+		.update();
+	//note that only points from second layer
+	//changed their colour
+	//try changing properties of different layers with these code samples
+	
+	//inhValues.get_layer("Pa16C").colour("black")
+	//	.update();
+
+	//inhValues.select_layers().colour("yellow");
+	//inhValues.update();
+	//if no IDs are passed to chart.select_layers()
+	//all the layers are selected
 </pre>
+
+For more detailed information on layers in the <tt>linke-charts</tt>
+library, check this tutorial.
 
 ### For developers
 
+Not only charts, but also some additional elements in the <tt>linked-charts</tt>
+library such as legend or navigation panel are heavily using properties. So if you
+want to add your own chart to the library we highly encourage you to stick to this
+pattern.
 
+All the object in the library are decendant from the {@link base} class, and because
+of that they all have {@link add_property} function, which can be called like this
 
+```
+chart.add_property("property1", value1)
+	.add_property("property2", function() {return value2})
+	.add_property("property3");
+```
+
+This will automatically generate a setter and a getter to the object chart.
+
+Sometimes setting one property may influence another property. For example, 
+if <tt>dataIds</tt> is set, then number of points (<tt>npoints</tt> property) 
+is defined as length of the array returns by the <tt>dataIds</tt> getter. But
+the user may not want to set all the IDs and instead define only the number of
+points. In this case <tt>dataIds</tt> is set to <tt>[0, 1, 2, ..., n]</tt>.
+
+In such cases "__override__" mode of a setter may be handy. For example
+```
+chart.dataIds("__override__", "npoints", function(){
+	return chart.dataIds().lenght;
+}) 
+```
+
+This means that each time the <tt>dataIds</tt> setter is called, <tt>npoints</tt>
+property will be set to the function that is a third argument.
 <script src="lib/codeMirror/codemirror.js"></script>
 <link rel="stylesheet" href="lib/codeMirror/codemirror.css">
 <link rel="stylesheet" href="lib/codeMirror/mdn-like.css">
