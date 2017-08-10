@@ -94,27 +94,46 @@ tiy.insert_box = function( pre ) {
   var fitHeight = pre.attr( "fitHeight" );
   var width = pre.attr( "width" );
   var subscr = pre.attr( "subscr" );
+  var readOnly = pre.attr( "readOnly" );
+  var runnable = pre.attr( "runnable" );
 
-
+  //Defaults
   if( preloadAttr == null ) 
     preloadAttr = "";
   if( loadOnStart == null )
-    loadOnStart = true;
+    loadOnStart = true
+  else
+    loadOnStart = (loadOnStart == "true");
   if( showCode == null )
-    showCode = true;
+    showCode = true
+  else
+    showCode = (showCode == "true");
   if( fitWidth == null)
-    fitWidth = false;
+    fitWidth = false
+  else
+    fitWidth = (fitWidth == "true");
   if( fitHeight == null )
-    fitHeight = false;
+    fitHeight = false
+  else
+    fitHeight = (fitHeight == "true");
   if( width == null)
     width = "100%";
   if( subscr == null )
     subscr = "";
-  // Default height. (Maybe I should get this from CSS.)
   if( height == null )
     height = 150;
+  if( readOnly == null )
+    readOnly = false
+  else
+    readOnly = (readOnly == "true");
+  if( runnable == null )
+    runnable = true
+  else
+    runnable = (runnable == "true");
 
   if(!showCode) loadOnStart = true;
+  if(!runnable) loadOnStart = false;
+  if(!runnable) readOnly = true;
 
   // Remove pre, add the table
   pre.remove();
@@ -127,6 +146,8 @@ tiy.insert_box = function( pre ) {
     code = code.split("//-----Precode end-----")[1];
   } else
     tiy.precode[id] = "";
+
+  code = code.replace(/\s*$/, "");
 
   var tableHTML = 
     '<tr>' +
@@ -150,45 +171,53 @@ tiy.insert_box = function( pre ) {
   // Fill the table
   table.html(tableHTML);
 
+  if(!runnable)
+    table.selectAll("tr").filter(function(){
+      return !d3.select(this).select("td").classed("tiy-code")
+    }).remove();
+
   tiy.mirrors[id] = CodeMirror.fromTextArea(d3.select("textarea#" + id).node(),
                       {lineNumbers: true, 
                         tabSize: 2,
                         lineWrapping: true,
-                        theme: "mdn-like"});
+                        theme: "mdn-like",
+                        readOnly: readOnly
+                      });
 
       var x = table.select(".tiy-code").select(".CodeMirror")
         .node().getBoundingClientRect().right - 15;
     
-      table.select(".tiy-code")
-        .selectAll("img").data(["reset", "run"]).enter()
-          .append("img")
-          .style("position", "absolute")
-          .style("z-index", 10)
-          .style("right", function(d){
-            return (d == "run" ? 25 : 60) + "px"; 
-          })
-          .style("top", "15px")
-          .attr("width", "30px")
-          .attr("height", "30px")
-          .on("click", function(d) {tiy["button_" + d](id);})
-          .on("mouseover", function(d){
-            d3.select(this)
-              .attr("src", function(d){
-                return "lib/src/" + d + "_hover.svg"
-              });
-          })
-          .on("mouseout", function(d){
-            d3.select(this)
-              .attr("src", function(d){
-                return "lib/src/" + d + ".svg"
-              });            
-          })
-          .attr("src", function(d){
-            return "lib/src/" + d + ".svg";
-          })
-          .attr("title", function(d){
-            return d == "run" ? "Run code" : "Reset code";
-          });
+      if(!readOnly)
+        table.select(".tiy-code")
+          .selectAll("img").data(["reset", "run"]).enter()
+            .append("img")
+            .style("position", "absolute")
+            .style("z-index", 10)
+            .style("right", function(d){
+              return (d == "run" ? 25 : 60) + "px"; 
+            })
+            .style("top", "15px")
+            .attr("width", "30px")
+            .attr("height", "30px")
+            .on("click", function(d) {tiy["button_" + d](id);})
+            .on("mouseover", function(d){
+              d3.select(this)
+                .attr("src", function(d){
+                  return "lib/src/" + d + "_hover.svg"
+                });
+            })
+            .on("mouseout", function(d){
+              d3.select(this)
+                .attr("src", function(d){
+                  return "lib/src/" + d + ".svg"
+                });            
+            })
+            .attr("src", function(d){
+              return "lib/src/" + d + ".svg";
+            })
+            .attr("title", function(d){
+              return d == "run" ? "Run code" : "Reset code";
+            });
     
       if(loadOnStart)
         tiy.button_run(id);

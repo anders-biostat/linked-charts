@@ -13,3 +13,10 @@
 	padding-top: 9px;
 	padding-bottom: 9px;
 }
+
+.anchor::before {
+  content: "";
+  display: block;
+  height: 100px; /* fixed header height*/
+  margin: -100px 0 0; /* negative fixed header height */
+}

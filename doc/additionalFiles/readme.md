@@ -69,7 +69,7 @@ provides user with an easy way to generate sets of linked interactive charts to 
 easy data exploration.
 
 A process of analysing experimental data usually implies several steps of 
-transformation and generalisation of raw reads outs. And despite the fact 
+transformation and generalisation of raw read outs. And despite the fact 
 that various quality control approaches are being used, manual inspection of the
 data is still required. The <tt>linked-charts</tt> library is aimed to facilitate this 
 inspection by the means of a set of interactive charts that provide a detailed insight
@@ -78,7 +78,7 @@ into the main figure.
 To see how it works check our [examples](https://kloivenn.github.io/linked-charts/).
 
 The <tt>linked-charts</tt> library allows one to generate a single stand-alone web-page
-that contains all the date and functionality to explore it. Thus it can be considered as
+that contains all the data and functionality to explore it. Thus, it can be considered as
 a way to share the data or presenting it to broad audience.
 
 #### Plot types
@@ -94,7 +94,7 @@ Currently supported types of charts are:
 
 ### Getting started
 
-To link the current release of the <tt>linked-charts</tt> library to you page use the following code.
+To link the current release of the <tt>linked-charts</tt> library add to you page use the following code.
 ```
 <script src = "https://kloivenn.github.io/lib/linked-charts.min.js"></script>
 <link rel = "stylesheet" href="https://kloivenn.github.io/lib/linked-charts.css">
@@ -108,10 +108,10 @@ The <tt>linked-charts</tt> is a JavaScript library and therefore at least minima
 language is required to use it. Understanding of [d3](https://d3js.org/) library is highly recomended.
 
 The core of the library are chart-objects that are initialised by calling a respective function.
-These functions return objects which are further modified by defining a set of properties. Some of them (such as
+These functions return objects which are further modified by defining a set of [properties]{@tutorial properties}. Some of them (such as
 data values) are required, others (colour, title, size etc.) are optional.
 
-Function <tt>place()</tt> is used to put a chart on a page, <tt>update()</tt> function changes the chart to 
+Function <tt>place()</tt> is used to put the chart on a page, <tt>update()</tt> function changes the chart to 
 bring it in concordance with the current state of the environment and <tt>on_click</tt> property ensures the
 linkage between different charts on the page.
 

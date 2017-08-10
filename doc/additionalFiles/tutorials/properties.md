@@ -1,37 +1,46 @@
+### Content
+
+* [Getters and setter](#getters)
+* [Static and dynamic values](#values)
+* [Setting properties for specific points](#points)
+* [Properties and layers](#layers)
+* [For developers](#developers)
+
 Each chart object in the <tt>linked-charts</tt> library has a number of
-properties that define all the aspects of a chart. They are the main 
-interface for the chart and therefore their understandig is crucial for 
-using the library.
+properties that define all its aspects such as size, scales or colour and
+links chart to the data. They are the main interface of any chart and 
+therefore their understandig is crucial to use the library.
 
 Some properties (such as <tt>width</tt> or <tt>height</tt>) are shared
 between all objects in the <tt>linked-charts</tt> library, others are
-specific for a particular chart type. Some are defined for the entire
+specific to a particular chart type. Some are defined for the entire
 chart, while others can be set for each data point separatly. A property
-may be a value, or a function that returns the value, or even a fucntion
+may be a value, or a function that returns a value, or even a fucntion
 that just perform some actions under certain conditions (like the <tt>on_click</tt>
 property).
 
+<a name = "getters" class = "anchor"></a>
 ### Getters and setters
 
 All properties follow the same logic. Each property has a getter 
 and a setter function. Setters are always called after the name of
-the property and always return the chart object allowing for 
-chained calls.
+the property and always return the chart object to make chained calls
+possible.
 
-```
+<pre class = "tiy" runnable = "false">
 chart.property1(new_value_for_property1)
 	.property2(new_value_for_property2);
-```
+</pre>
 
 After a property has been set, one of the <tt>update</tt> functions
 should be called to redraw the chart.
 
-Getters are called by <tt>get_[property_name\]()</tt> functions and
+Getters are called by <tt>get_"property_name"()</tt> functions and
 return the current value of the property.
 
-```
+<pre class = "tiy" runnable = "false">
 var value = chart.get_property();
-```
+</pre>
 
 Note that calling a setter without any arguments is equivalent to
 calling a corresponding getter.
@@ -65,6 +74,7 @@ scatter plot.
 		.updateSize();
 </pre>
 
+<a name = "values" class = "anchor"></a>
 ### Static and dynamic values
 
 In the previous example we used fixed values for width and height,
@@ -78,7 +88,8 @@ In the following example we have two global variables - <tt>width</tt>
 and <tt>height</tt> - that can be changed through input boxes. We will
 set <tt>width</tt> property dynamically and pass <tt>height</tt> as a 
 static value. It makes no difference, when the cahrt is initialised,
-but 
+but if global variables are changed, then calling the <tt>update</tt>
+function will only change width.
 
 <pre class="tiy" width="100%" fitHeight="true"
 	tiy-preload="lib/linked-charts.min.js;data/iris.js;lib/linked-charts.css">
@@ -126,36 +137,38 @@ but
 	*/
 </pre>
 
+<a name = "points" class = "anchor"></a>
 ### Setting properties for specific points
 
 To change size, colour, symbol etc. of a particular data point
-we need first to identify this poitn. All charts in the 
-<tt>linked-charts</tt> library assign an ID to each point (or to 
-each row and column for heatmaps). User can set the IDs himself 
+we need first to identify this poitn. All charts in the <tt>linked-charts</tt> 
+library assign an ID to each point (or to each row and column for 
+heatmaps). User can set the IDs himself 
 using <tt>dataIds</tt> (or <tt>rowIds</tt> and <tt>colIds</tt>) property,
 which expects an array of IDs for all the points in the plot. If not set,
 the IDs are generated as consecutive numbers.
 
 Getters of properties such as colour or size can take ID as an argument
-and return a values of this property for a point with this ID. You've
+and return a value of this property for a point with this ID. You've
 already seen it in previous examples.
 
-```
+<pre class = "tiy" runnable = "false">
 scatterplot.x(function(k) {return data[k].sepalLength});
-```
+</pre>
 
-Here <tt>k</tt> is a point ID (a number in our case), and property
-<tt>x</tt> is defined separately for each ID. To get an <tt>x</tt>
-value of a point with ID k, one should use getter like this:
 
-```
+Here <tt>k</tt> is a point ID (a number in our case), and property <tt>x</tt> 
+is defined separately for each ID. To get an <tt>x</tt>
+value of a point with ID <tt>k</tt>, one should use getter like this:
+
+<pre class = "tiy" runnable = "false">
 var x = scatterplot.get_x(k);
-```
+</pre>
 
-These properties may also be independent of the IDs or even be static.
+These properties may also be independent of the IDs or even static.
 In this case the same value will be set for all the points.
 
-In this example we will set to properties: <tt>size</tt> and <tt>colour</tt>.
+In this example, we will set to properties: <tt>size</tt> and <tt>colour</tt>.
 Size will be the same for all the points and colour will indicate species 
 (here, we are using Iris data set).
 
@@ -182,10 +195,12 @@ numeric values and you want them to be converted into a colour scale,
 use <tt>colourValue</tt> property instead.
 Setting <tt>colour</tt> property overrides <tt>colourValue</tt>. Try, 
 for example, adding
-```
-scatterplot.colour("blue");
-```
 
+<pre class = "tiy" runnable = "false">
+scatterplot.colour("blue");
+</pre>
+
+<a name = "layers" class = "anchor"></a>
 ### Properties and layers
 
 The <tt>linked-charts</tt> library allow some types of plots to have
@@ -195,45 +210,45 @@ that affect the entire chart (such as <tt>width</tt>, <tt>height</tt> or <tt>tit
 the number of layers. But there are also layer-properties which shoud be
 set for each layer individually. The proper way would be
 
-```
+<pre class = "tiy" runnable = "false">
 chart.get_layer(layerID).property(newValue);
-```
+</pre>
 
-One may find it really annoying, especially setters always return chart
+One may find it really annoying, especially since setters always return chart
 object (not layers!). So in the <tt>linked-chart</tt> an acitve layer 
 concept is introduced. Properties of the active layer can be set the
-same way you set chart prperties, without selecting a layer.
+same way you set chart-prperties, without selecting a layer.
 
 So if <tt>property1</tt> is a chart-property, <tt>property2</tt> is
 a property of an active layer and <tt>property3</tt> is a property of
 some other layer, one can set them like this.
 
-```
+<pre class = "tiy" runnable = "false">
 chart.property1(newValue1)
 	.property2(newValue2)
 	.get_layer(id)
 		.property3(newValue3);
-``` 
+</pre>
 
 By default, each layer becomes active immediately after it is added to
 the chart, so when you work with a chart that has only one layer, you can
-even not notice that there are any layers at all. You can also change 
+even miss the fact that there are any layers at all. You can also change 
 active layer using <tt>activeLayer</tt> property.
 
-```
+<pre class = "tiy" runnable = "false">
 chart.activeLayer(layerId);
-```
+</pre>
 
 You can also select several layers and set properties for all of them
 simultaniously.
 
-```
+<pre class = "tiy" runnable = "false">
 chart.select_layers([id1, id2])
 	.property(newValue);
-```
+</pre>
 
 You can't do without layers, if you want to put several types of plots
-in one chart. In examples, like the one bellow it's possible to have all
+in one chart. In examples, like the one bellow, it's possible to have all
 the points on one layer, but here, for demonstration purpuses, we will 
 utilise layers.
 
@@ -308,26 +323,28 @@ of inhibition percentage for a selected drug.
 	//all the layers are selected
 </pre>
 
-For more detailed information on layers in the <tt>linke-charts</tt>
+For more detailed information on layers in the <tt>linked-charts</tt>
 library, check this tutorial.
 
+<a name = "developers" class = "anchor"></a>
 ### For developers
 
 Not only charts, but also some additional elements in the <tt>linked-charts</tt>
-library such as legend or navigation panel are heavily using properties. So if you
-want to add your own chart to the library we highly encourage you to stick to this
+library such as legend or navigation panel heavily rely on properties. So if you
+want to add your own chart to the library, we highly encourage you to stick to this
 pattern.
 
-All the object in the library are decendant from the {@link base} class, and because
-of that they all have {@link add_property} function, which can be called like this
+All the objects in the library are decendants from the {@link base} class, and because
+of that they all have {@link base#add_property|add_property} metthod, which can be 
+called like this
 
-```
-chart.add_property("property1", value1)
-	.add_property("property2", function() {return value2})
+<pre class = "tiy" runnable = "false">
+chart.add_property("property1", defaultValue1)
+	.add_property("property2", function() {return defaultValue2})
 	.add_property("property3");
-```
+</pre>
 
-This will automatically generate a setter and a getter to the object chart.
+This will automatically generate a setter and a getter to the object <tt>chart</tt>.
 
 Sometimes setting one property may influence another property. For example, 
 if <tt>dataIds</tt> is set, then number of points (<tt>npoints</tt> property) 
@@ -335,12 +352,13 @@ is defined as length of the array returns by the <tt>dataIds</tt> getter. But
 the user may not want to set all the IDs and instead define only the number of
 points. In this case <tt>dataIds</tt> is set to <tt>[0, 1, 2, ..., n]</tt>.
 
-In such cases "__override__" mode of a setter may be handy. For example
-```
+In such cases "\_\_override__" mode of a setter may be handy. For example
+
+<pre class = "tiy" runnable = "false">
 chart.dataIds("__override__", "npoints", function(){
 	return chart.dataIds().lenght;
 }) 
-```
+</pre>
 
 This means that each time the <tt>dataIds</tt> setter is called, <tt>npoints</tt>
 property will be set to the function that is a third argument.

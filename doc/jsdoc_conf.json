@@ -22,7 +22,7 @@
         "monospaceLinks": true,
         "systemName": "Linked Charts",
         "includeDate": false,
-        "navType": "vertical",
+        "navType": "inline",
         "theme": "cosmo",
         "linenums": true,
         "collapseSymbols": true,
