@@ -29,22 +29,22 @@ export function barChart(id, chart){
 
 	layer.type = "barChart";
 
-	layer.ngroups("_override_", "groupIds", function(){
+	layer.ngroups("__override__", "groupIds", function(){
 		return d3.range(layer.ngroups()).map(function(e) {return e.toString()});
 	});
-	layer.groupIds("_override_", "ngroups", function(){
+	layer.groupIds("__override__", "ngroups", function(){
 		return layer.groupIds().length;
 	});
-	layer.nbars("_override_", "barIds", function(){
+	layer.nbars("__override__", "barIds", function(){
 		return d3.range(layer.nbars()).map(function(e) {return e.toString()});
 	});
-	layer.barIds("_override_", "nbars", function(){
+	layer.barIds("__override__", "nbars", function(){
 		return layer.barIds().length;
 	});
-	layer.nstacks("_override_", "stackIds", function(){
+	layer.nstacks("__override__", "stackIds", function(){
 		return d3.range(layer.nbars()).map(function(e) {return e.toString()});
 	});
-	layer.stackIds("_override_", "nstacks", function(){
+	layer.stackIds("__override__", "nstacks", function(){
 		return layer.stackIds().length;
 	});
 

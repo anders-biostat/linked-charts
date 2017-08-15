@@ -1,59 +1,75 @@
-import { base } from "./base";
 import { layerBase } from "./layerBase";
 import { add_click_listener } from "./additionalFunctions";
 import { legend } from "./legend";
 import { panel } from "./panel";
 
-//basic chart object
+/**
+  * @hideconstructor  
+  * @class
+  * @description Basis for all the charts in the library. Has 
+  * a set of size-related properties, title and its location,
+  * defines transition and instrument panel.
+  * @extends base
+  * @property {number} width - 500 - Width of the chart
+  * @property {number} height - 500 - Height of the chart
+  * @property {number} plotWidth - 440 - Width of the area occupied by plot (width - margins)
+  * @property {number} plotHeight - 435 - Height of the area occupied by plot (height - margins)
+  * @property {object} margin - {top: 15, right: 10, bottom: 50, left:50} - Margins that are used
+  * for various additional elements such as axes, labels, titles, legend etc.
+  * @property {string} title - "" - Title of the chart.
+  *	@property {number} titleX - function() {return chart.width() / 2;}) - X coordinate of the
+  * chart title.
+  * @property {number} titleY - function() {return d3.min([17, chart.margin().top * 0.9]);}) - Y 
+  * coordinate of the chart title.
+  * @property {number} titleSize - function() {return d3.min([15, chart.margin().top * 0.8]);}) - Font-size
+  * of the chart title.
+  * @property {number}
+  */
 export function chartBase() {
-	var chart = base()
+	var chart = lc.base()
 		.add_property("width", 500)
 		.add_property("height", 500)
 		.add_property("plotWidth", 440)
 		.add_property("plotHeight", 435)
-		.add_property("margin", { top: 15, right: 10, bottom: 50, left: 50 })
+		.add_property("margins", { top: 15, right: 10, bottom: 50, left: 50 })
 		.add_property("title", "")
 		.add_property("titleX", function() {return chart.width() / 2;})
-		.add_property("titleY", function() {return d3.min([17, chart.margin().top * 0.9]);})
-		.add_property("titleSize", function() {return d3.min([15, chart.margin().top * 0.8]);})
+		.add_property("titleY", function() {return d3.min([17, chart.margins().top * 0.9]);})
+		.add_property("titleSize", function() {return d3.min([15, chart.margins().top * 0.8]);})
 		.add_property("transitionDuration", 1000) //may be set to zero
 		.add_property("markedUpdated", function() {})
 		.add_property("showPanel", true); 
 	
 	chart.selectMode = false;
 	chart.pan = {mode: false, down: undefined};
-  chart.width("_override_", "plotWidth", function(){
+  chart.width("__override__", "plotWidth", function(){
   			return chart.get_width() - 
-  				(chart.get_margin().right + chart.get_margin().left);
+  				(chart.margins().right + chart.margins().left);
   });
-  chart.margin("_override_", "plotWidth", function(){
+  chart.margins("__override__", "plotWidth", function(){
   			return chart.get_width() - 
-  				(chart.get_margin().right + chart.get_margin().left);
+  				(chart.margins().right + chart.margins().left);
   });
-  chart.height("_override_", "plotHeight", function(){
+  chart.height("__override__", "plotHeight", function(){
   			return chart.get_height() - 
-  				(chart.get_margin().top + chart.get_margin().bottom);
+  				(chart.margins().top + chart.margins().bottom);
   });
- /* chart.plotHeight("_override_", "height", function(){
-  			return chart.get_plotHeight() +
-  				(chart.get_margin().top + chart.get_margin().bottom);
-  }); */
-  chart.margin("_override_", "plotHeight", function(){
+  chart.margins("__override__", "plotHeight", function(){
   			return chart.get_height() - 
-  				(chart.get_margin().top + chart.get_margin().bottom);
+  				(chart.margins().top + chart.margins().bottom);
   });
 
-  chart.set_margin = function(margin){
-  	if(typeof margin.top === "undefined")
-  		margin.top = chart.margin().top;
-  	if(typeof margin.bottom === "undefined")
-  		margin.bottom = chart.margin().bottom;
-  	if(typeof margin.left === "undefined")
-  		margin.left = chart.margin().left;
-  	if(typeof margin.right === "undefined")
-  		margin.right = chart.margin().right;
+  chart.set_margin = function(margins){
+  	if(typeof margins.top === "undefined")
+  		margins.top = chart.margins().top;
+  	if(typeof margins.bottom === "undefined")
+  		margins.bottom = chart.margins().bottom;
+  	if(typeof margins.left === "undefined")
+  		margins.left = chart.margins().left;
+  	if(typeof margins.right === "undefined")
+  		margins.right = chart.margins().right;
   	
-  	chart.margin(margin);
+  	chart.margins(margins);
   	return chart;
   }
 
@@ -105,7 +121,7 @@ export function chartBase() {
     				ctx.drawImage(this, 0,0);
     				if(chart.canvas && chart.canvas.classed("active"))
     					ctx.drawImage(chart.canvas.node(), 
-    												chart.margin().left, chart.margin().top);
+    												chart.margins().left, chart.margins().top);
     				callback();
     			}
   			img.src = 'data:image/svg+xml; charset=utf8, '+encodeURIComponent(svgInnerHTML);
@@ -319,8 +335,8 @@ export function chartBase() {
 				.attr("x", chart.titleX())
 				.attr("y", chart.titleY());
 			chart.svg.selectAll(".plotArea").transition(t)
-				.attr("transform", "translate(" + chart.margin().left + 
-															", " + chart.margin().top + ")");
+				.attr("transform", "translate(" + chart.margins().left + 
+															", " + chart.margins().top + ")");
 		} else {
 			chart.svg
 				.attr("width", chart.width())
@@ -330,8 +346,8 @@ export function chartBase() {
 				.attr("x", chart.titleX())
 				.attr("y", chart.titleY());
 			chart.svg.selectAll(".plotArea")
-				.attr("transform", "translate(" + chart.margin().left + 
-															", " + chart.margin().top + ")");
+				.attr("transform", "translate(" + chart.margins().left + 
+															", " + chart.margins().top + ")");
 		}
 		if(chart.showPanel())
 			chart.panel.updateSize();
@@ -833,8 +849,8 @@ export function axisChart() {
 			var t = d3.transition("size")
 				.duration(chart.transitionDuration());
 			chart.svg.selectAll(".axes_g").transition(t)
-				.attr("transform", "translate(" + chart.get_margin().left + 
-								", " + chart.get_margin().top + ")");
+				.attr("transform", "translate(" + chart.margins().left + 
+								", " + chart.margins().top + ")");
 			chart.axes.x_g.transition(t)
 				.attr( "transform", "translate(0," + chart.get_plotHeight() + ")" );
 			chart.axes.x_label.transition(t)
@@ -842,8 +858,8 @@ export function axisChart() {
 
 		}	else {
 			chart.svg.selectAll(".axes_g")
-				.attr("transform", "translate(" + chart.get_margin().left + 
-								", " + chart.get_margin().top + ")");
+				.attr("transform", "translate(" + chart.margins().left + 
+								", " + chart.margins().top + ")");
 			chart.axes.x_g
 				.attr( "transform", "translate(0," + chart.get_plotHeight() + ")" );
 			chart.axes.x_label

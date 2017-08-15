@@ -24,13 +24,13 @@ export function layerBase(id) {
 
 	layer.id = id;
 
-  layer.dataIds( "_override_", "npoints", function(){
+  layer.dataIds( "__override__", "npoints", function(){
     return layer.get_dataIds().length;
   });
-  layer.npoints( "_override_", "dataIds", function() {
+  layer.npoints( "__override__", "dataIds", function() {
     return d3.range( layer.get_npoints() );
   });
-  layer.colour( "_override_", "addColourScaleToLegend", false );
+  layer.colour( "__override__", "addColourScaleToLegend", false );
 
   layer.colourRange(function() {
     var ids = layer.get_dataIds();

@@ -213,8 +213,8 @@ export function add_click_listener(chart){
       parcer.do(function(){
         var point = chart.findPoints(p, p)[0].substr(1).split("_-sep-_");
         chart.container.selectAll(".inform")
-          .style("left", (p[0] + 10 + chart.margin().left) + "px")
-          .style("top", (p[1] + 10 + chart.margin().top) + "px")
+          .style("left", (p[0] + 10 + chart.margins().left) + "px")
+          .style("top", (p[1] + 10 + chart.margins().top) + "px")
           .select(".value")
             .html(function() {return chart.get_informText(point[0], point[1])});
 

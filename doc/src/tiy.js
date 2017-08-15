@@ -122,7 +122,7 @@ tiy.insert_box = function( pre ) {
     subscr = "";
   if( height == null )
     height = 150;
-  if( readOnly == null )
+  if( readOnly == undefined )
     readOnly = false
   else
     readOnly = (readOnly == "true");
@@ -139,7 +139,8 @@ tiy.insert_box = function( pre ) {
   pre.remove();
   table
     .attr( "class", "tiy" )
-    .attr( "id", id );
+    .attr( "id", id )
+    .attr( "width", width);
 
   if(code.includes("//-----Precode end-----")){
     tiy.precode[id] = code.split("//-----Precode end-----")[0];
@@ -203,17 +204,17 @@ tiy.insert_box = function( pre ) {
             .on("mouseover", function(d){
               d3.select(this)
                 .attr("src", function(d){
-                  return "lib/src/" + d + "_hover.svg"
+                  return "../src/img/" + d + "_hover.svg"
                 });
             })
             .on("mouseout", function(d){
               d3.select(this)
                 .attr("src", function(d){
-                  return "lib/src/" + d + ".svg"
+                  return "../src/img/" + d + ".svg"
                 });            
             })
             .attr("src", function(d){
-              return "lib/src/" + d + ".svg";
+              return "../src/img/" + d + ".svg";
             })
             .attr("title", function(d){
               return d == "run" ? "Run code" : "Reset code";

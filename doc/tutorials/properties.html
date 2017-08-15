@@ -1,3 +1,10 @@
+<head>
+<link rel = "stylesheet" type = "text/css" href = "../src/default.css">
+<script src="https://d3js.org/d3.v4.min.js"></script>
+</head>
+<body>
+<script src="../src/navTop.js"></script>
+<xmp theme = "simplex">
 ### Content
 
 * [Getters and setter](#getters)
@@ -14,7 +21,7 @@ therefore their understandig is crucial to use the library.
 Some properties (such as <tt>width</tt> or <tt>height</tt>) are shared
 between all objects in the <tt>linked-charts</tt> library, others are
 specific to a particular chart type. Some are defined for the entire
-chart, while others can be set for each data point separatly. A property
+chart, while others can be set for each data point separately. A property
 may be a value, or a function that returns a value, or even a fucntion
 that just perform some actions under certain conditions (like the <tt>on_click</tt>
 property).
@@ -29,7 +36,7 @@ possible.
 
 <pre class = "tiy" runnable = "false">
 chart.property1(new_value_for_property1)
-	.property2(new_value_for_property2);
+  .property2(new_value_for_property2);
 </pre>
 
 After a property has been set, one of the <tt>update</tt> functions
@@ -48,30 +55,30 @@ calling a corresponding getter.
 Try to play with <tt>width</tt> and <tt>height</tt> properties of a 
 scatter plot.
 <pre class="tiy" width="100%" fitHeight="true"
-	tiy-preload="lib/linked-charts.min.js;data/iris.js;lib/linked-charts.css">
-	//create a scatterplot
-	var scatterplot = lc.scatterChart()
-		//set x and y values
-		.x(function(k) {return data[k].sepalLength})
-		.y(function(k) {return data[k].petalLength})
-		//set width and heigh
-		.width(300)
-		.height(400)
-		//put scatterplot on the page
-		.place();
+  tiy-preload="../src/linked-charts.min.js;../src/data/iris.js;../src/linked-charts.css">
+  //create a scatterplot
+  var scatterplot = lc.scatterChart()
+    //set x and y values
+    .x(function(k) {return data[k].sepalLength})
+    .y(function(k) {return data[k].petalLength})
+    //set width and heigh
+    .width(300)
+    .height(400)
+    //put scatterplot on the page
+    .place();
 
-	//to get a value of the property one can
-	//use a getter function or a setter with no
-	//arguments
-	var width = scatterplot.get_width(),
-		height = scatterplot.height();
+  //to get a value of the property one can
+  //use a getter function or a setter with no
+  //arguments
+  var width = scatterplot.get_width(),
+    height = scatterplot.height();
 
-	d3.select("body").append("p").text("Height: " + height);
-	d3.select("body").append("p").text("Width: " + width);
+  d3.select("body").append("p").text("Height: " + height);
+  d3.select("body").append("p").text("Width: " + width);
 
-	//change the width of the chart and update
-	scatterplot.width(700)
-		.updateSize();
+  //change the width of the chart and update
+  scatterplot.width(700)
+    .updateSize();
 </pre>
 
 <a name = "values" class = "anchor"></a>
@@ -92,49 +99,49 @@ but if global variables are changed, then calling the <tt>update</tt>
 function will only change width.
 
 <pre class="tiy" width="100%" fitHeight="true"
-	tiy-preload="lib/linked-charts.min.js;data/iris.js;lib/linked-charts.css">
-	var cells = d3.select("body").append("table")
-		.selectAll("tr").data(["Width", "Height"])
-			.enter().append("tr")
-				.append("td")
-					.attr("class", function(d) {return d});
-	cells.append("text")
-		.text(function(d) {return d + ": "});
-	cells.append("input")
-		.attr("type", "text")
-		.style("width", 50)
-		.on("change", function(d){
-			window[d] = this.value;
-		});
-	//-----Precode end-----
-	var width = 400,
-		height = 300;
+  tiy-preload="../src/linked-charts.min.js;../src/data/iris.js;../src/linked-charts.css">
+  var cells = d3.select("body").append("table")
+    .selectAll("tr").data(["Width", "Height"])
+      .enter().append("tr")
+        .append("td")
+          .attr("class", function(d) {return d});
+  cells.append("text")
+    .text(function(d) {return d + ": "});
+  cells.append("input")
+    .attr("type", "text")
+    .style("width", 50)
+    .on("change", function(d){
+      window[d] = this.value;
+    });
+  //-----Precode end-----
+  var width = 400,
+    height = 300;
 
-	//create a scatterplot
-	var scatterplot = lc.scatterChart()
-		//set x and y values
-		.x(function(k) {return data[k].sepalLength})
-		.y(function(k) {return data[k].petalLength})
-		//set width and height
-		.width(function() {return width;})
-		.height(height)
-		//put scatterplot on the page
-		.place();
+  //create a scatterplot
+  var scatterplot = lc.scatterChart()
+    //set x and y values
+    .x(function(k) {return data[k].sepalLength})
+    .y(function(k) {return data[k].petalLength})
+    //set width and height
+    .width(function() {return width;})
+    .height(height)
+    //put scatterplot on the page
+    .place();
 
-	//Add an update button
-	d3.select("body")
-		.append("button")
-			.on("click", scatterplot.updateSize)
-			.text("Update");
+  //Add an update button
+  d3.select("body")
+    .append("button")
+      .on("click", scatterplot.updateSize)
+      .text("Update");
 
-	/* As you can see, now changing height has no effect
-		on the chart. To make it work, replace 
-		the onclick function (line 18) with
-		function() {
-			scatterplot.height(height)
-				.updateSize();
-		}
-	*/
+  /* As you can see, now changing height has no effect
+    on the chart. To make it work, replace 
+    the onclick function (line 18) with
+    function() {
+      scatterplot.height(height)
+        .updateSize();
+    }
+  */
 </pre>
 
 <a name = "points" class = "anchor"></a>
@@ -173,20 +180,20 @@ Size will be the same for all the points and colour will indicate species
 (here, we are using Iris data set).
 
 <pre class="tiy" width="100%" fitHeight="true"
-	tiy-preload="lib/linked-charts.min.js;data/iris.js;lib/linked-charts.css">
-	//create a scatterplot
-	var scatterplot = lc.scatterChart()
-		//set x and y values
-		.x(function(k) {return data[k].sepalLength})
-		.y(function(k) {return data[k].petalLength})
-		//set size (default size is 6)
-		.size(3)
-		//set colour
-		.colourValue(function(k) {return data[k].species})
-		//put scatterplot on the page
-		.place();
+  tiy-preload="../src/linked-charts.min.js;../src/data/iris.js;../src/linked-charts.css">
+  //create a scatterplot
+  var scatterplot = lc.scatterChart()
+    //set x and y values
+    .x(function(k) {return data[k].sepalLength})
+    .y(function(k) {return data[k].petalLength})
+    //set size (default size is 6)
+    .size(3)
+    //set colour
+    .colourValue(function(k) {return data[k].species})
+    //put scatterplot on the page
+    .place();
 
-	//try to use 'sepalWidth' as size
+  //try to use 'sepalWidth' as size
 </pre>
 
 Note that there is also <tt>colour</tt> property, but it expected to
@@ -225,9 +232,9 @@ some other layer, one can set them like this.
 
 <pre class = "tiy" runnable = "false">
 chart.property1(newValue1)
-	.property2(newValue2)
-	.get_layer(id)
-		.property3(newValue3);
+  .property2(newValue2)
+  .get_layer(id)
+    .property3(newValue3);
 </pre>
 
 By default, each layer becomes active immediately after it is added to
@@ -244,7 +251,7 @@ simultaniously.
 
 <pre class = "tiy" runnable = "false">
 chart.select_layers([id1, id2])
-	.property(newValue);
+  .property(newValue);
 </pre>
 
 You can't do without layers, if you want to put several types of plots
@@ -258,69 +265,69 @@ averaged between all five concentrarions. Plot to the left shows individual valu
 of inhibition percentage for a selected drug.
 
 <pre class="tiy" width="100%" fitHeight="true"
-	tiy-preload="lib/linked-charts.min.js;data/inputdata.js;lib/linked-charts.css">
-	d3.select("body")
-		.append("table")
-			.append("tr")
-				.selectAll("td").data(["scatter", "inhValues"])
-					.enter().append("td")
-						.attr("id", function(d){return d;});
+  tiy-preload="../src/linked-charts.min.js;../src/data/inputdata.js;../src/linked-charts.css">
+  d3.select("body")
+    .append("table")
+      .append("tr")
+        .selectAll("td").data(["scatter", "inhValues"])
+          .enter().append("td")
+            .attr("id", function(d){return d;});
 
-	var data = {};
-	data.Pa16C = lc.separateBy(inputData, ["screen", "CellLine", "Drug"]).RTG.Pa16C;
-	data.Pa14C = lc.separateBy(inputData, ["screen", "CellLine", "Drug"]).RTG.Pa14C;
-	//-----Precode end-----
-	//global variable to store the clicked point
-	var selDrug = "Filanesib";
+  var data = {};
+  data.Pa16C = lc.separateBy(inputData, ["screen", "CellLine", "Drug"]).RTG.Pa16C;
+  data.Pa14C = lc.separateBy(inputData, ["screen", "CellLine", "Drug"]).RTG.Pa14C;
+  //-----Precode end-----
+  //global variable to store the clicked point
+  var selDrug = "Filanesib";
 
-	//create scatter plot with average inhibition values
-	var scatterplot = lc.scatterChart()
-		//id for each point is a corresponding drug name
-		.dataIds(Object.keys(data.Pa16C))
-		.x(function(id) {return data.Pa16C[id].avInh})
-		.y(function(id) {return data.Pa14C[id].avInh})
-		//when point is clicked, change the global variable 
-		//and update the dependant plot
-		.on_click(function(id){
-			selDrug = id;
-			inhValues.update();
-		})
-		//place chart in a container with id = "scatter"
-		.place("#scatter");
+  //create scatter plot with average inhibition values
+  var scatterplot = lc.scatterChart()
+    //id for each point is a corresponding drug name
+    .dataIds(Object.keys(data.Pa16C))
+    .x(function(id) {return data.Pa16C[id].avInh})
+    .y(function(id) {return data.Pa14C[id].avInh})
+    //when point is clicked, change the global variable 
+    //and update the dependant plot
+    .on_click(function(id){
+      selDrug = id;
+      inhValues.update();
+    })
+    //place chart in a container with id = "scatter"
+    .place("#scatter");
 
-	//create the first layer of the chart
-	//note the optional argument that sets layer ID
-	var inhValues = lc.scatterChart("Pa16C")
-	  .npoints( 5 )
-	  .x( function( k ) {return k;} )
-	  .y( function( k ) {
-	    return data.Pa16C[selDrug]["D" + (k + 1)];
-	  })
-	  .colour( "blue" );
-	//to add layer to an existing chart one should pass the
-	//chart as a second argument to 
-	lc.scatterChart("Pa14C", inhValues)
-	  .npoints( 5 )
-	  .x( function( k ) {return k} )
-	  .y( function( k ) {
-	    return data.Pa14C[selDrug]["D" + (k + 1)];
-	  })
-	  .colour("red")
-	  .place( "#inhValues" );
+  //create the first layer of the chart
+  //note the optional argument that sets layer ID
+  var inhValues = lc.scatterChart("Pa16C")
+    .npoints( 5 )
+    .x( function( k ) {return k;} )
+    .y( function( k ) {
+      return data.Pa16C[selDrug]["D" + (k + 1)];
+    })
+    .colour( "blue" );
+  //to add layer to an existing chart one should pass the
+  //chart as a second argument to 
+  lc.scatterChart("Pa14C", inhValues)
+    .npoints( 5 )
+    .x( function( k ) {return k} )
+    .y( function( k ) {
+      return data.Pa14C[selDrug]["D" + (k + 1)];
+    })
+    .colour("red")
+    .place( "#inhValues" );
 
-	inhValues.colour("green")
-		.update();
-	//note that only points from second layer
-	//changed their colour
-	//try changing properties of different layers with these code samples
-	
-	//inhValues.get_layer("Pa16C").colour("black")
-	//	.update();
+  inhValues.colour("green")
+    .update();
+  //note that only points from second layer
+  //changed their colour
+  //try changing properties of different layers with these code samples
+  
+  //inhValues.get_layer("Pa16C").colour("black")
+  //  .update();
 
-	//inhValues.select_layers().colour("yellow");
-	//inhValues.update();
-	//if no IDs are passed to chart.select_layers()
-	//all the layers are selected
+  //inhValues.select_layers().colour("yellow");
+  //inhValues.update();
+  //if no IDs are passed to chart.select_layers()
+  //all the layers are selected
 </pre>
 
 For more detailed information on layers in the <tt>linked-charts</tt>
@@ -334,14 +341,14 @@ library such as legend or navigation panel heavily rely on properties. So if you
 want to add your own chart to the library, we highly encourage you to stick to this
 pattern.
 
-All the objects in the library are decendants from the {@link base} class, and because
-of that they all have {@link base#add_property|add_property} metthod, which can be 
+All the objects in the library are decendants from the <tt>base</tt> class, and because
+of that they all have <tt>add_property</tt> metthod, which can be 
 called like this
 
 <pre class = "tiy" runnable = "false">
 chart.add_property("property1", defaultValue1)
-	.add_property("property2", function() {return defaultValue2})
-	.add_property("property3");
+  .add_property("property2", function() {return defaultValue2})
+  .add_property("property3");
 </pre>
 
 This will automatically generate a setter and a getter to the object <tt>chart</tt>.
@@ -356,17 +363,19 @@ In such cases "\_\_override__" mode of a setter may be handy. For example
 
 <pre class = "tiy" runnable = "false">
 chart.dataIds("__override__", "npoints", function(){
-	return chart.dataIds().lenght;
+  return chart.dataIds().lenght;
 }) 
 </pre>
 
 This means that each time the <tt>dataIds</tt> setter is called, <tt>npoints</tt>
 property will be set to the function that is a third argument.
-<script src="lib/codeMirror/codemirror.js"></script>
-<link rel="stylesheet" href="lib/codeMirror/codemirror.css">
-<link rel="stylesheet" href="lib/codeMirror/mdn-like.css">
-<script src="lib/codeMirror/javascript.js"></script>
-<script src="https://d3js.org/d3.v4.min.js"></script>
-<script src="lib/tiy.js"></script>
-<link rel="stylesheet" href="lib/tiy.css">
+</xmp>
+<script src="../src/strapdown.js"></script>
+<script src="../src/codeMirror/codemirror.js"></script>
+<link rel="stylesheet" href="../src/codeMirror/codemirror.css"> 
+<link rel="stylesheet" href="../src/codeMirror/mdn-like.css">
+<script src="../src/codeMirror/javascript.js"></script>
+<script src="../src/tiy.js"></script>
+<link rel="stylesheet" href="../src/tiy.css">
 <script>tiy.make_boxes();</script>
+</body>

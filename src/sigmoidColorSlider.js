@@ -21,7 +21,7 @@ export function sigmoidColorSlider() {
     .add_property( "slopewidth", undefined )
     .add_property( "on_drag", function() {})
 		.add_property( "on_change", function() {})
-    .margin( { top: 20, right: 10, bottom: 5, left: 10 } )
+    .margins( { top: 20, right: 10, bottom: 5, left: 10 } )
     .height( 80 )
     .transitionDuration( 0 );    
 
@@ -51,8 +51,8 @@ export function sigmoidColorSlider() {
 
     var g = obj.svg.append( "g" )
       .attr( "class", "sigmoidColorSlider" )
-      .attr( "transform", "translate(" + obj.get_margin().left + ", " + 
-																	obj.get_margin().top + ")" );  // space for axis
+      .attr( "transform", "translate(" + obj.margins().left + ", " + 
+																	obj.margins().top + ")" );  // space for axis
 
     obj.axis = g.append( "g" )
       .attr( "class", "axis" );

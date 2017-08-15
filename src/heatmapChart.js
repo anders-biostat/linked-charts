@@ -8,8 +8,8 @@ export function heatmapChart(id, chart){
 		.add_property("nrows")
 		.add_property("ncols");
 	
-	chart.add_property("colLabels", function(i) {return i;})
-		.add_property("rowLabels", function(i) {return i;})
+	chart.add_property("colLabel", function(i) {return i;})
+		.add_property("rowLabel", function(i) {return i;})
 		.add_property("colIds", function() {return undefined})
 		.add_property("rowIds", function() {return undefined})
 		.add_property("dispColIds", function() {return chart.colIds();})
@@ -31,29 +31,29 @@ export function heatmapChart(id, chart){
 		.add_property("colTitle", "")
 		.add_property("showLegend", true)
 		.add_property("informText", function(rowId, colId) {
-			return "Row: <b>" + chart.get_rowLabels(rowId) + "</b>;<br>" + 
-						"Col: <b>" + chart.get_colLabels(colId) + "</b>;<br>" + 
+			return "Row: <b>" + chart.get_rowLabel(rowId) + "</b>;<br>" + 
+						"Col: <b>" + chart.get_colLabel(colId) + "</b>;<br>" + 
 						"value = " + chart.get_value(rowId, colId).toFixed(2)
 			});
 
-	chart.margin({top: 100, left: 100, right: 10, bottom: 40});
+	chart.margins({top: 100, left: 100, right: 10, bottom: 40});
 
-	chart.ncols("_override_", "colIds", function(){
+	chart.ncols("__override__", "colIds", function(){
 		return d3.range(chart.get_ncols()).map(function(e) {return e.toString()});
 	});
-	chart.nrows("_override_", "rowIds", function(){
+	chart.nrows("__override__", "rowIds", function(){
 		return d3.range(chart.get_nrows()).map(function(e) {return e.toString()});
 	});
-	chart.rowIds("_override_", "nrows", function(){
+	chart.rowIds("__override__", "nrows", function(){
 		return chart.get_rowIds().length;
 	});
-	chart.colIds("_override_", "ncols", function(){
+	chart.colIds("__override__", "ncols", function(){
 		return chart.get_colIds().length;
 	});
-	chart.rowIds("_override_", "dispRowIds", function(){
+	chart.rowIds("__override__", "dispRowIds", function(){
 		return chart.rowIds();
 	})
-	chart.colIds("_override_", "dispColIds", function(){
+	chart.colIds("__override__", "dispColIds", function(){
 		return chart.colIds();
 	})
 
@@ -361,49 +361,49 @@ export function heatmapChart(id, chart){
 			var t = d3.transition("size").duration(chart.transitionDuration());
 			if(!chart.showDendogram("Row"))
 				chart.svg.selectAll(".label_panel.row").transition(t)
-					.attr("transform", "translate(" + chart.margin().left + ", " +
-						chart.margin().top + ")");
+					.attr("transform", "translate(" + chart.margins().left + ", " +
+						chart.margins().top + ")");
 			if(!chart.showDendogram("Col"))
 				chart.svg.selectAll(".label_panel.col").transition(t)
-					.attr("transform", "translate(" + chart.margin().left + ", " +
-						chart.margin().top + ")");
+					.attr("transform", "translate(" + chart.margins().left + ", " +
+						chart.margins().top + ")");
 
 			chart.svg.select(".legend_panel").transition(t)
 				.attr("transform", "translate(0, " + 
-					d3.min([chart.height() - 40, chart.height() - chart.margin().bottom * 0.9]) + ")");
+					d3.min([chart.height() - 40, chart.height() - chart.margins().bottom * 0.9]) + ")");
 			chart.axes.x_label.transition(t)
-				.attr("font-size", d3.min([chart.margin().bottom - 2, 15]))
-				.attr("x", chart.plotWidth() + chart.margin().left)
+				.attr("font-size", d3.min([chart.margins().bottom - 2, 15]))
+				.attr("x", chart.plotWidth() + chart.margins().left)
 				.attr("y", chart.height());
 			chart.axes.y_label.transition(t)
-				.attr("font-size", d3.min([chart.margin().right - 2, 15]))
-				.attr("x", - chart.margin().top)
+				.attr("font-size", d3.min([chart.margins().right - 2, 15]))
+				.attr("x", - chart.margins().top)
 				.attr("y", chart.width());
 		} else {
 			if(!chart.showDendogram("Row"))
 				chart.svg.selectAll(".label_panel.row")
-					.attr("transform", "translate(" + chart.margin().left + ", " +
-						chart.margin().top + ")");
+					.attr("transform", "translate(" + chart.margins().left + ", " +
+						chart.margins().top + ")");
 			if(!chart.showDendogram("Col"))
 				chart.svg.selectAll(".label_panel.col")
-					.attr("transform", "translate(" + chart.margin().left + ", " +
-						chart.margin().top + ")");
+					.attr("transform", "translate(" + chart.margins().left + ", " +
+						chart.margins().top + ")");
 
 			chart.svg.select(".legend_panel")
 				.attr("transform", "translate(0, " + 
-					d3.min([chart.height() - 40, chart.height() - chart.margin().bottom * 0.9]) + ")");
+					d3.min([chart.height() - 40, chart.height() - chart.margins().bottom * 0.9]) + ")");
 			chart.axes.x_label
-				.attr("font-size", d3.min([chart.get_margin().bottom - 2, 15]))
-				.attr("x", chart.get_plotWidth() + chart.get_margin().left)
+				.attr("font-size", d3.min([chart.margins().bottom - 2, 15]))
+				.attr("x", chart.get_plotWidth() + chart.margins().left)
 				.attr("y", chart.get_height());
 			chart.axes.y_label
-				.attr("font-size", d3.min([chart.get_margin().right - 2, 15]))
-				.attr("x", - chart.get_margin().top)
-				.attr("y", chart.get_width());
+				.attr("font-size", d3.min([chart.margins().right - 2, 15]))
+				.attr("x", - chart.margins().top)
+				.attr("y", chart.width());
 		}
 		chart.canvas
-			.style("left", chart.margin().left + "px")
-			.style("top", chart.margin().top + "px")
+			.style("left", chart.margins().left + "px")
+			.style("top", chart.margins().top + "px")
 			.attr("width", chart.plotWidth())
 			.attr("height", chart.plotHeight());		
 
@@ -459,32 +459,32 @@ export function heatmapChart(id, chart){
 
 	chart.updateLabels = function(){
 		//add column labels
-		var colLabels = chart.svg.select(".col").selectAll(".label")
+		var colLabel = chart.svg.select(".col").selectAll(".label")
 				.data(chart.get_dispColIds(), function(d) {return d;});
-		colLabels.exit()
+		colLabel.exit()
 			.remove();
 		//add row labels
-		var rowLabels = chart.svg.select(".row").selectAll(".label")
+		var rowLabel = chart.svg.select(".row").selectAll(".label")
 				.data(chart.get_dispRowIds(), function(d) {return d;});
-		rowLabels.exit()
+		rowLabel.exit()
 			.remove();
-		colLabels.enter()
+		colLabel.enter()
 			.append("text")
 				.attr("class", "label")
 				.attr("transform", "rotate(-90)")
 				.style("text-anchor", "start")
 				.attr("dx", 2)
-				.merge(colLabels)
+				.merge(colLabel)
 					.attr("id", function(d) {return d.toString().replace(/ /g,"_")})
 					.on("mouseover", chart.labelMouseOver)
 					.on("mouseout", chart.labelMouseOut)
 					.on("click", chart.labelClick);
-		rowLabels.enter()
+		rowLabel.enter()
 			.append("text")
 				.attr("class", "label")
 				.style("text-anchor", "end")
 				.attr("dx", -2)
-				.merge(rowLabels)
+				.merge(rowLabel)
 					.attr("id", function(d) {return d.toString().replace(/ /g,"_")})
 					.on("mouseover", chart.labelMouseOver)
 					.on("mouseout", chart.labelMouseOut)
@@ -498,14 +498,14 @@ export function heatmapChart(id, chart){
 		if(chart.transitionDuration() > 0 && !chart.transitionOff){
 			var t = d3.transition("labelText").duration(chart.transitionDuration());
 			chart.svg.select(".col").selectAll(".label").transition(t)
-				.text(function(d) {return chart.get_colLabels(d);});
+				.text(function(d) {return chart.get_colLabel(d);});
 			chart.svg.select(".row").selectAll(".label").transition(t)
-				.text(function(d) {return chart.get_rowLabels(d)});		
+				.text(function(d) {return chart.get_rowLabel(d)});		
 		} else {
 			chart.svg.select(".col").selectAll(".label")
-				.text(function(d) {return chart.get_colLabels(d);});
+				.text(function(d) {return chart.get_colLabel(d);});
 			chart.svg.select(".row").selectAll(".label")
-				.text(function(d) {return chart.get_rowLabels(d)});
+				.text(function(d) {return chart.get_rowLabel(d)});
 		}
 		return chart;		
 	}
@@ -555,7 +555,7 @@ export function heatmapChart(id, chart){
 
 	chart.resetColourScale = function(){
 	//create colorScale
-		var range = chart.get_colourRange();
+		var range = chart.colourRange();
 		chart.colourScale = d3.scaleSequential(chart.get_palette).domain(range);
 		if(chart.showLegend())
 			chart.updateLegend();		
@@ -947,21 +947,21 @@ export function heatmapChart(id, chart){
 
 	chart.updateLegendSize = function(){
 		//calculate the size of element of legend
-		var height = d3.min([chart.get_margin().bottom * 0.5, 20]),
-			width = d3.min([chart.get_width()/23, 30]),
-			fontSize = d3.min([chart.get_margin().bottom * 0.3, width / 2, 15]),
+		var height = d3.min([chart.margins().bottom * 0.5, 20]),
+			width = d3.min([chart.width()/23, 30]),
+			fontSize = d3.min([chart.margins().bottom * 0.3, width / 2, 15]),
 			blocks = chart.svg.select(".legend_panel").selectAll(".legend_block")
 			.attr("transform", function(d) {
 				return "translate(" + (d + 1) * width + ", 0)";
 			});
 		blocks.selectAll("text")
 			.attr("font-size", fontSize)
-			.attr("dy", chart.get_margin().bottom * 0.45)
+			.attr("dy", chart.margins().bottom * 0.45)
 			.attr("dx", width);
 		blocks.selectAll("rect")
 			.attr("height", height)
 			.attr("width", width)
-			.attr("y", chart.get_margin().bottom * 0.5);
+			.attr("y", chart.margins().bottom * 0.5);
 	}
 
 	chart.updateLegend = function(){
@@ -985,7 +985,7 @@ export function heatmapChart(id, chart){
 				});
 		chart.svg.select(".legend_panel")
 			.selectAll(".legend_block").selectAll("rect")
-				.attr("fill", function(d) {return chart.colourScale(range[0] + step * d)});
+				.attr("fill", function(d) {return chart.get_colour(range[0] + step * d)});
 	}
 
 	chart.checkMode = function(){

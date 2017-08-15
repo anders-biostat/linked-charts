@@ -103,7 +103,7 @@ export function dendogram(heatmap)
 		.add_property("width", 300)
 		.add_property("npoints") //nlabels
 		.add_property("dataIds", function(){return undefined}) //labIds
-		.add_property("margin", {left:20, top:20, bottom:20, right:20}) //padding
+		.add_property("margins", {left:20, top:20, bottom:20, right:20}) //padding
 		.add_property("distance", function(a, b){
 			return lc.getEuclideanDistance(a, b);			
 		})
@@ -111,11 +111,11 @@ export function dendogram(heatmap)
 		.add_property("scales")
 		.add_property("lineColours", ['black', 'red']);
 
-	dendogram.npoints("_override_", "dataIds", function()
+	dendogram.npoints("__override__", "dataIds", function()
 	{
 		return d3.range(dendogram.npoints());
 	})
-	dendogram.dataIds("_override_", "npoints", function()
+	dendogram.dataIds("__override__", "npoints", function()
 	{
 		return dendogram.dataIds().length;
 	})
@@ -144,7 +144,7 @@ export function dendogram(heatmap)
 		var t = -1;
 		var rev_height = 0;
 		var bucket_final = this.clusters,
-		 	padding = this.margin(),
+		 	padding = this.margins(),
 		 	width = this.width(),
 		 	height = this.height();
 		//var n_leaves = bucket_final.val_inds.length;
@@ -389,17 +389,17 @@ export function dendogram(heatmap)
 		if(dendogram.orientation() == "v"){
 			if(dendogram.heatmap){
 				dendogram.width(dendogram.heatmap.height())
-					.height(dendogram.heatmap.margin().left)
-					.margin({
-						left: dendogram.heatmap.margin().top,
+					.height(dendogram.heatmap.margins().left)
+					.margins({
+						left: dendogram.heatmap.margins().top,
 						top: 0,
 						bottom: 0,
-						right: dendogram.heatmap.margin().bottom
+						right: dendogram.heatmap.margins().bottom
 					});
 				dendogram.svg.select(".row")
 					.attr("transform", "translate(" + 
-														(dendogram.heatmap.margin().left + +dendogram.heatmap.plotWidth() + 5) + 
-														", " + dendogram.heatmap.margin().top + ")")
+														(dendogram.heatmap.margins().left + +dendogram.heatmap.plotWidth() + 5) + 
+														", " + dendogram.heatmap.margins().top + ")")
 					.selectAll("text")
 						.style("text-anchor", "start");
 			}
@@ -408,22 +408,22 @@ export function dendogram(heatmap)
 					.attr("width", dendogram.width())
 					.attr("height", dendogram.height());
 			dendogram.g
-				.attr("transform", "rotate(90) translate(0, -" + dendogram.margin().left + ")");
+				.attr("transform", "rotate(90) translate(0, -" + dendogram.margins().left + ")");
 		} else {
 			if(dendogram.heatmap) {
 				dendogram.width(dendogram.heatmap.width())
-					.height(dendogram.heatmap.margin().top)
-					.margin({
+					.height(dendogram.heatmap.margins().top)
+					.margins({
 						top: 0,
-						left: dendogram.heatmap.margin().left,
-						right: dendogram.heatmap.margin().right,
+						left: dendogram.heatmap.margins().left,
+						right: dendogram.heatmap.margins().right,
 						bottom: 0
 					});
 
 				dendogram.svg.select(".col")
 					.attr("transform", "translate(" + 
-														 + dendogram.margin().left + 
-														", " + (dendogram.heatmap.margin().top + +dendogram.heatmap.plotHeight() + 5) + ")")
+														 + dendogram.margins().left + 
+														", " + (dendogram.heatmap.margins().top + +dendogram.heatmap.plotHeight() + 5) + ")")
 					.selectAll("text")
 						.style("text-anchor", "end");
 				}
@@ -432,8 +432,8 @@ export function dendogram(heatmap)
 					.attr("width", dendogram.width())
 					.attr("height", dendogram.height());
 //			dendogram.g
-//				.attr("transform", "translate(" + dendogram.margin().left + 
-//																	", " + dendogram.margin().right + ")");
+//				.attr("transform", "translate(" + dendogram.margins().left + 
+//																	", " + dendogram.margins().right + ")");
 		}
 
 		var newTree = dendogram.trimNodes();
@@ -585,8 +585,8 @@ export function dendogram(heatmap)
 				var t = d3.transition("remove")
 					.duration(chart.transitionDuration())
 				chart.svg.selectAll(".label_panel." + type.toLowerCase()).transition(t)
-						.attr("transform", "translate(" + chart.margin().left + ", " +
-									chart.margin().top + ")");
+						.attr("transform", "translate(" + chart.margins().left + ", " +
+									chart.margins().top + ")");
 				if(type == "Row")
 					chart.svg.select(".row").selectAll("text").transition(t)
 						.style("text-anchor", "end")
@@ -596,8 +596,8 @@ export function dendogram(heatmap)
 			}
 			else{ 			
 				chart.svg.selectAll(".label_panel." + type.toLowerCase())
-						.attr("transform", "translate(" + chart.margin().left + ", " +
-									chart.margin().top + ")");
+						.attr("transform", "translate(" + chart.margins().left + ", " +
+									chart.margins().top + ")");
 				if(type == "Row")
 					chart.svg.select(".row").selectAll("text")
 						.style("text-anchor", "end");

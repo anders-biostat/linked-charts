@@ -1,34 +1,25 @@
-//Basic object that can be chart or layer
-/**
-  * @hideconstructor  
-  * @class
-  * @description Basic object that provides property funtionality.
-  */
 export function base() {
 	
   var obj = {};
   obj.propList = [];
-/**
-  * @function add_property
-  * @description Adds a property to this object
-  * @memberof base
-  * @param {string} propertyName - Name of a property.
-  * @param {value|function} [defaultValue] - Default value for a property.
-  *   Can also be a function that returns desired value or object.
-  * @return Object
-  */
+
   obj.add_property = function( propertyName, defaultValue ) {
-		
+    //save the name of the property
     obj.propList.push(propertyName);
-		var getter = "get_" + propertyName;
-    var overrideList = {};
+		
+    var getter = "get_" + propertyName,
+      overrideList = {};
 
+    //define the setter
     obj[ propertyName ] = function( vf, propertyName, overrideFunc ) {
-
+      //if value is not defined, consider this a getter call
       if( vf === undefined )
         return obj[ getter ]();      
 
-      if( vf == "_override_"){
+      //if setter is called in "override" mode, save the function
+      //to replace with it another property's getter each time this
+      //setter is called
+      if( vf == "__override__"){
         if(typeof overrideFunc === "function")
           overrideList[propertyName] = overrideFunc
         else
@@ -42,6 +33,7 @@ export function base() {
         for(var i in overrideList)
           obj["get_" + i] = overrideList[i];
       }
+      
       //setter always returns chart, never layer
       if(obj.layers)
         return obj
@@ -52,6 +44,7 @@ export function base() {
           return obj;
     }
 
+    //define a getter
 		if(typeof defaultValue === "function")
 			obj[ getter ] = defaultValue
 		else
