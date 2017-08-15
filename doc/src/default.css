@@ -17,7 +17,7 @@ body {font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
 .navigationTop li {
 	float: left;
 }
-.navigationTop li a, .drop {
+.navigationTop > li a, .drop {
     display: inline-block;
     color: white;
     text-align: center;
@@ -42,7 +42,7 @@ li.dropdown {
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
 }
-.dropdown-content a {
+div.dropdown-content a {
     color: black;
     display: block;
     text-align: left;
@@ -50,7 +50,7 @@ li.dropdown {
     padding-bottom: 5px !important;
 }
 
-.dropdown-content a:hover {background-color: #c1c1d1}
+div.dropdown-content a:hover {background-color: #c1c1d1}
 
 .caret {
   display: inline-block;
