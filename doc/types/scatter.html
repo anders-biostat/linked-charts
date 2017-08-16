@@ -1,0 +1,126 @@
+<head>
+<link rel = "stylesheet" type = "text/css" href = "../src/default.css">
+<script src="https://d3js.org/d3.v4.min.js"></script>
+</head>
+<body>
+<script src="../src/navTop.js"></script>
+<xmp theme = "simplex">
+Scatter plots
+=============
+
+### Minimal requirements 
+
+To generate a scatter plot one needs to define <tt>x</tt> and <tt>y</tt> properties.
+They expect a function that will take data IDs as arguments and return corresponding <tt>x</tt> or <tt>y</tt> values.
+In some simplest cases this may be enough, since the chart will try to automatically
+estimate the number of points, assuming that their IDs are consequtive numbers and
+trying to access <tt>x</tt> values one by one. The first ID, for which <tt>x</tt> is unaccessable
+becomes the number of points. If this for some reason fails, an error will be trown asking 
+user to define the number of points himself via the <tt>nelements</tt> property.
+
+So the simplest possible scatter plot can be created like this
+
+<pre class="tiy" width="100%" fitHeight="true"
+  tiy-preload="../src/linked-charts.min.js;../src/data/iris.js;../src/linked-charts.css">
+var scatterplot = lc.scatterChart()
+  .x(function(k) {return data[k].sepalLength})
+  .y(function(k) {return data[k].petalLength})
+  .place();
+</pre>
+
+In this example, the IDs are just numbers, and you can see that on the information labels for
+each point. You can change the names using <tt>elementLabel</tt>. Unlike IDs, names do not need
+to be unique. This actually can be any text you want to be associated with a data point. Fot
+example, try to add this line of code
+
+<pre class="tiy" runnable="false">
+scatterplot
+  .elementLabel(function(k) {return data[k].species})
+</pre>
+
+More straightforward way to put your text on the information label is, of course, 
+just to set the HTML code for this label through <tt>informText</tt> property.
+
+<pre class="tiy" runnable="false">
+scatterplot
+  .informText(function(k) {
+    return "Species: " + data[k].species;
+  })
+</pre>
+
+If you don't want IDs to be consequtive numbers, you can set them manually, using
+the <tt>dataIds</tt> property, which should be an array of all the IDs. This may
+be useful if your data are stored in a form of object with named fields. 
+
+On the chart bellow you can logarithmised expression values of several genes for 
+two patient samples. The <tt>scatterData</tt> variable has the following structure
+
+<pre class="tiy" runnable="false">
+{
+  gene1: {sample_1: v11, sample_2: v21},
+  gene2: {sample_1: v12, sample_2: v22},
+  ... ,
+  genen: {sample_1: v1n, sample_2: v2n},  
+}
+</pre>
+
+So in thist case it seems reasonable to use gene names as IDs.
+
+<pre class="tiy" width="100%" fitHeight="true"
+  tiy-preload="../src/linked-charts.min.js;../src/data/inputdata_simple.js;../src/linked-charts.css">
+var scatterplot = lc.scatterChart()
+  .dataIds(Object.keys(scatterData))
+  .x(function(id) {return scatterData[id].sample_1;})
+  .y(function(id) {return scatterData[id].sample_2;})
+  .place();
+</pre>
+
+### Size, colour and shape
+
+All these aspects can be set either for all the points or for each of them separately.
+
+The <tt>size</tt> property defines the size of each point (default size is 6).
+To define colour use <tt>colour</tt> or <tt>colourValue</tt> properties. The difference
+between the two is that <tt>colour</tt> property should return colour in any form that
+can be interpreted by JavaScript, while <tt>colourValue</tt> can be anything. It can be
+numeric values or it can be some text. This will be converted either in continuous or in
+categorical colour scale. You can also define a set of colours using the <tt>palette</tt>
+property, which can be an array of colours or a function that converts values from 0 to 1 
+into colours.
+
+Shape can be set by the <tt>symbolType</tt> property. This property should return one of
+the following types <tt>"Circle", "Cross", "Diamond", "Square", "Star", "Triangle", "Wye"</tt>.
+Default type is <tt>Circle</tt>.
+
+Let's put all this together into an example
+
+<pre class="tiy" width="100%" fitHeight="true"
+  tiy-preload="../src/linked-charts.min.js;../src/data/iris.js;../src/linked-charts.css">
+var scatterplot = lc.scatterChart()
+  .x(function(k) {return data[k].sepalLength})
+  .y(function(k) {return data[k].petalLength})
+  .size(function(k) {return data[k].sepalWidth})
+  .colourValue(function(k) {return data[k].petalWidth})
+  .symbolType(function(k) {
+    if(data[k].species == "setosa")
+      return "Diamond";
+    if(data[k].species == "versicolor")
+      return "Cross";
+    if(data[k].species == "virginica")
+      return "Square";    
+  })
+  .place();
+</pre>
+
+
+
+</xmp>
+<script src="../src/strapdown.js"></script>
+<script src="../src/codeMirror/codemirror.js"></script>
+<link rel="stylesheet" href="../src/codeMirror/codemirror.css"> 
+<link rel="stylesheet" href="../src/codeMirror/mdn-like.css">
+<script src="../src/codeMirror/javascript.js"></script>
+<script src="../src/tiy.js"></script>
+<link rel="stylesheet" href="../src/tiy.css">
+<script>tiy.make_boxes();</script>
+</body>

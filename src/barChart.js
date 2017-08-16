@@ -89,7 +89,7 @@ export function barChart(id, chart){
 	});
 
   //default hovering behaviour
-  layer.pointMouseOver(function(d){
+  layer.ElementMouseOver(function(d){
     var pos = d3.mouse(chart.container.node());
     //change colour and class
     d3.select(this)
@@ -106,7 +106,7 @@ export function barChart(id, chart){
     layer.chart.container.select(".inform")
       .classed("hidden", false);
   });
-  layer.pointMouseOut(function(d){
+  layer.elementMouseOut(function(d){
     d3.select(this)
       .attr("fill", function(d) {
         return layer.get_colour(d[0], d[1], d[2]);
@@ -117,8 +117,8 @@ export function barChart(id, chart){
   });
 
 
-	layer.findPoints = function(lu, rb){
-		return layer.g.selectAll(".data_point")
+	layer.findElements = function(lu, rb){
+		return layer.g.selectAll(".data_element")
 			.filter(function(){
 				var x = +d3.select(this).attr("x"),
 					y = +d3.select(this).attr("y"),
@@ -135,7 +135,7 @@ export function barChart(id, chart){
 						layer.g.select("#p" + id.join("_-sep-_")).attr("y")];
 	}
 
-	layer.updatePointLocation = function(){
+	layer.updateElementLocation = function(){
 		var groupWidth = layer.chart.axes.scale_x.step() * layer.groupWidth(),
 			barWidth = groupWidth/layer.nbars(),
 			//for now it's just a linear scale
@@ -146,7 +146,7 @@ export function barChart(id, chart){
 			barIds = layer.barIds(),
 			stackIds = layer.stackIds();
 		if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff){
-			layer.g.selectAll(".data_point").transition("pointLocation")
+			layer.g.selectAll(".data_element").transition("elementLocation")
 				.duration(layer.chart.transitionDuration())
 				.attr("width", barWidth)
 				.attr("height", function(d){ 
@@ -165,7 +165,7 @@ export function barChart(id, chart){
 					return layer.chart.axes.scale_y(height);
 				})
 		}	else {
-			layer.g.selectAll(".data_point")
+			layer.g.selectAll(".data_element")
 				.attr("width", barWidth)
 				.attr("height", function(d){ 
 					return layer.get_value(d[0], d[1], d[2]) * heightMult;
@@ -186,11 +186,11 @@ export function barChart(id, chart){
 
 		return layer;			
 	}
-	layer.updatePointStyle = function(){
+	layer.updateElementStyle = function(){
 		layer.resetColourScale();
 
 		if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
-			layer.g.selectAll(".data_point").transition("pointStyle")
+			layer.g.selectAll(".data_element").transition("elementStyle")
 				.duration(chart.transitionDuration())
 				.attr("fill", function(d) {
 					return layer.get_colour(d[0], d[1], d[2]);
@@ -202,7 +202,7 @@ export function barChart(id, chart){
 					return layer.get_strokeWidth(d[0], d[1], d[2]);
 				})
 		else
-			layer.g.selectAll(".data_point")
+			layer.g.selectAll(".data_element")
 				.attr("fill", function(d) {
 					return layer.get_colour(d[0], d[1], d[2]);
 				})
@@ -214,7 +214,7 @@ export function barChart(id, chart){
 				});
 	}
 
-	layer.updatePoints = function(){
+	layer.updateElements = function(){
 		
 		var groups = layer.g.selectAll(".group")
 			.data(layer.groupIds(), function(d) {return d;});
@@ -236,7 +236,7 @@ export function barChart(id, chart){
 			.append("g")
 				.attr("class", "bar");
 
-		var stacks = layer.g.selectAll(".group").selectAll(".bar").selectAll(".data_point")
+		var stacks = layer.g.selectAll(".group").selectAll(".bar").selectAll(".data_element")
 			.data(function(d){
 				return layer.stackIds().map(function(e){
 					return d.concat(e);
@@ -246,12 +246,12 @@ export function barChart(id, chart){
 			.remove();
 		stacks.enter()
 			.append("rect")
-				.attr("class", "data_point")
+				.attr("class", "data_element")
 				.merge(stacks)
 					.attr("id", function(d) {return "p" + d.join("_-sep-_").replace(/ /g, "_")})
 					.on( "click", function(d) {layer.get_on_click(d[0], d[1], d[2])} )
-        	.on( "mouseover", layer.get_pointMouseOver )
-        	.on( "mouseout", layer.get_pointMouseOut );		
+        	.on( "mouseover", layer.get_elementMouseOver )
+        	.on( "mouseout", layer.get_elementMouseOut );		
 	}
 
 	//add legend

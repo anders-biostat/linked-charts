@@ -14,20 +14,20 @@ function lineChart(id, chart){
 		.add_property("dasharray", undefined);
 	chart.syncProperties(layer);
 	
-	layer.updatePoints = function(){
-		var lines = layer.g.selectAll(".data_point")
+	layer.updateElements = function(){
+		var lines = layer.g.selectAll(".data_element")
 			.data(layer.get_dataIds(), function(d) {return d;});
 		lines.exit()
 			.remove();
 		lines.enter()
 			.append("path")
-				.attr("class", "data_point")
+				.attr("class", "data_element")
 				.attr("fill", "none")
 			.merge(lines)
 				.attr("id", function(d) {return "p" + (layer.id + "_" + d).replace(/ /g,"_");})
         .on( "click", layer.get_on_click )
-        .on( "mouseover", layer.get_pointMouseOver )
-        .on( "mouseout", layer.get_pointMouseOut );			
+        .on( "mouseover", layer.get_elementMouseOver )
+        .on( "mouseout", layer.get_elementMouseOut );			
 	};
 
 	layer.dresser(function(sel){
@@ -45,7 +45,7 @@ export function xLine(id, chart){
 
 	layer.type = "xLine";
 
-	layer.updatePointLocation = function(){
+	layer.updateElementLocation = function(){
 		//define the length of each step
 		var lineStep = (layer.chart.axes.scale_x.domain()[1] - 
 										layer.chart.axes.scale_x.domain()[0]) / 
@@ -67,11 +67,11 @@ export function xLine(id, chart){
 		};
 		
 		if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
-			layer.g.selectAll(".data_point").transition("pointLocation")
+			layer.g.selectAll(".data_element").transition("elementLocation")
 				.duration(layer.chart.transitionDuration())
 				.attr("d", get_data)
 		else
-			layer.g.selectAll(".data_point")
+			layer.g.selectAll(".data_element")
 				.attr("d", get_data);			
 	};
 
@@ -84,7 +84,7 @@ export function yLine(id, chart){
 
 	layer.type = "yLine";
 
-	layer.updatePointLocation = function(){
+	layer.updateElementLocation = function(){
 		//define the length of each step
 		var lineStep = (layer.chart.axes.scale_y.domain()[1] - 
 										layer.chart.axes.scale_y.domain()[0]) / 
@@ -106,11 +106,11 @@ export function yLine(id, chart){
 		};
 		
 		if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
-			layer.g.selectAll(".data_point").transition("pointLocation")
+			layer.g.selectAll(".data_element").transition("elementLocation")
 				.duration(layer.chart.transitionDuration())
 				.attr("d", get_data)
 		else
-			layer.g.selectAll(".data_point")
+			layer.g.selectAll(".data_element")
 				.attr("d", get_data);			
 	};
 
@@ -147,18 +147,18 @@ export function parametricCurve(id, chart){
 		return lineData;
 	};	
 
-	layer.updatePointLocation = function(){
+	layer.updateElementLocation = function(){
 		
 		var line = d3.line()
 			.x(function(c) {return layer.chart.axes.scale_x(c.x);})
 			.y(function(c) {return layer.chart.axes.scale_y(c.y);});
 
 		if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
-			layer.g.selectAll(".data_point").transition("pointLocation")
+			layer.g.selectAll(".data_element").transition("elementLocation")
 				.duration(layer.chart.transitionDuration())
 				.attr("d", function(d) {return line(get_data(d));})
 		else
-			layer.g.selectAll(".data_point")
+			layer.g.selectAll(".data_element")
 				.attr("d", function(d) {return line(get_data(d));});
 	}
 

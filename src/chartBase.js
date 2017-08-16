@@ -240,9 +240,9 @@ export function chartBase() {
 					return;
 				var pos = {x: [], y: []};
 				marked.map(function(e) {
-					var pointPos = chart.get_position(e); 
-					pos.x.push(pointPos[0]);
-					pos.y.push(pointPos[1]);
+					var elementPos = chart.get_position(e); 
+					pos.x.push(elementPos[0]);
+					pos.y.push(elementPos[1]);
 				});
 				var x_range = d3.extent(pos.x),
 					y_range = d3.extent(pos.y);
@@ -254,9 +254,9 @@ export function chartBase() {
 
 	chart.mark = function(marked) {
 		if(marked == "__clear__"){
-			chart.svg.selectAll(".data_point.marked")
+			chart.svg.selectAll(".data_element.marked")
 				.classed("marked", false);
-			chart.svg.selectAll(".data_point")
+			chart.svg.selectAll(".data_element")
 				.attr("opacity", 1);
 			chart.markedUpdated();
 			return;
@@ -272,8 +272,8 @@ export function chartBase() {
 			}
 		}
 		
-		if(chart.svg.selectAll(".data_point.marked").empty())
-			chart.svg.selectAll(".data_point")
+		if(chart.svg.selectAll(".data_element.marked").empty())
+			chart.svg.selectAll(".data_element")
 				.attr("opacity", 0.5);
 		marked.classed("switch", true);
 		if(marked.size() < 2)
@@ -285,19 +285,19 @@ export function chartBase() {
 			.classed("marked", true)
 			.classed("switch", false)
 			.attr("opacity", 1);
-		if(chart.svg.selectAll(".data_point.marked").empty())
-			chart.svg.selectAll(".data_point")
+		if(chart.svg.selectAll(".data_element.marked").empty())
+			chart.svg.selectAll(".data_element")
 				.attr("opacity", 1);
 
 		chart.markedUpdated();
 	}
 
 	chart.get_marked = function(){
-		var points = [];
+		var elements = [];
 		chart.svg.selectAll(".marked").each(function() {
-			points.push(d3.select(this).datum());
+			elements.push(d3.select(this).datum());
 		});
-		return points;
+		return elements;
 	}
 
   chart.place = function( element ) {
@@ -358,7 +358,7 @@ export function chartBase() {
 			.text(chart.title());		
 	}
 
-	chart.getPoints = function(data){
+	chart.getElements = function(data){
 		data = data.map(function(e) {return lc.escapeRegExp(e).replace(/ /g, "_")});
 		return chart.svg.selectAll("#p" + data.join(", #p"));
 	}
@@ -517,22 +517,22 @@ export function layerChartBase(){
 	}
 
 	chart.get_marked = function(){
-		var points = [];
+		var elements = [];
 		chart.svg.selectAll(".marked").each(function() {
-			points.push([d3.select(this.parentNode).attr("id"), 
+			elements.push([d3.select(this.parentNode).attr("id"), 
 										d3.select(this).datum()]);
 		});
-		return points;
+		return elements;
 	}
 
-	chart.findPoints = function(lu, rb){
-		var selPoints = [];
+	chart.findElements = function(lu, rb){
+		var selElements = [];
 		chart.svg.selectAll(".chart_g").each(function(){
-			selPoints = selPoints.concat(
-				chart.get_layer(d3.select(this).attr("id")).findPoints(lu, rb)
+			selElements = selElements.concat(
+				chart.get_layer(d3.select(this).attr("id")).findElements(lu, rb)
 			);
 		});
-		return selPoints;
+		return selElements;
 	}
 
 	chart.get_position = function(id){
@@ -580,8 +580,8 @@ export function layerChartBase(){
 			if(ids.indexOf(k) == -1)
 				chart.remove_layer(k)
 			else {
-				chart.get_layer(k).updatePoints();
-				chart.get_layer(k).updatePointStyle();
+				chart.get_layer(k).updateElements();
+				chart.get_layer(k).updateElementStyle();
 			}	
 		}
 		
@@ -1068,7 +1068,7 @@ export function axisChart() {
     		updateY();
 
     for(var k in chart.layers)
-    	chart.get_layer(k).updatePointLocation();
+    	chart.get_layer(k).updateElementLocation();
 
     return chart;
 	}

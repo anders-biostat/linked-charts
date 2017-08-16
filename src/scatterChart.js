@@ -25,7 +25,7 @@ export function scatterChart(id, chart) {
         y = layer.get_y(id);
       if(x.toFixed) x = x.toFixed(2);
       if(y.toFixed) y = y.toFixed(2);
-      return "ID: <b>" + id + "</b>;<br>" + 
+      return "ID: <b>" + layer.get_elementLabel(id) + "</b>;<br>" + 
             "x = " + x + ";<br>" + 
             "y = " + y
     });
@@ -34,7 +34,7 @@ export function scatterChart(id, chart) {
   layer.type = "scatterChart";
 
   // Set default for numPoints, namely to count the data provided for x
-  layer.npoints( function() {
+  layer.nelements( function() {
     var val;
     for( var i = 0; i < 10000; i++ ) {
       try {
@@ -53,11 +53,11 @@ export function scatterChart(id, chart) {
     }
     // If we exit the loop, there is either something wrong or there are
     // really many points
-    throw "There seem to be very many data points. Please supply a number via 'npoints'."
+    throw "There seem to be very many data points. Please supply a number via 'nelements'."
   });
 
   //default hovering behaviour
-  layer.pointMouseOver(function(d){
+  layer.elementMouseOver(function(d){
     var pos = d3.mouse(chart.container.node());
     //change colour and class
     d3.select(this)
@@ -74,7 +74,7 @@ export function scatterChart(id, chart) {
     layer.chart.container.selectAll(".inform")
       .classed("hidden", false);
   });
-  layer.pointMouseOut(function(d){
+  layer.elementMouseOut(function(d){
     d3.select(this)
       .attr("fill", function(d) {
         return layer.get_colour(d);
@@ -86,8 +86,8 @@ export function scatterChart(id, chart) {
 
 
   //These functions are used to react on clicks
-  layer.findPoints = function(lu, rb){
-    return layer.g.selectAll(".data_point")
+  layer.findElements = function(lu, rb){
+    return layer.g.selectAll(".data_element")
       .filter(function(d) {
         var loc = [layer.chart.axes.scale_x(layer.get_x(d)), 
                   layer.chart.axes.scale_y(layer.get_y(d))]
@@ -117,16 +117,16 @@ export function scatterChart(id, chart) {
     }
 	});
 
-  layer.updatePointLocation = function(){
+  layer.updateElementLocation = function(){
     if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff){
-      layer.g.selectAll(".data_point").transition("pointLocation")
+      layer.g.selectAll(".data_element").transition("elementLocation")
         .duration(layer.chart.transitionDuration())
         .attr("transform", function(d) {
           return "translate(" + layer.chart.axes.scale_x( layer.get_x(d) ) + ", " + 
           layer.chart.axes.scale_y( layer.get_y(d) ) + ")"
         });
     } else {
-      layer.g.selectAll(".data_point")
+      layer.g.selectAll(".data_element")
         .attr("transform", function(d) {
           return "translate(" + layer.chart.axes.scale_x( layer.get_x(d) ) + ", " + 
           layer.chart.axes.scale_y( layer.get_y(d) ) + ")"
@@ -134,7 +134,7 @@ export function scatterChart(id, chart) {
     }
     var domainX = layer.chart.axes.scale_x.domain(),
       domainY = layer.chart.axes.scale_y.domain();
-    var notShown = layer.g.selectAll(".data_point")
+    var notShown = layer.g.selectAll(".data_element")
       .filter(function(d) {
         return layer.get_x(d) > domainX[1] || layer.get_x(d) < domainX[0] ||
                 layer.get_y(d) > domainY[1] || layer.get_y(d) < domainY[0];
@@ -169,12 +169,12 @@ export function scatterChart(id, chart) {
     return layer;
   }
 
-  layer.updateSelPointStyle = function(id){
+  layer.updateSelElementStyle = function(id){
     if(typeof id.length === "undefined")
       id = [id];
     if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
       for(var i = 0; i < id.length; i++)
-        layer.g.selectAll("#p" + id[i]).transition("pointStyle")
+        layer.g.selectAll("#p" + id[i]).transition("elementStyle")
           .duration(layer.chart.transitionDuration())
           .attr( "r", function(d) {return layer.get_size(d)})
           .attr( "fill", function(d) { return layer.get_colour(d)})
@@ -188,12 +188,12 @@ export function scatterChart(id, chart) {
     return layer;
   }
 
-  layer.updatePointStyle = function() {
+  layer.updateElementStyle = function() {
     layer.resetColourScale();
     var ids = layer.get_dataIds();
-    var sel = layer.g.selectAll(".data_point");
+    var sel = layer.g.selectAll(".data_element");
     if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
-      sel = sel.transition("pointStyle")
+      sel = sel.transition("elementStyle")
         .duration(layer.chart.transitionDuration());
     sel
       .attr("d", function(d) {
@@ -211,18 +211,18 @@ export function scatterChart(id, chart) {
       .attr("r", function(d) {return layer.get_size(d);});
   });
 
-  layer.updatePoints = function(){
-    var sel = layer.g.selectAll( ".data_point" )
+  layer.updateElements = function(){
+    var sel = layer.g.selectAll( ".data_element" )
       .data( layer.get_dataIds(), function(d) {return d;} );
     sel.exit()
       .remove();  
     sel.enter().append( "path" )
-      .attr( "class", "data_point" )
+      .attr( "class", "data_element" )
       .merge(sel)
         .attr("id", function(d) {return "p" + (layer.id + "_" + d).replace(/ /g,"_");})
         .on( "click", layer.get_on_click )
-        .on( "mouseover", layer.get_pointMouseOver )
-        .on( "mouseout", layer.get_pointMouseOut );
+        .on( "mouseover", layer.get_elementMouseOver )
+        .on( "mouseout", layer.get_elementMouseOut );
   }
 
   return chart;

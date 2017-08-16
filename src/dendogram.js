@@ -101,7 +101,7 @@ export function dendogram(heatmap)
 		.add_property("orientation", "h")
 		.add_property("height", 100)
 		.add_property("width", 300)
-		.add_property("npoints") //nlabels
+		.add_property("nelements") //nlabels
 		.add_property("dataIds", function(){return undefined}) //labIds
 		.add_property("margins", {left:20, top:20, bottom:20, right:20}) //padding
 		.add_property("distance", function(a, b){
@@ -111,11 +111,11 @@ export function dendogram(heatmap)
 		.add_property("scales")
 		.add_property("lineColours", ['black', 'red']);
 
-	dendogram.npoints("__override__", "dataIds", function()
+	dendogram.nelements("__override__", "dataIds", function()
 	{
-		return d3.range(dendogram.npoints());
+		return d3.range(dendogram.nelements());
 	})
-	dendogram.dataIds("__override__", "npoints", function()
+	dendogram.dataIds("__override__", "nelements", function()
 	{
 		return dendogram.dataIds().length;
 	})

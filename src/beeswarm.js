@@ -13,9 +13,9 @@ export function beeswarm(id, chart) {
 	chart.syncProperties(layer);
   layer.type = "beeswarm";
 
-  var inherited_updatePointLocation = layer.updatePointLocation;
-  layer.updatePointLocation = function(){
-    inherited_updatePointLocation();
+  var inherited_updateElementLocation = layer.updateElementLocation;
+  layer.updateElementLocation = function(){
+    inherited_updateElementLocation();
 
     var orientation = (layer.valueAxis() == "y" ? "vertical" : "horizontal");
     var swarm = d3.beeswarm()
@@ -38,7 +38,7 @@ export function beeswarm(id, chart) {
       swarm[swarm[i].datum] = swarm[i];
 
     if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff){
-      layer.g.selectAll(".data_point").transition("pointLocation")
+      layer.g.selectAll(".data_element").transition("elementLocation")
         .attr("transform", function(d){
           if(layer.valueAxis() == "x")
             return "translate(" + layer.chart.axes.scale_x( layer.get_x(d) ) +
@@ -48,7 +48,7 @@ export function beeswarm(id, chart) {
                   ", " + layer.chart.axes.scale_y( layer.get_y(d) ) + ")";
         });
     } else {
-      layer.g.selectAll(".data_point")
+      layer.g.selectAll(".data_element")
         .attr("transform", function(d){
           if(layer.valueAxis() == "x")
             return "translate(" + layer.chart.axes.scale_x( layer.get_x(d) ) +

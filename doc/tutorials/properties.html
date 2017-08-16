@@ -298,7 +298,7 @@ of inhibition percentage for a selected drug.
   //create the first layer of the chart
   //note the optional argument that sets layer ID
   var inhValues = lc.scatterChart("Pa16C")
-    .npoints( 5 )
+    .nelements( 5 )
     .x( function( k ) {return k;} )
     .y( function( k ) {
       return data.Pa16C[selDrug]["D" + (k + 1)];
@@ -307,7 +307,7 @@ of inhibition percentage for a selected drug.
   //to add layer to an existing chart one should pass the
   //chart as a second argument to 
   lc.scatterChart("Pa14C", inhValues)
-    .npoints( 5 )
+    .nelements( 5 )
     .x( function( k ) {return k} )
     .y( function( k ) {
       return data.Pa14C[selDrug]["D" + (k + 1)];
@@ -354,7 +354,7 @@ chart.add_property("property1", defaultValue1)
 This will automatically generate a setter and a getter to the object <tt>chart</tt>.
 
 Sometimes setting one property may influence another property. For example, 
-if <tt>dataIds</tt> is set, then number of points (<tt>npoints</tt> property) 
+if <tt>dataIds</tt> is set, then number of points (<tt>nelements</tt> property) 
 is defined as length of the array returns by the <tt>dataIds</tt> getter. But
 the user may not want to set all the IDs and instead define only the number of
 points. In this case <tt>dataIds</tt> is set to <tt>[0, 1, 2, ..., n]</tt>.
@@ -362,12 +362,12 @@ points. In this case <tt>dataIds</tt> is set to <tt>[0, 1, 2, ..., n]</tt>.
 In such cases "\_\_override__" mode of a setter may be handy. For example
 
 <pre class = "tiy" runnable = "false">
-chart.dataIds("__override__", "npoints", function(){
+chart.dataIds("__override__", "nelements", function(){
   return chart.dataIds().lenght;
 }) 
 </pre>
 
-This means that each time the <tt>dataIds</tt> setter is called, <tt>npoints</tt>
+This means that each time the <tt>dataIds</tt> setter is called, <tt>nelements</tt>
 property will be set to the function that is a third argument.
 </xmp>
 <script src="../src/strapdown.js"></script>

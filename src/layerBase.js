@@ -4,10 +4,11 @@ import { getEuclideanDistance } from "./additionalFunctions";
 export function layerBase(id) {
 	
 	var layer = base()
-    .add_property("npoints")
+    .add_property("nelements")
     .add_property("dataIds")
-		.add_property("pointMouseOver", function() {})
-		.add_property("pointMouseOut", function() {})
+    .add_property("elementLabel", function(i) {return i;})
+		.add_property("elementMouseOver", function() {})
+		.add_property("elementMouseOut", function() {})
 		.add_property("on_click", function() {})
 		.add_property("layerDomainX")
 		.add_property("layerDomainY")
@@ -24,11 +25,11 @@ export function layerBase(id) {
 
 	layer.id = id;
 
-  layer.dataIds( "__override__", "npoints", function(){
+  layer.dataIds( "__override__", "nelements", function(){
     return layer.get_dataIds().length;
   });
-  layer.npoints( "__override__", "dataIds", function() {
-    return d3.range( layer.get_npoints() );
+  layer.nelements( "__override__", "dataIds", function() {
+    return d3.range( layer.nelements() );
   });
   layer.colour( "__override__", "addColourScaleToLegend", false );
 
@@ -153,9 +154,9 @@ export function layerBase(id) {
 
 	layer.update = function() {
     
-    layer.updatePoints();
-    layer.updatePointStyle();
-    layer.updatePointLocation();
+    layer.updateElements();
+    layer.updateElementStyle();
+    layer.updateElementLocation();
 
     return layer;
   };
@@ -170,15 +171,15 @@ export function layerBase(id) {
   
   layer.updateSize = function(){
   }
-  layer.updatePoints = function() {
+  layer.updateElements = function() {
   };
-  layer.updatePointStyle = function() {
+  layer.updateElementStyle = function() {
     layer.resetColourScale();
-  	layer.get_dresser(layer.g.selectAll(".data_point"));
+  	layer.get_dresser(layer.g.selectAll(".data_element"));
   	return layer;
   };
-  layer.updatePointLocation = function() {};
-  layer.findPoints = function() {return [];}; //return empty selection	
+  layer.updateElementLocation = function() {};
+  layer.findElements = function() {return [];}; //return empty selection	
 	layer.get_position = function(id) {return undefined;}
 
 	return layer;

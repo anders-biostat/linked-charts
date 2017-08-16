@@ -48,3 +48,9 @@ for(var i = 0; i < geneExprs.length; i++){
 	Object.assign(corObject[geneNames[i]], row);
 	row = {};
 }
+
+var scatterData = {};
+for(var i = 0; i < geneNames.length; i++){
+   scatterData[geneNames[i]] = {sample_1: geneExprs[i][0],
+                                 sample_2: geneExprs[i][1]};
+}

@@ -176,17 +176,17 @@ export function heatmapChart(id, chart){
 		return chart.mode();
 	}
 
-	chart.findPoints = function(lu, rb){
+	chart.findElements = function(lu, rb){
 		var selectedIds = [];
 		if(get_mode() == "svg") {
-			var selectedPoints = chart.g.selectAll(".data_point")
+			var selectedElements = chart.g.selectAll(".data_element")
 				.filter(function() {
 					var loc = [this.x.baseVal.value, this.y.baseVal.value];
 					return (loc[0] <= rb[0]) && (loc[1] <= rb[1]) && 
 						(loc[0] + chart.cellSize.width >= lu[0]) && 
 						(loc[1] + chart.cellSize.height >= lu[1]);
 				});
-			selectedIds = selectedPoints.data().map(function(e){
+			selectedIds = selectedElements.data().map(function(e){
 				return "p" + e[0] + "_-sep-_" + e[1];
 			});
 		} else {
@@ -511,7 +511,7 @@ export function heatmapChart(id, chart){
 	}
 
 	chart.zoom = function(lu, rb){
-		var selectedCells = chart.findPoints(lu, rb);
+		var selectedCells = chart.findElemnts(lu, rb);
 		if(selectedCells.length < 2)
 			return;
 		var rowIdsAll = [], colIdsAll = [];
@@ -563,7 +563,7 @@ export function heatmapChart(id, chart){
 
 	//some default onmouseover and onmouseout behaviour for cells and labels
 	//may be later moved out of the main library
-	chart.pointMouseOver = function(d) {
+	chart.elementMouseOver = function(d) {
 		var pos = d3.mouse(chart.container.node());
 		//change colour and class
 		d3.select(this)
@@ -594,7 +594,7 @@ export function heatmapChart(id, chart){
 			.classed("hidden", false);
 		}
 	};
-	chart.pointMouseOut = function(d) {
+	chart.elementMouseOut = function(d) {
 		//change colour and class
 		d3.select(this)
 			.attr("fill", function(d) {
@@ -688,12 +688,12 @@ export function heatmapChart(id, chart){
 
 		if(get_mode() == "svg") {
 			if(chart.transitionDuration() > 0 && !chart.transitionOff)
-				chart.g.selectAll(".data_point").transition("cellColour").duration(chart.transitionDuration())
+				chart.g.selectAll(".data_element").transition("cellColour").duration(chart.transitionDuration())
 					.attr("fill", function(d) {
 						return chart.get_colour(chart.get_value(d[0], d[1]));
 				})
 			else
-				chart.g.selectAll(".data_point")
+				chart.g.selectAll(".data_element")
 					.attr("fill", function(d) {
 						return chart.get_colour(chart.get_value(d[0], d[1]));
 				});
@@ -734,7 +734,7 @@ export function heatmapChart(id, chart){
 					.attr("class", "data_row");
 
 			//add cells	
-			var cells = chart.g.selectAll(".data_row").selectAll(".data_point")
+			var cells = chart.g.selectAll(".data_row").selectAll(".data_element")
 				.data(function(d) {
 					return chart.get_dispColIds().map(function(e){
 						return [d, e];
@@ -744,14 +744,14 @@ export function heatmapChart(id, chart){
 				.remove();
 			cells.enter()
 				.append("rect")
-					.attr("class", "data_point")
+					.attr("class", "data_element")
 					.attr("opacity", 0.5)
 					.merge(cells)
 						.attr("id", function(d) {return "p" + (d[0] + "_-sep-_" + d[1]).replace(/ /g,"_")})
 						.attr("rowId", function(d) {return d[0];})
 						.attr("colId", function(d) {return d[1];})
-						.on("mouseover", chart.pointMouseOver)
-						.on("mouseout", chart.pointMouseOut)
+						.on("mouseover", chart.elementMouseOver)
+						.on("mouseout", chart.elementMouseOut)
 						.on("click", function(d) {
 							chart.get_on_click.apply(this, [d[0], d[1]]);
 						});
@@ -777,7 +777,7 @@ export function heatmapChart(id, chart){
 		if(markedCells > newMarked)
 			chart.markedUpdated();
 		if(newMarked == 0)
-			chart.g.selectAll(".data_point")
+			chart.g.selectAll(".data_element")
 				.attr("opacity", 1);
 
 		
@@ -790,7 +790,7 @@ export function heatmapChart(id, chart){
 
 		if(get_mode() == "svg"){
 			if(chart.transitionDuration() > 0 && !chart.transitionOff)
-				chart.g.selectAll(".data_point").transition("cellPosition")
+				chart.g.selectAll(".data_element").transition("cellPosition")
 					.duration(chart.transitionDuration())
 					.attr("x", function(d){
 						return chart.axes.scale_x(chart.get_heatmapCol(d[1]));
@@ -801,7 +801,7 @@ export function heatmapChart(id, chart){
 						return chart.axes.scale_y(chart.get_heatmapRow(d[0]))
 					})
 			else
-				chart.g.selectAll(".data_point")
+				chart.g.selectAll(".data_element")
 					.attr("x", function(d){
 						return chart.axes.scale_x(chart.get_heatmapCol(d[1]));
 					})
@@ -1072,7 +1072,7 @@ export function heatmapChart(id, chart){
 
 	}
 
-	chart.getPoints = function(data){
+	chart.getElements = function(data){
 		if(data.length == 2 && data[0].substr)
 			data = [data];
 		data = data.map(function(e) {return "p" + e.join("_-sep-_")});

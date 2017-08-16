@@ -55,16 +55,16 @@ export function separateBy(data, properties){
     type == "obj" ? newData[uniqueList[i]] = {} : newData[uniqueList[i]] = [];
 
   //go through all the elements again and place them in a suitable category
-  var newPoint;
+  var newElement;
   for(var i = 0; i < keys.length; i++){
     value = data[keys[i]][properties[0]];
     if(typeof value !== "undefined"){
-      newPoint = {};
-      Object.assign(newPoint, data[keys[i]]);
-      delete newPoint[properties[0]];
+      newElement = {};
+      Object.assign(newElement, data[keys[i]]);
+      delete newElement[properties[0]];
       if(type == "obj") newData[value][keys[i]] = {};
-      type == "obj" ? newData[value][keys[i]] = newPoint :
-                      newData[value].push(newPoint);
+      type == "obj" ? newData[value][keys[i]] = newElement :
+                      newData[value].push(newElement);
     }
   }
   //if type is array but all values of the property are unique change arrays in objects
@@ -211,12 +211,12 @@ export function add_click_listener(chart){
 
     if(chart.canvas && chart.canvas.classed("active")){
       parcer.do(function(){
-        var point = chart.findPoints(p, p)[0].substr(1).split("_-sep-_");
+        var element = chart.findElements(p, p)[0].substr(1).split("_-sep-_");
         chart.container.selectAll(".inform")
           .style("left", (p[0] + 10 + chart.margins().left) + "px")
           .style("top", (p[1] + 10 + chart.margins().top) + "px")
           .select(".value")
-            .html(function() {return chart.get_informText(point[0], point[1])});
+            .html(function() {return chart.get_informText(element[0], element[1])});
 
       })
     }
@@ -238,7 +238,7 @@ export function add_click_listener(chart){
         lu = [x, y], 
         rb = [x + w, y + h];
     
-    var points = d3.select(this);
+    var elements = d3.select(this);
     
     chart.svg.selectAll("rect.selection").remove();
     chart.svg.select(".shadow").remove();
@@ -252,11 +252,11 @@ export function add_click_listener(chart){
         //console.log("doubleclick");
         window.clearTimeout(wait_dblClick);
         wait_dblClick = null;
-        points.on("dblclick").apply(points, [mark]);
+        elements.on("dblclick").apply(elements, [mark]);
       } else {
         wait_dblClick = window.setTimeout((function(e) {
           return function() {
-            points.on("click").call(points, pos, mark);
+            elements.on("click").call(elements, pos, mark);
             wait_dblClick = null;
             if(panStarted) {
               panStarted = false;
@@ -284,7 +284,7 @@ export function add_click_listener(chart){
 
     // remove temporary selection marker class
     if(mark)
-      chart.mark(chart.findPoints(lu, rb))
+      chart.mark(chart.findElements(lu, rb))
     else 
       chart.zoom(lu, rb);      
   }
@@ -298,7 +298,7 @@ export function add_click_listener(chart){
       return;
 
     //find all the points that intersect with the cursor position
-    var clicked = chart.findPoints(p, p);
+    var clicked = chart.findElements(p, p);
     if(clicked.length == 0)
       return;
 
@@ -316,15 +316,15 @@ export function add_click_listener(chart){
       return;
     }
 
-    var clickedPoints = chart.svg.selectAll("#" + clicked.join(",#").replace(/ /g, "_")),
-      activePoint = clickedPoints.filter(function(d){
+    var clickedElements = chart.svg.selectAll("#" + clicked.join(",#").replace(/ /g, "_")),
+      activeElement = clickedElements.filter(function(d){
         return d == chart.container.selectAll(".inform").datum();
       });
-    if(!activePoint.empty())
-      clickedPoints = activePoint;
+    if(!activeElement.empty())
+      clickedElements = activeElement;
 
     var clickFun;
-    clickedPoints.each(function(d){
+    clickedElements.each(function(d){
       clickFun = d3.select(this).on("click");
       clickFun.call(this, d)
     })
