@@ -11,14 +11,14 @@ export function panel(chart) {
 		.add_property("orientation", "horizontal")
 		.add_property("height", function(){
 			if(panel.orientation() == "vertical")
-				return Math.floor(chart.height() - panel.y() / panel.buttonSize) * 
+				return Math.floor(panel.y() / panel.buttonSize) * 
 					panel.buttonSize
 			else
 				return undefined;
 		})
 		.add_property("width", function() {
 			if(panel.orientation() == "horizontal")
-				return Math.floor(chart.width() - panel.x() / panel.buttonSize) * 
+				return Math.floor(panel.x() / panel.buttonSize) * 
 					panel.buttonSize
 			else
 				return undefined;
@@ -27,7 +27,7 @@ export function panel(chart) {
 	panel.chart = chart;
 	panel.buttons = [];
 	panel.buttonSize = 30;
-
+	var layout = {};
 
 	panel.put_static_content = function(){
 		panel.g = panel.chart.svg.append("g")
@@ -58,7 +58,8 @@ export function panel(chart) {
 	}
 	
 	panel.updateSize = function() {
-		var layout = panel.placeButtons();
+
+		panel.placeButtons();
 		if(panel.orientation() == "vertical"){
 			panel.g.attr("transform", "translate(" + panel.x() + 
 																", " + panel.y() + ")");
@@ -69,10 +70,10 @@ export function panel(chart) {
 		} else {
 			panel.g
 				.attr("transform", "translate(" + 
-														(panel.x() - panel.buttonSize * panel.buttons.length) + 
+														(panel.x() - layout.width) + 
 																", " + panel.y() + ")");
 			panel.g.select("#toggle")
-				.attr("transform", "translate(" + (panel.buttonSize * panel.buttons.length) + ", 0)");
+				.attr("transform", "translate(" + layout.width + ", 0)");
 			panel.g.select("#buttonPanel")
 				.attr("transform", "translate(0, 0)");			
 		}
@@ -82,18 +83,18 @@ export function panel(chart) {
 	panel.placeButtons = function() {
 		var rowLength;
 		if(panel.orientation()  == "horizontal"){
-				rowLength = panel.optimizeSize(panel.buttons.length, panel.width(), panel.height());
+				panel.optimizeSize(panel.buttons.length, panel.width(), panel.height());
 				panel.g.selectAll(".button")
 					.attr("transform", function(d, i){
-						return "translate(" + (i % rowLength * panel.buttonSize) + ", " +
-							(Math.floor(i / rowLength) * panel.buttonSize) + ")";
+						return "translate(" + (i % layout.rowLength * panel.buttonSize) + ", " +
+							(Math.floor(i / layout.rowLength) * panel.buttonSize) + ")";
 					})
 		} else {
-				rowLength = panel.optimizeSize(panel.buttons.length, panel.height(), panel.width());
+				panel.optimizeSize(panel.buttons.length, panel.height(), panel.width());
 				panel.g.selectAll(".button")
 					.attr("transform", function(d, i){
-						return "translate(" + (Math.floor(i / rowLength) * panel.buttonSize) + ", " 
-							+ ((i % rowLength + 1) * panel.buttonSize) + ")";
+						return "translate(" + (Math.floor(i / layout.rowLength) * panel.buttonSize) + ", " 
+							+ ((i % layout.rowLength + 1) * panel.buttonSize) + ")";
 					})
 		}
 	}
@@ -111,15 +112,16 @@ export function panel(chart) {
 			size = panel.buttonSize;
 			rows = Math.ceil(width / size);
 		}
+		layout = {width: panel.width(),
+							height: panel.height(),
+							rowLength: d3.min([Math.floor(width / size), panel.buttons.length])};
 		if(panel.orientation() == "horizontal"){
-			panel.width(size * Math.floor(width / size));
+			layout.width  = size * layout.rowLength;
 			//panel.height(size * rows)
 		} else {
-			panel.height(size * Math.floor(width / size));
+			layout.height = size * layout.rowLength;
 			//panel.width(size * rows);
 		}
-
-		return Math.floor(width / size);
 	}
 
 
