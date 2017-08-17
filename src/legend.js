@@ -217,9 +217,9 @@ export function legend(chart) {
 			sampleValues = legend.blocks[id].domain;
 		else
 			sampleValues = d3.range(steps).map(function(e) {
-				return legend.blocks[id].domain[0] + e * 
+				return (legend.blocks[id].domain[0] + e * 
 								(legend.blocks[id].domain[1] - legend.blocks[id].domain[0]) / 
-								(steps - 1)
+								(steps - 1)).toFixed(2);
 			})
 		var sampleData = [];
 		for(var i = 0; i < sampleValues.length; i++)
