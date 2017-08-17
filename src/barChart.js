@@ -89,7 +89,7 @@ export function barChart(id, chart){
 	});
 
   //default hovering behaviour
-  layer.ElementMouseOver(function(d){
+  layer.elementMouseOver(function(d){
     var pos = d3.mouse(chart.container.node());
     //change colour and class
     d3.select(this)
@@ -253,9 +253,6 @@ export function barChart(id, chart){
         	.on( "mouseover", layer.get_elementMouseOver )
         	.on( "mouseout", layer.get_elementMouseOut );		
 	}
-
-	//add legend
-
 
 	return layer;
 }

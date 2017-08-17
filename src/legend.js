@@ -104,6 +104,14 @@ export function legend(chart) {
 			typeof scale.domain === "function" ? domain = scale.domain() : domain = scale.domain;
 			if(typeof domain === "undefined")
 				throw "Error in 'legend.add': the domain of the scale is not defined.";
+			//look for undefined values in the domain and remove them
+			var i = 0;
+			while(i < domain.length)
+				if(domain[i] === undefined)
+					domain.splice(i, 1)
+				else
+					i++;
+				
 			legend.blocks[id].domain = domain;
 			newScale = scale;
 			if(scale.steps)

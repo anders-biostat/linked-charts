@@ -408,7 +408,7 @@ export function dendogram(heatmap)
 					.attr("width", dendogram.width())
 					.attr("height", dendogram.height());
 			dendogram.g
-				.attr("transform", "rotate(90) translate(0, -" + dendogram.margins().left + ")");
+				.attr("transform", "rotate(90) translate(0, -" + dendogram.height() + ")");
 		} else {
 			if(dendogram.heatmap) {
 				dendogram.width(dendogram.heatmap.width())
