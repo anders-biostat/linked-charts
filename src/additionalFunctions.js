@@ -476,7 +476,7 @@ export function fillTextBlock(g, width, height, text, minSize, maxSize, fontRati
 
 export function get_symbolSize(type, r) {
   var sizeCoef = {
-    "Circle": 28.2,
+    "Circle": 30,
     "Cross": 35,
     "Diamond": 46,
     "Square": 36,

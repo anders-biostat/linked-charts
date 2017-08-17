@@ -18,7 +18,8 @@ export function scatterChart(id, chart) {
     .add_property("strokeWidth", function(d) {
       return layer.get_size(d) * 0.1;
     })
-    .add_property("symbolType", "Circle")
+    .add_property("symbol", "Circle")
+    .add_property("symbolValue")
 		.add_property("groupName", function(i){return i;})
     .add_property("informText", function(id){      
       var x = layer.get_x(id),
@@ -55,6 +56,13 @@ export function scatterChart(id, chart) {
     // really many points
     throw "There seem to be very many data points. Please supply a number via 'nelements'."
   });
+
+  var symbolValue = layer.symbolValue;
+  layer.symbolValue = function(vf, propertyName, overrideFunc) {
+    var returnedValue = symbolValue(vf, propertyName, overrideFunc);
+    layer.resetSymbolScale();
+    return returnedValue;
+  }
 
   //default hovering behaviour
   layer.elementMouseOver(function(d){
@@ -116,6 +124,29 @@ export function scatterChart(id, chart) {
       return layer.get_dataIds().map(function(e) { return layer.get_y(e);});
     }
 	});
+
+  layer.resetSymbolScale = function() {
+    //get range of symbol values
+    var range = [], ids = layer.dataIds();
+    for(var i = 0; i < ids.length; i++)
+      if(range.indexOf(layer.get_symbolValue(ids[i])) == -1)
+        range.push(layer.get_symbolValue(ids[i]));
+
+    var symbols = ["Circle", "Cross", "Diamond", "Square",
+                    "Star", "Triangle", "Wye"];
+
+    layer.symbolScale = d3.scaleOrdinal()
+      .domain(range)
+      .range(symbols);
+
+    layer.symbol(function(id) {
+      return layer.symbolScale(layer.get_symbolValue(id));
+    })
+
+    if(layer.chart.showLegend())
+      layer.addLegend(layer.symbolScale, "symbol", "symbol_" + layer.id);
+
+  }
 
   layer.updateElementLocation = function(){
     if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff){
@@ -198,8 +229,8 @@ export function scatterChart(id, chart) {
     sel
       .attr("d", function(d) {
         return d3.symbol()
-          .type(d3["symbol" + layer.get_symbolType(d)])
-          .size(get_symbolSize(layer.get_symbolType(d), layer.get_size(d)))();
+          .type(d3["symbol" + layer.get_symbol(d)])
+          .size(get_symbolSize(layer.get_symbol(d), layer.get_size(d)))();
       })
       .attr("fill", function(d) {return layer.get_colour(d)})
       .attr("stroke", function(d) {return layer.get_stroke(d)})

@@ -28,7 +28,8 @@ export function legend(chart) {
 		block.type = type;
 
 		legend.blocks[id] = block;
-		legend.updateGrid();
+		if(legend.location())
+			legend.updateGrid();
 
 		return legend.chart;
 	}
@@ -111,7 +112,7 @@ export function legend(chart) {
 					domain.splice(i, 1)
 				else
 					i++;
-				
+
 			legend.blocks[id].domain = domain;
 			newScale = scale;
 			if(scale.steps)
