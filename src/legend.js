@@ -140,15 +140,17 @@ export function legend(chart) {
 	}
 
 	legend.rename = function(oldId, newId) {
-		legend.blocks[newId] = legendBlocks.blocks[oldId];
+		legend.blocks[newId] = legend.blocks[oldId];
 		delete legend.blocks[oldId];
 		if(typeof legend.blocks[newId].layer !== "undefined")
 			legend.blocks[newId].layer.legendBlocks.splice(
 				legend.blocks[newId].layer.legendBlocks.indexOf(oldId), 1, newId
 			);
-		legend.g.select("#" + oldId)
-			.attr("id", newId);
-		legend.update();
+		if(legend.g){
+			legend.g.select("#" + oldId)
+				.attr("id", newId);
+			legend.update();
+		}
 
 		return legend.chart;
 	}

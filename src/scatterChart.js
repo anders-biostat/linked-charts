@@ -20,6 +20,7 @@ export function scatterChart(id, chart) {
     })
     .add_property("symbol", "Circle")
     .add_property("symbolValue")
+    .add_property("symbolLegendName", function(){return "symbol_" + layer.id})
 		.add_property("groupName", function(i){return i;})
     .add_property("informText", function(id){      
       var x = layer.get_x(id),
@@ -61,6 +62,16 @@ export function scatterChart(id, chart) {
   layer.symbolValue = function(vf, propertyName, overrideFunc) {
     var returnedValue = symbolValue(vf, propertyName, overrideFunc);
     layer.resetSymbolScale();
+    return returnedValue;
+  }
+
+  var symbolLegendName = layer.symbolLegendName;
+  layer.symbolLegendName = function(vf, propertyName, overrideFunc) {
+    if(vf)
+      var oldName = symbolLegendName();
+    var returnedValue = symbolLegendName(vf, propertyName, overrideFunc);
+    if(vf)
+      layer.chart.legend.rename(oldName, symbolLegendName());
     return returnedValue;
   }
 
@@ -144,7 +155,7 @@ export function scatterChart(id, chart) {
     })
 
     if(layer.chart.showLegend())
-      layer.addLegend(layer.symbolScale, "symbol", "symbol_" + layer.id);
+      layer.addLegend(layer.symbolScale, "symbol", layer.symbolLegendName());
 
   }
 

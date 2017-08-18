@@ -14,6 +14,7 @@ export function layerBase(id) {
 		.add_property("layerDomainY")
 		.add_property("contScaleX", true)
 		.add_property("contScaleY", true)
+    .add_property("")
     .add_property("colour", function(id) {
       return layer.colourScale(layer.get_colourValue(id));
     })
@@ -21,6 +22,7 @@ export function layerBase(id) {
     .add_property("palette")
     .add_property("colourRange")
     .add_property("colourValue", undefined)
+    .add_property("colourLegendName", function(){return "colour_" + layer.id})
 		.add_property("dresser", function(){});
 
 	layer.id = id;
@@ -140,14 +142,14 @@ export function layerBase(id) {
 
     layer.colourScale.domain = layer.colourValueScale.domain;
     if(layer.chart.showLegend())
-      layer.addLegend(layer.colourScale, "colour", "colour_" + layer.id);
+      layer.addLegend(layer.colourScale, "colour", layer.colourLegendName());
   }
 
-  layer.legendBloccks = [];
+  layer.legendBlocks = [];
 
   layer.addLegend = function(scale, type, id){
     layer.chart.legend.add(scale, type, id, layer);
-    layer.legendBloccks.push(id);
+    layer.legendBlocks.push(id);
 
     return layer; 
   }
