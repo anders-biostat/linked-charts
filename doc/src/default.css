@@ -62,3 +62,12 @@ div.dropdown-content a:hover {background-color: #c1c1d1}
   border-right: 4px solid transparent;
   border-left: 4px solid transparent;
 }
+
+div.container {
+  padding-top: 60px;
+  padding-bottom: 40px;
+  padding-left: 10%;
+  width: 60%;
+  font-size: 15px;
+  line-height: 150%;
+}
