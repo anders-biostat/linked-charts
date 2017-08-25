@@ -1,6 +1,6 @@
 import { chartBase } from "./chartBase";
 
-export function simpleTable() {
+export function table() {
 
   var chart = chartBase()
     .add_property( "record", {} )

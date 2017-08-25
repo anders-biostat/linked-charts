@@ -1,10 +1,10 @@
-import { axisChart } from "./chartBase";
 import { get_symbolSize } from "./additionalFunctions";
+import { axesChart } from "./axesChart";
 
-export function scatterChart(id, chart) {
+export function scatter(id, chart) {
 
 	if(chart === undefined)
-		chart = axisChart();
+		chart = axesChart();
 	if(id === undefined)
 		id = "layer" + chart.get_nlayers();
 
@@ -33,7 +33,7 @@ export function scatterChart(id, chart) {
     });
 	chart.syncProperties(layer);
 
-  layer.type = "scatterChart";
+  layer.type = "scatter";
 
   // Set default for numPoints, namely to count the data provided for x
   layer.nelements( function() {

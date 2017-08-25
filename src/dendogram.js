@@ -1,3 +1,6 @@
+import { base } from "./base";
+import { getEuclideanDistance } from "./additionalFunctions";
+
 var intersect = function(ar1, ar2)
 {
 	var ar_int = []
@@ -97,7 +100,7 @@ function Tree(id)
 
 export function dendogram(heatmap)
 {
-	var dendogram = lc.base()
+	var dendogram = base()
 		.add_property("orientation", "h")
 		.add_property("height", 100)
 		.add_property("width", 300)
@@ -105,20 +108,31 @@ export function dendogram(heatmap)
 		.add_property("dataIds", function(){return undefined}) //labIds
 		.add_property("margins", {left:20, top:20, bottom:20, right:20}) //padding
 		.add_property("distance", function(a, b){
-			return lc.getEuclideanDistance(a, b);			
+			return getEuclideanDistance(a, b);			
 		})
 		.add_property("data")
 		.add_property("scales")
 		.add_property("lineColours", ['black', 'red']);
 
-	dendogram.nelements("__override__", "dataIds", function()
-	{
-		return d3.range(dendogram.nelements());
-	})
-	dendogram.dataIds("__override__", "nelements", function()
-	{
-		return dendogram.dataIds().length;
-	})
+
+	//if number of elements is set, define their IDs
+	dendogram.wrapSetter("nelements", function(oldSetter){
+		return function() {
+			dendogram.get_dataIds = function(){
+				return d3.range(oldSetter()).map(function(e) {return e.toString()});
+			};
+			return oldSetter.apply(dendogram, arguments);
+		}
+	});
+	//if element IDs are set, define their number
+	dendogram.wrapSetter("dataIds", function(oldSetter){
+		return function() {
+			dendogram.get_nelements = function(){
+				return oldSetter().length;
+			};
+			return oldSetter.apply(dendogram, arguments);
+		}
+	});
 
 	dendogram.heatmap = heatmap;
 	dendogram.clusters = undefined;

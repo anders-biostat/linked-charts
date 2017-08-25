@@ -27,13 +27,31 @@ export function layerBase(id) {
 
 	layer.id = id;
 
-  layer.dataIds( "__override__", "nelements", function(){
-    return layer.get_dataIds().length;
+  //if number of elements is set, define their IDs
+  layer.wrapSetter("nelements", function(oldSetter){
+    return function() {
+      layer.get_dataIds = function(){
+        return d3.range(oldSetter()).map(function(e) {return e.toString()});
+      };
+      return oldSetter.apply(layer, arguments);
+    }
   });
-  layer.nelements( "__override__", "dataIds", function() {
-    return d3.range( layer.nelements() );
+  //if element IDs are set, define their number
+  layer.wrapSetter("dataIds", function(oldSetter){
+    return function() {
+      layer.get_nelements = function(){
+        return oldSetter().length;
+      };
+      return oldSetter.apply(layer, arguments);
+    }
   });
-  layer.colour( "__override__", "addColourScaleToLegend", false );
+
+  layer.wrapSetter("colour", function(colour) {
+    return function(){
+      layer.addColourScaleToLegend(false);
+      return colour.apply(layer, arguments);
+    }
+  })
 
   layer.colourRange(function() {
     var ids = layer.get_dataIds();

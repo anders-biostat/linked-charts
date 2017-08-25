@@ -7,33 +7,22 @@ export function base() {
     //save the name of the property
     obj.propList.push(propertyName);
 		
-    var getter = "get_" + propertyName,
-      overrideList = {};
+    var getter = "get_" + propertyName;
 
     //define the setter
-    obj[ propertyName ] = function( vf, propertyName, overrideFunc ) {
+    obj[ propertyName ] = function( vf, wrapFunc ) {
       //if value is not defined, consider this a getter call
       if( vf === undefined )
         return obj[ getter ]();      
 
-      //if setter is called in "override" mode, save the function
-      //to replace with it another property's getter each time this
-      //setter is called
-      if( vf == "__override__"){
-        if(typeof overrideFunc === "function")
-          overrideList[propertyName] = overrideFunc
-        else
-          overrideList[propertyName] = function() {return overrideFunc;}
-      } else {
-        if( typeof(vf) === "function" )
-          obj[ getter ] = vf
-        else
-          obj[ getter ] = function() { return vf };
+      //if value is a function replace the getter with it,
+      //otherwise replace getter with a function that returns this value
+      if( typeof(vf) === "function" )
+        obj[ getter ] = vf
+      else
+        obj[ getter ] = function() { return vf };
 
-        for(var i in overrideList)
-          obj["get_" + i] = overrideList[i];
-      }
-      
+
       //setter always returns chart, never layer
       if(obj.layers)
         return obj
@@ -49,6 +38,27 @@ export function base() {
 			obj[ getter ] = defaultValue
 		else
 			obj[ getter ] = function() { return defaultValue };
+    return obj;
+  }
+
+  //wraps a setter using the provided wrapper function
+  obj.wrapSetter = function(propertyName, wrapper){
+    if(typeof wrapper !== "function")
+      throw "Error in 'wrapSetter': wrapper is not a function."
+    if(obj.propList.indexOf(propertyName) == -1)
+      throw "Error in 'wrapSetter': this object doesn't have " + propertyName +
+        "property";
+
+    var oldSetter = obj[propertyName];
+    obj[propertyName] = function(){
+      //if no arguments were passed return the getter value
+      if(arguments.length == 0)
+        return obj["get_" + propertyName]();
+
+      //otherwise run the wrapped setter
+     return wrapper(oldSetter).apply(obj, arguments);
+    }
+    
     return obj;
   }
 	

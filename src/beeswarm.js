@@ -1,11 +1,15 @@
+import { axesChart } from "./axesChart";
+import { scatter } from "./scatter";
+
 export function beeswarm(id, chart) {
 
 	if(chart === undefined)
-		chart = lc.axisChart();
+		chart = axesChart();
 	if(id === undefined)
 		id = "layer" + chart.get_nlayers();
 
-  lc.scatterChart(id, chart);
+  scatter(id, chart);
+  
   var layer = chart.get_layer(id);
   layer.add_property("valueAxis", "y")
     .add_property("x_raw")

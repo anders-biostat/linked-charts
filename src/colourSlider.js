@@ -11,7 +11,7 @@ function make_stretched_sigmoid( midpoint, slope, xl, xr ) {
   return function(x) { return ( sigmoid( x, midpoint, slope, 1 ) - ym ) / Math.abs( yr - yl ) }
 }
 
-export function sigmoidColorSlider() {
+export function colourSlider() {
 
   // for now only horizontal
 

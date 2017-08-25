@@ -1,9 +1,9 @@
-import { axisChart } from "./chartBase";
+import { axesChart } from "./axesChart";
 
 function lineChart(id, chart){
 	
 	if(chart === undefined)
-		chart = axisChart();
+		chart = axesChart();
 	if(id === undefined)
 		id = "layer" + chart.get_nlayers();
 	

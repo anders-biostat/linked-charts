@@ -1,9 +1,9 @@
-import { axisChart } from "./chartBase";
+import { axesChart } from "./axesChart";
 
-export function barChart(id, chart){
+export function barchart(id, chart){
 	
 	if(chart === undefined)
-		chart = axisChart();
+		chart = axesChart();
 	if(id === undefined)
 		id = "layer" + chart.get_nlayers();
 	
@@ -27,25 +27,29 @@ export function barChart(id, chart){
 		});
 	chart.syncProperties(layer);
 
-	layer.type = "barChart";
+	layer.type = "barchart";
 
-	layer.ngroups("__override__", "groupIds", function(){
-		return d3.range(layer.ngroups()).map(function(e) {return e.toString()});
-	});
-	layer.groupIds("__override__", "ngroups", function(){
-		return layer.groupIds().length;
-	});
-	layer.nbars("__override__", "barIds", function(){
-		return d3.range(layer.nbars()).map(function(e) {return e.toString()});
-	});
-	layer.barIds("__override__", "nbars", function(){
-		return layer.barIds().length;
-	});
-	layer.nstacks("__override__", "stackIds", function(){
-		return d3.range(layer.nbars()).map(function(e) {return e.toString()});
-	});
-	layer.stackIds("__override__", "nstacks", function(){
-		return layer.stackIds().length;
+	//setting a number of elements or their IDs should replace
+	//each other
+	["group", "bar", "stack"].forEach(function(name){
+		//if number of elements is set, define their IDs
+		layer.wrapSetter("n" + name + "s", function(oldSetter){
+			return function() {
+				layer["get_" + name + "Ids"] = function(){
+					return d3.range(oldSetter()).map(function(e) {return e.toString()});
+				};
+				return oldSetter.apply(layer, arguments);
+			}
+		});
+		//if element IDs are set, define their number
+		layer.wrapSetter(name + "Ids", function(oldSetter){
+			return function() {
+				layer["get_n" + name + "s"] = function(){
+					return oldSetter().length;
+				};
+				return oldSetter.apply(layer, arguments);
+			}
+		});
 	});
 
 	layer.nbars(1);

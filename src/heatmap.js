@@ -1,8 +1,8 @@
-import { getEuclideanDistance, add_click_listener } from "./additionalFunctions";
+import { getEuclideanDistance, add_click_listener, escapeRegExp } from "./additionalFunctions";
 import { chartBase } from "./chartBase";
 import { dendogram } from "./dendogram";
 
-export function heatmapChart(id, chart){
+export function heatmap(id, chart){
 
 	var chart = chartBase()
 		.add_property("nrows")
@@ -38,24 +38,32 @@ export function heatmapChart(id, chart){
 
 	chart.margins({top: 100, left: 100, right: 10, bottom: 40});
 
-	chart.ncols("__override__", "colIds", function(){
-		return d3.range(chart.get_ncols()).map(function(e) {return e.toString()});
+	//setting a number of elements or their IDs should replace
+	//each other
+	["col", "row"].forEach(function(name){
+		//if number of elements is set, define their IDs
+		chart.wrapSetter("n" + name + "s", function(oldSetter){
+			return function() {
+				chart["get_" + name + "Ids"] = function(){
+					return d3.range(oldSetter()).map(function(e) {return e.toString()});
+				};
+				return oldSetter.apply(chart, arguments);
+			}
+		});
+		//if element IDs are set, define their number
+		chart.wrapSetter(name + "Ids", function(oldSetter){
+			return function() {
+				chart["get_n" + name + "s"] = function(){
+					return oldSetter().length;
+				};
+				var capitalised = name[0].toUpperCase() + name.slice(1);
+				oldSetter.apply(chart, arguments);
+				//if row or column IDs are changed, reset displayed IDs
+				chart["get_disp" + capitalised + "Ids"] = chart["get_" + name + "Ids"];
+				return chart;
+			}
+		});
 	});
-	chart.nrows("__override__", "rowIds", function(){
-		return d3.range(chart.get_nrows()).map(function(e) {return e.toString()});
-	});
-	chart.rowIds("__override__", "nrows", function(){
-		return chart.get_rowIds().length;
-	});
-	chart.colIds("__override__", "ncols", function(){
-		return chart.get_colIds().length;
-	});
-	chart.rowIds("__override__", "dispRowIds", function(){
-		return chart.rowIds();
-	})
-	chart.colIds("__override__", "dispColIds", function(){
-		return chart.colIds();
-	})
 
 	chart.axes = {};
 	chart.marked = [];
@@ -511,7 +519,7 @@ export function heatmapChart(id, chart){
 	}
 
 	chart.zoom = function(lu, rb){
-		var selectedCells = chart.findElemnts(lu, rb);
+		var selectedCells = chart.findElements(lu, rb);
 		if(selectedCells.length < 2)
 			return;
 		var rowIdsAll = [], colIdsAll = [];
@@ -1079,7 +1087,7 @@ export function heatmapChart(id, chart){
 
 		if(get_mode() == "svg") 
 			return (data.length > 0) ?
-				chart.svg.selectAll("#" + lc.escapeRegExp(data.join(", #").replace(/ /g, "_"))) :
+				chart.svg.selectAll("#" + escapeRegExp(data.join(", #").replace(/ /g, "_"))) :
 				chart.svg.selectAll("______");
 		else
 			return data;

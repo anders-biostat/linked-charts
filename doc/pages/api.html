@@ -1,5 +1,8 @@
 <head>
 <link rel = "stylesheet" type = "text/css" href = "../src/default.css">
+<link rel = "stylesheet" type = "text/css" href = "../src/strapdown.css">
+<link rel = "stylesheet" type = "text/css" href = "../src/themes/bootstrap-responsive.min.css">
+<link rel = "stylesheet" type = "text/css" href = "../src/themes/simplex.min.css">
 <script src="https://d3js.org/d3.v4.min.js"></script>
 </head>
 <body>
@@ -521,15 +524,111 @@
         <h2>lc.chart()</h2>
         <p class = "description">Predecessor of all the charts in the library.</p>
         <h3>Properties</h3>
+
         <p class = "method">width</p>
-        <p class = "methodDescription"></p>
+        <p class = "methodDescription">Sets width of the chart.</p>
+        <h4>Type</h4>
+        <p>Number in pixels.</p>
+        <h4>Default value</h4>
+        <p>500</p>
+
+        <p class = "method">height</p>
+        <p class = "methodDescription">Sets height of the chart.</p>
+        <h4>Type</h4>
+        <p>Number in pixels.</p>
+        <h4>Default value</h4>
+        <p>500</p>
+
+        <p class = "method">margins</p>
+        <p class = "methodDescription">Sets chart margins. Margins are used to
+        place labels, axes, titles, dendograms and other additional chart
+        elements.</p>
+        <h4>Type</h4>
+        <p>Object with four required properties: <tt>top</tt>, <tt>left</tt>, 
+        <tt>right</tt>, <tt>bottom</tt>. Each property should have a numeric 
+        value.</p>
+        <p><b>Important!</b> A property setter always replaces old value with the
+        new one, so you need to always define all four margins. If you want to 
+        reset only few of them, use <tt>set_margins</tt> function.
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+{top: 15, right: 10, bottom: 50, left: 50}
+        </pre>
+
+        <p class = "method">title</p>
+        <p class = "methodDescription">Sets a main title of the chart.</p>
+        <h4>Type</h4>
+        <p>String</p>
+        <h4>Default value</h4>
+        <p>"" <i>(empty string)</i></p>
+
+        <p class = "method">titleX</p>
+        <p class = "methodDescription">X coordinate of the main title's center relative to
+        the chart. By default the titled is aligned centrally.</p>
+        <h4>Type</h4>
+        <p>Number is pixels.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function() {
+  return chart.width() / 2;
+}
+        </pre>
+
+        <p class = "method">titleY</p>
+        <p class = "methodDescription">Y coordinate of the main title's top-left corner relative to
+        the chart.</p>
+        <h4>Type</h4>
+        <p>Number is pixels.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function() {
+  return d3.min([17, chart.margins().top * 0.9]);
+}
+        </pre>
+
+        <p class = "method">titleSize</p>
+        <p class = "methodDescription">Font size of the main chart title.</p>
+        <h4>Type</h4>
+        <p>Number is pixels.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function() {
+  return d3.min([15, chart.margins().top * 0.8]);
+}
+        </pre>
+
+        <p class = "method">showPanel</p>
+        <p class = "methodDescription">Defines whether to show instrument panel.</p>
+        <h4>Type</h4>
+        <p>Boolean</p>
+        <h4>Default value</h4>
+        <p><tt>true</tt></p>        
+
+        <p class = "method">transitionDuration</p>
+        <p class = "methodDescription">Sets duration of transition effects for the
+        chart. If this is set to zero, no transition will be applied which may help
+        with performance issues.</p>
+        <h4>Type</h4>
+        <p>Number in ms.</p>
+        <h4>Default value</h4>
+        <p>1000</p>
+
+        <p class = "method">markedUpdated</p>
+        <p class = "methodDescription">Defines actions that should be performed, when 
+        elements are selected/deselected. Check this example for more details.</p>
+        <h4>Type</h4>
+        <p>Function</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function() {}
+        </pre>
 
       </div>
       <div class = "info" id = "base">
-        <h2>lc.base()</h2>
+        <h3>lc.base()</h3>
         <p class = "description">Basic class that provide property functionality.
           All the classes in the library inherit from it.</p>
-        <h3>Methods</h3>
+        <h4>Methods</h4>
         <p class = "method">add_property(propertyName, [defaultValue])</p>
         <p class = "methodDescription">Adds a property with a specified name and 
         default value to this object defining a getter and a setter.</p>
@@ -538,14 +637,21 @@
         <p class = "argument"><span>defaultValue</span> <i>(optional)</i> - <b>anything</b>
           - default value for the new property. Can also be a fuction that returns value.</p>
         <pre class = "tiy" runnable = "false">
-          chart.add_property("property1")
-            .add_property("property2", function() {return value;})
-            .add_property("property3", value3);
+chart.add_property("property1")
+  .add_property("property2", function() {return value;})
+  .add_property("property3", value3);
         </pre>
       </div>
     </td>
   </tr>
 </table>
+<script src="../src/codeMirror/codemirror.js"></script>
+<link rel="stylesheet" href="../src/codeMirror/codemirror.css"> 
+<link rel="stylesheet" href="../src/codeMirror/mdn-like.css">
+<script src="../src/codeMirror/javascript.js"></script>
+<script src="../src/tiy.js"></script>
+<link rel="stylesheet" href="../src/tiy.css">
+<script>tiy.make_boxes();</script>
 <script type="text/javascript">
   d3.select("#page").selectAll(".info")
     .style("display", "none");

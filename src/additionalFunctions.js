@@ -225,7 +225,7 @@ export function add_click_listener(chart){
   var on_mouseup = function(){
     var pos = d3.mouse(this);
 
-    var mark = d3.event.shiftKey || chart.selectMode;
+    var mark = d3.event.shiftKey || chart.selectMode();
     // remove selection frame
     chart.container.selectAll(".inform")
       .classed("blocked", false);
@@ -309,6 +309,7 @@ export function add_click_listener(chart){
 
     //if there is an active canvas (only for heatmaps)
     if(chart.canvas && chart.canvas.classed("active")){
+      var data;
       for(var i = 0; i < clicked.length; i++){
         data = clicked[i].substr(1).split("_-sep-_");
         chart.get_on_click(data[0], data[1]);
