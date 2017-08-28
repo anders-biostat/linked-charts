@@ -521,7 +521,7 @@
         <h2>lc.chart.legend</h2>
       </div>
       <div class = "info" id = "chart">
-        <h2>lc.chart()</h2>
+        <h2>lc.chartBase()</h2>
         <p class = "description">Predecessor of all the charts in the library.</p>
         <h3>Properties</h3>
 
@@ -623,12 +623,85 @@ function() {
 function() {}
         </pre>
 
+        <h4>Methods</h4>
+
+        <p class = "method">place([element])</p>        
+        <p class = "methodDescription">Initialises and places the chart in the provided container on 
+        the page. Need to be called once for each chart.</p>
+        <p class = "argument"><span>element</span> <i>optional</i> - <b>d3.selection | valid selectot</b> 
+        - an existing container on the page, where the chart should be placed. If not specified, chart is
+        placed in the body of the page.</p>
+        
+        <p class = "method">set_margins(margins)</p>        
+        <p class = "methodDescription">Unlike <tt>margins</tt> setter, allows to change only some of
+        the margins, but doesn't accept functions as arguments.</p>
+        <p class = "argument"><span>margins</span> - <b>object</b> - new margins. The object should 
+        have a property for each field you want to set (<tt>right, left, top, bottom</tt>), containing 
+        desired size in pixels. If a property is not defined, the respective margin will remain as it is.</p>
+        <pre class = "tiy" runnable = "false">
+chart.set_margins({right: 100, bottom: 70});
+        </pre>
+
+        <p class = "method">updateSize()</p>        
+        <p class = "methodDescription">Updates the size and location of all the elements inside the 
+        chart.</p>
+
+        <p class = "method">updateTitle()</p>        
+        <p class = "methodDescription">Updates the main title of the chart.</p>
+
+        <p class = "method">update()</p>        
+        <p class = "methodDescription">Updates all the elements of the chart.</p>
+
+        <p class = "method">get_elements(ids)</p>        
+        <p class = "methodDescription">Selects all svg elements, defined by the provided IDs, returns
+        d3.selection.</p>
+        <p class = "argument"><span>ids</span> - <b>array</b> - a list of IDs or pairs of IDs for 
+        heatmaps.        
+
+        <p class = "method">mark(elements)</p>        
+        <p class = "methodDescription">Swihches the state of all the provided elements (either selects,
+        or deselects them). Also accepts <tt>__clear__</tt> command to deselect everything.</p>
+        <p class = "argument"><span>elements</span> - <b>d3.selection | array | string</b> - a list of 
+        elements to switch the state. This can be a <tt>d3.selection</tt>, an array of data point IDs,
+        or <tt>__clear</tt> command.</p>
+
+        <p class = "method">get_marked()</p>        
+        <p class = "methodDescription">Returns an array of IDs of all currently selected elements.</p>
+
+        <p class = "method">selectMode([value])</p>        
+        <p class = "methodDescription">Sets or returns an indicator that shows wherher or not the
+        chart is in the selection mode (if so, points are not clicked, but selected or deselected on
+        mouseclick event).</p>
+        <p class = "argument"><span>value</span> <i>(optional)</i> - <b>boolean</b> - if defined, 
+        turns on or off the selection mode. If not defined, returns <tt>true</tt> is selection mode
+        is active and <tt>false</tt> otherwise.</p>
+
+        <p class = "method">pan(property, [value])</p>        
+        <p class = "methodDescription">Sets or returns value of either the indicator for pan mode
+        (<tt>mode</tt>), or the start position of the chart for panning (<tt>down</tt>).</p>
+        <p class = "argument"><span>property</span> - <b>string</b> - property of the pan object,
+        you want to access. Should be either <tt>mode</tt> or <tt>down</tt></p>
+        <p class = "argument"><span>value</span> <i>(optional)</i> - <b>boolean</b> - replaces the
+        current value of the selected property and returns chart. Otherwise returns current value of
+        the selected property.</p>
+
+        <p class = "method">put_static_content(element)</p>        
+        <p class = "methodDescription">Create all the static elements (e.g. div and svg containers),
+        used by this chart and puts them inside the provided element (<tt>d3.selection</tt>).
+        <b>Important!</b> This function is to be called only once and is called by the <tt>place</tt>
+        function.</p>
+        <p class = "argument"><span>element</span> - <b>d3.selection</b> - an existing
+        container on the page, where the chart should be placed.</p>
+
       </div>
       <div class = "info" id = "base">
         <h3>lc.base()</h3>
         <p class = "description">Basic class that provide property functionality.
-          All the classes in the library inherit from it.</p>
+          All the classes in the library inherit from it. Methods of this class 
+          are used to create new classes, and their understanding is not required
+          for the usage of the library.</p>
         <h4>Methods</h4>
+
         <p class = "method">add_property(propertyName, [defaultValue])</p>
         <p class = "methodDescription">Adds a property with a specified name and 
         default value to this object defining a getter and a setter.</p>
@@ -641,6 +714,24 @@ chart.add_property("property1")
   .add_property("property2", function() {return value;})
   .add_property("property3", value3);
         </pre>
+
+        <p class = "method">wrapSetter(propertyName, wrapper)</p>
+        <p class = "methodDescription">Changes an existing setter, allowing additional actions
+        to be performed on each setter call. Can be used for type checks or handling conflicting
+        properties.</p>
+        <p class = "argument"><span>propertyName</span> - <b>string</b> - name of the property,
+        whose setter to wrap. This property must already exist.</p>
+        <p class = "argument"><span>wrapper</span> - <b>function</b> - a wrapper function factory.
+        It supposed to take the old setter as an argument and return a new setter.</p>
+        <pre class = "tiy" runnable = "false">
+chart.wrapSetter("width", function(width) {
+  return function() {
+    chart.get_plotWidth = plotWidth_default;
+    return width.apply(chart, arguments);
+  }
+});
+        </pre>
+
       </div>
     </td>
   </tr>

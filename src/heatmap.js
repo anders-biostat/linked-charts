@@ -1131,12 +1131,12 @@ export function heatmap(id, chart){
 		return chart;
 	}	
 	
-	chart.pan.move = function(p) {
-		var move = [p[0] - chart.pan.down[0], p[1] - chart.pan.down[1]],
+	chart.panMove = function(p) {
+		var move = [p[0] - chart.pan("down")[0], p[1] - chart.pan("down")[1]],
 			addRows = Math.floor(Math.abs(move[1] / chart.cellSize.height)),
 			addCols = Math.floor(Math.abs(move[0] / chart.cellSize.width));
-		chart.pan.down[0] += Math.sign(move[0]) * addCols * chart.cellSize.width;
-		chart.pan.down[1] += Math.sign(move[1]) * addRows * chart.cellSize.height;
+		chart.pan("down")[0] += Math.sign(move[0]) * addCols * chart.cellSize.width;
+		chart.pan("down")[1] += Math.sign(move[1]) * addRows * chart.cellSize.height;
 
 		chart.dispColIds(chart.addLines(-Math.sign(move[0]) * addCols, "right"));
 		chart.dispColIds(chart.addLines(Math.sign(move[0]) * addCols, "left"));

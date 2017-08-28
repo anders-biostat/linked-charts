@@ -351,19 +351,19 @@ export function axesChart() {
 		return ticks;
 	}
 
-	chart.pan.move = function(p){
+	chart.panMove = function(p){
 		var domainX = chart.axes.scale_x.domain(),
 			domainY = chart.axes.scale_y.domain();
 		if(chart.axes.scale_x.invert){
 			var invPx = chart.axes.scale_x.invert(p[0]),
-				moveX = invPx - chart.axes.scale_x.invert(chart.pan.down[0]);
-			chart.pan.down[0] = p[0];
+				moveX = invPx - chart.axes.scale_x.invert(chart.pan("down")[0]);
+			chart.pan("down")[0] = p[0];
 			chart.domainX([domainX[0] - moveX, domainX[1] - moveX]);
 		} else {
-			var moveX = p[0] - chart.pan.down[0],
+			var moveX = p[0] - chart.pan("down")[0],
 				steps = Math.floor(Math.abs(moveX) / chart.axes.scale_x.step() * 2);
 			if(steps > 0){
-				chart.pan.down[0] += Math.sign(moveX) * steps * chart.axes.scale_x.step() /2;
+				chart.pan("down")[0] += Math.sign(moveX) * steps * chart.axes.scale_x.step() /2;
 				var origDomainX = chart.origDomainX(),
 					start = origDomainX.indexOf(domainX[0]),
 					end = origDomainX.indexOf(domainX[domainX.length - 1]);
@@ -380,14 +380,14 @@ export function axesChart() {
 
 		if(chart.axes.scale_y.invert){
 			var invPy = chart.axes.scale_y.invert(p[1]),
-				moveY = invPy - chart.axes.scale_y.invert(chart.pan.down[1]);
-			chart.pan.down[1] = p[1];
+				moveY = invPy - chart.axes.scale_y.invert(chart.pan("down")[1]);
+			chart.pan("down")[1] = p[1];
 			chart.domainY([domainY[0] - moveY, domainY[1] - moveY]);
 		} else {
-			var moveY = p[1] - chart.pan.down[1],
+			var moveY = p[1] - chart.pan("down")[1],
 				steps = Math.floor(Math.abs(moveY) / chart.axes.scale_y.step() * 2);
 			if(steps > 0){
-				chart.pan.down[1] += Math.sign(moveY) * steps * chart.axes.scale_y.step() / 2;
+				chart.pan("down")[1] += Math.sign(moveY) * steps * chart.axes.scale_y.step() / 2;
 				var origDomainY = chart.origDomainY(),
 					start = origDomainY.indexOf(domainY[0]),
 					end = origDomainY.indexOf(domainY[domainY.length - 1]);

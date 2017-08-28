@@ -136,16 +136,16 @@ export function add_click_listener(chart){
     downThis = d3.mouse(this)
     wait_click = window.setTimeout(function() {wait_click = null;}, 1000);
     var p = d3.mouse(this);  //Mouse position on the heatmap
-    if(!chart.pan.mode)
+    if(!chart.pan("mode"))
       chart.svg.selectAll(".plotArea").append("rect")
         .attr("class", "selection")
         .attr("x", p[0])
         .attr("y", p[1])
         .attr("width", 1)
         .attr("height", 1);
-    if(chart.pan.mode){
+    if(chart.pan("mode")){
       panStarted = true;
-      chart.pan.down = downThis;
+      chart.pan("down", downThis);
       chart.transitionOff = true;
     }
     chart.container.selectAll(".inform")
@@ -159,7 +159,6 @@ export function add_click_listener(chart){
       if(panStarted) {
         panStarted = false;
         chart.transitionOff = false;
-        chart.pan.down = undefined;
       }
 
       document.onmouseup = null;
@@ -174,7 +173,7 @@ export function add_click_listener(chart){
       if(!wait){
         wait = true;
         setTimeout(function() {wait = false}, 100);
-        chart.pan.move(p);
+        chart.panMove(p);
       }
       return;
     }
@@ -260,10 +259,9 @@ export function add_click_listener(chart){
             wait_dblClick = null;
             if(panStarted) {
               panStarted = false;
-              chart.pan.move(pos);
+              chart.panMove(pos);
               chart.container.selectAll(".inform").classed("blocked", false);
               chart.transitionOff = false;
-              chart.pan.down = undefined;
               return;
             }          
           };
@@ -275,10 +273,9 @@ export function add_click_listener(chart){
 
     if(panStarted) {
       panStarted = false;
-      chart.pan.move(pos);
+      chart.panMove(pos);
       chart.container.selectAll(".inform").classed("blocked", false);
       chart.transitionOff = false;
-      chart.pan.down = undefined;
       return;
     }
 
