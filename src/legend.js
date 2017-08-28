@@ -6,13 +6,18 @@ export function legend(chart) {
 		.add_property("width", 200)
 		.add_property("height", function() {return chart.height();})
 		.add_property("sampleHeight", 20)
-		.add_property("ncol", undefined)
-		.add_property("location");
+		.add_title(function(id) {return id;})
+		.add_property("ncol")
+		.add_property("container");
 
-	legend.blocks = {};
+	var locks = {};
 	legend.chart = chart;
 
-	legend.add = function(scale, type, id, layer){
+	legend.get_nblocks = function() {
+		return Object.keys(blocks).length;
+	}
+
+	legend.add_block = function(scale, type, id, layer){
 		//scale can be an array or d3 scale. If scale is an array,
 		//we need to turn it into a scale
 		var block = {};
@@ -20,15 +25,17 @@ export function legend(chart) {
 			block.scale = scale
 		else
 			block.scale = function() {return scale;};
+		
 		if(typeof layer !== "undefined")
 			block.layer = layer;
-		if(["colour", "size", "style", "symbol", "dash"].indexOf(type) == -1)
-			throw "Error in 'legend.add': " + type + " is not a suitable type of legend block. " +
+		if(["colour", "size", "symbol", "dash"].indexOf(type) == -1)
+			throw "Error in 'legend.add_block': " + type + " is not a suitable type of legend block. " +
 				"Please, use one of these: 'colour', 'size', 'symbol', 'dash'";
 		block.type = type;
 
-		legend.blocks[id] = block;
-		if(legend.location())
+		blocks[id] = block;
+		
+		if(legend.container())
 			legend.updateGrid();
 
 		return legend.chart;
@@ -44,7 +51,7 @@ export function legend(chart) {
 		return legend.chart;
 	}
 
-	legend.convertScale = function(id) {
+	 var convertScale = function(id) {
 		var scale, newScale;
 		if(typeof legend.blocks[id].scale === "function")
 			scale = legend.blocks[id].scale();
@@ -56,7 +63,7 @@ export function legend(chart) {
 			var scCont = false,
 				rCont = false;
 			if(scale.length == 1)
-				throw "Error in 'legend.add': range of the scale is not defined.";
+				throw "Error in 'legend.convertScale': range of the scale is not defined.";
 			if(scale[0].length == 2 && typeof scale[0][0] === "number" && 
 																typeof scale[0][1] === "number")
 				scCont = true;
@@ -99,12 +106,12 @@ export function legend(chart) {
 		} else {
 			//scale is a function it is either a d3 scale or it has a domain property
 			if(typeof scale !== "function")
-				throw "Error in 'legend.add': the type of scale argument is not suported. " +
+				throw "Error in 'legend.convertScale': the type of scale argument is not suported. " +
 					"Scale should be an array or a function."
 			var domain;
 			typeof scale.domain === "function" ? domain = scale.domain() : domain = scale.domain;
 			if(typeof domain === "undefined")
-				throw "Error in 'legend.add': the domain of the scale is not defined.";
+				throw "Error in 'legend.convertScale': the domain of the scale is not defined.";
 			//look for undefined values in the domain and remove them
 			var i = 0;
 			while(i < domain.length)
@@ -124,7 +131,7 @@ export function legend(chart) {
 		return newScale;
 	}
 
-	legend.remove = function(id) {
+	legend.removeBlock = function(id) {
 		if(typeof legend.blocks[id] === "undefined")
 			throw "Error in 'legend.remove': block with ID " + id +
 			" doesn't exist";
@@ -139,7 +146,7 @@ export function legend(chart) {
 		return legend.chart;
 	}
 
-	legend.rename = function(oldId, newId) {
+	legend.renameBlock = function(oldId, newId) {
 		legend.blocks[newId] = legend.blocks[oldId];
 		delete legend.blocks[oldId];
 		if(typeof legend.blocks[newId].layer !== "undefined")
@@ -149,12 +156,12 @@ export function legend(chart) {
 		if(legend.g){
 			legend.g.select("#" + oldId)
 				.attr("id", newId);
-			legend.update();
+			legend.updateBlock(newId);
 		}
 
 		return legend.chart;
 	}
-	legend.updateGrid = function() {
+var updateGrid = function() {
 		//define optimal layout for all the blocks
 		//and create a table
 		var bestWidth, bestHeight,
@@ -175,12 +182,12 @@ export function legend(chart) {
 			bestWidth = legend.ncol();
 			bestHeight = Math.ceil(n / bestWidth);
 		}
-		legend.location().select(".legendTable").remove();
-		legend.location().append("table")
+		legend.container().select(".legendTable").remove();
+		legend.container().append("table")
 			.attr("class", "legendTable")
 			.selectAll("tr").data(d3.range(bestHeight))
 				.enter().append("tr");
-		legend.location().selectAll("tr").selectAll("td")
+		legend.container().selectAll("tr").selectAll("td")
 			.data(function(d) {
 				return d3.range(bestWidth).map(function(e) {
 					return [d, e];
@@ -203,9 +210,9 @@ export function legend(chart) {
 			throw "Error in 'legend.updateBlock': block with ID " + id +
 				" is not defined";
 
-		var scale = legend.convertScale(id),
-			tableCell = legend.location().select("#" + id.replace(/ /g, "_")),
-			cellWidth = legend.width() / legend.location().select("tr").selectAll("td").size(),
+		var scale = convertScale(id),
+			tableCell = legend.container().select("#" + id.replace(/ /g, "_")),
+			cellWidth = legend.width() / legend.container().select("tr").selectAll("td").size(),
 			steps = scale.steps,
 			cellHeight = legend.sampleHeight() * steps;
 
@@ -220,7 +227,7 @@ export function legend(chart) {
 			title = blockSvg.append("g")
 				.attr("class", "title");
 		var titleWidth = d3.min([20, cellWidth * 0.2]);
-		fillTextBlock(title, cellHeight, titleWidth, id);
+		fillTextBlock(title, cellHeight, titleWidth, legend.get_title(id));
 		title.attr("transform", "rotate(-90)translate(-" + cellHeight + ", 0)");
 
 		var sampleValues;
@@ -298,7 +305,7 @@ export function legend(chart) {
 		});		
 	}
 	legend.update = function() {
-		legend.updateGrid();
+		updateGrid();
 	}
 
 	return legend;

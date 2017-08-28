@@ -3,18 +3,14 @@ import { xLine, yLine, parametricCurve} from "./lines";
 import { scatter } from "./scatter";
 import { beeswarm } from "./beeswarm";
 import { barchart } from "./barchart";
-import { legend } from "./legend";
 import { layerBase } from "./layerBase";
 import { add_click_listener } from "./additionalFunctions"
 
 export function layerChart(){
 	var chart = chartBase()
 		.add_property("activeLayer", undefined)
-		.add_property("showLegend", true)
 		.add_property("layerIds", function() {return Object.keys(chart.layers);})
 		.add_property("layerType", function(id) {return chart.get_layer(id).type;});
-	
-	chart.legend = legend(chart);
 
 	//Basic layer functionality
 	chart.layers = {};
@@ -184,17 +180,6 @@ export function layerChart(){
 	var inherited_put_static_content = chart.put_static_content;
 	chart.put_static_content = function(element){
 		inherited_put_static_content(element);
-		chart.container
-			.append("table")
-				.append("tr")
-					.append("td").node()
-						.appendChild(chart.svg.node());
-		//chart.svg.remove();
-		chart.svg = chart.container.selectAll("svg");
-
-		//add a cell for the legend
-		chart.legend.location(chart.container.selectAll("tr")
-													.append("td").attr("id", "legend"));
 
 		add_click_listener(chart);
 		for(var k in chart.layers)
@@ -222,8 +207,6 @@ export function layerChart(){
 		}
 		
 		inherited_update();
-		if(chart.showLegend() && Object.keys(chart.legend.blocks).length > 0)
-			chart.legend.update();
 		return chart;
 	}
 

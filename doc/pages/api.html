@@ -1,5 +1,6 @@
 <head>
 <link rel = "stylesheet" type = "text/css" href = "../src/default.css">
+<link rel = "stylesheet" type = "text/css" href = "../src/api.css">
 <link rel = "stylesheet" type = "text/css" href = "../src/strapdown.css">
 <link rel = "stylesheet" type = "text/css" href = "../src/themes/bootstrap-responsive.min.css">
 <link rel = "stylesheet" type = "text/css" href = "../src/themes/simplex.min.css">
@@ -517,29 +518,176 @@
       <div class = "info" id = "panel">
         <h2>lc.chart.panel</h2>
       </div>
+      
       <div class = "info" id = "legend">
-        <h2>lc.chart.legend</h2>
-      </div>
-      <div class = "info" id = "chart">
-        <h2>lc.chartBase()</h2>
-        <p class = "description">Predecessor of all the charts in the library.</p>
+        <h2>lc.legend(chart)</h2>
+        <p class = "description">Legend show, how colour, size or shape of data points
+        (lines, cells etc.) corresponds to some data properties or values. Legend consists
+        of several independent blocks, each having its own type, scale and title. Setting 
+        properties like <tt><a>colourValue</a></tt> or <tt><a>symbolValue</a></tt> will
+        automatically add a corresponding block to the legend. In other cases legend needs
+        to be created manually.</p>
+
         <h3>Properties</h3>
 
-        <p class = "method">width</p>
+        <p class = "method"><a>width</a></p>
+        <p class = "methodDescription">Sets width of the legend.</p>
+        <h4>Type</h4>
+        <p>Number in pixels.</p>
+        <h4>Default value</h4>
+        <p>200</p>
+
+        <p class = "method"><a>height</a></p>
+        <p class = "methodDescription">Sets height of the legend.</p>
+        <h4>Type</h4>
+        <p>Number in pixels.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function() {return chart.height();}
+        </pre>      
+
+        <p class = "method"><a>ncol</a></p>
+        <p class = "methodDescription">All blocks of the legend are arranged in a rectangular grid.
+        This property sets number of columns for this grid. If undefined, the legend attempts to 
+        estimate a suitable number of columns automatically</p>
+        <h4>Type</h4>
+        <p>Number in pixels.</p>
+        <h4>Default value</h4>
+        <p><tt>undefined</tt></p>
+
+        <p class = "method"><a>container</a></p>
+        <p class = "methodDescription">An existing container on the page, where to place the 
+        legend. By default any chart is located in a two-cell table: one cell is for the chart, 
+        the other - for the legend.</p>
+        <h4>Type</h4>
+        <p>A valid selector or <a href="https://github.com/d3/d3/blob/master/API.md#selections-d3-selection">d3.selection</a></p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+chart.container
+  .select("table")
+    .select("tr")
+      .select("#legend");
+        </pre>
+
+        <p class = "method"><a>sampleHeight</a></p>
+        <p class = "methodDescription">Height of each element of the legend (e.g. of the
+        coloured box or of symbol, etc.).</p>
+        <h4>Type</h4>
+        <p>Number in pixels.</p>
+        <h4>Default value</h4>
+        <p>20</p>
+
+        <h3>Methods</h3>        
+
+        <p class = "method"><a>get_nblocks</a>()</p>        
+        <p class = "methodDescription">Returns current number of blocks of this legend.</p>
+
+        <p class = "method"><a>add_block</a>(scale, type, id, [layer])</p>        
+        <p class = "methodDescription">Adds a new block to the legend. If the legend has already
+        been initialised, then also updates it.</p>
+        <h4>Arguments</h4>
+        <p class = "argument"><span>scale</span> - <b>array | function</b> - a fucntion or an array
+        that defines mapping from colours (symbols, sizes, etc.) to names or values. It can be an array
+        with an array of names or values as its first element and with an array of corresponding colours, 
+        dashes, symbols, etc. as its second one. It also can be a <a href = "https://github.com/d3/d3/blob/master/API.md#scales-d3-scale">d3.scale</a> or any other custom-made function
+        that will transform colours (or anything else you want to show) into names or values.
+        <b>Imortant!</b> If you construct a scale function, you need to define a domain property, which is
+        an array of all the values of colour, shape, etc. you want to annotate.</p>
+        <p class = "argument"><span>type</span> - <b>string</b> - a type of this new block.
+        Currently supported types are <tt>"colour", "size", "symbol", "dash"</tt>.</p>
+        <p class = "argument"><span>id</span> - <b>string</b> - ID for the new block. Each ID must be
+        unique. If a block with the same ID already exists, it will be replaced with the new one.
+        by default IDs are alse used as titles, but this can be changed by the <tt><a>title</a></tt>
+        property.</p>
+        <p class = "argument"><span>layer</span> <i>(optional)</i> - <b>object</b> - if you want a 
+        block to be associated with one of the chart's layers, you can pass this layer as a fourth
+        argument when adding a block.</p>
+        <pre class = "tiy" runnable = "false">
+curveFit.legend.ncol(1)
+  .legend.add([["RTG", "CTX"], ["Wye", "Triangle"]], "symbol", "screen")
+  .legend.add([["RTG", "CTX"], [undefined, 5]], "dash", "fit");
+        </pre>
+
+        <p class = "method"><a>updateScale</a>(scale, id)</p>        
+        <p class = "methodDescription">Replaces a scale of an existing block with a new one and updates
+        block.</p>
+        <h4>Arguments</h4>
+        <p class = "argument"><span>scale</span> - <b>array | function</b> - a fucntion or an array
+        that defines mapping from colours (symbols, sizes, etc.) to names or values. It can be an array
+        with an array of names or values as its first element and with an array of corresponding colours, 
+        dashes, symbols, etc. as its second one. It also can be a <a href = "https://github.com/d3/d3/blob/master/API.md#scales-d3-scale">d3.scale</a> or any other custom-made function
+        that will transform colours (or anything else you want to show) into names or values.
+        <b>Imortant!</b> If you construct a scale function, you need to define a domain property, which is
+        an array of all the values of colour, shape, etc. you want to annotate.</p>
+        <p class = "argument"><span>id</span> - <b>string</b> - ID of the block to change the scale.</p>
+
+        <p class = "method"><a>renameBlock</a>(oldId, newId)</p>        
+        <p class = "methodDescription">Changes ID of an existing block and updates it.</p>
+        <h4>Arguments</h4>
+        <p class = "argument"><span>oldId</span> - <b>string</b> - old ID of the block.</p>        
+        <p class = "argument"><span>newId</span> - <b>string</b> - new ID for this block.</p>        
+
+        <p class = "method"><a>removeBlock</a>(id)</p>        
+        <p class = "methodDescription">removes an existing block and updates the legend.</p>
+        <h4>Arguments</h4>
+        <p class = "argument"><span>id</span> - <b>string</b> - ID of the block to be removed.</p>        
+
+        <p class = "method"><a>updateBlock</a>(id)</p>        
+        <p class = "methodDescription">update an existing block.</p>
+        <h4>Arguments</h4>
+        <p class = "argument"><span>id</span> - <b>string</b> - ID of the block to be updated.</p>
+
+        <p class = "method"><a>update</a>()</p>        
+        <p class = "methodDescription">update all elements of the legend.</p>   
+      </div>
+      
+      <div class = "info" id = "chart">
+        <h2>lc.chartBase()</h2>
+        <p class = "description">Predecessor of all the charts in the <tt>linked-charts</tt> library.</p>
+        
+        <h3>Properties</h3>
+
+        <p class = "method"><a>width</a></p>
         <p class = "methodDescription">Sets width of the chart.</p>
         <h4>Type</h4>
         <p>Number in pixels.</p>
         <h4>Default value</h4>
         <p>500</p>
 
-        <p class = "method">height</p>
+        <p class = "method"><a>height</a></p>
         <p class = "methodDescription">Sets height of the chart.</p>
         <h4>Type</h4>
         <p>Number in pixels.</p>
         <h4>Default value</h4>
         <p>500</p>
 
-        <p class = "method">margins</p>
+        <p class = "method"><a>plotWidth</a></p>
+        <p class = "methodDescription">Sets width of the plotting area of the chart.</p>
+        <h4>Type</h4>
+        <p>Number in pixels.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function() {
+  return chart.width() - (chart.margins().right + chart.margins().left);
+}
+        </pre>
+
+        <p class = "method"><a>plotHeight</a></p>
+        <p class = "methodDescription">Sets height of the plotting area of the chart.</p>
+        <h4>Type</h4>
+        <p>Number in pixels.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function() {
+  return chart.height() - (chart.margins().top + chart.margins().bottom);
+}
+        </pre>
+
+        <p><b>Important!</b> <tt><a>width</a></tt> and <tt><a>plotWidth</a></tt> (as well as <tt><a>height</a></tt>
+        and <tt><a>plotHeight</a></tt> depend on each other. Therefore, only the one that is set 
+        last is used.</p>
+
+        <p class = "method"><a>margins</a></p>
         <p class = "methodDescription">Sets chart margins. Margins are used to
         place labels, axes, titles, dendograms and other additional chart
         elements.</p>
@@ -549,22 +697,22 @@
         value.</p>
         <p><b>Important!</b> A property setter always replaces old value with the
         new one, so you need to always define all four margins. If you want to 
-        reset only few of them, use <tt>set_margins</tt> function.
+        reset only few of them, use <tt><a>set_margins</a></tt> function.
         <h4>Default value</h4>
         <pre class = "tiy" runnable = "false">
 {top: 15, right: 10, bottom: 50, left: 50}
         </pre>
 
-        <p class = "method">title</p>
+        <p class = "method"><a>title</a></p>
         <p class = "methodDescription">Sets a main title of the chart.</p>
         <h4>Type</h4>
         <p>String</p>
         <h4>Default value</h4>
         <p>"" <i>(empty string)</i></p>
 
-        <p class = "method">titleX</p>
+        <p class = "method"><a>titleX</a></p>
         <p class = "methodDescription">X coordinate of the main title's center relative to
-        the chart. By default the titled is aligned centrally.</p>
+        the chart. By default, the title is aligned centrally.</p>
         <h4>Type</h4>
         <p>Number is pixels.</p>
         <h4>Default value</h4>
@@ -574,7 +722,7 @@ function() {
 }
         </pre>
 
-        <p class = "method">titleY</p>
+        <p class = "method"><a>titleY</a></p>
         <p class = "methodDescription">Y coordinate of the main title's top-left corner relative to
         the chart.</p>
         <h4>Type</h4>
@@ -586,8 +734,8 @@ function() {
 }
         </pre>
 
-        <p class = "method">titleSize</p>
-        <p class = "methodDescription">Font size of the main chart title.</p>
+        <p class = "method"><a>titleSize</a></p>
+        <p class = "methodDescription">Font size for the main chart title.</p>
         <h4>Type</h4>
         <p>Number is pixels.</p>
         <h4>Default value</h4>
@@ -597,14 +745,21 @@ function() {
 }
         </pre>
 
-        <p class = "method">showPanel</p>
-        <p class = "methodDescription">Defines whether to show instrument panel.</p>
+        <p class = "method"><a>showPanel</a></p>
+        <p class = "methodDescription">Defines whether to show instrument <a>panel</a>.</p>
         <h4>Type</h4>
         <p>Boolean</p>
         <h4>Default value</h4>
-        <p><tt>true</tt></p>        
+        <p><tt>true</tt></p>
 
-        <p class = "method">transitionDuration</p>
+        <p class = "method"><a>showLegend</a></p>
+        <p class = "methodDescription">Defines whether to show chart <a>legend</a>.</p>
+        <h4>Type</h4>
+        <p>Boolean</p>
+        <h4>Default value</h4>
+        <p><tt>true</tt></p>          
+
+        <p class = "method"><a>transitionDuration</a></p>
         <p class = "methodDescription">Sets duration of transition effects for the
         chart. If this is set to zero, no transition will be applied which may help
         with performance issues.</p>
@@ -613,9 +768,9 @@ function() {
         <h4>Default value</h4>
         <p>1000</p>
 
-        <p class = "method">markedUpdated</p>
+        <p class = "method"><a>markedUpdated</a></p>
         <p class = "methodDescription">Defines actions that should be performed, when 
-        elements are selected/deselected. Check this example for more details.</p>
+        elements are selected/deselected. Check <a>this</a> example for more details.</p>
         <h4>Type</h4>
         <p>Function</p>
         <h4>Default value</h4>
@@ -623,18 +778,20 @@ function() {
 function() {}
         </pre>
 
-        <h4>Methods</h4>
+        <h3>Methods</h3>
 
-        <p class = "method">place([element])</p>        
+        <p class = "method"><a>place</a>([element])</p>        
         <p class = "methodDescription">Initialises and places the chart in the provided container on 
         the page. Need to be called once for each chart.</p>
-        <p class = "argument"><span>element</span> <i>optional</i> - <b>d3.selection | valid selectot</b> 
+        <h4>Arguments</h4>
+        <p class = "argument"><span>element</span> <i>optional</i> - <b>d3.selection | valid CSS selector</b> 
         - an existing container on the page, where the chart should be placed. If not specified, chart is
         placed in the body of the page.</p>
         
-        <p class = "method">set_margins(margins)</p>        
-        <p class = "methodDescription">Unlike <tt>margins</tt> setter, allows to change only some of
+        <p class = "method"><a>set_margins</a>(margins)</p>        
+        <p class = "methodDescription">Unlike <tt><a>margins</a></tt> setter, allows to change only some of
         the margins, but doesn't accept functions as arguments.</p>
+        <h4>Arguments</h4>
         <p class = "argument"><span>margins</span> - <b>object</b> - new margins. The object should 
         have a property for each field you want to set (<tt>right, left, top, bottom</tt>), containing 
         desired size in pixels. If a property is not defined, the respective margin will remain as it is.</p>
@@ -642,69 +799,75 @@ function() {}
 chart.set_margins({right: 100, bottom: 70});
         </pre>
 
-        <p class = "method">updateSize()</p>        
+        <p class = "method"><a>updateSize</a>()</p>        
         <p class = "methodDescription">Updates the size and location of all the elements inside the 
         chart.</p>
 
-        <p class = "method">updateTitle()</p>        
+        <p class = "method"><a>updateTitle</a>()</p>        
         <p class = "methodDescription">Updates the main title of the chart.</p>
 
-        <p class = "method">update()</p>        
+        <p class = "method"><a>update</a>()</p>        
         <p class = "methodDescription">Updates all the elements of the chart.</p>
 
-        <p class = "method">get_elements(ids)</p>        
+        <p class = "method"><a>get_elements</a>(ids)</p>        
         <p class = "methodDescription">Selects all svg elements, defined by the provided IDs, returns
-        d3.selection.</p>
+        <a href="https://github.com/d3/d3/blob/master/API.md#selections-d3-selection">d3.selection</a>.</p>
+        <h4>Arguments</h4>
         <p class = "argument"><span>ids</span> - <b>array</b> - a list of IDs or pairs of IDs for 
         heatmaps.        
 
-        <p class = "method">mark(elements)</p>        
+        <p class = "method"><a>mark</a>(elements)</p>        
         <p class = "methodDescription">Swihches the state of all the provided elements (either selects,
         or deselects them). Also accepts <tt>__clear__</tt> command to deselect everything.</p>
+        <h4>Arguments</h4>
         <p class = "argument"><span>elements</span> - <b>d3.selection | array | string</b> - a list of 
-        elements to switch the state. This can be a <tt>d3.selection</tt>, an array of data point IDs,
-        or <tt>__clear</tt> command.</p>
+        elements to switch the state. This can be a <tt><a href="https://github.com/d3/d3/blob/master/API.md#selections-d3-selection">d3.selection</a></tt>, an array of data point IDs,
+        or <tt>__clear__</tt> command.</p>
 
-        <p class = "method">get_marked()</p>        
+        <p class = "method"><a>get_marked</a>()</p>        
         <p class = "methodDescription">Returns an array of IDs of all currently selected elements.</p>
 
-        <p class = "method">selectMode([value])</p>        
-        <p class = "methodDescription">Sets or returns an indicator that shows wherher or not the
+        <p class = "method"><a>selectMode</a>([value])</p>        
+        <p class = "methodDescription">Sets or returns an indicator that shows whether or not the
         chart is in the selection mode (if so, points are not clicked, but selected or deselected on
         mouseclick event).</p>
+        <h4>Arguments</h4>
         <p class = "argument"><span>value</span> <i>(optional)</i> - <b>boolean</b> - if defined, 
         turns on or off the selection mode. If not defined, returns <tt>true</tt> is selection mode
         is active and <tt>false</tt> otherwise.</p>
 
-        <p class = "method">pan(property, [value])</p>        
+        <p class = "method"><a>pan</a>(property, [value])</p>        
         <p class = "methodDescription">Sets or returns value of either the indicator for pan mode
         (<tt>mode</tt>), or the start position of the chart for panning (<tt>down</tt>).</p>
+        <h4>Arguments</h4>
         <p class = "argument"><span>property</span> - <b>string</b> - property of the pan object,
         you want to access. Should be either <tt>mode</tt> or <tt>down</tt></p>
         <p class = "argument"><span>value</span> <i>(optional)</i> - <b>boolean</b> - replaces the
         current value of the selected property and returns chart. Otherwise returns current value of
         the selected property.</p>
 
-        <p class = "method">put_static_content(element)</p>        
+        <p class = "method"><a>put_static_content</a>(element)</p>        
         <p class = "methodDescription">Create all the static elements (e.g. div and svg containers),
-        used by this chart and puts them inside the provided element (<tt>d3.selection</tt>).
-        <b>Important!</b> This function is to be called only once and is called by the <tt>place</tt>
+        used by this chart and puts them inside the provided element (<tt><a href="https://github.com/d3/d3/blob/master/API.md#selections-d3-selection">d3.selection</a></tt>).
+        <b>Important!</b> This function is to be called only once and is called by the <tt><a>place</a></tt>
         function.</p>
+        <h4>Arguments</h4>
         <p class = "argument"><span>element</span> - <b>d3.selection</b> - an existing
         container on the page, where the chart should be placed.</p>
 
       </div>
       <div class = "info" id = "base">
-        <h3>lc.base()</h3>
-        <p class = "description">Basic class that provide property functionality.
+        <h2>lc.base()</h2>
+        <p class = "description">Basic class that provide <a href="../tutorials/properties.html">property</a> functionality.
           All the classes in the library inherit from it. Methods of this class 
           are used to create new classes, and their understanding is not required
-          for the usage of the library.</p>
-        <h4>Methods</h4>
+          for the usage of the <tt>linked-charts</tt> library.</p>
+        <h3>Methods</h3>
 
-        <p class = "method">add_property(propertyName, [defaultValue])</p>
+        <p class = "method"><a>add_property</a>(propertyName, [defaultValue])</p>
         <p class = "methodDescription">Adds a property with a specified name and 
         default value to this object defining a getter and a setter.</p>
+        <h4>Arguments</h4>
         <p class = "argument"><span>propertyName</span> - <b>string</b> - name to 
           be assigned to the new property.</p>
         <p class = "argument"><span>defaultValue</span> <i>(optional)</i> - <b>anything</b>
@@ -715,7 +878,7 @@ chart.add_property("property1")
   .add_property("property3", value3);
         </pre>
 
-        <p class = "method">wrapSetter(propertyName, wrapper)</p>
+        <p class = "method"><a>wrapSetter</a>(propertyName, wrapper)</p>
         <p class = "methodDescription">Changes an existing setter, allowing additional actions
         to be performed on each setter call. Can be used for type checks or handling conflicting
         properties.</p>

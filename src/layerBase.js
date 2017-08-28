@@ -166,7 +166,7 @@ export function layerBase(id) {
   layer.legendBlocks = [];
 
   layer.addLegend = function(scale, type, id){
-    layer.chart.legend.add(scale, type, id, layer);
+    layer.chart.legend.add_block(scale, type, id, layer);
     layer.legendBlocks.push(id);
 
     return layer; 

@@ -1,0 +1,42 @@
+p.method {
+	padding-left: 40px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-right: 40px;
+	margin-bottom: 30px;
+	margin-top: 30px;
+	margin-left: -20px;
+	font-size: 20px;
+	font-weight: bold;
+	font-family: "Monospace";
+	background: #446;
+	color: #eef;
+	display:inline-block;
+}
+
+#page .info{
+	width: 60%;
+	padding-top: 50px;
+	padding-bottom: 50px;
+	padding-left: 50px
+}
+
+p.methodDescription{
+	color: #444;
+	margin-left: -20px;
+	font-size: 17px;
+}
+
+p.argument span{
+	font-size: 125%;
+	font-family: "Comic Sans MS";
+	color: rgb(55,100,155);
+	font-style: italic;
+}
+p.method a {
+	color: #fff;
+}
+p.description {
+	font-size: 120%;
+	letter-spacing: 1px;
+}

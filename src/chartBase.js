@@ -1,6 +1,7 @@
 import { base } from "./base";
 import { escapeRegExp } from "./additionalFunctions";
 import { panel } from "./panel";
+import { legend } from "./legend";
 
 export function chartBase() {
 	//add and set new properties
@@ -15,11 +16,13 @@ export function chartBase() {
 		.add_property("transitionDuration", 1000) //may be set to zero
 		.add_property("markedUpdated", function() {})
 		.add_property("showPanel", true)
+		.add_property("showLegend", true)
 		.add_property("plotWidth")
 		.add_property("plotHeight"); 
 	  
- 
-	var plotHeight_default =  function() {
+	chart.legend = legend(chart); 
+
+	var plotHeight_default = function() {
 			return chart.height() - (chart.margins().top + chart.margins().bottom);
 		},
 		plotWidth_default = function() {
@@ -122,7 +125,16 @@ export function chartBase() {
 		//prohibit standart dragging behaviour
 		chart.container.node().ondragstart = function() { return false; };
 		//container for all svg elements
-		chart.svg = chart.container.append("svg");
+		chart.svg =	chart.container
+			.append("table")
+				.append("tr")
+					.append("td")
+						.append("svg");
+
+		//add a cell for the legend
+		chart.legend.container(chart.container.selectAll("tr")
+													.append("td").attr("id", "legend"));
+
 		//for the use tag to work correctly, all the IDs on the page need to
 		//unique. So we generate a random ID for a viewbox
 		chart.viewBox = chart.svg.append("defs")
@@ -252,13 +264,17 @@ export function chartBase() {
 				.attr("transform", "translate(" + chart.margins().left + 
 															", " + chart.margins().top + ")");
 		}
+		
 		if(chart.showPanel())
 			chart.panel.updateSize();
+
 		return chart;			
 	}
 	chart.updateTitle = function(){
 		chart.svg.selectAll(".title")
-			.text(chart.title());		
+			.text(chart.title());
+
+		return chart;		
 	}
 
 	chart.getElements = function(data){
@@ -269,8 +285,13 @@ export function chartBase() {
 	chart.update = function(){
 		chart.updateSize();
 		chart.updateTitle();
+
+		if(chart.showLegend() && chart.legend.get_nblocks() > 0)
+			chart.legend.update();
+
 		return chart;
 	}
+
   return chart;
 }
 
@@ -280,7 +301,7 @@ function saveAsPng(chart) {
 		if(legend !== undefined){
 			var w, h = 0, lsvg, hlist;
 			svgInnerHTML = "<g>" + svgElement.innerHTML + "</g>";
-			legend.location().selectAll("tr").each(function(d, i){
+			legend.container().selectAll("tr").each(function(d, i){
 				w = 0;
 				hlist = [];
 				d3.select(this).selectAll("td").each(function(dtd, itd){
@@ -343,7 +364,7 @@ function saveAsSvg(chart){
   if(chart.legend !== undefined){
   	var w, h = 0, lsvg, hlist;
   	html = "<g>" + chart.svg.node().innerHTML + "</g>";
-  	chart.legend.location().selectAll("tr").each(function(){
+  	chart.legend.container().selectAll("tr").each(function(){
 	  	w = 0;
 	  	hlist = [];
 	  	d3.select(this).selectAll("td").each(function(){
