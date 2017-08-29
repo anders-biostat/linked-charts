@@ -1,9 +1,11 @@
 import { base } from "./base";
 
 export function panel(chart) {
+	var buttons = [];
+
 	var panel = base()
 		.add_property("x", function(){
-			return chart.width() - panel.buttonSize - 5;
+			return chart.width() - panel.buttonSize() - 5;
 		})
 		.add_property("y", function(){
 			return chart.margins().top * 0.05;
@@ -11,29 +13,34 @@ export function panel(chart) {
 		.add_property("orientation", "horizontal")
 		.add_property("height", function(){
 			if(panel.orientation() == "vertical")
-				return Math.floor(panel.y() / panel.buttonSize) * 
-					panel.buttonSize
-			else
-				return undefined;
+				return Math.floor(panel.y() / panel.buttonSize()) * 
+					panel.buttonSize();
 		})
 		.add_property("width", function() {
 			if(panel.orientation() == "horizontal")
-				return Math.floor(panel.x() / panel.buttonSize) * 
-					panel.buttonSize
-			else
-				return undefined;
-		});
+				return Math.floor(panel.x() / panel.buttonSize()) * 
+					panel.buttonSize();
+		})
+		.add_property("buttonSize", 30);
 
 	panel.chart = chart;
-	panel.buttons = [];
-	panel.buttonSize = 30;
 	var layout = {};
+
+	chart.wrapSetter("orientation", function(orientation) {
+		return function() {
+			if(["vertical", "horizontal"].indexOf(orientation()) == -1)
+				throw "Error in 'panel.orientation': value " + orientation() +
+					" is not allowed for this property. Possible values are 'horizontal' or" +
+					" 'vertical'."
+			return orientation.apply(chart, arguments);
+		}
+	});
 
 	panel.put_static_content = function(){
 		panel.g = panel.chart.svg.append("g")
 			.attr("class", "panel_g");
 
-		panel.initDefs();
+		initDefs();
 		
 		panel.g.append("use")
 			.attr("xlink:href", "#toggleOff")
@@ -59,14 +66,14 @@ export function panel(chart) {
 	
 	panel.updateSize = function() {
 
-		panel.placeButtons();
+		placeButtons();
 		if(panel.orientation() == "vertical"){
 			panel.g.attr("transform", "translate(" + panel.x() + 
 																", " + panel.y() + ")");
 			panel.g.select("#toggle")
 				.attr("transform", "translate(0, 0)");
 			panel.g.select("#buttonPanel")
-				.attr("transform", "translate(0, " + panel.buttonSize + ")");
+				.attr("transform", "translate(0, " + panel.buttonSize() + ")");
 		} else {
 			panel.g
 				.attr("transform", "translate(" + 
@@ -80,25 +87,25 @@ export function panel(chart) {
 
 	}
 
-	panel.placeButtons = function() {
+	function placeButtons() {
 		var rowLength;
 		if(panel.orientation()  == "horizontal"){
-				panel.optimizeSize(panel.buttons.length, panel.width(), panel.height());
+				optimizeSize(panel.buttons.length, panel.width(), panel.height());
 				panel.g.selectAll(".button")
 					.attr("transform", function(d, i){
-						return "translate(" + (i % layout.rowLength * panel.buttonSize) + ", " +
-							(Math.floor(i / layout.rowLength) * panel.buttonSize) + ")";
+						return "translate(" + (i % layout.rowLength * panel.buttonSize()) + ", " +
+							(Math.floor(i / layout.rowLength) * panel.buttonSize()) + ")";
 					})
 		} else {
-				panel.optimizeSize(panel.buttons.length, panel.height(), panel.width());
+				optimizeSize(panel.buttons.length, panel.height(), panel.width());
 				panel.g.selectAll(".button")
 					.attr("transform", function(d, i){
-						return "translate(" + (Math.floor(i / layout.rowLength) * panel.buttonSize) + ", " 
-							+ ((i % layout.rowLength + 1) * panel.buttonSize) + ")";
+						return "translate(" + (Math.floor(i / layout.rowLength) * panel.buttonSize()) + ", " 
+							+ ((i % layout.rowLength + 1) * panel.buttonSize()) + ")";
 					})
 		}
 	}
-	panel.optimizeSize = function(n, width, height){
+	function optimizeSize = function(n, width, height){
 		var rows, size;
 		if(height){
 			size = d3.min([width, height]);
@@ -107,9 +114,9 @@ export function panel(chart) {
 				rows++;
 				size = d3.min([height / rows, size]);
 			}
-			panel.buttonSize = size;
+			panel.buttonSize(size);
 		} else {
-			size = panel.buttonSize;
+			size = panel.buttonSize();
 			rows = Math.ceil(width / size);
 		}
 		layout = {width: panel.width(),
@@ -130,7 +137,7 @@ export function panel(chart) {
 		var hintFired = false;
 		var wrapped = function(chart, button){
 			if(!hintFired){
-				panel.showHint(hint); //hints are showed just once if defined
+				showHint(hint); //hints are showed just once if defined
 				hintFired = true;
 			}
 			fun(chart, button);
@@ -162,7 +169,7 @@ export function panel(chart) {
 				.text(function(d) {return d.name});		
 	}
 
-	panel.showHint = function(hint) {
+	function showHint(hint) {
 		if(hint){
 			chart.container.append("div")
 				.attr("class", "hint")
@@ -207,9 +214,9 @@ export function panel(chart) {
 
 	}
 
-	panel.initDefs = function(){
+	function initDefs() {
 		var defs = panel.g.append("def"),
-			bs = panel.buttonSize - 10;
+			bs = panel.buttonSize() - 10;
 		
 		var d = defs.append("g")
 			.attr("id", "toggleOff");
@@ -609,8 +616,8 @@ export function panel(chart) {
 			.attr("transform", "translate(5, 5)");
 		defs.selectAll("g").append("rect")
 			.attr("fill", "transparent")
-			.attr("width", panel.buttonSize)
-			.attr("height", panel.buttonSize)
+			.attr("width", panel.buttonSize())
+			.attr("height", panel.buttonSize())
 			.lower();
 	}
 

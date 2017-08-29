@@ -516,7 +516,118 @@
         <h2>lc.heatmap()</h2>
       </div>
       <div class = "info" id = "panel">
-        <h2>lc.chart.panel</h2>
+        <h2>lc.panel(chart)</h2>
+        <p class = "description">Instrument panel contains buttons to allow easy access to
+        the chart manipulation. It can be shown or hidden by clicking on the grey triangle 
+        (by default, located in the right-top conrner of the chart.</p>
+
+        <h3>Properties</h3>
+
+        <p class = "method"><a>x</a></p>
+        <p class = "methodDescription">X coordinate of the left-top corner of the panel icon,
+        relative to the left side of the cahrt.</p>
+        <h4>Type</h4>
+        <p>Number in pixels.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function(){
+  return chart.width() - panel.buttonSize() - 5;
+})
+        </pre>
+        <p class = "method"><a>y</a></p>
+        <p class = "methodDescription">Y coordinate of the left-top corner of the panel icon,
+        relative to the top side of the cahrt.</p>
+        <h4>Type</h4>
+        <p>Number in pixels.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function(){
+  return chart.margins().top * 0.05;
+})
+        </pre>
+
+        <p class = "method"><a>orientation</a></p>
+        <p class = "methodDescription">The buttons on the panel can be aligned either vertically or
+        horizontally. This property defines, which mode to use.</p>
+        <h4>Type</h4>
+        <p>This should be either <tt>"horizontal"</tt> or <tt>"vertical"</tt></p>
+        <h4>Default value</h4>
+        <p><tt>"horizontal"</tt></p>
+
+        <p class = "method"><a>width</a></p>
+        <p class = "methodDescription">Width of the instrument panel. If not specified,
+        the width of the panel will be limited by chart borders.
+        </p>
+        <h4>Type</h4>
+        <p>Number in pixels</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function() {
+  if(panel.orientation() == "horizontal")
+    return Math.floor(panel.x() / panel.buttonSize()) * panel.buttonSize();
+}
+        </pre>
+
+        <p class = "method"><a>height</a></p>
+        <p class = "methodDescription">Height of the instrument panel. If not specified,
+        the height of the panel will be limited by chart borders.
+        </p>
+        <h4>Type</h4>
+        <p>Number in pixels</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function(){
+  if(panel.orientation() == "vertical")
+    return Math.floor(panel.y() / panel.buttonSize()) * panel.buttonSize();
+})
+        </pre> 
+
+        <p class = "method"><a>buttonSize</a></p>
+        <p class = "methodDescription">Size of a button. All buttons are square, and the
+        value of this property is used as a side length.
+        <b>Important!</b> If <tt><a>height</a></tt> (for horizontal orientation) or <tt><a>width</a></tt> (for vertical one)
+        is specified, this property will be reset on each <tt><a>updateSize</a></tt> call to fit into the
+        specified size.</p>
+        <h4>Type</h4>
+        <p>Number in pixels.</p>
+        <h4>Default value</h4>
+        <p>30</p>
+
+        <h3>Methods</h3>               
+
+        <p class = "method"><a>add_button</a>(name, icon, function, [hint])</p>        
+        <p class = "methodDescription">Adds a new button to the panel.</p>
+        <h4>Arguments</h4>
+        <p class = "argument"><span>name</span> - <b>string</b> - name of the new button.</p>
+        <p class = "argument"><span>icon</span> - <b>an ID selector</b> - a selector for the button
+        icon that can be assigned to <tt>xlink:href</tt> attribute. Available by default icons are
+        stored inside <tt>defs</tt> of <tt>panel.g</tt> object.</p>
+        <p class = "argument"><span>function</span> - <b>function</b> - actions to be performed, when
+        button is clicked. This fucntion can take <tt>chart</tt> as its first argument and <tt>button</tt>
+        (<a href="https://github.com/d3/d3/blob/master/API.md#selections-d3-selection">d3.selection</a>) as
+        a second one.</p>
+        <p class = "argument"><span>hint</span> <i>(optional)</i> - <b>string</b> - text that is shown once,
+        when the button is clicked for the first time to inform user about some functionality of the chart.</p>
+        <pre class = "tiy" runnable = "false">
+chart.panel.add_button("Reset scales", "#home", function(chart) {chart.resetDomain();},
+                       "You can also use double click to reset scales");
+        </pre>
+
+        <p class = "method"><a>show</a>()</p>        
+        <p class = "methodDescription">Shows all the buttons on the panel.</p>
+
+        <p class = "method"><a>hide</a>()</p>        
+        <p class = "methodDescription">Hides the panel, leaving only the main icon visible.</p>
+
+        <p class = "method"><a>put_static_content</a>()</p>        
+        <p class = "methodDescription">Initialises the panel and adds all its static elements.
+        This function is supposed to be called only once and, by default, is called inside
+        <tt>chart.<a>put_static_content</a>()</tt>.</p>
+
+        <p class = "method"><a>updateSize</a>()</p>        
+        <p class = "methodDescription">Update size and location of the panel. By default, is
+        called inside <tt>chart.<a>updateSize</a>()</tt>.</p>
+
       </div>
       
       <div class = "info" id = "legend">
@@ -632,12 +743,12 @@ curveFit.legend.ncol(1)
         <h4>Arguments</h4>
         <p class = "argument"><span>id</span> - <b>string</b> - ID of the block to be removed.</p>        
 
-        <p class = "method"><a>updateBlock</a>(id)</p>        
+        <p class = "method"><a>updateBlock</a>(id)</p>
         <p class = "methodDescription">update an existing block.</p>
         <h4>Arguments</h4>
         <p class = "argument"><span>id</span> - <b>string</b> - ID of the block to be updated.</p>
 
-        <p class = "method"><a>update</a>()</p>        
+        <p class = "method"><a>update</a>()</p>
         <p class = "methodDescription">update all elements of the legend.</p>   
       </div>
       

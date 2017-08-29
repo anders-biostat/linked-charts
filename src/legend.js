@@ -36,7 +36,7 @@ export function legend(chart) {
 		blocks[id] = block;
 		
 		if(legend.container())
-			legend.updateGrid();
+			updateGrid();
 
 		return legend.chart;
 	}
@@ -141,7 +141,7 @@ export function legend(chart) {
 			);
 		delete legend.blocks[id];
 		legend.g.select("#" + id).remove();
-		legend.updateGrid();
+		updateGrid();
 
 		return legend.chart;
 	}
