@@ -514,6 +514,192 @@
       </div>
       <div class = "info" id = "heatmap">
         <h2>lc.heatmap()</h2>
+        <p class = "description">This class allows to create and customize interactive heatmaps.</p>
+        <pre class = "tiy" fitHeight = "true" 
+          tiy-preload="../src/linked-charts.min.js;../src/data/inputdata_simple.js;../src/linked-charts.css">
+var heatmap = lc.heatmapChart()
+  .colIds(geneNames)
+  .rowIds(drugNames)
+  .value(function(rowId, colId){
+    return corObject[colId][rowId]
+  })
+  .width(500)
+  .height(300)
+  .colourRange([-1, 1])
+  .palette(function(val) {
+    return d3.interpolateRdBu(1 - val);
+  })
+  .place();
+        </pre>
+
+        <h3>Properties</h3>
+
+        <p class = "method"><a>nrows</a></p>
+        <p class = "methodDescription">Number of rows in the heatmap.</p>
+        <h4>Type</h4>
+        <p>Positive number.</p>
+        <h4>Default value</h4>
+        <p><tt>undefined</tt></p>
+
+        <p class = "method"><a>ncols</a></p>
+        <p class = "methodDescription">Number of columns in the heatmap.</p>
+        <h4>Type</h4>
+        <p>Positive number.</p>
+        <h4>Default value</h4>
+        <p><tt>undefined</tt></p>
+
+        <p class = "method"><a>rowIds</a></p>
+        <p class = "methodDescription">An array of IDs for all the rows in the
+        heatmap.</p>
+        <h4>Type</h4>
+        <p>Array.</p>
+        <h4>Default value</h4>
+        <p><tt>undefined</tt></p>
+
+        <p class = "method"><a>colIds</a></p>
+        <p class = "methodDescription">An array of IDs for all the rows in the
+        heatmap.</p>
+        <h4>Type</h4>
+        <p>Array.</p>
+        <h4>Default value</h4>
+        <p><tt>undefined</tt></p>
+
+        <p><b>Important!</b> Properties <tt><a>nrows</a></tt> and <tt><a>rowIds</a></tt>
+        (as well as <tt><a>ncols</a></tt> and <tt><a>colIds</a></tt>) overrides each other.
+        If an array of IDs is provided, number of rows or columns is automatically set to its
+        length. If number of rows or columns is set to <tt>n</tt>, then corresponding IDs are
+        defined as <tt>[0, 1, 2, ..., n-1]</tt></p>
+
+        <p class = "method"><a>value</a></p>
+        <p class = "methodDescription">Provided a column and a row IDs, returns a 
+        value for this cell.</p>
+        <h4>Type</h4>
+        <p>Anything.</p>
+        <h4>Default value</h4>
+        <p><tt>undefined</tt></p>
+
+        <p class = "method"><a>rowLabel</a></p>
+        <p class = "methodDescription">Provided a row ID, returns a label for this row.</p>
+        <h4>Type</h4>
+        <p>String.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function(i) {return i;}
+        </pre>
+
+        <p class = "method"><a>colLabel</a></p>
+        <p class = "methodDescription">Provided a column ID, returns a label for this column.</p>
+        <h4>Type</h4>
+        <p>String.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function(i) {return i;}
+        </pre>
+
+        <p class = "method"><a>heatmapRow</a></p>
+        <p class = "methodDescription">Provided a row ID, returns a sequential number of this
+        row among currently displayed ones.</p>
+        <h4>Type</h4>
+        <p>Number.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function(rowId) {
+  return chart.dispRowIds().indexOf(rowId);
+}
+        </pre>
+
+        <p class = "method"><a>colour</a></p>
+        <p class = "methodDescription">Provided a value (that is defined through <tt><a>value</a></tt>
+        property), returns colour to fill a cell.</p>
+        <h4>Type</h4>
+        <p>Colour.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function(val) {return chart.colourScale(val);}
+        </pre>
+
+        <p class = "method"><a>palette</a></p>
+        <p class = "methodDescription">Sets a palette to create a <tt><a>colourScale</a></tt>. Note, that
+        if the <tt><a>colour</a></tt> property is redefined and doesn't use <tt><a>colourScale</a></tt>
+        anymore, changing this property will not have any effect on the heatmap.</p>
+        <h4>Type</h4>
+        <p>Function that converts values from 0 to 1 into colours.</p>
+        <h4>Default value</h4>
+        <p><a href="https://github.com/d3/d3-scale-chromatic#interpolateOrRd">d3.interpolateOrRd</a></p>
+
+        <p class = "method"><a>colourRange</a></p>
+        <p class = "methodDescription">Provided a value (that is defined through <tt><a>value</a></tt>
+        property), returns colour to fill a cell.</p>
+        <h4>Type</h4>
+        <p>Colour.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function(val) {return chart.colourScale(val);}
+        </pre>                     
+
+        <p class = "method"><a>showDendogramRow</a></p>
+        <p class = "methodDescription">Defines, whether or not to show <a>dendogram</a> for rows.
+        Dendogram can be displayed only when the rows are clustered. If this property is set to
+        <tt>false</tt>, rows can still be clustered.</p>
+        <h4>Type</h4>
+        <p>Boolean.</p>
+        <h4>Default value</h4>
+        <p><tt>true</tt></p>        
+
+        <p class = "method"><a>showDendogramCol</a></p>
+        <p class = "methodDescription">Defines, whether or not to show <a>dendogram</a> for columns.
+        Dendogram can be displayed only when the columns are clustered. If this property is set to
+        <tt>false</tt>, columns can still be clustered.</p>
+        <h4>Type</h4>
+        <p>Boolean.</p>
+        <h4>Default value</h4>
+        <p><tt>true</tt></p>
+
+        <p class = "method"><a>mode</a></p>
+        <p class = "methodDescription">Heatmap can be generated eithe as SVG, or as Canvas. SVG allows
+        easier and more complicated interactivity and also can be changed only partially (e.g. you can
+        only change some of the cells), but if a heatmap has too many cells, page rendering can take a
+        considerable amount of time. Canvas, on the other hand, is faster in these cases, but the
+        interactivity is limited and any changes of the heatmap require complete redrawing. It's also
+        imposible to save the chart as SVG, when the heatmap is in the Canvas mode. <tt>default</tt>
+        mode makes the heatmap switch between the modes, depending how many cells are displayed. You can
+        zoom in a large Canvas heatmap and it will turn into SVG. Zooming out in <tt>default</tt> mode
+        will cause it to become Canvas again.</p>
+        <h4>Type</h4>
+        <p>"svg", "canvas" or "default"</p>
+        <h4>Default value</h4>
+        <p><tt>"default"</tt></p>          
+
+        <p class = "method"><a>heatmapCol</a></p>
+        <p class = "methodDescription">Provided a column ID, returns a sequential number of this
+        column among currently displayed ones.</p>
+        <h4>Type</h4>
+        <p>Number.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function(colId) {
+  return chart.dispColIds().indexOf(colId);
+}
+        </pre>
+
+        <p class = "method"><a>dispRowIds</a></p>
+        <p class = "methodDescription">An list of rows that should be displayed.</p>
+        <h4>Type</h4>
+        <p>Array.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function() {return chart.rowIds();}
+        </pre>
+
+        <p class = "method"><a>dispColIds</a></p>
+        <p class = "methodDescription">An list of columns that should be displayed.</p>
+        <h4>Type</h4>
+        <p>Array.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function() {return chart.colIds();}
+        </pre>        
+
       </div>
       <div class = "info" id = "panel">
         <h2>lc.panel(chart)</h2>
