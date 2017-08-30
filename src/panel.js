@@ -1,8 +1,6 @@
 import { base } from "./base";
 
 export function panel(chart) {
-	var buttons = [];
-
 	var panel = base()
 		.add_property("x", function(){
 			return chart.width() - panel.buttonSize() - 5;
@@ -24,15 +22,16 @@ export function panel(chart) {
 		.add_property("buttonSize", 30);
 
 	panel.chart = chart;
-	var layout = {};
+	var layout = {},
+		buttons = [];
 
-	chart.wrapSetter("orientation", function(orientation) {
+	panel.wrapSetter("orientation", function(orientation) {
 		return function() {
 			if(["vertical", "horizontal"].indexOf(orientation()) == -1)
 				throw "Error in 'panel.orientation': value " + orientation() +
 					" is not allowed for this property. Possible values are 'horizontal' or" +
 					" 'vertical'."
-			return orientation.apply(chart, arguments);
+			return orientation.apply(panel, arguments);
 		}
 	});
 
@@ -90,14 +89,14 @@ export function panel(chart) {
 	function placeButtons() {
 		var rowLength;
 		if(panel.orientation()  == "horizontal"){
-				optimizeSize(panel.buttons.length, panel.width(), panel.height());
+				optimizeSize(buttons.length, panel.width(), panel.height());
 				panel.g.selectAll(".button")
 					.attr("transform", function(d, i){
 						return "translate(" + (i % layout.rowLength * panel.buttonSize()) + ", " +
 							(Math.floor(i / layout.rowLength) * panel.buttonSize()) + ")";
 					})
 		} else {
-				optimizeSize(panel.buttons.length, panel.height(), panel.width());
+				optimizeSize(buttons.length, panel.height(), panel.width());
 				panel.g.selectAll(".button")
 					.attr("transform", function(d, i){
 						return "translate(" + (Math.floor(i / layout.rowLength) * panel.buttonSize()) + ", " 
@@ -105,7 +104,7 @@ export function panel(chart) {
 					})
 		}
 	}
-	function optimizeSize = function(n, width, height){
+	function optimizeSize(n, width, height) {
 		var rows, size;
 		if(height){
 			size = d3.min([width, height]);
@@ -121,7 +120,7 @@ export function panel(chart) {
 		}
 		layout = {width: panel.width(),
 							height: panel.height(),
-							rowLength: d3.min([Math.floor(width / size), panel.buttons.length])};
+							rowLength: d3.min([Math.floor(width / size), buttons.length])};
 		if(panel.orientation() == "horizontal"){
 			layout.width  = size * layout.rowLength;
 			//panel.height(size * rows)
@@ -143,15 +142,15 @@ export function panel(chart) {
 			fun(chart, button);
 		}
 
-		panel.buttons.push({
+		buttons.push({
 			name: name,
 			icon: icon,
 			fun: wrapped
 		});
 
-		var buttons = panel.g.select("#buttonPanel")
-			.selectAll(".button").data(panel.buttons, function(d) {return d.name;});
-		buttons.enter().append("use")
+		var buttonsSVG = panel.g.select("#buttonPanel")
+			.selectAll(".button").data(buttons, function(d) {return d.name;});
+		buttonsSVG.enter().append("use")
 			.attr("opacity", 0.6)
 			.attr("class", "button")
 			.attr("id", function(d) {return "b_" + d.icon.substr(1)})

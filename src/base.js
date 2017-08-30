@@ -47,7 +47,7 @@ export function base() {
       throw "Error in 'wrapSetter': wrapper is not a function."
     if(obj.propList.indexOf(propertyName) == -1)
       throw "Error in 'wrapSetter': this object doesn't have " + propertyName +
-        "property";
+        " property";
 
     var oldSetter = obj[propertyName];
     obj[propertyName] = function(){

@@ -6,11 +6,11 @@ export function legend(chart) {
 		.add_property("width", 200)
 		.add_property("height", function() {return chart.height();})
 		.add_property("sampleHeight", 20)
-		.add_title(function(id) {return id;})
+		.add_property("title", function(id) {return id;})
 		.add_property("ncol")
 		.add_property("container");
 
-	var locks = {};
+	var blocks = {};
 	legend.chart = chart;
 
 	legend.get_nblocks = function() {
@@ -42,10 +42,10 @@ export function legend(chart) {
 	}
 
 	legend.updateScale = function(scale, id){
-		if(typeof legend.blocks[id] === "undefined")
+		if(typeof blocks[id] === "undefined")
 			throw "Error in 'legend.updateScale': A block with ID " + id +
 				" is not defined";
-		legend.blocks[id].scale = scale;
+		blocks[id].scale = scale;
 		legend.updateBlock(id);
 
 		return legend.chart;
@@ -53,11 +53,11 @@ export function legend(chart) {
 
 	 var convertScale = function(id) {
 		var scale, newScale;
-		if(typeof legend.blocks[id].scale === "function")
-			scale = legend.blocks[id].scale();
+		if(typeof blocks[id].scale === "function")
+			scale = blocks[id].scale();
 		if(typeof scale === "undefined" || 
 				(typeof scale !== "function" && typeof scale.splice === "undefined"))
-			scale = legend.blocks[id].scale;
+			scale = blocks[id].scale;
 		
 		if(typeof scale !== "function"){
 			var scCont = false,
@@ -67,7 +67,7 @@ export function legend(chart) {
 			if(scale[0].length == 2 && typeof scale[0][0] === "number" && 
 																typeof scale[0][1] === "number")
 				scCont = true;
-			if(legend.blocks[id].type == "colour" && scale[0].length != scale[1].length)
+			if(blocks[id].type == "colour" && scale[0].length != scale[1].length)
 				rCont = true;
 			if(scale[1].length == 2 && typeof scale[0][0] === "number" && 
 																typeof scale[0][1] === "number")
@@ -100,9 +100,9 @@ export function legend(chart) {
 					.range(scale[1]);
 				newScale.steps = scale[0].length;				
 			}
-			legend.blocks[id].domain = scale[0];
+			blocks[id].domain = scale[0];
 			if(typeof newScale.domain === "undefined")
-				newScale.domain = legend.blocks[id].domain;
+				newScale.domain = blocks[id].domain;
 		} else {
 			//scale is a function it is either a d3 scale or it has a domain property
 			if(typeof scale !== "function")
@@ -120,7 +120,7 @@ export function legend(chart) {
 				else
 					i++;
 
-			legend.blocks[id].domain = domain;
+			blocks[id].domain = domain;
 			newScale = scale;
 			if(scale.steps)
 				newScale.steps = scale.steps
@@ -132,14 +132,14 @@ export function legend(chart) {
 	}
 
 	legend.removeBlock = function(id) {
-		if(typeof legend.blocks[id] === "undefined")
+		if(typeof blocks[id] === "undefined")
 			throw "Error in 'legend.remove': block with ID " + id +
 			" doesn't exist";
-		if(typeof legend.blocks[id].layer !== "undefined")
-			legend.blocks[id].layer.legendBlocks.splice(
-				legend.blocks[id].layer.legendBlocks.indexOf(id), 1
+		if(typeof blocks[id].layer !== "undefined")
+			blocks[id].layer.legendBlocks.splice(
+				blocks[id].layer.legendBlocks.indexOf(id), 1
 			);
-		delete legend.blocks[id];
+		delete blocks[id];
 		legend.g.select("#" + id).remove();
 		updateGrid();
 
@@ -147,11 +147,11 @@ export function legend(chart) {
 	}
 
 	legend.renameBlock = function(oldId, newId) {
-		legend.blocks[newId] = legend.blocks[oldId];
-		delete legend.blocks[oldId];
-		if(typeof legend.blocks[newId].layer !== "undefined")
-			legend.blocks[newId].layer.legendBlocks.splice(
-				legend.blocks[newId].layer.legendBlocks.indexOf(oldId), 1, newId
+		blocks[newId] = blocks[oldId];
+		delete blocks[oldId];
+		if(typeof blocks[newId].layer !== "undefined")
+			blocks[newId].layer.legendBlocks.splice(
+				blocks[newId].layer.legendBlocks.indexOf(oldId), 1, newId
 			);
 		if(legend.g){
 			legend.g.select("#" + oldId)
@@ -165,7 +165,7 @@ var updateGrid = function() {
 		//define optimal layout for all the blocks
 		//and create a table
 		var bestWidth, bestHeight,
-			n = Object.keys(legend.blocks).length;
+			n = Object.keys(blocks).length;
 
 		if(typeof legend.ncol() === "undefined"){
 			var minSum = 1 + n, j;
@@ -196,17 +196,17 @@ var updateGrid = function() {
 			.enter().append("td")
 				.attr("id", function(d) {
 					try{
-						return Object.keys(legend.blocks)[d[0] * bestWidth + d[1]]
+						return Object.keys(blocks)[d[0] * bestWidth + d[1]]
 										.replace(/ /g, "_");
 					} catch(exc) {return undefined;}
 				});
-		for(var i in legend.blocks)
+		for(var i in blocks)
 			legend.updateBlock(i);
 	}
 
 
 	legend.updateBlock = function(id){
-		if(typeof legend.blocks[id] === "undefined")
+		if(typeof blocks[id] === "undefined")
 			throw "Error in 'legend.updateBlock': block with ID " + id +
 				" is not defined";
 
@@ -231,12 +231,12 @@ var updateGrid = function() {
 		title.attr("transform", "rotate(-90)translate(-" + cellHeight + ", 0)");
 
 		var sampleValues;
-		if(legend.blocks[id].domain.length == steps)
-			sampleValues = legend.blocks[id].domain;
+		if(blocks[id].domain.length == steps)
+			sampleValues = blocks[id].domain;
 		else
 			sampleValues = d3.range(steps).map(function(e) {
-				return (legend.blocks[id].domain[0] + e * 
-								(legend.blocks[id].domain[1] - legend.blocks[id].domain[0]) / 
+				return (blocks[id].domain[0] + e * 
+								(blocks[id].domain[1] - blocks[id].domain[0]) / 
 								(steps - 1)).toFixed(2);
 			})
 		var sampleData = [];
@@ -253,7 +253,7 @@ var updateGrid = function() {
 									(i * legend.sampleHeight()) + ")";
 				});
 
-		if(legend.blocks[id].type == "colour"){
+		if(blocks[id].type == "colour"){
 			var rect = blockSvg.selectAll(".sample").selectAll("rect").data(function(d){
 				return d;
 			});
@@ -263,7 +263,7 @@ var updateGrid = function() {
 					.attr("height", legend.sampleHeight())
 					.attr("fill", function(d) {return scale(d)});
 		}
-		if(legend.blocks[id].type == "symbol"){
+		if(blocks[id].type == "symbol"){
 			var size = d3.min([legend.sampleHeight() / 2, 
 													titleWidth / 2]);
 			var symbols = blockSvg.selectAll(".sample").selectAll("path").data(function(d){
@@ -278,7 +278,7 @@ var updateGrid = function() {
 					})
 					.attr("transform", "translate(" + size + ", " + size + ")");
 		}
-		if(legend.blocks[id].type == "dash"){
+		if(blocks[id].type == "dash"){
 			var lines = blockSvg.selectAll(".sample").selectAll("line").data(function(d){
 				return d;
 			});

@@ -6,12 +6,11 @@ export function heatmap(id, chart){
 
 	var chart = chartBase()
 		.add_property("nrows")
-		.add_property("ncols");
-	
-	chart.add_property("colLabel", function(i) {return i;})
+		.add_property("ncols")
+		.add_property("colLabel", function(i) {return i;})
 		.add_property("rowLabel", function(i) {return i;})
-		.add_property("colIds", function() {return undefined})
-		.add_property("rowIds", function() {return undefined})
+		.add_property("colIds")
+		.add_property("rowIds")
 		.add_property("dispColIds", function() {return chart.colIds();})
 		.add_property("dispRowIds", function() {return chart.rowIds();})
 		.add_property("heatmapRow", function(rowId) {return chart.dispRowIds().indexOf(rowId);})
@@ -21,15 +20,14 @@ export function heatmap(id, chart){
 		.add_property("value")
 		.add_property("mode", "default")
 		.add_property("colour", function(val) {return chart.colourScale(val);})
-		.add_property("palette", d3.interpolateOrRd) //? Do we need it? Really
-		.add_property("colourRange", function() {return chart.dataRange()})
+		.add_property("palette", d3.interpolateOrRd)
+		.add_property("colourDomain", function() {return chart.dataRange()})
 		.add_property("clusterRowMetric", getEuclideanDistance)
 		.add_property("clusterColMetric", getEuclideanDistance)
 		.add_property("on_click", function() {})
 		.add_property("rowTitle", "")
 		.add_property("showValue", false)
 		.add_property("colTitle", "")
-		.add_property("showLegend", true)
 		.add_property("informText", function(rowId, colId) {
 			return "Row: <b>" + chart.get_rowLabel(rowId) + "</b>;<br>" + 
 						"Col: <b>" + chart.get_colLabel(colId) + "</b>;<br>" + 
@@ -105,8 +103,6 @@ export function heatmap(id, chart){
 			.attr("class", "axisLabel")
 			.attr("text-anchor", "end")
 			.attr("transform", "rotate(-90)");
-		chart.svg.append("g")
-			.attr("class", "legend_panel");
 
 		(get_mode() == "svg") ? chart.g.classed("active", true) : 
 														chart.canvas.classed("active", true);
@@ -376,9 +372,6 @@ export function heatmap(id, chart){
 					.attr("transform", "translate(" + chart.margins().left + ", " +
 						chart.margins().top + ")");
 
-			chart.svg.select(".legend_panel").transition(t)
-				.attr("transform", "translate(0, " + 
-					d3.min([chart.height() - 40, chart.height() - chart.margins().bottom * 0.9]) + ")");
 			chart.axes.x_label.transition(t)
 				.attr("font-size", d3.min([chart.margins().bottom - 2, 15]))
 				.attr("x", chart.plotWidth() + chart.margins().left)
@@ -397,9 +390,6 @@ export function heatmap(id, chart){
 					.attr("transform", "translate(" + chart.margins().left + ", " +
 						chart.margins().top + ")");
 
-			chart.svg.select(".legend_panel")
-				.attr("transform", "translate(0, " + 
-					d3.min([chart.height() - 40, chart.height() - chart.margins().bottom * 0.9]) + ")");
 			chart.axes.x_label
 				.attr("font-size", d3.min([chart.margins().bottom - 2, 15]))
 				.attr("x", chart.get_plotWidth() + chart.margins().left)
@@ -415,7 +405,6 @@ export function heatmap(id, chart){
 			.attr("width", chart.plotWidth())
 			.attr("height", chart.plotHeight());		
 
-		chart.updateLegendSize();
 		chart.updateLabelPosition();
 		return chart;
 	}
@@ -563,9 +552,9 @@ export function heatmap(id, chart){
 
 	chart.resetColourScale = function(){
 	//create colorScale
-		var range = chart.colourRange();
+		var range = chart.colourDomain();
 		chart.colourScale = d3.scaleSequential(chart.get_palette).domain(range);
-		if(chart.showLegend())
+		if(chart.showLegend() && chart.legend)
 			chart.updateLegend();		
 	}	
 
@@ -953,47 +942,18 @@ export function heatmap(id, chart){
 		return chart;
 	}
 
-	chart.updateLegendSize = function(){
-		//calculate the size of element of legend
-		var height = d3.min([chart.margins().bottom * 0.5, 20]),
-			width = d3.min([chart.width()/23, 30]),
-			fontSize = d3.min([chart.margins().bottom * 0.3, width / 2, 15]),
-			blocks = chart.svg.select(".legend_panel").selectAll(".legend_block")
-			.attr("transform", function(d) {
-				return "translate(" + (d + 1) * width + ", 0)";
-			});
-		blocks.selectAll("text")
-			.attr("font-size", fontSize)
-			.attr("dy", chart.margins().bottom * 0.45)
-			.attr("dx", width);
-		blocks.selectAll("rect")
-			.attr("height", height)
-			.attr("width", width)
-			.attr("y", chart.margins().bottom * 0.5);
-	}
 
 	chart.updateLegend = function(){
-		var range = chart.get_colourRange(),
-			step = (range[1] - range[0]) / 20,
-			blocks = chart.svg.select(".legend_panel")
-			.selectAll(".legend_block").data(d3.range(21))
-				.enter().append("g")
-					.attr("class", "legend_block");
-		blocks.append("text")
-			.attr("text-anchor", "end")
-			.attr("class", "plainText");
-		blocks.append("rect");
-		chart.svg.select(".legend_panel")
-			.selectAll(".legend_block").selectAll("text")
-				.text(function(d) {
-					if(d % 2 == 0)
-						return (range[0] + step * d).toFixed(2)
-					else
-						return "";
-				});
-		chart.svg.select(".legend_panel")
-			.selectAll(".legend_block").selectAll("rect")
-				.attr("fill", function(d) {return chart.get_colour(range[0] + step * d)});
+		chart.legend.title(function(id){
+			if(id == "heatmap")
+				return ""
+			else
+				return id;
+		})
+		.legend.add_block(chart.colourScale, "colour", "heatmap");
+
+
+		return chart;
 	}
 
 	chart.checkMode = function(){
@@ -1155,7 +1115,7 @@ export function heatmap(id, chart){
 
 	chart.update = function() {
 		chart.updateTitle();
-		chart.resetColourScale();
+		chart.resetColourScale(); //here we create and update the legend. Changing heatmap size does not affect the legent (?)
 		chart.dispColIds(function() {return chart.colIds();});
 		chart.dispRowIds(function() {return chart.rowIds();});
 		chart.axes.x_label
