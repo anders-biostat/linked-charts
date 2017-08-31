@@ -42,7 +42,7 @@ export function chartBase() {
 	});
 	chart.wrapSetter("height", function(height) {
 		return function() {
-			chart.get_plotHeight = plotHeight;
+			chart.get_plotHeight = plotHeight_default;
 			return height.apply(chart, arguments);
 		}
 	});
@@ -277,7 +277,7 @@ export function chartBase() {
 		return chart;		
 	}
 
-	chart.getElements = function(data){
+	chart.get_elements = function(data){
 		data = data.map(function(e) {return escapeRegExp(e).replace(/ /g, "_")});
 		return chart.svg.selectAll("#p" + data.join(", #p"));
 	}

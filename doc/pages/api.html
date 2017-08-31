@@ -506,18 +506,27 @@
       <div class = "info" id = "colourSlider">
         <h2>lc.colourSlider()</h2>
       </div>
+      
       <div class = "info" id = "table">
         <h2>lc.table()</h2>
+        <p class = "description">A simple table that can show a content of an object.</p>
+
+
+
       </div>
+      
       <div class = "info" id = "dendogram">
         <h2>lc.dendogram()</h2>
+        <p class = "description">This class creates dendorgams that can be either independent charts
+        or a part of a heatmap.</p>
       </div>
+
       <div class = "info" id = "heatmap">
         <h2>lc.heatmap()</h2>
         <p class = "description">This class allows to create and customize interactive heatmaps.</p>
         <pre class = "tiy" fitHeight = "true" 
           tiy-preload="../src/linked-charts.min.js;../src/data/inputdata_simple.js;../src/linked-charts.css">
-var heatmap = lc.heatmapChart()
+var heatmap = lc.heatmap()
   .colIds(geneNames)
   .rowIds(drugNames)
   .value(function(rowId, colId){
@@ -525,7 +534,7 @@ var heatmap = lc.heatmapChart()
   })
   .width(500)
   .height(300)
-  .colourRange([-1, 1])
+  .colourDomain([-1, 1])
   .palette(function(val) {
     return d3.interpolateRdBu(1 - val);
   })

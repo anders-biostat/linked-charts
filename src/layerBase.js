@@ -31,7 +31,7 @@ export function layerBase(id) {
   layer.wrapSetter("nelements", function(oldSetter){
     return function() {
       layer.get_dataIds = function(){
-        return d3.range(oldSetter()).map(function(e) {return e.toString()});
+        return d3.range(oldSetter());
       };
       return oldSetter.apply(layer, arguments);
     }

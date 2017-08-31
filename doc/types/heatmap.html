@@ -48,7 +48,7 @@ d3.select("body")
         .attr("id", function(d) {return d});
 //-----Precode end-----
 
-var heatmap_numbers = lc.heatmapChart()
+var heatmap_numbers = lc.heatmap()
   .nrows(geneNames.length)
   .ncols(drugNames.length)
   .value(function(row, col){
@@ -56,7 +56,7 @@ var heatmap_numbers = lc.heatmapChart()
   })
   .place("#matrix");
 
-var heatmap_ids = lc.heatmapChart()
+var heatmap_ids = lc.heatmap()
   .rowIds(geneNames)
   .colIds(drugNames)
   .value(function(rowId, colId){
@@ -116,29 +116,29 @@ to transform IDs into colours is completely up to you. Yet, setting <tt>colour</
 property always overrides any other in-built ways of colour manipulation, and so we 
 recomend not to use it unless in some special cases.
 
-Generally, one would use <tt>palette</tt> and <tt>colourRange</tt> properties to set 
-an appropriate colour scheme. <tt>colourRange</tt> defines the values range on which we
+Generally, one would use <tt>palette</tt> and <tt>colourDomain</tt> properties to set 
+an appropriate colour scheme. <tt>colourDomain</tt> defines the values range on which we
 want to stretch the palette. For example, for correlation heatmap a good choice would 
-be <tt>[-1, 1]</tt>. By default <tt>colourRange</tt> returns the range of values of all
+be <tt>[-1, 1]</tt>. By default <tt>colourDomain</tt> returns the range of values of all
 the cells. <tt>palette</tt> is a functions that transforms values from <tt>[0, 1]</tt> into
 colours. It was desined to utilise sequential scales from d3 library, but can be any
 function that follows abovementioned condition.
 
 The combination of these two properties results in a colour scale that takes values from
-<tt>colourRange</tt> and returns colours. The scale is stored as <tt>chart.colourScale</tt>
+<tt>colourDomain</tt> and returns colours. The scale is stored as <tt>chart.colourScale</tt>
 (this is not a property!) and by default is accessed via the <tt>colour</tt> property.
 
 Here is an exaple to put it all together.
 
 <pre class = "tiy" fitHeight = "true" 
   tiy-preload="../src/linked-charts.min.js;../src/data/inputdata_simple.js;../src/linked-charts.css">
-var heatmap = lc.heatmapChart()
+var heatmap = lc.heatmap()
   .rowIds(geneNames)
   .colIds(drugNames)
   .value(function(rowId, colId){
     return corObject[rowId][colId]
   })
-  .colourRange([-1, 1])
+  .colourDomain([-1, 1])
   .palette(function(val) {
     return d3.interpolateRdBu(1 - val);
   })
@@ -161,7 +161,7 @@ heatmap
 </pre>
 
 Note that in first case we are still using the default colour scale
-and therefore <tt>colourRange</tt> and <tt>palette</tt> properties 
+and therefore <tt>colourDomain</tt> and <tt>palette</tt> properties 
 still have an effect on the heatmap's appearance. But if colour is 
 set like in the second example, other colour properties will be 
 ineffective.
@@ -199,7 +199,7 @@ to cluster rows and columns and disable one of the dendograms.
 
 <pre class = "tiy" fitHeight = "true"
   tiy-preload="../src/linked-charts.min.js;../src/data/inputdata_simple.js;../src/linked-charts.css">
-var heatmap = lc.heatmapChart()
+var heatmap = lc.heatmap()
   .rowIds(geneNames)
   .colIds(drugNames)
   .value(function(rowId, colId){

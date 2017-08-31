@@ -1,4 +1,4 @@
-import { getEuclideanDistance, add_click_listener, escapeRegExp } from "./additionalFunctions";
+import { getEuclideanDistance, add_click_listener, escapeRegExp, cache } from "./additionalFunctions";
 import { chartBase } from "./chartBase";
 import { dendogram } from "./dendogram";
 
@@ -114,6 +114,9 @@ export function heatmap(id, chart){
 			.on("mouseout", function() {
 				chart.container.select(".inform").classed("hidden", true);
 			});
+
+		chart.legend.width(75);
+
 
 		if(chart.showPanel()){
 			chart.panel.add_button("Zoom in", "#zoomIn", function(chart){
@@ -560,7 +563,7 @@ export function heatmap(id, chart){
 
 	//some default onmouseover and onmouseout behaviour for cells and labels
 	//may be later moved out of the main library
-	function elementMouseOver {
+	function elementMouseOver(d) {
 		var pos = d3.mouse(chart.container.node());
 		//change colour and class
 		d3.select(this)
@@ -840,14 +843,14 @@ export function heatmap(id, chart){
 
 		if(type == "Row")
 			chart["dendogram" + type]
-				.data(function(id) {
+				.data(cache(function(id) {
 					return features.map(function(e) {return chart.get_value(id, e)});
-				})
+				}))
 		else
 			chart["dendogram" + type]
-				.data(function(id) {
+				.data(cache(function(id) {
 					return features.map(function(e) {return chart.get_value(e, id)});
-				});
+				}));
 
 		chart["dendogram" + type]
 			.distance(function(a, b){

@@ -10,7 +10,7 @@ Linked Charts
 
 <pre class="tiy" showCode="false"
   tiy-preload="../src/linked-charts.min.js;../src/data/inputdata_simple.js;../src/linked-charts.css"
-  width="1000" height="400" 
+  width="1100" height="400" 
   subscr="Here is a simple example of linked charts. Heatmap shows correlations between gene 
           expression and drug response for 52 samples from patients with acute myeloid leukaemia (AML).
           Scatterplot shows individual values of logarithmised read counts and drug scores for all the
@@ -28,7 +28,7 @@ Linked Charts
   var selGene = 0;                                               
   var selDrug = 0;
 
-  var scatterplot = lc.scatterChart()
+  var scatterplot = lc.scatter()
     .width(300)
     .height(300)
     .labelX("Gene Expression")
@@ -42,13 +42,13 @@ Linked Charts
     })
     .place("#scatterplot");
 
-  var heatmap = lc.heatmapChart()
+  var heatmap = lc.heatmap()
     .ncols( geneNames.length )
     .nrows( drugNames.length )
     .margins({top: 50, left: 50, right: 60, bottom: 160})
     .height( 350 )
     .width( 600 )
-    .colourRange( [ -1, 1 ] )
+    .colourDomain( [-1, 1] )
     .palette( d3.interpolateRdBu )
     .value( function( row, col ) {  
        return lc.pearsonCorr( drugScores[row], geneExprs[col] ) 
@@ -66,6 +66,7 @@ Linked Charts
     })
     .cluster("Row")
     .cluster("Col")
+    .legend.width(75)
     .place( "#heatmap")
 </pre>
 
@@ -131,7 +132,7 @@ The minimal code, needed to create a set of charts similar to the one on the top
   var selDrug = 0;
 
   //generating heatmap
-  var heatmap = lc.heatmapChart()
+  var heatmap = lc.heatmap()
     //number of rows and columns
     .ncols( geneNames.length )
     .nrows( drugNames.length )
@@ -153,7 +154,7 @@ The minimal code, needed to create a set of charts similar to the one on the top
     .place();
 
   //generating scatterplot
-  var scatterplot = lc.scatterChart()
+  var scatterplot = lc.scatter()
     .x( function( k ) { return geneExprs[selGene][k] } )
     .y( function( k ) { return drugScores[selDrug][k] } )
     .place();

@@ -280,8 +280,6 @@ export function dendogram(heatmap)
 		if(id_and_type[1] == 'h')
 			prop = id_and_type[0];
 
-
-
 		if(dendogram.heatmap != undefined)
 		{
 			if(dendogram.orientation() == 'h')
@@ -314,19 +312,25 @@ export function dendogram(heatmap)
 	}
 
 	dendogram.cluster = function(){
+		dendogram.get_data("clear");
 		var keys = dendogram.dataIds();
-		dendogram.bucket = []
+		dendogram.bucket = [];
+
+		var dataIds = dendogram.dataIds(); 
+
 		//Initialisation
 		for(var i = 0; i < keys.length; i++)
 			dendogram.bucket[i]  = new Node(keys[i], dendogram.get_data(keys[i]));	
 		var bucket_dist = function(el1_inds, el2_inds)
 		{
-			var max_dist = dendogram.get_distance(dendogram.get_data(el1_inds[0]), dendogram.get_data(el2_inds[0]));
+			var max_dist = dist_mat[dataIds.indexOf(el1_inds[0])][dataIds.indexOf(el2_inds[0])], dis;
+			//var max_dist = dendogram.get_distance(dendogram.get_data(el1_inds[0]), dendogram.get_data(el2_inds[0]));
 			for(var i = 0; i < el1_inds.length; i++)
 			{
 				for(var j = 0; j < el2_inds.length; j++)	
 					{
-						var dis = dendogram.get_distance(dendogram.get_data(el1_inds[i]), dendogram.get_data(el2_inds[j]));
+						dis = dist_mat[dataIds.indexOf(el1_inds[i])][dataIds.indexOf(el2_inds[j])];
+						//dis = dendogram.get_distance(dendogram.get_data(el1_inds[i]), dendogram.get_data(el2_inds[j]));
 						if(dis > max_dist)
 							max_dist = dis;
 					}
@@ -371,21 +375,18 @@ export function dendogram(heatmap)
 			}
 			return bucket_copy[0];
 		}
-		//var dist_mat = dendogram.calc_dist();
+		var dist_mat = dendogram.calc_dist();
 		//console.log(dist_mat[0])
 		dendogram.clusters = merge();
-
-		if(dendogram.heatmap){
-
-		}		
 	}
 
 	dendogram.calc_dist = function(){
 		var keys = dendogram.dataIds();
-		var dist = {};
+		var dist = new Array(keys.length);
+		for(var i = 0; i < keys.length; i++)
+			dist[i] = new Array(keys.length);
 		for(var i = 0; i < keys.length; i++)
 		{
-			dist[keys[i]] = {};
 			for(var j = i; j < keys.length; j++)
 			{
 				var d = dendogram.get_distance(dendogram.get_data(keys[i]), dendogram.get_data(keys[j]));

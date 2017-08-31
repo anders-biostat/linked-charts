@@ -22,7 +22,7 @@ So the simplest possible scatter plot can be created like this
 
 <pre class="tiy" width="100%" fitHeight="true"
   tiy-preload="../src/linked-charts.min.js;../src/data/iris.js;../src/linked-charts.css">
-var scatterplot = lc.scatterChart()
+var scatterplot = lc.scatter()
   .x(function(k) {return data[k].sepalLength})
   .y(function(k) {return data[k].petalLength})
   .place();
@@ -68,7 +68,7 @@ So in thist case it seems reasonable to use gene names as IDs.
 
 <pre class="tiy" width="100%" fitHeight="true"
   tiy-preload="../src/linked-charts.min.js;../src/data/inputdata_simple.js;../src/linked-charts.css">
-var scatterplot = lc.scatterChart()
+var scatterplot = lc.scatter()
   .dataIds(Object.keys(scatterData))
   .x(function(id) {return scatterData[id].sample_1;})
   .y(function(id) {return scatterData[id].sample_2;})
@@ -102,7 +102,7 @@ Let's put all this together into an example
 
 <pre class="tiy" width="100%" fitHeight="true"
   tiy-preload="../src/linked-charts.min.js;../src/data/iris.js;../src/linked-charts.css">
-var scatterplot = lc.scatterChart()
+var scatterplot = lc.scatter()
   .x(function(k) {return data[k].sepalLength})
   .y(function(k) {return data[k].petalLength})
   .size(function(k) {return data[k].sepalWidth * 2})
@@ -142,7 +142,7 @@ names are also used as IDs, so they need to be unique.
 
 <pre class="tiy" width="100%" fitHeight="true"
   tiy-preload="../src/linked-charts.min.js;../src/data/iris.js;../src/linked-charts.css">
-var scatterplot = lc.scatterChart()
+var scatterplot = lc.scatter()
   .x(function(k) {return data[k].sepalLength})
   .y(function(k) {return data[k].petalLength})
   .size(function(k) {return data[k].sepalWidth * 2})

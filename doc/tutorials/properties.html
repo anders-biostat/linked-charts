@@ -5,6 +5,8 @@
 <body>
 <script src="../src/navTop.js"></script>
 <xmp theme = "simplex">
+# Proprerties in the Linked-Charts
+
 ### Content
 
 * [Getters and setter](#getters)
@@ -57,7 +59,7 @@ scatter plot.
 <pre class="tiy" width="100%" fitHeight="true"
   tiy-preload="../src/linked-charts.min.js;../src/data/iris.js;../src/linked-charts.css">
   //create a scatterplot
-  var scatterplot = lc.scatterChart()
+  var scatterplot = lc.scatter()
     //set x and y values
     .x(function(k) {return data[k].sepalLength})
     .y(function(k) {return data[k].petalLength})
@@ -118,7 +120,7 @@ function will only change width.
     height = 300;
 
   //create a scatterplot
-  var scatterplot = lc.scatterChart()
+  var scatterplot = lc.scatter()
     //set x and y values
     .x(function(k) {return data[k].sepalLength})
     .y(function(k) {return data[k].petalLength})
@@ -182,7 +184,7 @@ Size will be the same for all the points and colour will indicate species
 <pre class="tiy" width="100%" fitHeight="true"
   tiy-preload="../src/linked-charts.min.js;../src/data/iris.js;../src/linked-charts.css">
   //create a scatterplot
-  var scatterplot = lc.scatterChart()
+  var scatterplot = lc.scatter()
     //set x and y values
     .x(function(k) {return data[k].sepalLength})
     .y(function(k) {return data[k].petalLength})
@@ -264,7 +266,7 @@ cancer cell lines (Pa16C and Pa14C). Plot to the right shows inhibition percanta
 averaged between all five concentrarions. Plot to the left shows individual values
 of inhibition percentage for a selected drug.
 
-<pre class="tiy" width="100%" fitHeight="true"
+<pre class="tiy" width="100%" fitHeight="true" fitWidth="true"
   tiy-preload="../src/linked-charts.min.js;../src/data/inputdata.js;../src/linked-charts.css">
   d3.select("body")
     .append("table")
@@ -281,7 +283,7 @@ of inhibition percentage for a selected drug.
   var selDrug = "Filanesib";
 
   //create scatter plot with average inhibition values
-  var scatterplot = lc.scatterChart()
+  var scatterplot = lc.scatter()
     //id for each point is a corresponding drug name
     .dataIds(Object.keys(data.Pa16C))
     .x(function(id) {return data.Pa16C[id].avInh})
@@ -297,7 +299,7 @@ of inhibition percentage for a selected drug.
 
   //create the first layer of the chart
   //note the optional argument that sets layer ID
-  var inhValues = lc.scatterChart("Pa16C")
+  var inhValues = lc.scatter("Pa16C")
     .nelements( 5 )
     .x( function( k ) {return k;} )
     .y( function( k ) {
@@ -306,7 +308,7 @@ of inhibition percentage for a selected drug.
     .colour( "blue" );
   //to add layer to an existing chart one should pass the
   //chart as a second argument to 
-  lc.scatterChart("Pa14C", inhValues)
+  lc.scatter("Pa14C", inhValues)
     .nelements( 5 )
     .x( function( k ) {return k} )
     .y( function( k ) {

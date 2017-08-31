@@ -71,3 +71,7 @@ div.container {
   font-size: 15px;
   line-height: 150%;
 }
+
+pre.example code {
+  font-size: 16px !important; 
+}

@@ -11,8 +11,8 @@ var pages = {
 		types: "Types of charts"
 	},
 	examples: {
-		simple: "Simple example",
-		layers: "Layers"
+		simpleExample: "A very simple example",
+		layers: "Adding layers"
 	}
 }
 

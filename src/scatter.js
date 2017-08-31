@@ -71,7 +71,7 @@ export function scatter(id, chart) {
       var oldName = symbolLegendName();
     var returnedValue = symbolLegendName(vf, propertyName, overrideFunc);
     if(vf)
-      layer.chart.legend.rename(oldName, symbolLegendName());
+      layer.chart.legend.renameBlock(oldName, symbolLegendName());
     return returnedValue;
   }
 
