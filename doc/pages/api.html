@@ -578,6 +578,15 @@ var heatmap = lc.heatmapChart()
         <h4>Default value</h4>
         <p><tt>undefined</tt></p>
 
+        <p class = "method"><a>on_click</a></p>
+        <p class = "methodDescription">Actions to be performed when a cell is clicked.</p>
+        <h4>Type</h4>
+        <p>Function that takes row ID and column ID as arguments.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function() {}
+        </pre>
+
         <p class = "method"><a>rowLabel</a></p>
         <p class = "methodDescription">Provided a row ID, returns a label for this row.</p>
         <h4>Type</h4>
@@ -627,15 +636,14 @@ function(val) {return chart.colourScale(val);}
         <h4>Default value</h4>
         <p><a href="https://github.com/d3/d3-scale-chromatic#interpolateOrRd">d3.interpolateOrRd</a></p>
 
-        <p class = "method"><a>colourRange</a></p>
-        <p class = "methodDescription">Provided a value (that is defined through <tt><a>value</a></tt>
-        property), returns colour to fill a cell.</p>
+        <p class = "method"><a>colourDomain</a></p>
+        <p class = "methodDescription">Sets a domain for the <tt><a>colourtScale</a></tt>.</p>
         <h4>Type</h4>
-        <p>Colour.</p>
+        <p>[number, number]</p>
         <h4>Default value</h4>
         <pre class = "tiy" runnable = "false">
-function(val) {return chart.colourScale(val);}
-        </pre>                     
+function() {return chart.dataRange()}
+        </pre>
 
         <p class = "method"><a>showDendogramRow</a></p>
         <p class = "methodDescription">Defines, whether or not to show <a>dendogram</a> for rows.
@@ -655,6 +663,44 @@ function(val) {return chart.colourScale(val);}
         <h4>Default value</h4>
         <p><tt>true</tt></p>
 
+        <p class = "method"><a>clusterRowMetric</a></p>
+        <p class = "methodDescription">Defines distance fucntion that is used to cluster rows.</p>
+        <h4>Type</h4>
+        <p>Distance fucntion. Provided to arrays of coordinates returns distance.</p>
+        <h4>Default value</h4>
+        <p>Euclidean distance</p>
+        <pre class = "tiy" runnable = "false">
+function(a, b) {
+  if(a.length != b.length)
+    throw "Error in getEuclideanDistance: length of the" +
+      "input vectors is not the same";
+  var sum = 0;
+  for(var i = 0; i < a.length; i++)
+    sum += (a[i] - b[i]) * (a[i] - b[i]);
+  
+  return Math.sqrt(sum);
+}        
+        </pre>
+
+        <p class = "method"><a>clusterColMetric</a></p>
+        <p class = "methodDescription">Defines distance fucntion that is used to cluster columns.</p>
+        <h4>Type</h4>
+        <p>Distance fucntion. Provided to arrays of coordinates returns distance.</p>
+        <h4>Default value</h4>
+        <p>Euclidean distance</p>
+        <pre class = "tiy" runnable = "false">
+function(a, b) {
+  if(a.length != b.length)
+    throw "Error in getEuclideanDistance: length of the" +
+      "input vectors is not the same";
+  var sum = 0;
+  for(var i = 0; i < a.length; i++)
+    sum += (a[i] - b[i]) * (a[i] - b[i]);
+  
+  return Math.sqrt(sum);
+}
+        </pre>
+
         <p class = "method"><a>mode</a></p>
         <p class = "methodDescription">Heatmap can be generated eithe as SVG, or as Canvas. SVG allows
         easier and more complicated interactivity and also can be changed only partially (e.g. you can
@@ -670,6 +716,32 @@ function(val) {return chart.colourScale(val);}
         <h4>Default value</h4>
         <p><tt>"default"</tt></p>          
 
+        <p class = "method"><a>informText</a></p>
+        <p class = "methodDescription">Text to be shown on the information lable (the one that appears
+        when mouse is hovering above a cell).</p>
+        <h4>Type</h4>
+        <p>HTML</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function(rowId, colId) {
+  return "Row: &lt;b>" + chart.get_rowLabel(rowId) + "&lt;/b>;&lt;br>" + 
+         "Col: &lt;b>" + chart.get_colLabel(colId) + "&lt;/b>;&lt;br>" + 
+         "value = " + chart.get_value(rowId, colId).toFixed(2)
+})
+        </pre>
+
+        <p class = "method"><a>heatmapRow</a></p>
+        <p class = "methodDescription">Provided a row ID, returns a sequential number of this
+        row among currently displayed ones.</p>
+        <h4>Type</h4>
+        <p>Number.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function(rowId) {
+  return chart.dispRowIds().indexOf(rowId);
+}
+        </pre>
+
         <p class = "method"><a>heatmapCol</a></p>
         <p class = "methodDescription">Provided a column ID, returns a sequential number of this
         column among currently displayed ones.</p>
@@ -681,6 +753,28 @@ function(colId) {
   return chart.dispColIds().indexOf(colId);
 }
         </pre>
+
+        <p class = "method"><a>showValue</a></p>
+        <p class = "methodDescription">Defines, whether or not show the value as a text
+        inside a cell.</p>
+        <h4>Type</h4>
+        <p>Booolean.</p>
+        <h4>Default value</h4>
+        <p><tt>false</tt></p>
+
+        <p class = "method"><a>rowTitle</a></p>
+        <p class = "methodDescription">Sets a title for the rows.</p>
+        <h4>Type</h4>
+        <p>String.</p>
+        <h4>Default value</h4>
+        <p>"" <i>(empty string)</i></p>
+
+        <p class = "method"><a>colTitle</a></p>
+        <p class = "methodDescription">Sets a title for the columns.</p>
+        <h4>Type</h4>
+        <p>String.</p>
+        <h4>Default value</h4>
+        <p>"" <i>(empty string)</i></p>
 
         <p class = "method"><a>dispRowIds</a></p>
         <p class = "methodDescription">An list of rows that should be displayed.</p>
@@ -698,7 +792,124 @@ function() {return chart.rowIds();}
         <h4>Default value</h4>
         <pre class = "tiy" runnable = "false">
 function() {return chart.colIds();}
-        </pre>        
+        </pre>
+
+        <h3>Methods</h3>
+
+        <p class = "method"><a>updateLabels</a>()</p>
+        <p class = "methodDescription">Adds or removes labels to keep them up to date with 
+        current data. Calls <tt><a>updateCells</a></tt>.</p>  
+
+        <p class = "method"><a>updateCells</a>()</p>
+        <p class = "methodDescription">Adds or removes cells to keep them up to date with 
+        current data. If <tt><a>showValue</a></tt> is <tt>true</tt>, calls <tt><a>updateTexts</a></tt>.</p>
+
+        <p class = "method"><a>updateTexts</a>()</p>
+        <p class = "methodDescription">Adds or removes text inside cells to keep it up to date with 
+        current data.</p>
+
+        <p class = "method"><a>updateLabelPosition</a>()</p>
+        <p class = "methodDescription">Updates coordinates of all the existing labesl. Calls
+        <tt><a>updateCellPosition</a></tt>.</p>   
+
+        <p class = "method"><a>updateCellPosition</a>()</p>
+        <p class = "methodDescription">Updates coordinates of all the existing cells. If 
+        <tt><a>showValue</a></tt> is <tt>true</tt>, calls <tt><a>updateTextPosition</a></tt>.</p>
+
+        <p class = "method"><a>updateTextPosition</a>()</p>
+        <p class = "methodDescription">Updates coordinates of text inside cells.</p>
+
+        <p class = "method"><a>updateLabelText</a>()</p>
+        <p class = "methodDescription">Updates text of all the existing labels.</p>
+
+        <p class = "method"><a>updateCellColour</a>()</p>
+        <p class = "methodDescription">Updates colour of all the existing cells. If 
+        <tt><a>showValue</a></tt> is <tt>true</tt>, calls <tt><a>updateTextValues</a></tt>.</p>        
+
+        <p class = "method"><a>updateTextValues</a>()</p>
+        <p class = "methodDescription">Updates text inside cells.</p>     
+
+        <p class = "method"><a>updateCanvas</a>()</p>
+        <p class = "methodDescription">Updates canvas.
+        <b>Important!</b> This method is not responsible for switching between "canvas" and 
+        "svg" modes. It just updates the existing canvas and generally is called from other
+        update methods, when "canvas" mode is active.</p>     
+
+        <p class = "method"><a>cluster</a>(type, [features])</p> 
+        <p class = "methodDescription">Performs hierarchical clustering of row or columns, reorders them accordingly,
+        and adds a dendogram, if this is not prohibited by <tt><a>showDendogramRow</a></tt> or <tt><a>showDendogramCol</a></tt>
+        properties.</p>
+        <p class = "argument"><span>type</span> - <b>either "Row" or "Col"</b> - defines what to cluster: rows 
+        or columns.</p>
+        <p class = "argument"><span>features</span> <i>(optional)</i> - <b>array of strings</b> - a list row of column IDs that
+        should be used as features for clustering. Allows to cluster, for example, rows, using only some of the columns. If
+        not specified, all the rows or columns are used for clustering.</p>
+
+        <p class = "method"><a>reorder</a>(type, sortFun)</p> 
+        <p class = "methodDescription">Changes order of row or columns according to the provided function. Only
+        the currently displayed row or columns will be reordered. So if you, for example, zoom in, reoder row and
+        zoom out, all other rows will remain on the same positions.</p>
+        <p class = "argument"><span>type</span> - <b>either "Row" or "Col"</b> - defines what to reorder: rows 
+        or columns.</p>
+        <p class = "argument"><span>sortFun</span> - <b>function</b> - sorting function that takes two row
+        or column IDs and returns a negative value if the first element should be located after the second,
+        and a positive value otherwise.</p>
+
+        <p class = "method"><a>showDendogram</a>(type, [value])</p>
+        <p class = "methodDescription">Returns or sets an idicator, telling whether a
+        dendogram for rows or columns should be displayed. Unlike properties <tt><a>showDendogramRow</a></tt>
+        and <tt><a>showDendogramCol</a></tt>, which are sort of global, this method is
+        responsible for showing or hiding dendogram in a paticular moments. Thus, if <tt><a>showDendogramRow</a></tt>
+        is <tt>false</tt>, this method will always return <tt>false</tt> as well. Otherwise it
+        will return <tt>true</tt> or <tt>false</tt>, depending on if the rows are now clustered.</p>
+        <p class = "argument"><span>type</span> - <b>either "Row" or "Col"</b> - selector for one of the dendograms.</p>
+        <p class = "argument"><span>value</span> <i>(optional)</i> - <b>boolean</b> - if specified, the selected
+        dendogram is either shown (if the corresponding property is <tt>true</tt>) or hidden. If not specified,
+        returns current state of the selected dendogram (<tt>true</tt> if shown, <tt>false</tt> if hidden).</p>
+
+        <p class = "method"><a>drawDendogram</a>(type)</p>
+        <p class = "methodDescription">Adds a dendogram to the chart.</p>
+        <p class = "argument"><span>type</span> - <b>either "Row" or "Col"</b> - defines which dendogram to draw.</p>
+
+        <p class = "method"><a>dataRange</a>()</p>
+        <p class = "methodDescription">Returns the range of all the values, provided that the
+        values are numbers.</p>
+
+        <p class = "method"><a>resetDomain</a>()</p>        
+        <p class = "methodDescription">Resets lists of the displayed row and columns and their order to its 
+        original state.</p>
+
+        <p class = "method"><a>colourScale</a>()</p>        
+        <p class = "methodDescription">Scale that transforms values into colours.</p>
+
+        <p class = "method"><a>resetColourScale</a>()</p>        
+        <p class = "methodDescription">Redefines heatmap's <tt><a>colourScale</a></tt> according to the
+        current data.</p>
+
+        <p class = "method"><a>zoom</a>(lu, rb)</p> 
+        <p class = "methodDescription">Zooms into a selected rectangle area, defined by its left-upper corner 
+        (<tt>lu</tt>) and right-bottom corner (<tt>rb</tt>).
+        <p class = "argument"><span>lu</span> - <b>[number, number]</b> - left-upper corner of the area,
+        where to look for the elements.</p>
+        <p class = "argument"><span>rb</span> - <b>[number, number]</b> - right-bottom corner of the area,
+        where to look for the elements.</p>
+
+        <p class = "method"><a>findElements</a>(lu, rb)</p>        
+        <p class = "methodDescription">Returns a list of IDs of all the elements that are inside or on the border of 
+        a rectagle area, defined by its left-upper corner (<tt>lu</tt>) and right-bottom corner (<tt>rb</tt>).
+        <b>Important!</b> Unlike most functions in the <tt>linked-charts</tt> library, this method returns
+        IDs of actual SVG elements (or mimics these IDs if "canvas" mode is used). This is required to treat heatmpas,
+        where each cell has two IDs, and all other types of charts the same. IDs for each cell are generated the
+        following way: <tt>p<i>rowId</i>_-sep-_<i>colId</i> with all the spaces in rowId and colId converted into
+        underscores.</p>
+        <p class = "argument"><span>lu</span> - <b>[number, number]</b> - left-upper corner of the area,
+        where to look for the elements.</p>
+        <p class = "argument"><span>rb</span> - <b>[number, number]</b> - right-bottom corner of the area,
+        where to look for the elements.</p>
+
+        <p class = "method"><a>get_position</a>(id)</p>        
+        <p class = "methodDescription">Returns coordinates of the cell with the provided row and column IDs.</p>
+        <p class = "argument"><span>id</span> - <b>[string, string]</b> - row and column IDs of a cell.</p>
 
       </div>
       <div class = "info" id = "panel">

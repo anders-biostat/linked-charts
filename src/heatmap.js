@@ -119,10 +119,10 @@ export function heatmap(id, chart){
 			chart.panel.add_button("Zoom in", "#zoomIn", function(chart){
 				var removeRows = -Math.ceil(chart.dispRowIds().length * 0.1),
 					removeCols = -Math.ceil(chart.dispColIds().length * 0.1);
-				chart.dispRowIds(chart.addLines(removeRows, "top"));
-				chart.dispRowIds(chart.addLines(removeRows, "bottom"));
-				chart.dispColIds(chart.addLines(removeCols, "left"));
-				chart.dispColIds(chart.addLines(removeCols, "right"));
+				chart.dispRowIds(addLines(removeRows, "top"));
+				chart.dispRowIds(addLines(removeRows, "bottom"));
+				chart.dispColIds(addLines(removeCols, "left"));
+				chart.dispColIds(addLines(removeCols, "right"));
 
 				chart.updateStarted = true;
 				chart.updateLabels();
@@ -133,10 +133,10 @@ export function heatmap(id, chart){
 				var addRows = Math.ceil(chart.dispRowIds().length * 0.1),
 					addCols = Math.ceil(chart.dispColIds().length * 0.1);
 				
-				chart.dispRowIds(chart.addLines(addRows, "top"));
-				chart.dispRowIds(chart.addLines(addRows, "bottom"));
-				chart.dispColIds(chart.addLines(addCols, "left"));
-				chart.dispColIds(chart.addLines(addCols, "right"));
+				chart.dispRowIds(addLines(addRows, "top"));
+				chart.dispRowIds(addLines(addRows, "bottom"));
+				chart.dispColIds(addLines(addCols, "left"));
+				chart.dispColIds(addLines(addCols, "right"));
 
 				chart.updateStarted = true;
 				chart.updateLabels();
@@ -236,10 +236,10 @@ export function heatmap(id, chart){
 	}
 
 	//set default hovering behaviour
-	chart.labelMouseOver = function() {
+	function labelMouseOver() {
 		d3.select(this).classed("hover", true);
 	};
-	chart.labelMouseOut = function() {
+	function labelMouseOut() {
 		d3.select(this).classed("hover", false);
 	};
 
@@ -295,7 +295,7 @@ export function heatmap(id, chart){
 		return chart;
 	}
 
-	chart.addLines = function(k, side){
+	function addLines(k, side) {
 		var orderedIds, dispIds;
 		if(side == "top" || side == "bottom"){
 			orderedIds = chart.get_heatmapRow("__order__");
@@ -473,9 +473,9 @@ export function heatmap(id, chart){
 				.attr("dx", 2)
 				.merge(colLabel)
 					.attr("id", function(d) {return d.toString().replace(/ /g,"_")})
-					.on("mouseover", chart.labelMouseOver)
-					.on("mouseout", chart.labelMouseOut)
-					.on("click", chart.labelClick);
+					.on("mouseover", labelMouseOver)
+					.on("mouseout", labelMouseOut)
+					.on("click", labelClick);
 		rowLabel.enter()
 			.append("text")
 				.attr("class", "label")
@@ -483,9 +483,9 @@ export function heatmap(id, chart){
 				.attr("dx", -2)
 				.merge(rowLabel)
 					.attr("id", function(d) {return d.toString().replace(/ /g,"_")})
-					.on("mouseover", chart.labelMouseOver)
-					.on("mouseout", chart.labelMouseOut)
-					.on("click", chart.labelClick);
+					.on("mouseover", labelMouseOver)
+					.on("mouseout", labelMouseOut)
+					.on("click", labelClick);
 
 		chart.updateCells();
 		return chart;
@@ -555,12 +555,12 @@ export function heatmap(id, chart){
 		var range = chart.colourDomain();
 		chart.colourScale = d3.scaleSequential(chart.get_palette).domain(range);
 		if(chart.showLegend() && chart.legend)
-			chart.updateLegend();		
+			updateLegend();		
 	}	
 
 	//some default onmouseover and onmouseout behaviour for cells and labels
 	//may be later moved out of the main library
-	chart.elementMouseOver = function(d) {
+	function elementMouseOver {
 		var pos = d3.mouse(chart.container.node());
 		//change colour and class
 		d3.select(this)
@@ -591,7 +591,7 @@ export function heatmap(id, chart){
 			.classed("hidden", false);
 		}
 	};
-	chart.elementMouseOut = function(d) {
+	function elementMouseOut(d) {
 		//change colour and class
 		d3.select(this)
 			.attr("fill", function(d) {
@@ -610,7 +610,7 @@ export function heatmap(id, chart){
 	};
 	
 	//set default clicking behaviour for labels (ordering)
-	chart.labelClick = function(d){
+	function labelClick(d){
 		//check whether row or col label has been clicked
 		var type;
 		d3.select(this.parentNode).classed("row") ? type = "row" : type = "col";
@@ -680,7 +680,7 @@ export function heatmap(id, chart){
 	}
 
 	chart.updateCellColour = function() {
-		if(!chart.checkMode())
+		if(!checkMode())
 			return chart;
 
 		if(get_mode() == "svg") {
@@ -715,7 +715,7 @@ export function heatmap(id, chart){
 	}
 
 	chart.updateCells = function(){
-		if(!chart.checkMode())
+		if(!checkMode())
 			return chart;
 
 		var markedCells = chart.get_marked().length;
@@ -747,8 +747,8 @@ export function heatmap(id, chart){
 						.attr("id", function(d) {return "p" + (d[0] + "_-sep-_" + d[1]).replace(/ /g,"_")})
 						.attr("rowId", function(d) {return d[0];})
 						.attr("colId", function(d) {return d[1];})
-						.on("mouseover", chart.elementMouseOver)
-						.on("mouseout", chart.elementMouseOut)
+						.on("mouseover", elementMouseOver)
+						.on("mouseout", elementMouseOut)
 						.on("click", function(d) {
 							chart.get_on_click.apply(this, [d[0], d[1]]);
 						});
@@ -782,7 +782,7 @@ export function heatmap(id, chart){
 	}
 
 	chart.updateCellPosition = function(){
-		if(!chart.checkMode())
+		if(!checkMode())
 			return chart;
 
 		if(get_mode() == "svg"){
@@ -943,7 +943,7 @@ export function heatmap(id, chart){
 	}
 
 
-	chart.updateLegend = function(){
+	function updateLegend() {
 		chart.legend.title(function(id){
 			if(id == "heatmap")
 				return ""
@@ -956,7 +956,7 @@ export function heatmap(id, chart){
 		return chart;
 	}
 
-	chart.checkMode = function(){
+	function checkMode(){
 		if((get_mode() == "svg") && (chart.canvas.classed("active"))) {
 			chart.canvas.classed("active", false);
 			chart.g.classed("active", true);
@@ -987,7 +987,6 @@ export function heatmap(id, chart){
 	}
 
 	chart.updateCanvas = function(){
-		console.log("Canvas");
 		var ctx = chart.canvas.node().getContext("2d");
 		ctx.clearRect(0, 0, chart.plotWidth(), chart.plotHeight());
 		var rowIds = chart.dispRowIds(),
@@ -1040,7 +1039,7 @@ export function heatmap(id, chart){
 
 	}
 
-	chart.getElements = function(data){
+	chart.get_elements = function(data){
 		if(data.length == 2 && data[0].substr)
 			data = [data];
 		data = data.map(function(e) {return "p" + e.join("_-sep-_")});
@@ -1098,10 +1097,10 @@ export function heatmap(id, chart){
 		chart.pan("down")[0] += Math.sign(move[0]) * addCols * chart.cellSize.width;
 		chart.pan("down")[1] += Math.sign(move[1]) * addRows * chart.cellSize.height;
 
-		chart.dispColIds(chart.addLines(-Math.sign(move[0]) * addCols, "right"));
-		chart.dispColIds(chart.addLines(Math.sign(move[0]) * addCols, "left"));
-		chart.dispRowIds(chart.addLines(Math.sign(move[1]) * addRows, "top"));
-		chart.dispRowIds(chart.addLines(-Math.sign(move[1]) * addRows, "bottom"));
+		chart.dispColIds(addLines(-Math.sign(move[0]) * addCols, "right"));
+		chart.dispColIds(addLines(Math.sign(move[0]) * addCols, "left"));
+		chart.dispRowIds(addLines(Math.sign(move[1]) * addRows, "top"));
+		chart.dispRowIds(addLines(-Math.sign(move[1]) * addRows, "bottom"));
 
 		if(Math.abs(addRows) + Math.abs(addCols) > 0) {
 			chart.updateStarted = true;
