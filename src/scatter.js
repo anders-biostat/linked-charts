@@ -160,27 +160,33 @@ export function scatter(id, chart) {
   }
 
   layer.updateElementLocation = function(){
+    
+    var placeElement = function(d) {
+      var x = layer.chart.axes.scale_x( layer.get_x(d) ),
+        y = layer.chart.axes.scale_y( layer.get_y(d) );
+      return (x == undefined || y == undefined) ? "translate(-100, 0)" :
+        "translate(" + x + ", " + y + ")";
+    }
+
     if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff){
       layer.g.selectAll(".data_element").transition("elementLocation")
         .duration(layer.chart.transitionDuration())
-        .attr("transform", function(d) {
-          return "translate(" + layer.chart.axes.scale_x( layer.get_x(d) ) + ", " + 
-          layer.chart.axes.scale_y( layer.get_y(d) ) + ")"
-        });
+        .attr("transform", placeElement);
     } else {
       layer.g.selectAll(".data_element")
-        .attr("transform", function(d) {
-          return "translate(" + layer.chart.axes.scale_x( layer.get_x(d) ) + ", " + 
-          layer.chart.axes.scale_y( layer.get_y(d) ) + ")"
-        });
+        .attr("transform", placeElement);
     }
     var domainX = layer.chart.axes.scale_x.domain(),
       domainY = layer.chart.axes.scale_y.domain();
+    
     var notShown = layer.g.selectAll(".data_element")
       .filter(function(d) {
-        return layer.get_x(d) > domainX[1] || layer.get_x(d) < domainX[0] ||
-                layer.get_y(d) > domainY[1] || layer.get_y(d) < domainY[0];
+        return (layer.chart.axes.scale_x.invert != undefined && 
+                  (layer.get_x(d) > domainX[1] || layer.get_x(d) < domainX[0])) ||
+                (layer.chart.axes.scale_y.invert != undefined &&
+                  (layer.get_y(d) > domainY[1] || layer.get_y(d) < domainY[0]));
       }).data();
+    
     var outTicks = layer.g.selectAll(".out_tick").data(notShown, function(d) {return d});
     outTicks.exit().remove();
     outTicks.enter()
@@ -189,22 +195,32 @@ export function scatter(id, chart) {
         .attr("fill", function(d){return layer.get_colour(d)})
         .merge(outTicks)
           .attr("width", function(d){
-            return layer.get_y(d) > domainY[1] || layer.get_y(d) < domainY[0] ? 4 : 12;
+            return layer.chart.axes.scale_y.invert != undefined &&
+                      (layer.get_y(d) > domainY[1] || layer.get_y(d) < domainY[0]) ? 4 : 12;
           })
           .attr("height", function(d){
-            return layer.get_x(d) > domainX[1] || layer.get_x(d) < domainX[0] ? 4 : 12;
+            return layer.chart.axes.scale_x.invert != undefined && 
+                     (layer.get_x(d) > domainX[1] || layer.get_x(d) < domainX[0]) ? 4 : 12;
           })
           .attr("x", function(d){
-            return d3.max([layer.chart.axes.scale_x(domainX[0]), 
-              layer.chart.axes.scale_x(d3.min([layer.get_x(d), domainX[1]])) - d3.select(this).attr("width")]);
+            if(layer.chart.axes.scale_x.invert != undefined)
+              return d3.max([layer.chart.axes.scale_x(domainX[0]), 
+                layer.chart.axes.scale_x(d3.min([layer.get_x(d), domainX[1]])) - d3.select(this).attr("width")])
+            else
+              return layer.chart.axes.scale_x(layer.get_x(d));
           })
           .attr("y", function(d){
-            return d3.min([layer.chart.axes.scale_y(domainY[0]) - d3.select(this).attr("height"), 
-              layer.chart.axes.scale_y(d3.min([layer.get_y(d), domainY[1]]))]);
+            if(layer.chart.axes.scale_y.invert != undefined)
+              return d3.min([layer.chart.axes.scale_y(domainY[0]) - d3.select(this).attr("height"), 
+                layer.chart.axes.scale_y(d3.min([layer.get_y(d), domainY[1]]))])
+            else
+              return layer.chart.axes.scale_y(layer.get_y(d));
           })
           .on("mousedown", function(d){
-            layer.chart.domainX([d3.min([domainX[0], layer.get_x(d)]), d3.max([domainX[1], layer.get_x(d)])]);
-            layer.chart.domainY([d3.min([domainY[0], layer.get_y(d)]), d3.max([domainY[1], layer.get_y(d)])]);
+            if(layer.chart.axes.scale_x.invert != undefined)
+              layer.chart.domainX([d3.min([domainX[0], layer.get_x(d)]), d3.max([domainX[1], layer.get_x(d)])]);
+            if(layer.chart.axes.scale_y.invert != undefined)
+              layer.chart.domainY([d3.min([domainY[0], layer.get_y(d)]), d3.max([domainY[1], layer.get_y(d)])]);
             layer.chart.updateAxes();
           });
     

@@ -11,6 +11,7 @@ export function table() {
   var inherited_put_static_content = chart.put_static_content;
   chart.put_static_content = function( element ) {
     inherited_put_static_content(element);
+    chart.svg.classed("hidden", true);
     chart.table = chart.container.append( "table" )
       .attr( "border", 1 );
   }
@@ -18,7 +19,7 @@ export function table() {
   var inherited_update = chart.update;
   chart.update = function( ) {
 
-    inherited_update();
+    //inherited_update();
     var sel = chart.table.selectAll( "tr" )
       .data( Object.keys( chart.record() ) );
     sel.exit()
