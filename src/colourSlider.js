@@ -48,7 +48,6 @@ export function colourSlider() {
   obj.put_static_content = function( element ) {
     inherited_put_static_content( element );
 
-
     var g = obj.svg.append( "g" )
       .attr( "class", "sigmoidColorSlider" )
       .attr( "transform", "translate(" + obj.margins().left + ", " + 
@@ -149,10 +148,18 @@ export function colourSlider() {
   var inherited_update = obj.update;
   obj.update = function() {
     inherited_update();
-		
+		var domain = obj.get_straightColorScale.domain(),
+      percScDomain = [],
+      posScDomain = [];
+
+    for(var i = 0; i < domain.length; i++){
+      percScDomain.push(i * 100 / (domain.length - 1));
+      posScDomain.push(i * obj.plotWidth() / (domain.length - 1));
+    }
+
     var percent_scale = d3.scaleLinear()
-      .domain( [0, 100] )
-      .range( obj.get_straightColorScale.domain() );
+      .domain( percScDomain )
+      .range( domain );
 
     if( obj.get_midpoint() == undefined )
       obj.midpoint( percent_scale( 50 ) );
@@ -161,8 +168,8 @@ export function colourSlider() {
       obj.slopewidth( Math.abs(percent_scale( 15 )) );
 
     obj.pos_scale = d3.scaleLinear()
-      .range( [ 0, obj.get_plotWidth() ] )
-      .domain( obj.get_straightColorScale.domain() )
+      .range( posScDomain )
+      .domain( domain )
 
     d3.axisTop()
       .scale( obj.pos_scale )
@@ -173,7 +180,7 @@ export function colourSlider() {
 
     //obj.the_sigmoid = function(x) { return sigmoid( x, obj.get_midpoint(), 1.38 / obj.get_slopewidth(), 0, 1 ) };
     obj.the_sigmoid = make_stretched_sigmoid( obj.get_midpoint(), 1.38 / obj.get_slopewidth(), 
-      obj.get_straightColorScale.domain()[0], obj.get_straightColorScale.domain()[1] );
+      d3.min(obj.get_straightColorScale.domain()), d3.max(obj.get_straightColorScale.domain()) );
 
     obj.gradient.selectAll( "stop" )
       .data( d3.range(100) )

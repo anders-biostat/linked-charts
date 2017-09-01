@@ -160,6 +160,7 @@ export function layerBase(id) {
     }
 
     layer.colourScale.domain = layer.colourValueScale.domain;
+    
     if(layer.chart.showLegend())
       layer.addLegend(layer.colourScale, "colour", layer.colourLegendName());
   }
