@@ -280,7 +280,7 @@ export function scatter(id, chart) {
     sel.enter().append( "path" )
       .attr( "class", "data_element" )
       .merge(sel)
-        .attr("id", function(d) {return "p" + (layer.id + "_" + d).replace(/ /g,"_");})
+        .attr("id", function(d) {return "p" + (layer.id + "_" + d).replace(/[ .]/g,"_");})
         .on( "click", layer.get_on_click )
         .on( "mouseover", layer.get_elementMouseOver )
         .on( "mouseout", layer.get_elementMouseOut );

@@ -24,7 +24,7 @@ function lineChart(id, chart){
 				.attr("class", "data_element")
 				.attr("fill", "none")
 			.merge(lines)
-				.attr("id", function(d) {return "p" + (layer.id + "_" + d).replace(/ /g,"_");})
+				.attr("id", function(d) {return "p" + (layer.id + "_" + d).replace(/[ .]/g,"_");})
         .on( "click", layer.get_on_click )
         .on( "mouseover", layer.get_elementMouseOver )
         .on( "mouseout", layer.get_elementMouseOut );			

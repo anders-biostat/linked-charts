@@ -314,7 +314,7 @@ export function add_click_listener(chart){
       return;
     }
 
-    var clickedElements = chart.svg.selectAll("#" + clicked.join(",#").replace(/ /g, "_")),
+    var clickedElements = chart.svg.selectAll("#" + clicked.join(",#").replace(/[ .]/g, "_")),
       activeElement = clickedElements.filter(function(d){
         return d == chart.container.selectAll(".inform").datum();
       });

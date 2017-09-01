@@ -171,7 +171,7 @@ export function chartBase() {
 		}
 		//marked can be either an array of IDs or a selection
 		if(typeof marked.empty === "undefined") {
-			marked = marked.map(function(e) {return escapeRegExp(e).replace(/ /g, "_")});
+			marked = marked.map(function(e) {return escapeRegExp(e).replace(/[ .]/g, "_")});
 			if(marked.length > 0){
 				var marked = chart.svg.selectAll(
 			 		"#" + marked.join(", #"));
@@ -279,7 +279,7 @@ export function chartBase() {
 	}
 
 	chart.get_elements = function(data){
-		data = data.map(function(e) {return escapeRegExp(e).replace(/ /g, "_")});
+		data = data.map(function(e) {return escapeRegExp(e).replace(/[ .]/g, "_")});
 		return chart.svg.selectAll("#p" + data.join(", #p"));
 	}
 

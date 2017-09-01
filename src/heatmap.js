@@ -475,7 +475,7 @@ export function heatmap(id, chart){
 				.style("text-anchor", "start")
 				.attr("dx", 2)
 				.merge(colLabel)
-					.attr("id", function(d) {return d.toString().replace(/ /g,"_")})
+					.attr("id", function(d) {return d.toString().replace(/[ .]/g,"_")})
 					.on("mouseover", labelMouseOver)
 					.on("mouseout", labelMouseOut)
 					.on("click", labelClick);
@@ -485,7 +485,7 @@ export function heatmap(id, chart){
 				.style("text-anchor", "end")
 				.attr("dx", -2)
 				.merge(rowLabel)
-					.attr("id", function(d) {return d.toString().replace(/ /g,"_")})
+					.attr("id", function(d) {return d.toString().replace(/[ .]/g,"_")})
 					.on("mouseover", labelMouseOver)
 					.on("mouseout", labelMouseOut)
 					.on("click", labelClick);
@@ -747,7 +747,7 @@ export function heatmap(id, chart){
 					.attr("class", "data_element")
 					.attr("opacity", 0.5)
 					.merge(cells)
-						.attr("id", function(d) {return "p" + (d[0] + "_-sep-_" + d[1]).replace(/ /g,"_")})
+						.attr("id", function(d) {return "p" + (d[0] + "_-sep-_" + d[1]).replace(/[ .]/g,"_")})
 						.attr("rowId", function(d) {return d[0];})
 						.attr("colId", function(d) {return d[1];})
 						.on("mouseover", elementMouseOver)
@@ -1049,7 +1049,7 @@ export function heatmap(id, chart){
 
 		if(get_mode() == "svg") 
 			return (data.length > 0) ?
-				chart.svg.selectAll("#" + escapeRegExp(data.join(", #").replace(/ /g, "_"))) :
+				chart.svg.selectAll("#" + escapeRegExp(data.join(", #").replace(/[ .]/g, "_"))) :
 				chart.svg.selectAll("______");
 		else
 			return data;

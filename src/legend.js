@@ -197,7 +197,7 @@ var updateGrid = function() {
 				.attr("id", function(d) {
 					try{
 						return Object.keys(blocks)[d[0] * bestWidth + d[1]]
-										.replace(/ /g, "_");
+										.replace(/[ .]/g, "_");
 					} catch(exc) {return undefined;}
 				});
 		for(var i in blocks)
@@ -211,7 +211,7 @@ var updateGrid = function() {
 				" is not defined";
 
 		var scale = convertScale(id),
-			tableCell = legend.container().select("#" + id.replace(/ /g, "_")),
+			tableCell = legend.container().select("#" + id.replace(/[ .]/g, "_")),
 			cellWidth = legend.width() / legend.container().select("tr").selectAll("td").size(),
 			steps = scale.steps,
 			cellHeight = legend.sampleHeight() * steps;

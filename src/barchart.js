@@ -258,7 +258,7 @@ export function barchart(id, chart){
 			.append("rect")
 				.attr("class", "data_element")
 				.merge(stacks)
-					.attr("id", function(d) {return "p" + d.join("_-sep-_").replace(/ /g, "_")})
+					.attr("id", function(d) {return "p" + d.join("_-sep-_").replace(/[ .]/g, "_")})
 					.on( "click", function(d) {layer.get_on_click(d[0], d[1], d[2])} )
         	.on( "mouseover", layer.get_elementMouseOver )
         	.on( "mouseout", layer.get_elementMouseOut );		
