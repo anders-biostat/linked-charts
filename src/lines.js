@@ -33,7 +33,8 @@ function lineChart(id, chart){
 	layer.dresser(function(sel){
 		sel.attr("stroke", function(d) {return layer.get_colour(d);})
 			.attr("stroke-width", function(d) {return layer.get_lineWidth(d);})
-			.attr("stroke-dasharray", function(d) {return layer.get_dasharray(d)});
+			.attr("stroke-dasharray", function(d) {return layer.get_dasharray(d)})
+			.attr("opacity", function(d) { return layer.get_opacity(d)} );
 	});
 
 	return layer;

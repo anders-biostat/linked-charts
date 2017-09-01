@@ -23,6 +23,7 @@ export function layerBase(id) {
     .add_property("colourDomain")
     .add_property("colourValue", undefined)
     .add_property("colourLegendName", function(){return "colour_" + layer.id})
+    .add_property("opacity", 1)
 		.add_property("dresser", function(){});
 
 	layer.id = id;

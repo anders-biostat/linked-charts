@@ -221,12 +221,14 @@ export function scatter(id, chart) {
           .attr( "r", function(d) {return layer.get_size(d)})
           .attr( "fill", function(d) { return layer.get_colour(d)})
           .attr( "style", function(d) { return layer.get_style(d)})
+          .attr( "opacity", function(d) { return layer.get_opacity(d)} )
     else
       for(var i = 0; i < id.length; i++)
         layer.g.selectAll("#p" + id[i])
           .attr( "r", layer.get_size(id[i]))
           .attr( "fill", layer.get_colour(id[i]))
-          .attr( "style", layer.get_style(id[i]));      
+          .attr( "style", layer.get_style(id[i]))
+          .attr( "opacity", function(d) { return layer.get_opacity(d)} );      
     return layer;
   }
 
@@ -246,6 +248,7 @@ export function scatter(id, chart) {
       .attr("fill", function(d) {return layer.get_colour(d)})
       .attr("stroke", function(d) {return layer.get_stroke(d)})
       .attr("stroke-width", function(d) {return layer.get_strokeWidth(d)})
+      .attr( "opacity", function(d) { return layer.get_opacity(d)} )
   }
 
   layer.dresser(function(sel) {

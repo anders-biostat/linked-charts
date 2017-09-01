@@ -205,6 +205,9 @@ export function barchart(id, chart){
 				.attr("stroke-width", function(d) {
 					return layer.get_strokeWidth(d[0], d[1], d[2]);
 				})
+				.attr("opacity", function(d){
+					return layer.get_opacity(d[0], d[1], d[2]);
+				})
 		else
 			layer.g.selectAll(".data_element")
 				.attr("fill", function(d) {
@@ -215,6 +218,9 @@ export function barchart(id, chart){
 				})
 				.attr("stroke-width", function(d) {
 					return layer.get_strokeWidth(d[0], d[1], d[2]);
+				})
+				.attr("opacity", function(d){
+					return layer.get_opacity(d[0], d[1], d[2]);
 				});
 	}
 
