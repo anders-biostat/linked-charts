@@ -85,23 +85,23 @@ var scatterplot = lc.scatter()
   })
   .place( "#scatterplot" );
 
-/*var curveFit = lc.scatter("drug1")
+var curveFit = lc.scatter("drug1")
   .width( 300 )
   .height( 200 )
-  .npoints( 5 )
+  .nelements( 5 )
   .x( function( k ) {return k;} )
   .y( function( k ) {
     return inputData.RTG[selDrugs[0]][selCellLine]["D" + (k + 1)];
   })
   .colour( "blue" );
 lc.scatter("drug2", curveFit)
-  .npoints( 5 )
+  .nelements( 5 )
   .x( function( k ) {return k} )
   .y( function( k ) {
     return inputData.RTG[selDrugs[1]][selCellLine]["D" + (k + 1)];
   })
   .colour("red")
-  .place( "#scatterplot" );*/
+  .place( "#scatterplot" );
 
 </script>
 
@@ -146,11 +146,10 @@ onclick="window.open('layers_code.html', 'newwindow', 'width=800, height=800');"
 <x-expl id="hm_value"></x-expl><code class = "language-javascript">        });</code>
 <x-expl id="hm_value"></x-expl><code class = "language-javascript">      return lc.pearsonCorr( rowValues, colValues );</code> 
 <x-expl id="hm_value"></x-expl><code class = "language-javascript">     })</code>
+<x-expl id="cluster"></x-expl><code class = "language-javascript">    .cluster("Row")</code>
+<x-expl id="cluster"></x-expl><code class = "language-javascript">    .cluster("Col");</code>
 <x-expl id="skip"></x-expl><code>    ...</code>
 <x-expl id="place"></x-expl><code class = "language-javascript">    .place( "#heatmap");</code>
-
-<x-expl id="cluster"></x-expl><code class = "language-javascript">  heatmap.cluster("Row")</code>
-<x-expl id="cluster"></x-expl><code class = "language-javascript">    .cluster("Col");</code>
 
 <x-expl id="scatter1"></x-expl><code class = "language-javascript">  var scatterplot = lc.scatter()</code>
 <x-expl id="ids"></x-expl><code class = "language-javascript">    .dataIds( cellLines )</code>
@@ -159,14 +158,14 @@ onclick="window.open('layers_code.html', 'newwindow', 'width=800, height=800');"
 
 <x-expl id="layer1"></x-expl><code class = "language-javascript">  var curveFit = lc.scatter("drug1")</code>
 <x-expl id="skip"></x-expl><code>    ...</code>
-<x-expl id="npoints"></x-expl><code class = "language-javascript">    .npoints( 5 )</code>
+<x-expl id="npoints"></x-expl><code class = "language-javascript">    .nelements( 5 )</code>
 <x-expl id="xy"></x-expl><code class = "language-javascript">    .x( function( k ) {return k;} )</code>
 <x-expl id="xy"></x-expl><code class = "language-javascript">    .y( function( k ) {</code>
 <x-expl id="xy"></x-expl><code class = "language-javascript">      return inputData.RTG[selDrugs[0]][selCellLine]["D" + (k + 1)];</code>
 <x-expl id="xy"></x-expl><code class = "language-javascript">    })</code>
 <x-expl id="colour"></x-expl><code class = "language-javascript">    .colour( "blue" );</code>
 <x-expl id="layer2"></x-expl><code class = "language-javascript">  lc.scatter("drug2", curveFit)</code>
-<x-expl id="npoints"></x-expl><code class = "language-javascript">    .npoints( 5 )</code>
+<x-expl id="npoints"></x-expl><code class = "language-javascript">    .nelements( 5 )</code>
 <x-expl id="xy"></x-expl><code class = "language-javascript">    .x( function( k ) {return k} )</code>
 <x-expl id="xy"></x-expl><code class = "language-javascript">    .y( function( k ) {</code>
 <x-expl id="xy"></x-expl><code class = "language-javascript">      return inputData.RTG[selDrugs[1]][selCellLine]["D" + (k + 1)];</code>

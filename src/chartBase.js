@@ -121,7 +121,8 @@ export function chartBase() {
   chart.put_static_content = function( element ) {
 		//outer div that contains everything related to this chart
 		chart.container = element.append("div")
-			.style("position", "relative");
+			.style("position", "relative")
+			.attr("class", "linked-charts");
 		//prohibit standart dragging behaviour
 		chart.container.node().ondragstart = function() { return false; };
 		//container for all svg elements

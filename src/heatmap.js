@@ -470,7 +470,7 @@ export function heatmap(id, chart){
 			.remove();
 		colLabel.enter()
 			.append("text")
-				.attr("class", "label")
+				.attr("class", "label plainText")
 				.attr("transform", "rotate(-90)")
 				.style("text-anchor", "start")
 				.attr("dx", 2)
@@ -481,7 +481,7 @@ export function heatmap(id, chart){
 					.on("click", labelClick);
 		rowLabel.enter()
 			.append("text")
-				.attr("class", "label")
+				.attr("class", "label plainText")
 				.style("text-anchor", "end")
 				.attr("dx", -2)
 				.merge(rowLabel)

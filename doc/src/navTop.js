@@ -12,7 +12,8 @@ var pages = {
 	},
 	examples: {
 		simpleExample: "A very simple example",
-		layers: "Adding layers"
+		layers: "Adding layers",
+		linesAndColour: "Lines and Colour"
 	}
 }
 

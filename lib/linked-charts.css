@@ -1,60 +1,59 @@
-text.plainText{
+.linked-charts text.plainText{
 	fill: #555;
 	font-family: Consolas, courier;
 }
 
-text.label{
+.linked-charts text.label{
 	fill: #aaa;
 }
 
-text.hover{
+.linked-charts text.hover{
 	fill: red;
 	font-weight: bold;
 }
 
-text.selected{
+.linked-charts text.selected{
 	fill: black;
 	font-weight: bold;
 }
 
-rect.selected{
+.linked-charts rect.selected{
 	stroke-width: 2px;
 	stroke: #ccc;
 }
 
-circle.selected{
+.linked-charts circle.selected{
 	stroke-width: 2px;
 	stroke: #ccc;	
 }
 
-circle.clicked {
+.linked-charts circle.clicked {
 	stroke-width: 2px;
 	stroke: #123;
 }
 
-rect.hover{
+.linked-charts rect.hover{
 	stroke: #aaa;
 	stroke-width: 0.75px;
 }
 
-rect.selection {
+.linked-charts rect.selection {
 	stroke: #333;
 	stroke-dasharray: 4px;
 	stroke-opacity: 0.5;
 	fill: transparent;
 }
-rect.highlighter {
+.linked-charts rect.highlighter {
 	stroke: #a33;
 	stroke-dasharray: 4px;
 	stroke-opacity: 0.7;
 	fill: transparent;
 }
 
-.inform {
+.linked-charts .inform {
 	position: absolute;
 	width: 170px;
 	height: auto;
-	padding: 10px;
 	background-color: white;
 	-webkit-border-radius: 10px;
 	-moz-border-radius: 10px;
@@ -66,7 +65,7 @@ rect.highlighter {
 	opacity: 0.7;
 }
 
-.hint {
+.linked-charts  .hint {
 	position: absolute;
 	width: 100px;
 	height: auto;
@@ -83,14 +82,14 @@ rect.highlighter {
 	opacity: 0.7;
 }
 
-.hidden {
+.linked-charts .hidden {
 	display: none;
 }
-.blocked {
+.linked-charts .blocked {
 	display: none;
 }
 
-text{
+.linked-charts text{
 	-webkit-touch-callout: none; /* iOS Safari */
 	-webkit-user-select: none;   /* Chrome/Safari/Opera */
 	-khtml-user-select: none;    /* Konqueror */
@@ -98,9 +97,9 @@ text{
 	-ms-user-select: none;       /* Internet Explorer/Edge */
 }
 
-line.normal {
+.linked-charts line.normal {
 	stroke: black;
 }
-line.selected {
+.linked-charts line.selected {
 	stroke: red;
 }

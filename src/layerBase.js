@@ -20,7 +20,7 @@ export function layerBase(id) {
     })
     .add_property("addColourScaleToLegend", true)
     .add_property("palette")
-    .add_property("colourRange")
+    .add_property("colourDomain")
     .add_property("colourValue", undefined)
     .add_property("colourLegendName", function(){return "colour_" + layer.id})
 		.add_property("dresser", function(){});
@@ -53,7 +53,7 @@ export function layerBase(id) {
     }
   })
 
-  layer.colourRange(function() {
+  layer.colourDomain(function() {
     var ids = layer.get_dataIds();
     if(layer.get_colourValue(ids[0]) !== undefined){
       var range = [];
@@ -71,7 +71,7 @@ export function layerBase(id) {
   }
 
   layer.resetColourScale = function() {
-    var range = layer.get_colourRange();
+    var range = layer.colourDomain();
     if(range === undefined)
       return;
     //first of all, let's check if the colour scale supposed to be

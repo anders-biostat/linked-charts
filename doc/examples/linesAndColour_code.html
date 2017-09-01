@@ -2,7 +2,7 @@
 
 <head>
 
-<title>Linked charts - Adding layers - Complete code</title>
+<title>Linked charts - Lines and Colour - Complete code</title>
 
 <link rel="stylesheet" href="src/prism.css">
 <script src = "src/prism.js"></script>
@@ -35,7 +35,7 @@
 	var heatmap = lc.heatmap()
 	  .rowIds( drugs )
 	  .colIds( drugs )
-	  .colourRange( [ -1, 1 ] )
+	  .colourDomain( [ -1, 1 ] )
 	  .palette( d3.interpolateRdBu )
 	  .value( function( rowId, colId ) {  
 	    var rowValues = cellLines.map(function(e) {
@@ -46,43 +46,78 @@
 	      });
 	    return lc.pearsonCorr( rowValues, colValues ); 
 	   })
-		.cluster("Row")
-	  .cluster("Col");	   
 	  .on_click( function( rowId, colId ) {
 	     selDrugs = [rowId, colId]
 	     scatterplot.update();
 	     curveFit.update();
 	  })
-	  .place( "#heatmap");
+	  .place( "#heatmap" );
+
+	heatmap.cluster( "Row" )
+	  .cluster( "Col" );
+
+var get_curve = function( drug, cellLine, x ){
+  var max = inputData.RTG[drug][cellLine].max,
+    min = inputData.RTG[drug][cellLine].min,
+    IC50 = inputData.RTG[drug][cellLine].IC50,
+    slope = inputData.RTG[drug][cellLine].Slope,
+    minConc = inputData.RTG[drug][cellLine].minConc;
+      
+  return min + (max - min)/
+    (1 + Math.pow(10, -(x - Math.log10(IC50/minConc)) * slope));
+}
 
 	var scatterplot = lc.scatter()
 	  .width( 300 )
 	  .height( 300 )
 	  .dataIds( cellLines )
+	  .aspectRatio( 1 )
 	  .x( function( k ) { return inputData.RTG[selDrugs[0]][k].avInh } )
 	  .y( function( k ) { return inputData.RTG[selDrugs[1]][k].avInh } )
+	  .palette( ["green", "yellow","red"] )
+	  .colourValue( function ( k ) {
+	    var res = 0;
+	    for( var x = 0; x < 5; x++ )
+	      for( var l = 0; l < 2; l++ )
+	        res += Math.pow( get_curve( selDrugs[l], k, x ) - 
+	                    inputData.RTG[selDrugs[l]][k]["D" + (x + 1)], 2 ); 
+	    res = Math.sqrt( res );
+	    return res;
+	  })
+	  .colourDomain([0, 30]) 
 	  .on_click( function( k ) {
 	    selCellLine = k;
 	    curveFit.update();
+	  });
+	lc.xLine("line", scatterplot)
+	  .nelements(1)
+	  .lineFun( function( k, x ){
+	    return x;
 	  })
 	  .place( "#scatterplot" );
 
-	var curveFit = lc.scatter("drug1")
+	var curveFit = lc.scatter( "points" )
 	  .width( 300 )
 	  .height( 200 )
-	  .nelements( 5 )
-	  .x( function( k ) {return k;} )
+	  .nelements( 10 )
+	  .x( function( k ) {
+	    return k % 5;
+	  } )
 	  .y( function( k ) {
-	    return inputData.RTG[selDrugs[0]][selCellLine]["D" + (k + 1)];
+	    var ind = Math.floor( k / 5 );
+	    return inputData.RTG[selDrugs[ind]][selCellLine]["D" + (k % 5 + 1)];
 	  })
-	  .colour( "blue" );
-	lc.scatter("drug2", curveFit)
-	  .nelements( 5 )
-	  .x( function( k ) {return k} )
-	  .y( function( k ) {
-	    return inputData.RTG[selDrugs[1]][selCellLine]["D" + (k + 1)];
+	  .colour( function( k ) {
+	    return k > 4 ? "red" : "blue";
+	  } );
+	lc.xLine("lines", curveFit)
+	  .nelements(2)
+	  .lineFun( function( k, x ) {
+	    return get_curve( selDrugs[k], selCellLine, x );
 	  })
-	  .colour("red")
+	  .colour(function( k ){
+	    return k == 0 ? "blue" : "red";
+	  })
 	  .place( "#scatterplot" );
 &lt;/script>
 	</code>
