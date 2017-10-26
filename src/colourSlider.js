@@ -16,9 +16,9 @@ export function colourSlider() {
   // for now only horizontal
 
   var obj = chartBase()
-    .add_property( "straightColorScale" )
+    .add_property( "straightColourScale" )
     .add_property( "midpoint", undefined )
-    .add_property( "slopewidth", undefined )
+    .add_property( "slopeWidth", undefined )
     .add_property( "on_drag", function() {})
 		.add_property( "on_change", function() {})
     .margins( { top: 20, right: 10, bottom: 5, left: 10 } )
@@ -27,21 +27,21 @@ export function colourSlider() {
 
   obj.showPanel(false);
   
-  obj.straightColorScale(
+  obj.straightColourScale(
     d3.scaleLinear()
       .range( [ "white", "darkblue" ] ) );
 
-  obj.clamp_markers = function() {
-    var min = d3.min( obj.get_straightColorScale.domain() );
-    var max = d3.max( obj.get_straightColorScale.domain() );
+  var clamp_markers = function() {
+    var min = d3.min( obj.get_straightColourScale.domain() );
+    var max = d3.max( obj.get_straightColourScale.domain() );
     if( obj.get_midpoint() < min )
        obj.midpoint( min );
     if( obj.get_midpoint() > max )
        obj.midpoint( max );
-    if( obj.get_slopewidth() > (max-min) )
-       obj.slopewidth( max-min );
-    if( obj.get_slopewidth() < (min-max) )
-       obj.slopewidth( min-max );
+    if( obj.slopeWidth() > (max-min) )
+       obj.slopeWidth( max-min );
+    if( obj.slopeWidth() < (min-max) )
+       obj.slopeWidth( min-max );
   }
 	
   var inherited_put_static_content = obj.put_static_content;
@@ -104,7 +104,7 @@ export function colourSlider() {
       .call( d3.drag()
         .on( "drag", function() {
           obj.midpoint( obj.pos_scale.invert( obj.pos_scale( obj.get_midpoint() ) + d3.event.dx ) );
-          obj.clamp_markers();
+          clamp_markers();
           obj.get_on_drag();
           obj.update();
         } )
@@ -118,8 +118,8 @@ export function colourSlider() {
       .attr( "y", 30 )
       .call( d3.drag()
         .on( "drag", function() {
-          obj.slopewidth( obj.pos_scale.invert( obj.pos_scale( obj.get_slopewidth() ) + d3.event.dx ) );
-          obj.clamp_markers();
+          obj.slopeWidth( obj.pos_scale.invert( obj.pos_scale( obj.slopeWidth() ) + d3.event.dx ) );
+          clamp_markers();
           obj.update();        
           obj.get_on_drag();
         } )
@@ -133,8 +133,8 @@ export function colourSlider() {
       .attr( "y", 30 )
       .call( d3.drag()
         .on( "drag", function() {
-          obj.slopewidth( obj.pos_scale.invert( obj.pos_scale( obj.get_slopewidth() ) - d3.event.dx ) );
-          obj.clamp_markers();
+          obj.slopeWidth( obj.pos_scale.invert( obj.pos_scale( obj.slopeWidth() ) - d3.event.dx ) );
+          clamp_markers();
           obj.update();        
           obj.get_on_drag();
         } )
@@ -148,7 +148,7 @@ export function colourSlider() {
   var inherited_update = obj.update;
   obj.update = function() {
     inherited_update();
-		var domain = obj.get_straightColorScale.domain(),
+		var domain = obj.get_straightColourScale.domain(),
       percScDomain = [],
       posScDomain = [];
 
@@ -164,8 +164,8 @@ export function colourSlider() {
     if( obj.get_midpoint() == undefined )
       obj.midpoint( percent_scale( 50 ) );
 
-    if( obj.get_slopewidth() == undefined )
-      obj.slopewidth( Math.abs(percent_scale( 15 )) );
+    if( obj.get_slopeWidth() == undefined )
+      obj.slopeWidth( Math.abs(percent_scale( 15 )) );
 
     obj.pos_scale = d3.scaleLinear()
       .range( posScDomain )
@@ -179,17 +179,17 @@ export function colourSlider() {
       .attr( "width", obj.get_plotWidth() );
 
     //obj.the_sigmoid = function(x) { return sigmoid( x, obj.get_midpoint(), 1.38 / obj.get_slopewidth(), 0, 1 ) };
-    obj.the_sigmoid = make_stretched_sigmoid( obj.get_midpoint(), 1.38 / obj.get_slopewidth(), 
-      d3.min(obj.get_straightColorScale.domain()), d3.max(obj.get_straightColorScale.domain()) );
+    obj.the_sigmoid = make_stretched_sigmoid( obj.get_midpoint(), 1.38 / obj.slopeWidth(), 
+      d3.min(obj.get_straightColourScale.domain()), d3.max(obj.get_straightColourScale.domain()) );
 
     obj.gradient.selectAll( "stop" )
       .data( d3.range(100) )
       .style( "stop-color", function(d) { 
-        return obj.get_straightColorScale( 
+        return obj.get_straightColourScale( 
           percent_scale( 100 * obj.the_sigmoid( percent_scale(d) ) ) ) } ) ;
 
     obj.colourScale = function(val){
-      return obj.get_straightColorScale( 
+      return obj.get_straightColourScale( 
           percent_scale( 100 * obj.the_sigmoid( val ) ) );
     }
 
@@ -197,9 +197,9 @@ export function colourSlider() {
     obj.mainMarker
       .attr( "x", obj.pos_scale( obj.get_midpoint() ) );
     obj.rightMarker
-      .attr( "x", obj.pos_scale( obj.get_midpoint() + obj.get_slopewidth() ) )
+      .attr( "x", obj.pos_scale( obj.get_midpoint() + obj.slopeWidth() ) )
     obj.leftMarker
-      .attr( "x", obj.pos_scale( obj.get_midpoint() - obj.get_slopewidth() ) )
+      .attr( "x", obj.pos_scale( obj.get_midpoint() - obj.slopeWidth() ) )
 
 		//obj.get_on_change();
 
