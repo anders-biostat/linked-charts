@@ -1,5 +1,4 @@
 import { base } from "./base";
-import { getEuclideanDistance } from "./additionalFunctions";
 
 var intersect = function(ar1, ar2)
 {
@@ -101,17 +100,16 @@ function Tree(id)
 export function dendogram(heatmap)
 {
 	var dendogram = base()
-		.add_property("orientation", "h")
-		.add_property("height", 100)
-		.add_property("width", 300)
+		.add_property("orientation", "horizontal")
+		.add_property("height", 300)
+		.add_property("width", 500)
 		.add_property("nelements") //nlabels
 		.add_property("dataIds", function(){return undefined}) //labIds
-		.add_property("margins", {left:20, top:20, bottom:20, right:20}) //padding
+		.add_property("margins", {left: 20, top: 20, bottom: 20, right: 20}) //padding
 		.add_property("distance", function(a, b){
-			return getEuclideanDistance(a, b);			
+			return lc.getEuclideanDistance(a, b);			
 		})
 		.add_property("data")
-		.add_property("scales")
 		.add_property("lineColours", ['black', 'red']);
 
 
@@ -138,7 +136,7 @@ export function dendogram(heatmap)
 	dendogram.clusters = undefined;
 		
 	var n_count = 0;		 
-	dendogram.set_x = function(node)
+	var set_x = function(node)
 	{ 
 		if(node.right == null && node.left == null)
 		{
@@ -147,37 +145,33 @@ export function dendogram(heatmap)
 			return;
 		}
 		if(node.left.x == null)
-			this.set_x(node.left);
+			set_x(node.left);
 		if(node.right.x == null)
-			this.set_x(node.right);
+			set_x(node.right);
 		node.x = (node.right.x + node.left.x)/2 ;
 		return;
 	}
-	dendogram.set_scale = function()
+	var set_scale = function()
 	{
 		var t = -1;
 		var rev_height = 0;
-		var bucket_final = this.clusters,
-		 	padding = this.margins(),
-		 	width = this.width(),
-		 	height = this.height();
-		//var n_leaves = bucket_final.val_inds.length;
+		var padding = dendogram.margins();
 		var n_leaves = dendogram.dataIds().length;
-		var box_width = (width - padding.right - padding.left)/n_leaves;
+		var box_width = (dendogram.width() - padding.right - padding.left)/n_leaves;
 		var xScale = d3.scaleLinear()
 					   .domain([0, n_leaves-1])
 					   .range([padding.left + box_width/2, 
-					   	width - padding.right - box_width/2]);
-		if(dendogram.get_orientation() == 'v')
-		{	rev_height = height; t = 1;}
+					   	dendogram.width() - padding.right - box_width/2]);
+		if(dendogram.get_orientation() == 'vertical')
+		{	rev_height = dendogram.height(); t = 1;}
 
 		var yScale = d3.scaleLinear()			   
-						.domain([0, bucket_final.height])
-						.range([height+padding.top*t-rev_height,
-						 rev_height-padding.bottom*t]);
+						.domain([0, dendogram.clusters.height])
+						.range([dendogram.height() + padding.top * t - rev_height,
+						 rev_height - padding.bottom * t]);
 		return [xScale, yScale];
 	}
-	dendogram.draw_dendo = function(node, g, scales)
+	var draw_dendo = function(node, g, scales)
 	{
 		//var height = svg.style()[0][0].getAttribute("height");
 		if(node.right != null && node.left != null)
@@ -206,8 +200,8 @@ export function dendogram(heatmap)
 				.attr("stroke", dendogram.lineColours()[0]);
 			}
 			
-			this.draw_dendo(node.left, g, scales);
-			this.draw_dendo(node.right, g, scales);
+			draw_dendo(node.left, g, scales);
+			draw_dendo(node.right, g, scales);
 
 			return;
 		}
@@ -224,32 +218,32 @@ export function dendogram(heatmap)
 				.attr("orient", "v")
 				.attr("stroke", dendogram.lineColours()[0]);
 
-			this.draw_dendo(child, g, scales);
+			draw_dendo(child, g, scales);
 		}
 
 		return;
 	}
-	dendogram.find_node = function(node, id)
+	var find_node = function(node, id)
 	{	
 		if(node != null)
 		{
 			if(node.id == id)
 				return node;
 			else 
-				return dendogram.find_node(node.left,id) || dendogram.find_node(node.right, id);
+				return find_node(node.left,id) || find_node(node.right, id);
 		}
 		return null;
 	}
-	dendogram.add_ids = function(node, inds)
+	var add_ids = function(node, inds)
 	{
 		inds.push(node.id);
 		if(node.left != null)
-			dendogram.add_ids(node.left, inds);
+			add_ids(node.left, inds);
 		if(node.right != null)
-			dendogram.add_ids(node.right, inds);
+			add_ids(node.right, inds);
 	}
 
-	dendogram.check_ele = function(ele, ind_arr)
+	var check_ele = function(ele, ind_arr)
 	{
 		for(var i = 0; i < ind_arr.length; i++)
 		{
@@ -259,30 +253,30 @@ export function dendogram(heatmap)
 		return false;
 	}
 
-	dendogram.set_color = function(g, inds, cla, prop)
+	var set_color = function(g, inds, cla, prop)
 	{
 		g.selectAll('line').attr("stroke", function(d)
 		{
-			return dendogram.check_ele(this.id, inds) ? cla[1]:cla[0];
+			return check_ele(this.id, inds) ? cla[1]:cla[0];
 		});
 	}
 
 	//???
-	dendogram.change_prop = function(root_node, id_and_type, g, cla)
+	var change_prop = function(root_node, id_and_type, g, cla)
 	{
 		//console.log(root_node);
-		var node_req = dendogram.find_node(root_node, id_and_type[0]),
+		var node_req = find_node(root_node, id_and_type[0]),
 			inds = [],
 			prop = -1;
 		
-		dendogram.add_ids(node_req, inds);
+		add_ids(node_req, inds);
 		
 		if(id_and_type[1] == 'h')
 			prop = id_and_type[0];
 
 		if(dendogram.heatmap != undefined)
 		{
-			if(dendogram.orientation() == 'h')
+			if(dendogram.orientation() == 'horizontal')
 			{
 				var inds_int = intersect(inds.map(function(e) {return e.toString()}),
 					dendogram.heatmap.colIds())
@@ -290,7 +284,7 @@ export function dendogram(heatmap)
 				//TO DO: check if dendogram already exists
 				dendogram.heatmap.drawDendogram("Row");
 			}
-			if(dendogram.orientation() == 'v')
+			if(dendogram.orientation() == 'vertical')
 			{
 				var inds_int = intersect(inds.map(function(e) {return e.toString()}),
 					dendogram.heatmap.rowIds())
@@ -300,14 +294,13 @@ export function dendogram(heatmap)
 			dendogram.heatmap.updateLabelPosition();
 		}
 
-		//dendogram.set_color(g, [], cla, -1);
-		dendogram.set_color(g, inds, cla, prop);		
+		set_color(g, inds, cla, prop);		
 	}
 
-	dendogram.set_click = function(root, g, cla)
+	var set_click = function(root, g, cla)
 	{
 		g.selectAll('line').on('click', function(d){
-		dendogram.change_prop(root, [this.getAttribute('id'), this.getAttribute('orient')], g, cla);});
+		change_prop(root, [this.getAttribute('id'), this.getAttribute('orient')], g, cla);});
 		return dendogram;
 	}
 
@@ -375,12 +368,12 @@ export function dendogram(heatmap)
 			}
 			return bucket_copy[0];
 		}
-		var dist_mat = dendogram.calc_dist();
+		var dist_mat = calc_dist();
 		//console.log(dist_mat[0])
 		dendogram.clusters = merge();
 	}
 
-	dendogram.calc_dist = function(){
+	var calc_dist = function(){
 		var keys = dendogram.dataIds();
 		var dist = new Array(keys.length);
 		for(var i = 0; i < keys.length; i++)
@@ -399,9 +392,12 @@ export function dendogram(heatmap)
 
 	dendogram.draw = function()
 	{
-		dendogram.set_x(dendogram.clusters);
+		set_x(dendogram.clusters);
 		n_count = 0;
-		if(dendogram.orientation() == "v"){
+		
+		d3.selectAll(dendogram.g.node().childNodes).remove();
+
+		if(dendogram.orientation() == "vertical"){
 			if(dendogram.heatmap){
 				dendogram.width(dendogram.heatmap.height())
 					.height(dendogram.heatmap.margins().left)
@@ -451,16 +447,16 @@ export function dendogram(heatmap)
 //																	", " + dendogram.margins().right + ")");
 		}
 
-		var newTree = dendogram.trimNodes();
+		var newTree = trimNodes();
 		if(newTree === undefined)
 			return;
-		dendogram.scales(dendogram.set_scale());
-		dendogram.draw_dendo(newTree, dendogram.g, dendogram.get_scales() )
-		dendogram.set_click(newTree, dendogram.g, dendogram.lineColours())		
+		dendogram.scales = set_scale();
+		draw_dendo(newTree, dendogram.g, dendogram.scales )
+		set_click(newTree, dendogram.g, dendogram.lineColours())		
 		return dendogram;
 	}
 
-	dendogram.trimNodes = function(){
+	var trimNodes = function(){
 		var dataIds = dendogram.dataIds(),
 			newTree = {
 				id: dendogram.clusters.id,
@@ -521,7 +517,7 @@ export function dendogram(heatmap)
 					return undefined;
 				}
 				dendogram.cluster();
-				dendogram.set_x(dendogram.clusters);
+				set_x(dendogram.clusters);
 				return dendogram.clusters;
 			}
 			copyId(newTree, dataIds[i]);
@@ -578,7 +574,7 @@ export function dendogram(heatmap)
 			dendogram.container = heatmap.container;
 		} else {
 			dendogram.container = element.append("div")
-				.styel("position", "relative");
+				.style("position", "relative");
 			dendogram.svg = dendogram.container
 				.append("svg");
 			dendogram.g = dendogram.svg
@@ -593,7 +589,7 @@ export function dendogram(heatmap)
 		var type;
 		if(dendogram.heatmap){
 			var chart = dendogram.heatmap;
-			dendogram.orientation() == "h" ? type = "Col" : type = "Row";
+			dendogram.orientation() == "horizontal" ? type = "Col" : type = "Row";
 			chart.showDendogram(type, false);
 			chart["dendogram" + type] = undefined;
 			if(chart.transitionDuration() > 0 && !chart.transitionOff){
@@ -623,6 +619,13 @@ export function dendogram(heatmap)
 		}
 	}	
 	
+  dendogram.update = function(){
+  	dendogram.cluster();
+  	dendogram.draw();
+
+  	return dendogram;
+  }
+
   dendogram.place = function( element ) {
 
     if( element === undefined )
@@ -636,8 +639,10 @@ export function dendogram(heatmap)
   	}
 
 		dendogram.put_static_content( element );
-		//dendogram.cluster();
-		//dendogram.draw();
+    
+    if(dendogram.heatmap === undefined)
+    	dendogram.update(); 
+
     return dendogram;
   }
 

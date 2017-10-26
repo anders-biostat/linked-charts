@@ -829,7 +829,8 @@ export function heatmap(id, chart){
 
 		if(chart["dendogram" + type] === undefined){
 			chart["dendogram" + type] = dendogram(chart);
-			type == "Row" ? chart["dendogram" + type].orientation("v") : chart["dendogram" + type].orientation("h"); 
+			type == "Row" ? chart["dendogram" + type].orientation("vertical") : 
+											chart["dendogram" + type].orientation("horizontal"); 
 		};
 
 		chart["dendogram" + type]

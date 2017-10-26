@@ -1,9 +1,6 @@
 <head>
 <link rel = "stylesheet" type = "text/css" href = "../src/default.css">
 <link rel = "stylesheet" type = "text/css" href = "../src/api.css">
-<link rel = "stylesheet" type = "text/css" href = "../src/strapdown.css">
-<link rel = "stylesheet" type = "text/css" href = "../src/themes/bootstrap-responsive.min.css">
-<link rel = "stylesheet" type = "text/css" href = "../src/themes/simplex.min.css">
 <script src="https://d3js.org/d3.v4.min.js"></script>
 </head>
 <body>
@@ -465,14 +462,21 @@
             return list.indexOf(d3.select(this).attr("id")) > -1
           })
             .style("display", undefined);       
-      });      
+      });
+
+      if(document.location.href.split("#").length == 2){
+        var id = document.location.href.split("#")[1].split("_")[0];
+          d3.select("#scheme").select(id).on("click")
+            .apply(d3.select("#scheme").select(id).node());
+          window.location = document.location.href;              
+      }
   </script>
 </div>
 <table>
   <tr>
-    <td id = "toc">
+    <td id = "toc" style="vertical-align: top;">
     </td>
-    <td id = "page">
+    <td id = "page" style="vertical-align: top;">
       <div class = "info" id = "beeswarm">
         <h2>lc.beeswarm(id, chart)</h2>
       </div>
@@ -509,16 +513,154 @@
       
       <div class = "info" id = "table">
         <h2>lc.table()</h2>
-        <p class = "description">A simple table that can show a content of an object.</p>
+        <p class = "description">A simple table that can show a content of an object.
+        Can display an object with numeric and string properties.</p>
+        <pre class = "tiy" fitHeight = "true" 
+          tiy-preload="../src/linked-charts.min.js;../src/data/inputdata.js;../src/linked-charts.css">
+  var table = lc.table()
+    .record(inputData[0])
+    .place();
+        </pre>
 
-
+        <h3>Properties</h3>
+        
+        <p class = "method"><a>record</a></p>
+        <p class = "methodDescription">An object to be displayed.</p>
+        <h4>Type</h4>
+        <p>Object.</p>
+        <h4>Default value</h4>
+        <p>{}</p>
 
       </div>
       
       <div class = "info" id = "dendogram">
         <h2>lc.dendogram()</h2>
-        <p class = "description">This class creates dendorgams that can be either independent charts
+        <p class = "description">This class creates dendorgams that can be either an independent chart
         or a part of a heatmap.</p>
+        <pre class = "tiy" fitHeight = "true" 
+          tiy-preload="../src/linked-charts.min.js;../src/data/inputdata_simple.js;../src/linked-charts.css">
+var dendo = lc.dendogram()
+  .dataIds(geneNames)
+  .data(function(id) {return geneExprs[geneNames.indexOf(id)]})
+  .place();
+        </pre>
+        
+        <h3>Properties</h3>
+        
+        <p class = "method"><a>width</a></p>
+        <p class = "methodDescription">Width of a dendogram.</p>
+        <h4>Type</h4>
+        <p>Number in pixels.</p>
+        <h4>Default value</h4>
+        <p>500</p>
+
+        <p class = "method"><a>height</a></p>
+        <p class = "methodDescription">Height of a dendogram.</p>
+        <h4>Type</h4>
+        <p>Number in pixels.</p>
+        <h4>Default value</h4>
+        <p>300</p>
+
+        <p class = "method"><a>margins</a></p>
+        <p class = "methodDescription">Sets dendogram margins.</p>
+        <h4>Type</h4>
+        <p>Object with four required properties: <code>top</code>, <code>left</code>, 
+        <code>right</code>, <code>bottom</code>. Each property should have a numeric 
+        value.</p>
+        <p><b>Important!</b> A property setter always replaces old value with the
+        new one, so you need to always define all four margins.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+{left: 20, top: 20, bottom: 20, right: 20}
+        </pre>        
+
+        <p class = "method"><a>orientation</a></p>
+        <p class = "methodDescription">Defines an orientation of a dendogram.</p>
+        <h4>Type</h4>
+        <p>Either <code>vertical</code> or <code>horizontal</code>.</p>
+        <h4>Default value</h4>
+        <p><code>horizontal</code></p>
+
+        <p class = "method"><a>nelements</a></p>
+        <p class = "methodDescription">Number of elements (leaves) in a dendogram.</p>
+        <h4>Type</h4>
+        <p>Positive number.</p>
+        <h4>Default value</h4>
+        <p><code>undefined</code></p>
+
+        <p class = "method"><a>dataIds</a></p>
+        <p class = "methodDescription">An array of IDs for all the elements in the
+        dendogram.</p>
+        <h4>Type</h4>
+        <p>Array.</p>
+        <h4>Default value</h4>
+        <p><code>undefined</code></p>
+
+        <p><b>Important!</b> Properties <a href="dendogram">nelements</a> and <a href="dendogram">dataIds</a>
+        override each other.
+        If an array of IDs is provided, number of elements is automatically set to its
+        length. If number of elements is set to <code>n</code>, then cthe IDs are
+        defined as <code>[0, 1, 2, ..., n-1]</code></p>
+
+        <p class = "method"><a>data</a></p>
+        <p class = "methodDescription">Data for each element.</p>
+        <h4>Type</h4>
+        <p>Anything that can be handled by a distance function. The defauld distance function
+        expects arrays of coordinates.</p>
+        <h4>Default value</h4>
+        <p><code>undefined</code></p>
+
+        <p class = "method"><a>distance</a></p>
+        <p class = "methodDescription">Function that takes data for two elements and
+        returns numerical distance.</p>
+        <h4>Type</h4>
+        <p>Function.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function(a, b){
+    return lc.getEuclideanDistance(a, b);           
+}
+        </pre>
+
+        <p class = "method"><a>lineColours</a></p>
+        <p class = "methodDescription">Regular colour of lines and colour of selected branch.</p>
+        <h4>Type</h4>
+        <p>Array with two colours.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+['black', 'red']
+        </pre>
+
+        <h3>Methods</h3>
+
+        <p class = "method"><a>cluster</a>()</p>
+        <p class = "methodDescription">Clusters elements of the dendogram. Changing data does
+        not necessarily leads to reclustering, and therefore this method should be explicitly 
+        called.</p>
+
+        <p class = "method"><a>draw</a>()</p>
+        <p class = "methodDescription">Redraws the dendogram.</p>
+
+        <p class = "method"><a>remove</a>()</p>
+        <p class = "methodDescription">Removes the dendogram.</p>
+
+        <p class = "method"><a>update</a>()</p>
+        <p class = "methodDescription">Updates the dendogram. Calls <a>draw</a> and
+        <a>cluster</a> methods.</p>
+
+        <p class = "method"><a>place</a>([element])</p>
+       <p class = "methodDescription">Initialises and places the dendogram in the provided container on 
+        the page. Need to be called once for each dendogram.</p>
+        <h4>Arguments</h4>
+        <p class = "argument"><span>element</span> <i>optional</i> - <b>d3.selection | valid CSS selector</b> 
+        - an existing container on the page, where the dendogram should be placed. If not specified, dendogram is
+        placed in the body of the page.</p>
+
+        <p class = "method"><a>put_static_content</a>()</p>        
+        <p class = "methodDescription">Initialises the dendogram and adds all its static elements.
+        This function is supposed to be called only once and, by default, is called inside
+        <a href="dendogram">place</a> method.</p>
+
       </div>
 
       <div class = "info" id = "heatmap">
@@ -544,18 +686,18 @@ var heatmap = lc.heatmap()
         <h3>Properties</h3>
 
         <p class = "method"><a>nrows</a></p>
-        <p class = "methodDescription">Number of rows in the heatmap.</p>
+        <p class = "methodDescription">Number of rows in a heatmap.</p>
         <h4>Type</h4>
         <p>Positive number.</p>
         <h4>Default value</h4>
-        <p><tt>undefined</tt></p>
+        <p><code>undefined</code></p>
 
         <p class = "method"><a>ncols</a></p>
-        <p class = "methodDescription">Number of columns in the heatmap.</p>
+        <p class = "methodDescription">Number of columns in a heatmap.</p>
         <h4>Type</h4>
         <p>Positive number.</p>
         <h4>Default value</h4>
-        <p><tt>undefined</tt></p>
+        <p><code>undefined</code></p>
 
         <p class = "method"><a>rowIds</a></p>
         <p class = "methodDescription">An array of IDs for all the rows in the
@@ -563,7 +705,7 @@ var heatmap = lc.heatmap()
         <h4>Type</h4>
         <p>Array.</p>
         <h4>Default value</h4>
-        <p><tt>undefined</tt></p>
+        <p><code>undefined</code></p>
 
         <p class = "method"><a>colIds</a></p>
         <p class = "methodDescription">An array of IDs for all the rows in the
@@ -571,13 +713,13 @@ var heatmap = lc.heatmap()
         <h4>Type</h4>
         <p>Array.</p>
         <h4>Default value</h4>
-        <p><tt>undefined</tt></p>
+        <p><code>undefined</code></p>
 
-        <p><b>Important!</b> Properties <tt><a>nrows</a></tt> and <tt><a>rowIds</a></tt>
-        (as well as <tt><a>ncols</a></tt> and <tt><a>colIds</a></tt>) overrides each other.
+        <p><b>Important!</b> Properties <a>nrows</a> and <a>rowIds</a>
+        (as well as <a>ncols</a> and <a>colIds</a>) override each other.
         If an array of IDs is provided, number of rows or columns is automatically set to its
-        length. If number of rows or columns is set to <tt>n</tt>, then corresponding IDs are
-        defined as <tt>[0, 1, 2, ..., n-1]</tt></p>
+        length. If number of rows or columns is set to <code>n</code>, then corresponding IDs are
+        defined as <code>[0, 1, 2, ..., n-1]</code></p>
 
         <p class = "method"><a>value</a></p>
         <p class = "methodDescription">Provided a column and a row IDs, returns a 
@@ -585,7 +727,7 @@ var heatmap = lc.heatmap()
         <h4>Type</h4>
         <p>Anything.</p>
         <h4>Default value</h4>
-        <p><tt>undefined</tt></p>
+        <p><code>undefined</code></p>
 
         <p class = "method"><a>on_click</a></p>
         <p class = "methodDescription">Actions to be performed when a cell is clicked.</p>
@@ -627,7 +769,7 @@ function(rowId) {
         </pre>
 
         <p class = "method"><a>colour</a></p>
-        <p class = "methodDescription">Provided a value (that is defined through <tt><a>value</a></tt>
+        <p class = "methodDescription">Provided a value (that is defined through <a>value</a>
         property), returns colour to fill a cell.</p>
         <h4>Type</h4>
         <p>Colour.</p>
@@ -637,8 +779,8 @@ function(val) {return chart.colourScale(val);}
         </pre>
 
         <p class = "method"><a>palette</a></p>
-        <p class = "methodDescription">Sets a palette to create a <tt><a>colourScale</a></tt>. Note, that
-        if the <tt><a>colour</a></tt> property is redefined and doesn't use <tt><a>colourScale</a></tt>
+        <p class = "methodDescription">Sets a palette to create a <a>colourScale</a>. Note, that
+        if the <a>colour</a> property is redefined and doesn't use <a>colourScale</a>
         anymore, changing this property will not have any effect on the heatmap.</p>
         <h4>Type</h4>
         <p>Function that converts values from 0 to 1 into colours.</p>
@@ -646,9 +788,9 @@ function(val) {return chart.colourScale(val);}
         <p><a href="https://github.com/d3/d3-scale-chromatic#interpolateOrRd">d3.interpolateOrRd</a></p>
 
         <p class = "method"><a>colourDomain</a></p>
-        <p class = "methodDescription">Sets a domain for the <tt><a>colourtScale</a></tt>.</p>
+        <p class = "methodDescription">Sets a domain for the <a>colourtScale</a>.</p>
         <h4>Type</h4>
-        <p>[number, number]</p>
+        <p><code>[number, number]</code></p>
         <h4>Default value</h4>
         <pre class = "tiy" runnable = "false">
 function() {return chart.dataRange()}
@@ -657,20 +799,20 @@ function() {return chart.dataRange()}
         <p class = "method"><a>showDendogramRow</a></p>
         <p class = "methodDescription">Defines, whether or not to show <a>dendogram</a> for rows.
         Dendogram can be displayed only when the rows are clustered. If this property is set to
-        <tt>false</tt>, rows can still be clustered.</p>
+        <code>false</code>, rows can still be clustered.</p>
         <h4>Type</h4>
         <p>Boolean.</p>
         <h4>Default value</h4>
-        <p><tt>true</tt></p>        
+        <p><code>true</code></p>        
 
         <p class = "method"><a>showDendogramCol</a></p>
         <p class = "methodDescription">Defines, whether or not to show <a>dendogram</a> for columns.
         Dendogram can be displayed only when the columns are clustered. If this property is set to
-        <tt>false</tt>, columns can still be clustered.</p>
+        <code>false</code>, columns can still be clustered.</p>
         <h4>Type</h4>
         <p>Boolean.</p>
         <h4>Default value</h4>
-        <p><tt>true</tt></p>
+        <p><code>true</code></p>
 
         <p class = "method"><a>clusterRowMetric</a></p>
         <p class = "methodDescription">Defines distance fucntion that is used to cluster rows.</p>
@@ -716,14 +858,14 @@ function(a, b) {
         only change some of the cells), but if a heatmap has too many cells, page rendering can take a
         considerable amount of time. Canvas, on the other hand, is faster in these cases, but the
         interactivity is limited and any changes of the heatmap require complete redrawing. It's also
-        imposible to save the chart as SVG, when the heatmap is in the Canvas mode. <tt>default</tt>
+        imposible to save the chart as SVG, when the heatmap is in the Canvas mode. <code>default</code>
         mode makes the heatmap switch between the modes, depending how many cells are displayed. You can
-        zoom in a large Canvas heatmap and it will turn into SVG. Zooming out in <tt>default</tt> mode
+        zoom in a large Canvas heatmap and it will turn into SVG. Zooming out in <code>default</code> mode
         will cause it to become Canvas again.</p>
         <h4>Type</h4>
         <p>"svg", "canvas" or "default"</p>
         <h4>Default value</h4>
-        <p><tt>"default"</tt></p>          
+        <p><code>"default"</code></p>          
 
         <p class = "method"><a>informText</a></p>
         <p class = "methodDescription">Text to be shown on the information lable (the one that appears
@@ -769,7 +911,7 @@ function(colId) {
         <h4>Type</h4>
         <p>Booolean.</p>
         <h4>Default value</h4>
-        <p><tt>false</tt></p>
+        <p><code>false</code></p>
 
         <p class = "method"><a>rowTitle</a></p>
         <p class = "methodDescription">Sets a title for the rows.</p>
@@ -807,11 +949,11 @@ function() {return chart.colIds();}
 
         <p class = "method"><a>updateLabels</a>()</p>
         <p class = "methodDescription">Adds or removes labels to keep them up to date with 
-        current data. Calls <tt><a>updateCells</a></tt>.</p>  
+        current data. Calls <a>updateCells</a>.</p>  
 
         <p class = "method"><a>updateCells</a>()</p>
         <p class = "methodDescription">Adds or removes cells to keep them up to date with 
-        current data. If <tt><a>showValue</a></tt> is <tt>true</tt>, calls <tt><a>updateTexts</a></tt>.</p>
+        current data. If <a>showValue</a> is <code>true</code>, calls <a>updateTexts</a>.</p>
 
         <p class = "method"><a>updateTexts</a>()</p>
         <p class = "methodDescription">Adds or removes text inside cells to keep it up to date with 
@@ -819,11 +961,11 @@ function() {return chart.colIds();}
 
         <p class = "method"><a>updateLabelPosition</a>()</p>
         <p class = "methodDescription">Updates coordinates of all the existing labesl. Calls
-        <tt><a>updateCellPosition</a></tt>.</p>   
+        <a>updateCellPosition</a>.</p>   
 
         <p class = "method"><a>updateCellPosition</a>()</p>
         <p class = "methodDescription">Updates coordinates of all the existing cells. If 
-        <tt><a>showValue</a></tt> is <tt>true</tt>, calls <tt><a>updateTextPosition</a></tt>.</p>
+        <a>showValue</a> is <code>true</code>, calls <a>updateTextPosition</a>.</p>
 
         <p class = "method"><a>updateTextPosition</a>()</p>
         <p class = "methodDescription">Updates coordinates of text inside cells.</p>
@@ -833,7 +975,7 @@ function() {return chart.colIds();}
 
         <p class = "method"><a>updateCellColour</a>()</p>
         <p class = "methodDescription">Updates colour of all the existing cells. If 
-        <tt><a>showValue</a></tt> is <tt>true</tt>, calls <tt><a>updateTextValues</a></tt>.</p>        
+        <a>showValue</a> is <code>true</code>, calls <a>updateTextValues</a>.</p>        
 
         <p class = "method"><a>updateTextValues</a>()</p>
         <p class = "methodDescription">Updates text inside cells.</p>     
@@ -846,7 +988,7 @@ function() {return chart.colIds();}
 
         <p class = "method"><a>cluster</a>(type, [features])</p> 
         <p class = "methodDescription">Performs hierarchical clustering of row or columns, reorders them accordingly,
-        and adds a dendogram, if this is not prohibited by <tt><a>showDendogramRow</a></tt> or <tt><a>showDendogramCol</a></tt>
+        and adds a dendogram, if this is not prohibited by <a>showDendogramRow</a> or <a>showDendogramCol</a>
         properties.</p>
         <p class = "argument"><span>type</span> - <b>either "Row" or "Col"</b> - defines what to cluster: rows 
         or columns.</p>
@@ -866,15 +1008,15 @@ function() {return chart.colIds();}
 
         <p class = "method"><a>showDendogram</a>(type, [value])</p>
         <p class = "methodDescription">Returns or sets an idicator, telling whether a
-        dendogram for rows or columns should be displayed. Unlike properties <tt><a>showDendogramRow</a></tt>
-        and <tt><a>showDendogramCol</a></tt>, which are sort of global, this method is
-        responsible for showing or hiding dendogram in a paticular moments. Thus, if <tt><a>showDendogramRow</a></tt>
-        is <tt>false</tt>, this method will always return <tt>false</tt> as well. Otherwise it
-        will return <tt>true</tt> or <tt>false</tt>, depending on if the rows are now clustered.</p>
+        dendogram for rows or columns should be displayed. Unlike properties <a>showDendogramRow</a>
+        and <a>showDendogramCol</a>, which are sort of global, this method is
+        responsible for showing or hiding dendogram in a paticular moments. Thus, if <a>showDendogramRow</a>
+        is <code>false</code>, this method will always return <code>false</code> as well. Otherwise it
+        will return <code>true</code> or <code>false</code>, depending on if the rows are now clustered.</p>
         <p class = "argument"><span>type</span> - <b>either "Row" or "Col"</b> - selector for one of the dendograms.</p>
         <p class = "argument"><span>value</span> <i>(optional)</i> - <b>boolean</b> - if specified, the selected
-        dendogram is either shown (if the corresponding property is <tt>true</tt>) or hidden. If not specified,
-        returns current state of the selected dendogram (<tt>true</tt> if shown, <tt>false</tt> if hidden).</p>
+        dendogram is either shown (if the corresponding property is <code>true</code>) or hidden. If not specified,
+        returns current state of the selected dendogram (<code>true</code> if shown, <code>false</code> if hidden).</p>
 
         <p class = "method"><a>drawDendogram</a>(type)</p>
         <p class = "methodDescription">Adds a dendogram to the chart.</p>
@@ -892,12 +1034,12 @@ function() {return chart.colIds();}
         <p class = "methodDescription">Scale that transforms values into colours.</p>
 
         <p class = "method"><a>resetColourScale</a>()</p>        
-        <p class = "methodDescription">Redefines heatmap's <tt><a>colourScale</a></tt> according to the
+        <p class = "methodDescription">Redefines heatmap's <a>colourScale</a> according to the
         current data.</p>
 
         <p class = "method"><a>zoom</a>(lu, rb)</p> 
         <p class = "methodDescription">Zooms into a selected rectangle area, defined by its left-upper corner 
-        (<tt>lu</tt>) and right-bottom corner (<tt>rb</tt>).
+        (<code>lu</code>) and right-bottom corner (<code>rb</code>).
         <p class = "argument"><span>lu</span> - <b>[number, number]</b> - left-upper corner of the area,
         where to look for the elements.</p>
         <p class = "argument"><span>rb</span> - <b>[number, number]</b> - right-bottom corner of the area,
@@ -905,11 +1047,11 @@ function() {return chart.colIds();}
 
         <p class = "method"><a>findElements</a>(lu, rb)</p>        
         <p class = "methodDescription">Returns a list of IDs of all the elements that are inside or on the border of 
-        a rectagle area, defined by its left-upper corner (<tt>lu</tt>) and right-bottom corner (<tt>rb</tt>).
-        <b>Important!</b> Unlike most functions in the <tt>linked-charts</tt> library, this method returns
+        a rectagle area, defined by its left-upper corner (<code>lu</code>) and right-bottom corner (<code>rb</code>).
+        <b>Important!</b> Unlike most functions in the <i>linked-charts</i> library, this method returns
         IDs of actual SVG elements (or mimics these IDs if "canvas" mode is used). This is required to treat heatmpas,
         where each cell has two IDs, and all other types of charts the same. IDs for each cell are generated the
-        following way: <tt>p<i>rowId</i>_-sep-_<i>colId</i> with all the spaces in rowId and colId converted into
+        following way: <tt>p<i>rowId</i>_-sep-_<i>colId</i></tt> with all the spaces in rowId and colId converted into
         underscores.</p>
         <p class = "argument"><span>lu</span> - <b>[number, number]</b> - left-upper corner of the area,
         where to look for the elements.</p>
@@ -956,9 +1098,9 @@ function(){
         <p class = "methodDescription">The buttons on the panel can be aligned either vertically or
         horizontally. This property defines, which mode to use.</p>
         <h4>Type</h4>
-        <p>This should be either <tt>"horizontal"</tt> or <tt>"vertical"</tt></p>
+        <p>This should be either <code>"horizontal"</code> or <code>"vertical"</code></p>
         <h4>Default value</h4>
-        <p><tt>"horizontal"</tt></p>
+        <p><code>"horizontal"</code></p>
 
         <p class = "method"><a>width</a></p>
         <p class = "methodDescription">Width of the instrument panel. If not specified,
@@ -991,8 +1133,8 @@ function(){
         <p class = "method"><a>buttonSize</a></p>
         <p class = "methodDescription">Size of a button. All buttons are square, and the
         value of this property is used as a side length.
-        <b>Important!</b> If <tt><a>height</a></tt> (for horizontal orientation) or <tt><a>width</a></tt> (for vertical one)
-        is specified, this property will be reset on each <tt><a>updateSize</a></tt> call to fit into the
+        <b>Important!</b> If <a>height</a> (for horizontal orientation) or <a>width</a> (for vertical one)
+        is specified, this property will be reset on each <a>updateSize</a> call to fit into the
         specified size.</p>
         <h4>Type</h4>
         <p>Number in pixels.</p>
@@ -1006,10 +1148,10 @@ function(){
         <h4>Arguments</h4>
         <p class = "argument"><span>name</span> - <b>string</b> - name of the new button.</p>
         <p class = "argument"><span>icon</span> - <b>an ID selector</b> - a selector for the button
-        icon that can be assigned to <tt>xlink:href</tt> attribute. Available by default icons are
-        stored inside <tt>defs</tt> of <tt>panel.g</tt> object.</p>
+        icon that can be assigned to <code>xlink:href</code> attribute. Available by default icons are
+        stored inside <code>defs</code> of <code>panel.g</code> object.</p>
         <p class = "argument"><span>function</span> - <b>function</b> - actions to be performed, when
-        button is clicked. This fucntion can take <tt>chart</tt> as its first argument and <tt>button</tt>
+        button is clicked. This fucntion can take <code>chart</code> as its first argument and <code>button</code>
         (<a href="https://github.com/d3/d3/blob/master/API.md#selections-d3-selection">d3.selection</a>) as
         a second one.</p>
         <p class = "argument"><span>hint</span> <i>(optional)</i> - <b>string</b> - text that is shown once,
@@ -1028,11 +1170,11 @@ chart.panel.add_button("Reset scales", "#home", function(chart) {chart.resetDoma
         <p class = "method"><a>put_static_content</a>()</p>        
         <p class = "methodDescription">Initialises the panel and adds all its static elements.
         This function is supposed to be called only once and, by default, is called inside
-        <tt>chart.<a>put_static_content</a>()</tt>.</p>
+        <a href="chart">put_static_content</a> of a <code>chart</code>.</p>
 
         <p class = "method"><a>updateSize</a>()</p>        
         <p class = "methodDescription">Update size and location of the panel. By default, is
-        called inside <tt>chart.<a>updateSize</a>()</tt>.</p>
+        called inside <a>updateSize</a> of a <code>chart</code>.</p>
 
       </div>
       
@@ -1041,7 +1183,7 @@ chart.panel.add_button("Reset scales", "#home", function(chart) {chart.resetDoma
         <p class = "description">Legend show, how colour, size or shape of data points
         (lines, cells etc.) corresponds to some data properties or values. Legend consists
         of several independent blocks, each having its own type, scale and title. Setting 
-        properties like <tt><a>colourValue</a></tt> or <tt><a>symbolValue</a></tt> will
+        properties like <a>colourValue</a> or <a>symbolValue</a> will
         automatically add a corresponding block to the legend. In other cases legend needs
         to be created manually.</p>
 
@@ -1070,7 +1212,7 @@ function() {return chart.height();}
         <h4>Type</h4>
         <p>Number in pixels.</p>
         <h4>Default value</h4>
-        <p><tt>undefined</tt></p>
+        <p><code>undefined</code></p>
 
         <p class = "method"><a>container</a></p>
         <p class = "methodDescription">An existing container on the page, where to place the 
@@ -1111,10 +1253,10 @@ chart.container
         <b>Imortant!</b> If you construct a scale function, you need to define a domain property, which is
         an array of all the values of colour, shape, etc. you want to annotate.</p>
         <p class = "argument"><span>type</span> - <b>string</b> - a type of this new block.
-        Currently supported types are <tt>"colour", "size", "symbol", "dash"</tt>.</p>
+        Currently supported types are <code>"colour", "size", "symbol", "dash"</code>.</p>
         <p class = "argument"><span>id</span> - <b>string</b> - ID for the new block. Each ID must be
         unique. If a block with the same ID already exists, it will be replaced with the new one.
-        by default IDs are alse used as titles, but this can be changed by the <tt><a>title</a></tt>
+        by default IDs are alse used as titles, but this can be changed by the <a>title</a>
         property.</p>
         <p class = "argument"><span>layer</span> <i>(optional)</i> - <b>object</b> - if you want a 
         block to be associated with one of the chart's layers, you can pass this layer as a fourth
@@ -1160,7 +1302,7 @@ curveFit.legend.ncol(1)
       
       <div class = "info" id = "chart">
         <h2>lc.chartBase()</h2>
-        <p class = "description">Predecessor of all the charts in the <tt>linked-charts</tt> library.</p>
+        <p class = "description">Predecessor of all the charts in the <i>linked-charts</i> library.</p>
         
         <h3>Properties</h3>
 
@@ -1200,8 +1342,8 @@ function() {
 }
         </pre>
 
-        <p><b>Important!</b> <tt><a>width</a></tt> and <tt><a>plotWidth</a></tt> (as well as <tt><a>height</a></tt>
-        and <tt><a>plotHeight</a></tt> depend on each other. Therefore, only the one that is set 
+        <p><b>Important!</b> <a href = "chart">width</a> and <a>plotWidth</a> (as well as <a href = "chart">height</a>
+        and <a>plotHeight</a>) depend on each other. Therefore, only the one that is set 
         last is used.</p>
 
         <p class = "method"><a>margins</a></p>
@@ -1209,12 +1351,12 @@ function() {
         place labels, axes, titles, dendograms and other additional chart
         elements.</p>
         <h4>Type</h4>
-        <p>Object with four required properties: <tt>top</tt>, <tt>left</tt>, 
-        <tt>right</tt>, <tt>bottom</tt>. Each property should have a numeric 
+        <p>Object with four required properties: <code>top</code>, <code>left</code>, 
+        <code>right</code>, <code>bottom</code>. Each property should have a numeric 
         value.</p>
         <p><b>Important!</b> A property setter always replaces old value with the
         new one, so you need to always define all four margins. If you want to 
-        reset only few of them, use <tt><a>set_margins</a></tt> function.
+        reset only few of them, use <a>set_margins</a> function.
         <h4>Default value</h4>
         <pre class = "tiy" runnable = "false">
 {top: 15, right: 10, bottom: 50, left: 50}
@@ -1267,14 +1409,14 @@ function() {
         <h4>Type</h4>
         <p>Boolean</p>
         <h4>Default value</h4>
-        <p><tt>true</tt></p>
+        <p><code>true</code></p>
 
         <p class = "method"><a>showLegend</a></p>
         <p class = "methodDescription">Defines whether to show chart <a>legend</a>.</p>
         <h4>Type</h4>
         <p>Boolean</p>
         <h4>Default value</h4>
-        <p><tt>true</tt></p>          
+        <p><code>true</code></p>          
 
         <p class = "method"><a>transitionDuration</a></p>
         <p class = "methodDescription">Sets duration of transition effects for the
@@ -1306,11 +1448,11 @@ function() {}
         placed in the body of the page.</p>
         
         <p class = "method"><a>set_margins</a>(margins)</p>        
-        <p class = "methodDescription">Unlike <tt><a>margins</a></tt> setter, allows to change only some of
+        <p class = "methodDescription">Unlike <a>margins</a> setter, allows to change only some of
         the margins, but doesn't accept functions as arguments.</p>
         <h4>Arguments</h4>
         <p class = "argument"><span>margins</span> - <b>object</b> - new margins. The object should 
-        have a property for each field you want to set (<tt>right, left, top, bottom</tt>), containing 
+        have a property for each field you want to set (<code>right, left, top, bottom</code>), containing 
         desired size in pixels. If a property is not defined, the respective margin will remain as it is.</p>
         <pre class = "tiy" runnable = "false">
 chart.set_margins({right: 100, bottom: 70});
@@ -1335,11 +1477,11 @@ chart.set_margins({right: 100, bottom: 70});
 
         <p class = "method"><a>mark</a>(elements)</p>        
         <p class = "methodDescription">Swihches the state of all the provided elements (either selects,
-        or deselects them). Also accepts <tt>__clear__</tt> command to deselect everything.</p>
+        or deselects them). Also accepts <code>__clear__</code> command to deselect everything.</p>
         <h4>Arguments</h4>
         <p class = "argument"><span>elements</span> - <b>d3.selection | array | string</b> - a list of 
-        elements to switch the state. This can be a <tt><a href="https://github.com/d3/d3/blob/master/API.md#selections-d3-selection">d3.selection</a></tt>, an array of data point IDs,
-        or <tt>__clear__</tt> command.</p>
+        elements to switch the state. This can be a <a href="https://github.com/d3/d3/blob/master/API.md#selections-d3-selection">d3.selection</a>, an array of data point IDs,
+        or <code>__clear__</code> command.</p>
 
         <p class = "method"><a>get_marked</a>()</p>        
         <p class = "methodDescription">Returns an array of IDs of all currently selected elements.</p>
@@ -1350,23 +1492,23 @@ chart.set_margins({right: 100, bottom: 70});
         mouseclick event).</p>
         <h4>Arguments</h4>
         <p class = "argument"><span>value</span> <i>(optional)</i> - <b>boolean</b> - if defined, 
-        turns on or off the selection mode. If not defined, returns <tt>true</tt> is selection mode
-        is active and <tt>false</tt> otherwise.</p>
+        turns on or off the selection mode. If not defined, returns <code>true</code> is selection mode
+        is active and <code>false</code> otherwise.</p>
 
         <p class = "method"><a>pan</a>(property, [value])</p>        
         <p class = "methodDescription">Sets or returns value of either the indicator for pan mode
-        (<tt>mode</tt>), or the start position of the chart for panning (<tt>down</tt>).</p>
+        (<code>mode</code>), or the start position of the chart for panning (<code>down</code>).</p>
         <h4>Arguments</h4>
         <p class = "argument"><span>property</span> - <b>string</b> - property of the pan object,
-        you want to access. Should be either <tt>mode</tt> or <tt>down</tt></p>
+        you want to access. Should be either <code>mode</code> or <code>down</code></p>
         <p class = "argument"><span>value</span> <i>(optional)</i> - <b>boolean</b> - replaces the
         current value of the selected property and returns chart. Otherwise returns current value of
         the selected property.</p>
 
         <p class = "method"><a>put_static_content</a>(element)</p>        
         <p class = "methodDescription">Create all the static elements (e.g. div and svg containers),
-        used by this chart and puts them inside the provided element (<tt><a href="https://github.com/d3/d3/blob/master/API.md#selections-d3-selection">d3.selection</a></tt>).
-        <b>Important!</b> This function is to be called only once and is called by the <tt><a>place</a></tt>
+        used by this chart and puts them inside the provided element (<a href="https://github.com/d3/d3/blob/master/API.md#selections-d3-selection">d3.selection</a>).
+        <b>Important!</b> This function is to be called only once and is called by the <a>place</a>
         function.</p>
         <h4>Arguments</h4>
         <p class = "argument"><span>element</span> - <b>d3.selection</b> - an existing
@@ -1378,7 +1520,7 @@ chart.set_margins({right: 100, bottom: 70});
         <p class = "description">Basic class that provide <a href="../tutorials/properties.html">property</a> functionality.
           All the classes in the library inherit from it. Methods of this class 
           are used to create new classes, and their understanding is not required
-          for the usage of the <tt>linked-charts</tt> library.</p>
+          for the usage of the <i>linked-charts</i> library.</p>
         <h3>Methods</h3>
 
         <p class = "method"><a>add_property</a>(propertyName, [defaultValue])</p>
@@ -1426,5 +1568,16 @@ chart.wrapSetter("width", function(width) {
 <script type="text/javascript">
   d3.select("#page").selectAll(".info")
     .style("display", "none");
+  d3.selectAll("a").each(function(){
+    if(d3.select(this).attr("href").indexOf("#") == 0)
+      d3.select(this)
+        .on("click", function(){
+          event.preventDefault();
+          var id = d3.select(this).attr("href").split("_")[0];
+          d3.select("#scheme").select(id).on("click")
+            .apply(d3.select("#scheme").select(id).node());
+          window.location = document.location.href.split("#")[0] + d3.select(this).attr("href");
+        })
+  })
 </script>
 </body>
