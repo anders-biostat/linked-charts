@@ -93,6 +93,29 @@ export function axesChart() {
 		return chart;
 	}
 
+	chart.get_marked = function(){
+		var elements = [];
+		chart.svg.selectAll(".marked").each(function() {
+			elements.push([d3.select(this.parentNode).attr("id"), 
+										d3.select(this).datum()]);
+		});
+		return elements;
+	}
+
+	chart.findElements = function(lu, rb){
+		var selElements = [];
+		chart.svg.selectAll(".chart_g").each(function(){
+			selElements = selElements.concat(
+				chart.get_layer(d3.select(this).attr("id")).findElements(lu, rb)
+			);
+		});
+		return selElements;
+	}
+
+	chart.get_position = function(id){
+		return chart.get_layer(id[0]).get_position(id[1]);
+	}
+
 	chart.zoom = function(lu, rb){
 		if(lu[0] == rb[0] || lu[1] == rb[1])
 			return;

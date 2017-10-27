@@ -509,6 +509,84 @@
       </div>
       <div class = "info" id = "layerChart">
         <h2>lc.layerChart()</h2>
+        <p class = "description">This class provides all the layer functionality. One can
+        use layer to put several different plots on top of each other.</p>
+
+        <h3>Properties</h3>
+
+        <p class = "method"><a>activeLayer</a></p>
+        <p class = "methodDescription">Current active layer. An active layer is the one,
+        whose properties one can use directly as a chart property without need to call the
+        <a>get_layer</a> method first. By default, each new layer becomes active immediately
+        after initializing.</p>
+        <h4>Type</h4>
+        <p>A layer object.</p>
+        <h4>Default value</h4>
+        <p><code>undefined</code></p>
+
+        <p class = "method"><a>layerIds</a></p>
+        <p class = "methodDescription">An array of IDs of all the existing layers. By changing
+        this property one can remove or add new empty layers.</p>
+        <h4>Type</h4>
+        <p>An array of strings.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function() {return Object.keys(chart.layers);}        
+        </pre>
+
+        <p class = "method"><a>layerType</a></p>
+        <p class = "methodDescription">Type of a layer with the given ID. Currently, valid types 
+        are <code>scatter, xLine, yLine, paramCurve, bar, beeswarm</code>. Class asignment is
+        important when new layers are added. Changing the type of
+        an existing layer will be ignored.</p>
+        <h4>Type</h4>
+        <p>An array of strings.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function(id) {return chart.get_layer(id).type;}
+        </pre>
+
+        <h3>Methods</h3>
+
+        <p class = "method"><a>get_nlayers</a>()</p>
+        <p class = "methodDescription">Returns the current number of the layers of this chart.</p>
+
+        <p class = "method"><a>get_layer</a>(id)</p>
+        <p class = "methodDescription">Returns a layer with the given ID.</p>
+        <h4>Arguments</h4>
+        <p class = "argument"><span>id</span> - <b>string</b> - ID of the layer to be returned.</p>
+
+        <p class = "method"><a>add_layer</a>(id)</p>
+        <p class = "methodDescription">Adds a new layer with the given ID.</p>
+        <h4>Arguments</h4>
+        <p class = "argument"><span>id</span> - <b>string</b> - ID of the layer to be added to the chart.</p>
+
+        <p class = "method"><a>remove_layer</a>(id)</p>
+        <p class = "methodDescription">Removes layer with the given ID.</p>
+        <h4>Arguments</h4>
+        <p class = "argument"><span>id</span> - <b>string</b> - ID of the layer to be removed.</p>
+
+        <p class = "method"><a>select_layers</a>([ids])</p>
+        <p class = "methodDescription">Returns layers with all the given IDs. When several layers
+        are selected, their propertied can be changed simultaniously. See how it works in this
+        example.</p>
+        <h4>Arguments</h4>
+        <p class = "argument"><span>ids</span> <i>optional</i> - <b>Array</b> - a set of IDs of the layers to
+        be selected. If not provided, all the existing layers are selected.</p>
+
+        <p class = "method"><a>place_layer</a>(id)</p>
+        <p class = "methodDescription">Places the layer with the given ID on the web page. This method is 
+        supposed to be called only once for each layer that was added after the chart had been placed.</p>
+        <h4>Arguments</h4>
+        <p class = "argument"><span>id</span> - <b>string</b> - a set of IDs of the layers to
+        be selected. If not provided, all the existing layers are selected.</p>
+
+        <p class = "method"><a>syncProperties</a>(layer)</p>
+        <p class = "methodDescription">Allows to use the properties of the given layer as chart 
+        properties. By default is called each time a new layer is intialized.</p>
+        <h4>Arguments</h4>
+        <p class = "argument"><span>layer</span> - <b><a>layer</a> object</b> - a layer, whose
+        properties should be synchronized.</p>
       </div>
 
       <div class = "info" id = "colourSlider">
@@ -535,7 +613,7 @@ var table = lc.colourSlider()
         <pre class = "tiy" runnable = "false">
 d3.scaleLinear()
   .range(["white", "darkblue"]));
-        </pre>   
+        </pre>
 
         <p class = "method"><a>midpoint</a></p>
         <p class = "methodDescription">Current position of the middle point of the colour 
@@ -723,7 +801,7 @@ function(a, b){
         <a>cluster</a> methods.</p>
 
         <p class = "method"><a>place</a>([element])</p>
-       <p class = "methodDescription">Initialises and places the dendogram in the provided container on 
+        <p class = "methodDescription">Initialises and places the dendogram in the provided container on 
         the page. Need to be called once for each dendogram.</p>
         <h4>Arguments</h4>
         <p class = "argument"><span>element</span> <i>optional</i> - <b>d3.selection | valid CSS selector</b> 

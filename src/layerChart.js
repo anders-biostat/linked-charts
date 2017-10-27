@@ -44,7 +44,7 @@ export function layerChart(){
 
 		return chart.layers[id];
 	}
-	chart.create_layer = function(id) {
+	var create_layer = function(id) {
 		if(typeof id === "undefined")
 			id = "layer" + chart.get_nlayers();
 
@@ -64,7 +64,7 @@ export function layerChart(){
 			type = chart.get_layerType(id);
 		} catch (exc) {};
 		if(typeof type === "undefined"){
-			chart.create_layer(id);
+			create_layer(id);
 		} else {
 			if(type == "scatter")
 				scatter(id, chart);
@@ -148,30 +148,7 @@ export function layerChart(){
 		return layerSelection;
 	}
 
-	chart.get_marked = function(){
-		var elements = [];
-		chart.svg.selectAll(".marked").each(function() {
-			elements.push([d3.select(this.parentNode).attr("id"), 
-										d3.select(this).datum()]);
-		});
-		return elements;
-	}
-
-	chart.findElements = function(lu, rb){
-		var selElements = [];
-		chart.svg.selectAll(".chart_g").each(function(){
-			selElements = selElements.concat(
-				chart.get_layer(d3.select(this).attr("id")).findElements(lu, rb)
-			);
-		});
-		return selElements;
-	}
-
-	chart.get_position = function(id){
-		return chart.get_layer(id[0]).get_position(id[1]);
-	}
-
-	chart.placeLayer = function(id){
+	chart.place_layer = function(id){
 		chart.get_layer(id).put_static_content();
 		chart.get_layer(id).updateSize();
 		chart.get_layer(id).update();
@@ -193,7 +170,7 @@ export function layerChart(){
 			if(typeof chart.layers[ids[i]] === "undefined")
 				chart.add_layer(ids[i]);
 //			if(typeof chart.layers[ids[i]].g === "undefined")
-//				chart.placeLayer(ids[i]);
+//				chart.place_layer(ids[i]);
 		}
 		
 
