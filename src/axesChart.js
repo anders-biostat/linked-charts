@@ -4,13 +4,13 @@ export function axesChart() {
 	
 	var chart = layerChart();
 	
-	chart.add_property("singleScaleX", true)
-		.add_property("singleScaleY", true)
+	chart.add_property("singleScaleX", true)//not active now
+		.add_property("singleScaleY", true)//not active now
 		.add_property("domainX")
 		.add_property("domainY")
-		.add_property("aspectRatio", null)
-		.add_property("labelX")
-		.add_property("labelY")
+		.add_property("aspectRatio", undefined)
+		.add_property("titleX", "")
+		.add_property("titleY", "")
 		.add_property("ticksX", undefined)
 		.add_property("ticksY", undefined);
 
@@ -430,9 +430,9 @@ export function axesChart() {
 
 	chart.updateAxes = function(){
     chart.axes.x_label
-    	.text( chart.get_labelX());
+    	.text( chart.titleX());
 		chart.axes.y_label
-   		.text( chart.get_labelY() );
+   		.text( chart.titleY() );
     chart.axes.scale_x.domain(chart.get_domainX());
 		chart.axes.scale_y.domain(chart.get_domainY());
 		if(chart.aspectRatio())

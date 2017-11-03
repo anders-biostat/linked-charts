@@ -506,11 +506,125 @@
       </div>
       <div class = "info" id = "axesChart">
         <h2>lc.axesChart()</h2>
+        <p class = "description">This class is used for all the types of plots that have axes
+        (both continuous and categorical): scatterplots, linecharts, beeswarms, barcharts. All
+        these plots are added to the chart as layers and all of them share the same axes.</p>
+
+        <h3>Properties</h3>
+
+        <p class = "method"><a>domainX</a></p>
+        <p class = "methodDescription">Domain of X-axis.</p>
+        <h4>Type</h4>
+        <p>Array.</p>
+        <h4>Default value</h4>
+        <p>By default is recalculated on any <a href="chart">update</a> call to fit the data
+        in all the layers. For scale to be continuous should be an array with to numbers. 
+        For categorical scale should be an array with all the allowed values - nubers or strings.</p>
+
+        <p class = "method"><a>domainY</a></p>
+        <p class = "methodDescription">Domain of Y-axis.</p>
+        <h4>Type</h4>
+        <p>Array.</p>
+        <h4>Default value</h4>
+        <p>By default is recalculated on any <a href="chart">update</a> call to fit the data
+        in all the layers. For scale to be continuous should be an array with to numbers. 
+        For categorical scale should be an array with all the allowed values - nubers or strings.</p>
+
+        <p class = "method"><a>aspectRatio</a></p>
+        <p class = "methodDescription">Fixes the aspect ration of the axes.</p>
+        <h4>Type</h4>
+        <p>Positive number.</p>
+        <h4>Default value</h4>
+        <p><code>undefined</code></p>
+
+        <p class = "method"><a>titleX</a></p>
+        <p class = "methodDescription">Title of X-axis.</p>
+        <h4>Type</h4>
+        <p>String.</p>
+        <h4>Default value</h4>
+        <p><code>""</code></p>
+
+        <p class = "method"><a>titleY</a></p>
+        <p class = "methodDescription">Title of Y-axis.</p>
+        <h4>Type</h4>
+        <p>String.</p>
+        <h4>Default value</h4>
+        <p><code>""</code></p>
+
+        <p class = "method"><a>ticksX</a></p>
+        <p class = "methodDescription">Allows to specify X-axis ticks to be displayed,
+        and, if necessary, replace the original values with something else. Multiple sets of
+        ticks can be provided (if, for a example, several scales are used) and these sets
+        can have different colours. To see how it works check this example.</p>
+        <h4>Type</h4>
+        <p>Array.</p>
+        <p>The first elemet of the array supposed to be a set of original ticks. All other
+        elements are the values with which to replace the original ones in the corresponding
+        order.</p>
+        <p><i>colour</i> - an optional property of the object that may contain an array of 
+        colours - one for each set of labels.</p>
+        <h4>Default value</h4>
+        <p><code>undefined</code></p>
+
+        <p class = "method"><a>ticksY</a></p>
+        <p class = "methodDescription">Allows to specify Y-axis ticks to be displayed,
+        and, if necessary, replace the original values with something else. Multiple sets of
+        ticks can be provided (if, for a example, several scales are used) and these sets
+        can have different colours. To see how it works check this example.</p>
+        <h4>Type</h4>
+        <p>Array.</p>
+        <p>The first elemet of the array supposed to be a set of original ticks. All other
+        elements are the values with which to replace the original ones in the corresponding
+        order.</p>
+        <p><i>colour</i> - an optional property of the object that may contain an array of 
+        colours - one for each set of labels.</p>
+        <h4>Default value</h4>
+        <p><code>undefined</code></p>
+
+        <h3>Methods</h3>
+
+        <p class = "method"><a>updateAxes</a>()</p>        
+        <p class = "methodDescription">Updates axes of the chart and changes positions of all the
+        elements accordingly.</p>
+
+        <p class = "method"><a>get_marked</a>()</p>        
+        <p class = "methodDescription">Returns an array of IDs of all currently selected elements.</p>
+
+        <p class = "method"><a>findElements</a>(lu, rb)</p>        
+        <p class = "methodDescription">Returns a list of IDs of all the elements that are inside or on the border of 
+        a rectagle area, defined by its left-upper corner (<code>lu</code>) and right-bottom corner (<code>rb</code>).<br>
+        <b>Important!</b> Unlike most functions in the <i>linked-charts</i> library, this method returns
+        IDs of actual SVG elements (or mimics these IDs if "canvas" mode is used). This is required to treat heatmpas,
+        where each cell has two IDs, and all other types of charts the same. IDs for each element are generated the
+        following way: <tt>p<i>elementId</i></tt> with all the spaces in the <code>elementId</code> converted into
+        underscores.</p>
+        <p class = "argument"><span>lu</span> - <b>[number, number]</b> - left-upper corner of the area,
+        where to look for the elements.</p>
+        <p class = "argument"><span>rb</span> - <b>[number, number]</b> - right-bottom corner of the area,
+        where to look for the elements.</p>
+
+        <p class = "method"><a>get_position</a>(id)</p>        
+        <p class = "methodDescription">Returns coordinates of the cell with the provided layer and element IDs.</p>
+        <p class = "argument"><span>id</span> - <b>[string, string]</b> - layer and element IDs of the element.</p>
+
+        <p class = "method"><a>zoom</a>(lu, rb)</p> 
+        <p class = "methodDescription">Zooms into a selected rectangle area, defined by its left-upper corner 
+        (<code>lu</code>) and right-bottom corner (<code>rb</code>).
+        <p class = "argument"><span>lu</span> - <b>[number, number]</b> - left-upper corner of the area,
+        where to look for the elements.</p>
+        <p class = "argument"><span>rb</span> - <b>[number, number]</b> - right-bottom corner of the area,
+        where to look for the elements.</p>
+
+        <p class = "method"><a>resetDomain</a>()</p>        
+        <p class = "methodDescription">Resets axes to their original states.</p>
+
+
       </div>
+      
       <div class = "info" id = "layerChart">
         <h2>lc.layerChart()</h2>
         <p class = "description">This class provides all the layer functionality. One can
-        use layer to put several different plots on top of each other.</p>
+        use layers to put several different plots on top of each other.</p>
 
         <h3>Properties</h3>
 
