@@ -150,7 +150,7 @@ export function layerChart(){
 
 	chart.place_layer = function(id){
 		chart.get_layer(id).put_static_content();
-		chart.get_layer(id).updateSize();
+		//chart.get_layer(id).updateSize();
 		chart.get_layer(id).update();
 	}
 
@@ -187,12 +187,12 @@ export function layerChart(){
 		return chart;
 	}
 
-	var inherited_updateSize = chart.updateSize;
+	/*var inherited_updateSize = chart.updateSize;
 	chart.updateSize = function(){
 		inherited_updateSize();
 		for(var k in chart.layers)
 			chart.get_layer(k).updateSize();
-	}
+	}*/
 
 	return chart;
 }

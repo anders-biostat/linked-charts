@@ -7,7 +7,7 @@ export function barchart(id, chart){
 	if(id === undefined)
 		id = "layer" + chart.get_nlayers();
 	
-	var layer = chart.create_layer(id).get_layer(id)
+	var layer = chart.add_layer(id).get_layer(id)
 		.add_property("ngroups")
 		.add_property("groupIds")
 		.add_property("nbars")
@@ -17,17 +17,18 @@ export function barchart(id, chart){
 		.add_property("value")
 		.add_property("groupWidth", 0.6)
 		.add_property("stroke", "#444")
-		.add_property("strokeWidth", 0)
-		.add_property("informText", function(groupId, barId, stackId){
+		.add_property("strokeWidth", 0);
+
+	layer.chart.syncProperties(layer);
+	layer.type = "barchart";
+
+	layer.chart.informText(function(groupId, barId, stackId){
 			var id = groupId;
 			if(layer.nbars() > 1) id += ", " + barId;
 			if(layer.nstacks() > 1) id += ", " + stackId;
 			return "ID: <b>" + id + "</b>;<br>" + 
             "value = " + layer.get_value(groupId, barId, stackId).toFixed(2)
 		});
-	chart.syncProperties(layer);
-
-	layer.type = "barchart";
 
 	//setting a number of elements or their IDs should replace
 	//each other
@@ -264,5 +265,5 @@ export function barchart(id, chart){
         	.on( "mouseout", layer.get_elementMouseOut );		
 	}
 
-	return layer;
+	return layer.chart;
 }

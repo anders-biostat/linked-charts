@@ -482,25 +482,357 @@
     <td id = "page" style="vertical-align: top;">
       <div class = "info" id = "beeswarm">
         <h2>lc.beeswarm(id, chart)</h2>
+        <p class = "description">Defines a beeswarm plot. Based on slightly modified
+        <a href="https://bl.ocks.org/Kcnarf/5c989173d0e0c74ab4b62161b33bb0a8">d3-beeswarm</a> plugin.</p>
+        <pre class = "tiy" fitHeight = "true" 
+          tiy-preload="../src/linked-charts.min.js;../src/data/input_difExpr.js;../src/linked-charts.css">
+  list = [];
+  for(var i = 0; i < 100; i++){
+    list.push({x: "RNA", y: Object.keys(inputData.info)[i]});
+    list.push({x: "MA", y: Object.keys(inputData.info)[i]})
+  }
+
+  //-----Precode end-----
+var beeswarm = lc.beeswarm()
+  .height(300)
+  .x(function(i) {return list[i].x;})
+  .y(function(i){
+    return inputData.info[list[i].y]["Average." + list[i].x];
+  })
+  .colourValue(function(i) {return list[i].x;})
+  .size(4)
+  .place();  
+        </pre>
+
+        <h3>Properties</h3>
+
+        <p class = "method">valueAxis</p>
+        <p class = "methodDescription">Defines, which of the axes contains value that should
+        not be changed.</p>
+        <h4>Type</h4>
+        <p><code>"x"</code> or <code>"y"</code></p>
+        <h4>Default value</h4>
+        <p><code>"x"</code></p>
+
       </div>
+
       <div class = "info" id = "scatter">
         <h2>lc.scatter(id, chart)</h2>
+        <p class = "description">Defines a scatter chart.</p>
+        <pre class="tiy" width="100%" fitHeight="true"
+          tiy-preload="../src/linked-charts.min.js;../src/data/iris.js;../src/linked-charts.css">
+var scatterplot = lc.scatter()
+  .x(function(k) {return data[k].sepalLength})
+  .y(function(k) {return data[k].petalLength})
+  .size(function(k) {return data[k].sepalWidth * 2})
+  .colourValue(function(k) {return data[k].petalWidth})
+  .symbolValue(function(k) {return data[k].species})
+  .place(); 
+        </pre>
+
+        <h3>Properties</h3>
+
+        <p class = "method"><a>x</a>/<a>y</a></p>
+        <p class = "methodDescription">Sets x and y values for each element.</p>
+        <h4>Type</h4>
+        <p>Number of string.</p>
+        <h4>Default value</h4>
+        <p><code>undefined</code></p>
+
+        <p class = "method"><a>size</a></p>
+        <p class = "methodDescription">Size of each element.</p>
+        <h4>Type</h4>
+        <p>Number.</p>
+        <h4>Default value</h4>
+        <p><code>6</code></p>
+
+        <p class = "method"><a>stroke</a></p>
+        <p class = "methodDescription">Colour of the stroke for each element.</p>
+        <h4>Type</h4>
+        <p>CSS colour.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function(d) {
+  return d3.rgb(layer.get_colour(d)).darker(0.8)
+})
+        </pre>
+
+        <p class = "method"><a>strokeWidth</a></p>
+        <p class = "methodDescription">Width of the stroke for each element.</p>
+        <h4>Type</h4>
+        <p>Number.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function(d) {
+  return layer.get_size(d) * 0.1;
+})
+        </pre>
+
+        <p class = "method"><a>symbol</a></p>
+        <p class = "methodDescription">Defines which symbol to use for each element.</p>
+        <h4>Type</h4>
+        <p>String. One of <code>"Circle", "Cross", "Diamond", "Square", "Star", 
+        "Triangle", "Wye"</code></p>
+        <h4>Default value</h4>
+        <p><code>"Circle"</code></p>
+
+        <p class = "method"><a>symbolValue</a></p>
+        <p class = "methodDescription">Provides an inderect way to set different symbols 
+        for the elements. Each value of this property is transformed into one of the
+        supported symbol types and a corresponding legend block is added.</p>
+        <h4>Type</h4>
+        <p>Number or string.</p>
+        <h4>Default value</h4>
+        <p><code>undefined</code></p>
+
+        <p class = "method"><a>symbolLegendTitle</a></p>
+        <p class = "methodDescription">rovides an easy way to set a title to the
+        default symbol legend. Another option is to do that via <a>renameBlock</a>
+        method of the <a>legend</a>.</p>
+        <h4>Type</h4>
+        <p>String.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function(){return "symbol_" + layer.id}
+        </pre>
+
+        <h3>Methods</h3>
+
+        <p class = "method"><a>resetSymbolScale</a>()</p>
+        <p class = "methodDescription">Resets the connection between symbols and
+        <a>symbolValue</a>s and updates the correpsponding legend block.</p>        
       </div>
+
       <div class = "info" id = "barchart">
         <h2>lc.barChart(id, chart)</h2>
+        <p class = "description">Defines a bar chart.</p>
+        <pre class = "tiy" fitHeight = "true" 
+          tiy-preload="../src/linked-charts.min.js;../src/data/input_difExpr.js;../src/linked-charts.css">
+  var geneList = {ASC_AC: {}, KLSPC_KLCC10: {}, KP_KL: {}};
+  for(var i in geneList){
+    geneList[i]["MA"] = {};
+    geneList[i]["RNA"] = {};
+    for(var j in geneList[i]){
+      geneList[i][j]["up"] = [];
+      geneList[i][j]["down"] = [];
+    }
+  }
+  for(var i in inputData.info)
+    for(var j in geneList)
+      for(var k in geneList[j])
+        if(inputData.info[i][j + "_Adj.p.value_" + k] < 0.05)
+          if(inputData.info[i][j + "_LogFoldC_" + k] > 0)
+            geneList[j][k].up.push(i)
+          else
+            geneList[j][k].down.push(i);
+
+  //-----Precode end-----
+
+var bar = lc.barchart()
+  .height(300)
+  .groupIds(Object.keys(geneList))
+  .stackIds(["up", "down"])
+  .barIds(["MA", "RNA"])
+  .value(function(groupId, barId, stackId){
+    return geneList[groupId][barId][stackId].length;
+  })
+  .place();  
+        </pre>
+
+       <h3>Properties</h3>
+
+       <p class = "method"><a>ngroups</a></p>
+        <p class = "methodDescription">Number of bar groups.</p>
+        <h4>Type</h4>
+        <p>Number</p>
+        <h4>Default value</h4>
+        <p><code>undefined</code></p>
+
+        <p class = "method"><a>groupIds</a></p>
+        <p class = "methodDescription">An array of IDs for all the groups of the bar chart.</p>
+        <h4>Type</h4>
+        <p>Array</p>
+        <h4>Default value</h4>
+        <p><code>undefined</code></p>
+
+        <p class = "method"><a>nbars</a></p>
+        <p class = "methodDescription">Number of bars per group.</p>
+        <h4>Type</h4>
+        <p>Number</p>
+        <h4>Default value</h4>
+        <p><code>1</code></p>
+
+        <p class = "method"><a>barIds</a></p>
+        <p class = "methodDescription">An array of IDs for all the bars in a group of the bar chart.</p>
+        <h4>Type</h4>
+        <p>Array</p>
+        <h4>Default value</h4>
+        <p><code>undefined</code></p>
+
+        <p class = "method"><a>nstacks</a></p>
+        <p class = "methodDescription">Number of stacks per bar.</p>
+        <h4>Type</h4>
+        <p>Number</p>
+        <h4>Default value</h4>
+        <p><code>1</code></p>
+
+        <p class = "method"><a>stackIds</a></p>
+        <p class = "methodDescription">An array of IDs for all the stacks in a bar of the bar chart.</p>
+        <h4>Type</h4>
+        <p>Array</p>
+        <h4>Default value</h4>
+        <p><code>undefined</code></p>
+
+        <p><b>Important!</b> Properties <a href="layer">ngroups</a> and <a>groupIds</a>,
+        <a>nbars</a> and <a>barIds</a>, <a>nstacks</a> and <a>stackIds</a>
+        override each other.
+        If an array of IDs is provided, number of elements is automatically set to its
+        length. If number of elements is set to <code>n</code>, then cthe IDs are
+        defined as <code>[0, 1, 2, ..., n-1]</code></p>
+        
+        <p class = "method"><a>value</a></p>
+        <p class = "methodDescription">Numeric value for each group, bar and stack to be
+        displayed on a bar chart.</p>
+        <h4>Type</h4>
+        <p>Positive number</p>
+        <h4>Default value</h4>
+        <p><code>undefined</code></p>
+
+        <p class = "method"><a>groupWidth</a></p>
+        <p class = "methodDescription">Ratio of width of a group of bars to the space,
+        available to the group.</p>
+        <h4>Type</h4>
+        <p>Number between 0 and 1.</p>
+        <h4>Default value</h4>
+        <p><code>0.6</code></p>
+
+        <p class = "method"><a>stroke</a></p>
+        <p class = "methodDescription">Colour of the strokes for each stack, bar and group.</p>
+        <h4>Type</h4>
+        <p>CSS colour.</p>
+        <h4>Default value</h4>
+        <p><code>#444</code></p>
+
+        <p class = "method"><a>strokeWidth</a></p>
+        <p class = "methodDescription">Width of the strokes for each stack, bar and group.</p>
+        <h4>Type</h4>
+        <p>Number</p>
+        <h4>Default value</h4>
+        <p><code>0</code></p>          
       </div>
+
       <div class = "info" id = "yLine">
         <h2>lc.yLine(id, chart)</h2>
+        <p class = "description">Defines a <i>x = f(y)</i> curve.</p>
+        <pre class = "tiy" fitHeight = "true" 
+          tiy-preload="../src/linked-charts.min.js;../src/linked-charts.css">
+var yLine = lc.yLine()
+  .height(300)
+  .nelements(3)
+  .lineFun(function(d, t) {
+    return (d + 1) * t;
+  })
+  .layerDomainY([0, 1])
+  .lineWidth(function(d) {
+    return d + 1;
+  })
+  .place();   
+        </pre>
       </div>
+
       <div class = "info" id = "xLine">
         <h2>lc.xLine(id, chart)</h2>
+        <p class = "description">Defines a <i>y = f(x)</i> curve.</p>
+        <pre class = "tiy" fitHeight = "true" 
+          tiy-preload="../src/linked-charts.min.js;../src/linked-charts.css">
+var xLine = lc.xLine()
+  .height(300)
+  .nelements(3)
+  .lineFun(function(d, t) {
+    return (d + 1) * t;
+  })
+  .layerDomainX([0, 1])
+  .dasharray(function(d) {
+    return d + " " + d;
+  })
+  .place();   
+        </pre>
       </div>
+      
       <div class = "info" id = "parametricCurve">
         <h2>lc.parametricCurve(id, chart)</h2>
+        <p class = "description">Defines a parametric curve (<i>x = f(t), y = g(t)</i>).</p>
+        <pre class = "tiy" fitHeight = "true" 
+          tiy-preload="../src/linked-charts.min.js;../src/linked-charts.css">
+var param = lc.parametricCurve()
+  .height(300)
+  .nelements(3)
+  .xFunction(function(d, t) {
+    return Math.cos(t) + d;
+  })
+  .yFunction(function(d, t){
+    return Math.sin(t);
+  })
+  .colourValue(function(d) {return d.toString()})
+  .paramRange([0, 2 * Math.PI])
+  .place();
+        </pre>
+
+        <h3>Properties</h3>
+
+        <p class = "method"><a>xFunction</a>/<a>yFunction</a></p>
+        <p class = "methodDescription">Functions to define the curve <i>x = f(t), y = g(t)</i>.</p>
+        <h4>Type</h4>
+        <p>Function</p>                
+        <h4>Default value</h4>
+        <p><code>undefined</code></p>
+
+        <p class = "method"><a>pararmRange</a></p>
+        <p class = "methodDescription">Numeric range in which the parameter <i>t</i> changes.</p>
+        <h4>Type</h4>
+        <p>[numeric, numeric]</p>                
+        <h4>Default value</h4>
+        <p><code>[0, 1]</code></p>
       </div>
+      
       <div class = "info" id = "line">
         <h2>lc.line(id, chart)</h2>
+        <p class = "description">Common predecessor of various line plots in the
+        <i>linked-charts</i> library.</p>
+
+        <h3>Properties</h3>
+
+        <p class = "method"><a>lineFun</a></p>
+        <p class = "methodDescription">Function to define each line of the chart.
+        Provided an ID of the line and a value inside <a>layerDomainX</a>, <a>layerDomainY</a>
+        or <a>paramRange</a> (depending on the type of the line) should return a numeric value.</p>
+        <h4>Type</h4>
+        <p>Function</p>
+        <h4>Default value</h4>
+        <p><code>undefined</code></p>
+
+        <p class = "method"><a>lineStepNum</a></p>
+        <p class = "methodDescription">Number of steps to draw the line.</p>
+        <h4>Type</h4>
+        <p>Number</p>
+        <h4>Default value</h4>
+        <p><code>100</code></p>
+
+        <p class = "method"><a>lineWidth</a></p>
+        <p class = "methodDescription">Defines width for each line.</p>
+        <h4>Type</h4>
+        <p>Number</p>
+        <h4>Default value</h4>
+        <p><code>1.5</code></p>
+
+        <p class = "method"><a>dasharay</a></p>
+        <p class = "methodDescription">Defines pattern for dashes and gaps for each line.</p>
+        <h4>Type</h4>
+        <p>Number or string. Should be valid for <a href = "https://developer.mozilla.org/ru/docs/Web/SVG/Attribute/stroke-dasharray">stroke-dasharray</a> property.</p>
+        <h4>Default value</h4>
+        <p><code>undefined</code></p>
       </div>
+
       <div class = "info" id = "layer">
         <h2>lc.layerBase(id, chart)</h2>
         <p class = "description">This class is a predecessor of all the layers in the 
@@ -599,14 +931,17 @@ d3.interpolateSpectral
         <h4>Default value</h4>
         <p>Is calculated to fit <a>colourValue</a> for all the elements of the layer.</p>
 
-        <p class = "method"><a>colourLegenedTitel</a></p>
+        <p class = "method"><a>colourLegendTitle</a></p>
         <p class = "methodDescription">Provides an easy way to set a title to the
         default colour legend. Another option is to do that via <a>renameBlock</a>
         method of the <a>legend</a>.</p>
         <h4>Type</h4>
         <p>String</p>
         <h4>Default value</h4>
-        <p><code>undefined</code></p>
+        <pre class = "tiy" runnable = "false">
+function(){return "colour_" + layer.id}
+        </pre>
+
 
         <p class = "method"><a>addColourScaleToLegend</a></p>
         <p class = "methodDescription">Whether or not to show the default colour scale.</p>
@@ -623,13 +958,43 @@ d3.interpolateSpectral
         <p><code>1</code></p>
 
         <p class = "method"><a>on_click</a></p>
-        <p class = "methodDescription">Actions to perform, when the element is clicked.</p>
+        <p class = "methodDescription">Actions to performed, when the element is clicked.</p>
         <h4>Type</h4>
         <p>Function</p>
         <h4>Default value</h4>
         <pre class = "tiy" runnable = "false">
 function() {}
         </pre>
+
+        <p class = "method"><a>informText</a></p>
+        <p class = "methodDescription">Text to be shown on the information lable (the one that appears
+        when mouse is hovering above an element).</p>
+        <h4>Type</h4>
+        <p>HTML</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function(id) {
+  return "&lt;b>ID:&lt;/b> " + layer.get_elementLabel(id);
+})
+        </pre>
+
+        <p class = "method"><a>elementMouseOver</a></p>
+        <p class = "methodDescription">Actions to performed, when the
+        mouse goes over the element.</p>
+        <h4>Type</h4>
+        <p>Function</p>
+        <h4>Default value</h4>
+        <p>Show the information label (<a href="layer">informText</a>) and
+        make the element darker.</p>
+
+        <p class = "method"><a>elementMouseOut</a></p>
+        <p class = "methodDescription">Actions to performed, when the
+        mouse leaves the element.</p>
+        <h4>Type</h4>
+        <p>Function</p>
+        <h4>Default value</h4>
+        <p>Hide the information label (<a href="layer">informText</a>) and
+        restore the original colour of the element.</p>
 
         <h3>Methods</h3>
 

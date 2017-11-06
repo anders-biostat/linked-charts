@@ -1,13 +1,13 @@
 import { axesChart } from "./axesChart";
 
-function lineChart(id, chart){
+function line(id, chart){
 	
 	if(chart === undefined)
 		chart = axesChart();
 	if(id === undefined)
 		id = "layer" + chart.get_nlayers();
 	
-	var layer = chart.create_layer(id).get_layer(id)
+	var layer = chart.add_layer(id).get_layer(id)
 		.add_property("lineFun")
 		.add_property("lineStepNum", 100)
 		.add_property("lineWidth", 1.5)
@@ -37,24 +37,28 @@ function lineChart(id, chart){
 			.attr("opacity", function(d) { return layer.get_opacity(d)} );
 	});
 
-	return layer;
+	return chart;
 }
 
 export function xLine(id, chart){
 	
-	var layer = lineChart(id, chart);
+	var layer = line(id, chart).activeLayer();
 
 	layer.type = "xLine";
 
 	layer.updateElementLocation = function(){
-		//define the length of each step
-		var lineStep = (layer.chart.axes.scale_x.domain()[1] - 
-										layer.chart.axes.scale_x.domain()[0]) / 
-										layer.get_lineStepNum();
+
+		var domain = layer.layerDomainX();
+		if(domain === undefined)
+			domain = layer.chart.axes.scale_x.domain();
+
 		var get_data = function(d){
+			//define the length of each step
+			var lineStep = (domain[1] - domain[0]) / 
+											layer.get_lineStepNum(d);
+
 			var lineData = [];
-			for(var i = layer.chart.axes.scale_x.domain()[0]; 
-					i < layer.chart.axes.scale_x.domain()[1]; i += lineStep)
+			for(var i = domain[0]; i < domain[1]; i += lineStep)
 			lineData.push({
 				x: i,
 				y: layer.get_lineFun(d, i)
@@ -76,24 +80,28 @@ export function xLine(id, chart){
 				.attr("d", get_data);			
 	};
 
-	return layer;
+	return layer.chart;
 }
 
 export function yLine(id, chart){
 	
-	var layer = lineChart(id, chart);
+	var layer = line(id, chart).activeLayer();
 
 	layer.type = "yLine";
 
 	layer.updateElementLocation = function(){
-		//define the length of each step
-		var lineStep = (layer.chart.axes.scale_y.domain()[1] - 
-										layer.chart.axes.scale_y.domain()[0]) / 
-										layer.get_lineStepNum();
+
+		var domain = layer.layerDomainY();
+		if(domain === undefined)
+			domain = layer.chart.axes.scale_y.domain();	
+
 		var get_data = function(d){
+			//define the length of each step
+			var lineStep = (domain[1] - domain[0]) / 
+											layer.get_lineStepNum(d);
+
 			var lineData = [];
-			for(var i = layer.chart.axes.scale_y.domain()[0]; 
-					i < layer.chart.axes.scale_y.domain()[1]; i += lineStep)
+			for(var i = domain[0]; i < domain[1]; i += lineStep)
 			lineData.push({
 				y: i,
 				x: layer.get_lineFun(d, i)
@@ -115,11 +123,12 @@ export function yLine(id, chart){
 				.attr("d", get_data);			
 	};
 
-	return layer;
+	return layer.chart;
 }
 
 export function parametricCurve(id, chart){
-	var layer = lineChart(id, chart);
+	
+	var layer = line(id, chart).activeLayer();
 
 	layer.type = "paramCurve";
 
@@ -179,5 +188,5 @@ export function parametricCurve(id, chart){
 		return d3.extent(domainY);
 	});
 
-	return layer;
+	return layer.chart;
 }

@@ -8,7 +8,7 @@ export function scatter(id, chart) {
 	if(id === undefined)
 		id = "layer" + chart.get_nlayers();
 
-  var layer = chart.create_layer(id).get_layer(id)
+  var layer = chart.add_layer(id).get_layer(id)
 		.add_property("x")
 		.add_property("y")
     .add_property("size", 6)
@@ -20,20 +20,21 @@ export function scatter(id, chart) {
     })
     .add_property("symbol", "Circle")
     .add_property("symbolValue")
-    .add_property("symbolLegendName", function(){return "symbol_" + layer.id})
-		.add_property("groupName", function(i){return i;})
-    .add_property("informText", function(id){      
-      var x = layer.get_x(id),
-        y = layer.get_y(id);
-      if(x.toFixed) x = x.toFixed(2);
-      if(y.toFixed) y = y.toFixed(2);
-      return "ID: <b>" + layer.get_elementLabel(id) + "</b>;<br>" + 
-            "x = " + x + ";<br>" + 
-            "y = " + y
-    });
-	chart.syncProperties(layer);
+    .add_property("symbolLegendTitle", function(){return "symbol_" + layer.id});
+		//.add_property("groupName", function(i){return i;})
 
+	chart.syncProperties(layer);
   layer.type = "scatter";
+
+  layer.chart.informText(function(id){      
+    var x = layer.get_x(id),
+      y = layer.get_y(id);
+    if(x.toFixed) x = x.toFixed(2);
+    if(y.toFixed) y = y.toFixed(2);
+    return "ID: <b>" + layer.get_elementLabel(id) + "</b>;<br>" + 
+          "x = " + x + ";<br>" + 
+          "y = " + y
+  });
 
   // Set default for numPoints, namely to count the data provided for x
   layer.nelements( function() {
@@ -65,44 +66,15 @@ export function scatter(id, chart) {
     return returnedValue;
   }
 
-  var symbolLegendName = layer.symbolLegendName;
-  layer.symbolLegendName = function(vf, propertyName, overrideFunc) {
+  var symbolLegendTitle = layer.symbolLegendTitle;
+  layer.symbolLegendTitle = function(vf, propertyName, overrideFunc) {
     if(vf)
-      var oldName = symbolLegendName();
-    var returnedValue = symbolLegendName(vf, propertyName, overrideFunc);
+      var oldName = symbolLegendTitle();
+    var returnedValue = symbolLegendTitle(vf, propertyName, overrideFunc);
     if(vf)
-      layer.chart.legend.renameBlock(oldName, symbolLegendName());
+      layer.chart.legend.renameBlock(oldName, symbolLegendTitle());
     return returnedValue;
   }
-
-  //default hovering behaviour
-  layer.elementMouseOver(function(d){
-    var pos = d3.mouse(chart.container.node());
-    //change colour and class
-    d3.select(this)
-      .attr("fill", function(d) {
-        return d3.rgb(layer.get_colour(d)).darker(0.5);
-      })
-      .classed("hover", true);
-    //show label
-    layer.chart.container.selectAll(".inform").data([d])
-        .style("left", (pos[0] + 10) + "px")
-        .style("top", (pos[1] + 10) + "px")
-        .select(".value")
-          .html(layer.get_informText(d));  
-    layer.chart.container.selectAll(".inform")
-      .classed("hidden", false);
-  });
-  layer.elementMouseOut(function(d){
-    d3.select(this)
-      .attr("fill", function(d) {
-        return layer.get_colour(d);
-      })
-      .classed("hover", false);
-    layer.chart.container.selectAll(".inform")
-      .classed("hidden", true);
-  });
-
 
   //These functions are used to react on clicks
   layer.findElements = function(lu, rb){
@@ -155,7 +127,7 @@ export function scatter(id, chart) {
     })
 
     if(layer.chart.showLegend())
-      layer.addLegendBlock(layer.symbolScale, "symbol", layer.symbolLegendName());
+      layer.addLegendBlock(layer.symbolScale, "symbol", layer.symbolLegendTitle());
 
   }
 

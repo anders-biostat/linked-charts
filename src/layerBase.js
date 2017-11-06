@@ -21,9 +21,12 @@ export function layerBase(id) {
     .add_property("palette")
     .add_property("colourDomain")
     .add_property("colourValue", undefined)
-    .add_property("colourLegendName", function(){return "colour_" + layer.id})
+    .add_property("colourLegendTitle", function(){return "colour_" + layer.id})
     .add_property("opacity", 1)
-		.add_property("dresser", function(){});
+		.add_property("dresser", function() {})
+    .add_property("informText", function(id) {
+      return "<b>ID:</b> " + layer.get_elementLabel(id);
+    });
 
 	layer.id = id;
 
@@ -161,7 +164,7 @@ export function layerBase(id) {
     layer.colourScale.domain = layer.colourValueScale.domain;
     
     if(layer.chart.showLegend())
-      layer.addLegendBlock(layer.colourScale, "colour", layer.colourLegendName());
+      layer.addLegendBlock(layer.colourScale, "colour", layer.colourLegendTitle());
   }
 
   layer.legendBlocks = [];
@@ -200,6 +203,34 @@ export function layerBase(id) {
   layer.updateElementLocation = function() {};
   layer.findElements = function() {return [];}; //return empty selection	
 	layer.get_position = function(id) {return undefined;}
+
+  //default hovering behaviour
+  layer.elementMouseOver(function(d){
+    var pos = d3.mouse(layer.chart.container.node());
+    //change colour and class
+    d3.select(this)
+      .attr("fill", function(d) {
+        return d3.rgb(layer.get_colour(d)).darker(0.5);
+      })
+      .classed("hover", true);
+    //show label
+    layer.chart.container.selectAll(".inform").data([d])
+        .style("left", (pos[0] + 10) + "px")
+        .style("top", (pos[1] + 10) + "px")
+        .select(".value")
+          .html(layer.get_informText(d));  
+    layer.chart.container.selectAll(".inform")
+      .classed("hidden", false);
+  });
+  layer.elementMouseOut(function(d){
+    d3.select(this)
+      .attr("fill", function(d) {
+        return layer.get_colour(d);
+      })
+      .classed("hover", false);
+    layer.chart.container.selectAll(".inform")
+      .classed("hidden", true);
+  });
 
 	return layer;
 }
