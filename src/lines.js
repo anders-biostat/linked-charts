@@ -188,5 +188,33 @@ export function parametricCurve(id, chart){
 		return d3.extent(domainY);
 	});
 
+  //default hovering behaviour
+  layer.elementMouseOver(function(d){
+    var pos = d3.mouse(layer.chart.container.node());
+    //change colour and class
+    d3.select(this)
+      .attr("stroke", function(d) {
+        return d3.rgb(layer.get_colour(d)).darker(0.5);
+      })
+      .classed("hover", true);
+    //show label
+    layer.chart.container.selectAll(".inform").data([d])
+        .style("left", (pos[0] + 10) + "px")
+        .style("top", (pos[1] + 10) + "px")
+        .select(".value")
+          .html(layer.get_informText(d));  
+    layer.chart.container.selectAll(".inform")
+      .classed("hidden", false);
+  });
+  layer.elementMouseOut(function(d){
+    d3.select(this)
+      .attr("stroke", function(d) {
+        return layer.get_colour(d);
+      })
+      .classed("hover", false);
+    layer.chart.container.selectAll(".inform")
+      .classed("hidden", true);
+  });	
+
 	return layer.chart;
 }
