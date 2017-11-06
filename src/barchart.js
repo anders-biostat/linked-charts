@@ -55,7 +55,7 @@ export function barchart(id, chart){
 	layer.nbars(1);
 	layer.nstacks(1);
 	layer.contScaleX(false);
-	layer.dataIds(function(){
+	layer.elementIds(function(){
 		if(layer.nbars() == 1)
 			return layer.stackIds();
 		var ids = [], barIds = layer.barIds(), stackIds = layer.stackIds();

@@ -23,7 +23,7 @@ export function beeswarm(id, chart) {
 
     var orientation = (layer.valueAxis() == "y" ? "vertical" : "horizontal");
     var swarm = d3.beeswarm()
-      .data(layer.dataIds().sort(function(a, b){
+      .data(layer.elementIds().sort(function(a, b){
         return layer["get_" + layer.valueAxis()](a) - layer["get_" + layer.valueAxis()](b); 
       }))
       .distributeOn(function(d){

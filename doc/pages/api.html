@@ -502,8 +502,196 @@
         <h2>lc.line(id, chart)</h2>
       </div>
       <div class = "info" id = "layer">
-        <h2>lc.layer(id, chart)</h2>
+        <h2>lc.layerBase(id, chart)</h2>
+        <p class = "description">This class is a predecessor of all the layers in the 
+        library. It contains properties and methods that are used to define new layers and
+        to set the structure of any type of layer-plots in the liblrary.</p>
+
+        <h3>Properties</h3>
+
+        <p class = "method"><a>nelements</a></p>
+        <p class = "methodDescription">Number of elements in the layer (dots, lines, bars, etc.).</p>
+        <h4>Type</h4>
+        <p>Number</p>
+        <h4>Default value</h4>
+        <p><code>undefined</code></p>
+
+        <p class = "method"><a>elementIds</a></p>
+        <p class = "methodDescription">An array of IDs for all the elements in the layer.</p>
+        <h4>Type</h4>
+        <p>Array</p>
+        <h4>Default value</h4>
+        <p><code>undefined</code></p>
+
+        <p><b>Important!</b> Properties <a href="layer">nelements</a> and <a>elementIds</a>
+        override each other.
+        If an array of IDs is provided, number of elements is automatically set to its
+        length. If number of elements is set to <code>n</code>, then cthe IDs are
+        defined as <code>[0, 1, 2, ..., n-1]</code></p>
+
+        <p class = "method"><a>elementLabel</a></p>
+        <p class = "methodDescription">A label for each element that is displayed when mouse hovers
+        it. Unlike IDs labels are not necessary unique.</p>
+        <h4>Type</h4>
+        <p>String</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function(i) {return i;}
+        </pre>
+
+        <p class = "method"><a>layerDomainX</a>/<a>layerDomainY</a></p>
+        <p class = "methodDescription">A domain for X or Y axes. Setting this property
+        doesn't mean that the final axis will get the same domain. By default,
+        the domain of the axis is defined so that to encompass the domains of all
+        the layers of the chart. To specifically set the chart's domain use <a>domainX</a>
+        property.</p>
+        <h4>Type</h4>
+        <p>Array</p>
+        <h4>Default value</h4>
+        <p>Calculated on each <a>updateAxes</a> call to fit all the data of the layer.</p>
+
+        <p class = "method"><a>contScaleX</a>/<a>contScaleY</a></p>
+        <p class = "methodDescription">Whether to treat axes as continuous or categorical. 
+        If the domain contains strings, the scale will be set as a categorical. If any
+        of the layers' scales is categorical, all of them will be considered categorical.</p>
+        <h4>Type</h4>
+        <p>Boolean</p>
+        <h4>Default value</h4>
+        <p><code>true</code></p>
+
+        <p class = "method"><a>colour</a></p>
+        <p class = "methodDescription">Sets colour for each element.</p>
+        <h4>Type</h4>
+        <p>Colour</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function(id) {
+  return layer.colourScale(layer.get_colourValue(id));
+})
+        </pre>
+
+        <p class = "method"><a>colourValue</a></p>
+        <p class = "methodDescription">Values to set colours of different elements. 
+        Default supported types are numbers to generate a continuous colour scale and
+        strings to generate a categorical one. But actually a this property can return 
+        anything if <a href="layer">colour</a> or <a href="layer">colourScale</a> is
+        set to properly interprete it.</p>
+        <h4>Type</h4>
+        <p>Number, string or anything else.</p>
+        <h4>Default value</h4>
+        <p><code>true</code></p>
+
+        <p class = "method"><a>palette</a></p>
+        <p class = "methodDescription">Defines a colour palette that is used for
+        the layer. This should be either a function that transforms values from 0 to
+        1 into colours, or an array of colours.</p>
+        <h4>Type</h4>
+        <p>Function or array.</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+d3.interpolateSpectral
+        </pre>
+
+        <p class = "method"><a>colourDomain</a></p>
+        <p class = "methodDescription">Set a domain for the <a href="layer">colourScale</a>.</p>
+        <h4>Type</h4>
+        <p>Array</p>
+        <h4>Default value</h4>
+        <p>Is calculated to fit <a>colourValue</a> for all the elements of the layer.</p>
+
+        <p class = "method"><a>colourLegenedTitel</a></p>
+        <p class = "methodDescription">Provides an easy way to set a title to the
+        default colour legend. Another option is to do that via <a>renameBlock</a>
+        method of the <a>legend</a>.</p>
+        <h4>Type</h4>
+        <p>String</p>
+        <h4>Default value</h4>
+        <p><code>undefined</code></p>
+
+        <p class = "method"><a>addColourScaleToLegend</a></p>
+        <p class = "methodDescription">Whether or not to show the default colour scale.</p>
+        <h4>Type</h4>
+        <p>Boolean</p>
+        <h4>Default value</h4>
+        <p><code>true</code></p>
+
+        <p class = "method"><a>opacity</a></p>
+        <p class = "methodDescription">Sets opacity for each element of the layer.</p>
+        <h4>Type</h4>
+        <p>Number</p>
+        <h4>Default value</h4>
+        <p><code>1</code></p>
+
+        <p class = "method"><a>on_click</a></p>
+        <p class = "methodDescription">Actions to perform, when the element is clicked.</p>
+        <h4>Type</h4>
+        <p>Function</p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function() {}
+        </pre>
+
+        <h3>Methods</h3>
+
+        <p class = "method"><a>colourScale</a>(value)</p>
+        <p class = "methodDescription">Colour scale for this layer. Tranforms 
+        <a>colourValue</a> into colour.</p>
+        <p class = "argument"><span>value</span> - <b>number</b> or <b>string</b> - value
+        to be transformed into colour. Generally is a <a>colourValue</a> property.</p>
+
+        <p class = "method"><a>resetColourScale</a>()</p>
+        <p class = "methodDescription">Resets the colour scale and updates the correpsponding
+        legend block.</p>
+
+        <p class = "method"><a>addLegendBlock</a>(scale, type, id)</p>
+        <p class = "methodDescription">Adds new legend block that is associated with this
+        layer.</p>
+        <p class = "argument"><span>scale</span> - <b>array | function</b> - a fucntion or an array
+        that defines mapping from colours (symbols, sizes, etc.) to names or values. It can be an array
+        with an array of names or values as its first element and with an array of corresponding colours, 
+        dashes, symbols, etc. as its second one. It also can be a <a href = "https://github.com/d3/d3/blob/master/API.md#scales-d3-scale">d3.scale</a> or any other custom-made function
+        that will transform colours (or anything else you want to show) into names or values.</p>
+        <p><b>Imortant!</b> If you construct a scale function, you need to define a domain property, which is
+        an array of all the values of colour, shape, etc. you want to annotate.</p>
+        <p class = "argument"><span>type</span> - <b>string</b> - a type of this new block.
+        Currently supported types are <code>"colour", "size", "symbol", "dash"</code>.</p>
+        <p class = "argument"><span>id</span> - <b>string</b> - ID for the new block. Each ID must be
+        unique. If a block with the same ID already exists, it will be replaced with the new one.
+        by default IDs are alse used as titles, but this can be changed by the <a>title</a>
+        property.</p>
+
+        <p class = "method"><a>update</a>()</p>        
+        <p class = "methodDescription">Updates the layer and all its content.</p>
+
+        <p class = "method"><a>updateElements</a>()</p>        
+        <p class = "methodDescription">Updates (add or removes) all the elements of the layer. Is called
+        inside the <a href="layer">updade</a> function.</p>
+
+        <p class = "method"><a>updateElementLocation</a>()</p>        
+        <p class = "methodDescription">Updates the location of all the elements of the layer. Is called
+        inside the <a href="layer">updade</a> function.</p>
+
+        <p class = "method"><a>updateElementStyle</a>()</p>
+        <p class = "methodDescription">Updates the style (colour, opacity, etc.) of all the 
+        elements of the layer. Is called inside the <a href="layer">updade</a> function.</p>
+
+        <p class = "method"><a>put_static_content</a>()</p>        
+        <p class = "methodDescription">Adds all static elements of the layer.
+        This function is supposed to be called only once and, by default, is called inside
+        <a>placeLayer</a> method.</p>
+
+        <p class = "method"><a>findElements</a>(ids)</p>        
+        <p class = "methodDescription">Returns the elements with the provided IDs as a
+        <a href="https://github.com/d3/d3/blob/master/API.md#selections-d3-selection">d3.selection</a></p>        
+        <p class = "argument"><span>ids</span> - <b>array</b> - an array of IDs of all the
+        elements to be selected.</p>
+
+        <p class = "method"><a>get_position</a>(id)</p>        
+        <p class = "methodDescription">Returns the location of the element with the 
+        provided ID.</p>
+        <p class = "argument"><span>id</span> - <b>string</b> - ID of the element.</p>        
       </div>
+
       <div class = "info" id = "axesChart">
         <h2>lc.axesChart()</h2>
         <p class = "description">This class is used for all the types of plots that have axes
@@ -922,7 +1110,7 @@ function(a, b){
         - an existing container on the page, where the dendogram should be placed. If not specified, dendogram is
         placed in the body of the page.</p>
 
-        <p class = "method"><a>put_static_content</a>()</p>        
+        <p class = "method"><a>put_static_content</a>()</p>
         <p class = "methodDescription">Initialises the dendogram and adds all its static elements.
         This function is supposed to be called only once and, by default, is called inside
         <a href="dendogram">place</a> method.</p>

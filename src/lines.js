@@ -16,7 +16,7 @@ function lineChart(id, chart){
 	
 	layer.updateElements = function(){
 		var lines = layer.g.selectAll(".data_element")
-			.data(layer.get_dataIds(), function(d) {return d;});
+			.data(layer.elementIds(), function(d) {return d;});
 		lines.exit()
 			.remove();
 		lines.enter()
@@ -164,18 +164,18 @@ export function parametricCurve(id, chart){
 	}
 
 	layer.layerDomainX(function() {
-		var dataIds = layer.dataIds(),
+		var elementIds = layer.elementIds(),
 			domainX = [];
-		for(var i = 0; i < dataIds.length; i++)
-			domainX = domainX.concat(d3.extent(get_data(dataIds[i]).map(function(e) {return e.x})));
+		for(var i = 0; i < elementIds.length; i++)
+			domainX = domainX.concat(d3.extent(get_data(elementIds[i]).map(function(e) {return e.x})));
 		return d3.extent(domainX);
 	});
 
 	layer.layerDomainY(function() {
-		var dataIds = layer.dataIds(),
+		var elementIds = layer.elementIds(),
 			domainY = [];
-		for(var i = 0; i < dataIds.length; i++)
-			domainY = domainY.concat(d3.extent(get_data(dataIds[i]).map(function(e) {return e.y})));
+		for(var i = 0; i < elementIds.length; i++)
+			domainY = domainY.concat(d3.extent(get_data(elementIds[i]).map(function(e) {return e.y})));
 		return d3.extent(domainY);
 	});
 

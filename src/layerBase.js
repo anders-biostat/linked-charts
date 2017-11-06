@@ -5,7 +5,7 @@ export function layerBase(id) {
 	
 	var layer = base()
     .add_property("nelements")
-    .add_property("dataIds")
+    .add_property("elementIds")
     .add_property("elementLabel", function(i) {return i;})
 		.add_property("elementMouseOver", function() {})
 		.add_property("elementMouseOut", function() {})
@@ -14,7 +14,6 @@ export function layerBase(id) {
 		.add_property("layerDomainY")
 		.add_property("contScaleX", true)
 		.add_property("contScaleY", true)
-    .add_property("")
     .add_property("colour", function(id) {
       return layer.colourScale(layer.get_colourValue(id));
     })
@@ -31,14 +30,14 @@ export function layerBase(id) {
   //if number of elements is set, define their IDs
   layer.wrapSetter("nelements", function(oldSetter){
     return function() {
-      layer.get_dataIds = function(){
+      layer.get_elementIds = function(){
         return d3.range(oldSetter());
       };
       return oldSetter.apply(layer, arguments);
     }
   });
   //if element IDs are set, define their number
-  layer.wrapSetter("dataIds", function(oldSetter){
+  layer.wrapSetter("elementIds", function(oldSetter){
     return function() {
       layer.get_nelements = function(){
         return oldSetter().length;
@@ -55,7 +54,7 @@ export function layerBase(id) {
   })
 
   layer.colourDomain(function() {
-    var ids = layer.get_dataIds();
+    var ids = layer.elementIds();
     if(layer.get_colourValue(ids[0]) !== undefined){
       var range = [];
       for(var i = 0 ; i < ids.length; i++)
@@ -162,12 +161,12 @@ export function layerBase(id) {
     layer.colourScale.domain = layer.colourValueScale.domain;
     
     if(layer.chart.showLegend())
-      layer.addLegend(layer.colourScale, "colour", layer.colourLegendName());
+      layer.addLegendBlock(layer.colourScale, "colour", layer.colourLegendName());
   }
 
   layer.legendBlocks = [];
 
-  layer.addLegend = function(scale, type, id){
+  layer.addLegendBlock = function(scale, type, id){
     layer.chart.legend.add_block(scale, type, id, layer);
     layer.legendBlocks.push(id);
 
@@ -191,8 +190,6 @@ export function layerBase(id) {
     //layer.chart.svg.select(".clickPanel").raise();
 	};
   
-  layer.updateSize = function(){
-  }
   layer.updateElements = function() {
   };
   layer.updateElementStyle = function() {

@@ -123,22 +123,22 @@ export function scatter(id, chart) {
 
 	layer.layerDomainX(function() {
 		if(layer.get_contScaleX()){
-      return d3.extent( layer.get_dataIds(), function(k) { return layer.get_x(k) } )
+      return d3.extent( layer.elementIds(), function(k) { return layer.get_x(k) } )
     } else {
-      return layer.get_dataIds().map(function(e) { return layer.get_x(e);});
+      return layer.elementIds().map(function(e) { return layer.get_x(e);});
     }
 	});
 	layer.layerDomainY(function() {
     if(layer.get_contScaleY()) {
-		  return d3.extent( layer.get_dataIds(), function(k) { return layer.get_y(k) } )
+		  return d3.extent( layer.elementIds(), function(k) { return layer.get_y(k) } )
     } else{
-      return layer.get_dataIds().map(function(e) { return layer.get_y(e);});
+      return layer.elementIds().map(function(e) { return layer.get_y(e);});
     }
 	});
 
   layer.resetSymbolScale = function() {
     //get range of symbol values
-    var range = [], ids = layer.dataIds();
+    var range = [], ids = layer.elementIds();
     for(var i = 0; i < ids.length; i++)
       if(range.indexOf(layer.get_symbolValue(ids[i])) == -1)
         range.push(layer.get_symbolValue(ids[i]));
@@ -155,7 +155,7 @@ export function scatter(id, chart) {
     })
 
     if(layer.chart.showLegend())
-      layer.addLegend(layer.symbolScale, "symbol", layer.symbolLegendName());
+      layer.addLegendBlock(layer.symbolScale, "symbol", layer.symbolLegendName());
 
   }
 
@@ -250,7 +250,7 @@ export function scatter(id, chart) {
 
   layer.updateElementStyle = function() {
     layer.resetColourScale();
-    var ids = layer.get_dataIds();
+    var ids = layer.elementIds();
     var sel = layer.g.selectAll(".data_element");
     if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
       sel = sel.transition("elementStyle")
@@ -274,7 +274,7 @@ export function scatter(id, chart) {
 
   layer.updateElements = function(){
     var sel = layer.g.selectAll( ".data_element" )
-      .data( layer.get_dataIds(), function(d) {return d;} );
+      .data( layer.elementIds(), function(d) {return d;} );
     sel.exit()
       .remove();  
     sel.enter().append( "path" )
