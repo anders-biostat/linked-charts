@@ -104,7 +104,7 @@ export function dendogram(heatmap)
 		.add_property("height", 300)
 		.add_property("width", 500)
 		.add_property("nelements") //nlabels
-		.add_property("dataIds", function(){return undefined}) //labIds
+		.add_property("elementIds", function(){return undefined}) //labIds
 		.add_property("margins", {left: 20, top: 20, bottom: 20, right: 20}) //padding
 		.add_property("distance", function(a, b){
 			return lc.getEuclideanDistance(a, b);			
@@ -116,14 +116,14 @@ export function dendogram(heatmap)
 	//if number of elements is set, define their IDs
 	dendogram.wrapSetter("nelements", function(oldSetter){
 		return function() {
-			dendogram.get_dataIds = function(){
+			dendogram.get_elementIds = function(){
 				return d3.range(oldSetter()).map(function(e) {return e.toString()});
 			};
 			return oldSetter.apply(dendogram, arguments);
 		}
 	});
 	//if element IDs are set, define their number
-	dendogram.wrapSetter("dataIds", function(oldSetter){
+	dendogram.wrapSetter("elementIds", function(oldSetter){
 		return function() {
 			dendogram.get_nelements = function(){
 				return oldSetter().length;
@@ -156,7 +156,7 @@ export function dendogram(heatmap)
 		var t = -1;
 		var rev_height = 0;
 		var padding = dendogram.margins();
-		var n_leaves = dendogram.dataIds().length;
+		var n_leaves = dendogram.elementIds().length;
 		var box_width = (dendogram.width() - padding.right - padding.left)/n_leaves;
 		var xScale = d3.scaleLinear()
 					   .domain([0, n_leaves-1])
@@ -306,23 +306,23 @@ export function dendogram(heatmap)
 
 	dendogram.cluster = function(){
 		dendogram.get_data("clear");
-		var keys = dendogram.dataIds();
+		var keys = dendogram.elementIds();
 		dendogram.bucket = [];
 
-		var dataIds = dendogram.dataIds(); 
+		var elementIds = dendogram.elementIds(); 
 
 		//Initialisation
 		for(var i = 0; i < keys.length; i++)
 			dendogram.bucket[i]  = new Node(keys[i], dendogram.get_data(keys[i]));	
 		var bucket_dist = function(el1_inds, el2_inds)
 		{
-			var max_dist = dist_mat[dataIds.indexOf(el1_inds[0])][dataIds.indexOf(el2_inds[0])], dis;
+			var max_dist = dist_mat[elementIds.indexOf(el1_inds[0])][elementIds.indexOf(el2_inds[0])], dis;
 			//var max_dist = dendogram.get_distance(dendogram.get_data(el1_inds[0]), dendogram.get_data(el2_inds[0]));
 			for(var i = 0; i < el1_inds.length; i++)
 			{
 				for(var j = 0; j < el2_inds.length; j++)	
 					{
-						dis = dist_mat[dataIds.indexOf(el1_inds[i])][dataIds.indexOf(el2_inds[j])];
+						dis = dist_mat[elementIds.indexOf(el1_inds[i])][elementIds.indexOf(el2_inds[j])];
 						//dis = dendogram.get_distance(dendogram.get_data(el1_inds[i]), dendogram.get_data(el2_inds[j]));
 						if(dis > max_dist)
 							max_dist = dis;
@@ -374,7 +374,7 @@ export function dendogram(heatmap)
 	}
 
 	var calc_dist = function(){
-		var keys = dendogram.dataIds();
+		var keys = dendogram.elementIds();
 		var dist = new Array(keys.length);
 		for(var i = 0; i < keys.length; i++)
 			dist[i] = new Array(keys.length);
@@ -457,7 +457,7 @@ export function dendogram(heatmap)
 	}
 
 	var trimNodes = function(){
-		var dataIds = dendogram.dataIds(),
+		var elementIds = dendogram.elementIds(),
 			newTree = {
 				id: dendogram.clusters.id,
 				left: null,
@@ -510,8 +510,8 @@ export function dendogram(heatmap)
 			copyId(node.right, id);
 		}
 		
-		for(var i = 0; i < dataIds.length; i++){
-			if(dendogram.clusters.val_inds.indexOf(dataIds[i]) == -1){
+		for(var i = 0; i < elementIds.length; i++){
+			if(dendogram.clusters.val_inds.indexOf(elementIds[i]) == -1){
 				if(dendogram.heatmap){
 					dendogram.remove();
 					return undefined;
@@ -520,7 +520,7 @@ export function dendogram(heatmap)
 				set_x(dendogram.clusters);
 				return dendogram.clusters;
 			}
-			copyId(newTree, dataIds[i]);
+			copyId(newTree, elementIds[i]);
 		}
 		var currentPosition = 0;
 		var cutBranches = function(node) {

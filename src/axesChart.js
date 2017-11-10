@@ -9,8 +9,8 @@ export function axesChart() {
 		.add_property("domainX")
 		.add_property("domainY")
 		.add_property("aspectRatio", undefined)
-		.add_property("titleX", "")
-		.add_property("titleY", "")
+		.add_property("axisTitleX", "")
+		.add_property("axisTitleY", "")
 		.add_property("ticksX", undefined)
 		.add_property("ticksY", undefined);
 
@@ -430,9 +430,9 @@ export function axesChart() {
 
 	chart.updateAxes = function(){
     chart.axes.x_label
-    	.text( chart.titleX());
+    	.text( chart.axisTitleX());
 		chart.axes.y_label
-   		.text( chart.titleY() );
+   		.text( chart.axisTitleY() );
     chart.axes.scale_x.domain(chart.get_domainX());
 		chart.axes.scale_y.domain(chart.get_domainY());
 		if(chart.aspectRatio())
@@ -490,7 +490,7 @@ export function axesChart() {
     		updateY();
 
     for(var k in chart.layers)
-    	chart.get_layer(k).updateElementLocation();
+    	chart.get_layer(k).updateElementPosition();
 
     return chart;
 	}

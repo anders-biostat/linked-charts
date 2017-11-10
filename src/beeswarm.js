@@ -15,9 +15,9 @@ export function beeswarm(id, chart) {
 	chart.syncProperties(layer);
   layer.type = "beeswarm";
 
-  var inherited_updateElementLocation = layer.updateElementLocation;
-  layer.updateElementLocation = function(){
-    inherited_updateElementLocation();
+  var inherited_updateElementPosition = layer.updateElementPosition;
+  layer.updateElementPosition = function(){
+    inherited_updateElementPosition();
 
     var orientation = (layer.valueAxis() == "y" ? "vertical" : "horizontal");
     var swarm = d3.beeswarm()
@@ -41,7 +41,7 @@ export function beeswarm(id, chart) {
       swarm.res[swarm[i].datum] = swarm[i];
 
     if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff){
-      layer.g.selectAll(".data_element").transition("elementLocation")
+      layer.g.selectAll(".data_element").transition("elementPosition")
         .attr("transform", function(d){
           if(layer.valueAxis() == "x")
             return "translate(" + layer.chart.axes.scale_x( layer.get_x(d) ) +

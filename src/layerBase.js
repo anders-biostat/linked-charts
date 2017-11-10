@@ -180,7 +180,7 @@ export function layerBase(id) {
     
     layer.updateElements();
     layer.updateElementStyle();
-    layer.updateElementLocation();
+    layer.updateElementPosition();
 
     return layer;
   };
@@ -200,8 +200,8 @@ export function layerBase(id) {
   	layer.get_dresser(layer.g.selectAll(".data_element"));
   	return layer;
   };
-  layer.updateElementLocation = function() {};
-  layer.findElements = function() {return [];}; //return empty selection	
+  layer.updateElementPosition = function() {};
+  layer.findElements = function() {return d3.select("_______");}; //return empty selection	
 	layer.get_position = function(id) {return undefined;}
 
   //default hovering behaviour

@@ -2,7 +2,7 @@ var fs = require("fs"),
 	cheerio = require("cheerio"),
 	pandoc = require('node-pandoc');
 
-var html = fs.readFileSync('./pages/api.html','utf-8'),
+var html = fs.readFileSync('./pages/_api.html','utf-8'),
 	$ = cheerio.load(html),
 	list = {}, toc = {};
 
@@ -78,5 +78,5 @@ $("a").each(function(){
 	$(this).attr("href", resLink);
 });
 
-fs.writeFile("result.html", $.html())
+fs.writeFile("pages/api.html", $.html())
 

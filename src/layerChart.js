@@ -163,6 +163,33 @@ export function layerChart(){
 			chart.get_layer(k).put_static_content();		
 	}
 
+	chart.get_elements = function(ids){
+		if(ids.substr)
+			ids = [ids];
+		if(ids.legnth == 2 && Object.keys(chart.layers).indexOf(ids[0]) > -1)
+			ids = [ids];
+		for(var i = 0; i < ids.length; i++)
+			if(ids[i].substr)
+				ids[i] = [ids[i]];
+		
+		var selectedIds = [];
+		for(var i = 0; i < ids.length; i++){
+			if(ids[i].length == 2)
+				if(ids[i][1].substr)
+					selectedIds.push(("p" + ids[i][0] + "_" + ids[i][1]).replace(/[ .]/g, "_"))
+				else
+					selectedIds.push(("p" + ids[i][0] + "_" + ids[i][1].join("_-sep-_")).replace(/[ .]/g, "_")) 
+			else
+				selectedIds = selectedIds.concat(Object.keys(chart.layers).map(function(e){
+					return ("p" + e + "_" + ids[i][0]).replace(/[ .]/g, "_");
+				}))
+		}
+
+		return selectedIds.legnth == 0 ? d3.select("_______") : 
+			chart.svg.selectAll(".chart_g").selectAll("#" + selectedIds.join(",#").replace(/[ .]/g, "_"));
+
+	}
+
 	var inherited_update = chart.update;
 	chart.update = function() {
 		var ids = chart.layerIds(), type;

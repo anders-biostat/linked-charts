@@ -37,6 +37,24 @@ function line(id, chart){
 			.attr("opacity", function(d) { return layer.get_opacity(d)} );
 	});
 
+	layer.findElements = function(lu, rb) {
+		var r = 5;
+		return layer.g.selectAll("path")
+			.filter(function(){
+				var line = d3.select(this).attr("d").substr(1)
+					.split("L")
+						.map(function(e){return e.split(",")});
+				var inside = false, i = 0;
+				while(!inside && i < line.length){
+					if((line[i][0] - r <= rb[0]) && (line[i][1] - r <= rb[1]) && 
+          (line[i][0] + r >= lu[0]) && (line[i][1] + r >= lu[1]))
+						inside = true;
+					i++;
+				}
+				return inside;
+			}).data().map(function(e) {return [layer.id, e]});
+	}
+
 	return chart;
 }
 
@@ -46,7 +64,7 @@ export function xLine(id, chart){
 
 	layer.type = "xLine";
 
-	layer.updateElementLocation = function(){
+	layer.updateElementPosition = function(){
 
 		var domain = layer.layerDomainX();
 		if(domain === undefined)
@@ -72,7 +90,7 @@ export function xLine(id, chart){
 		};
 		
 		if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
-			layer.g.selectAll(".data_element").transition("elementLocation")
+			layer.g.selectAll(".data_element").transition("elementPosition")
 				.duration(layer.chart.transitionDuration())
 				.attr("d", get_data)
 		else
@@ -89,7 +107,7 @@ export function yLine(id, chart){
 
 	layer.type = "yLine";
 
-	layer.updateElementLocation = function(){
+	layer.updateElementPosition = function(){
 
 		var domain = layer.layerDomainY();
 		if(domain === undefined)
@@ -115,7 +133,7 @@ export function yLine(id, chart){
 		};
 		
 		if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
-			layer.g.selectAll(".data_element").transition("elementLocation")
+			layer.g.selectAll(".data_element").transition("elementPosition")
 				.duration(layer.chart.transitionDuration())
 				.attr("d", get_data)
 		else
@@ -157,14 +175,14 @@ export function parametricCurve(id, chart){
 		return lineData;
 	};	
 
-	layer.updateElementLocation = function(){
+	layer.updateElementPosition = function(){
 		
 		var line = d3.line()
 			.x(function(c) {return layer.chart.axes.scale_x(c.x);})
 			.y(function(c) {return layer.chart.axes.scale_y(c.y);});
 
 		if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
-			layer.g.selectAll(".data_element").transition("elementLocation")
+			layer.g.selectAll(".data_element").transition("elementPosition")
 				.duration(layer.chart.transitionDuration())
 				.attr("d", function(d) {return line(get_data(d));})
 		else

@@ -167,21 +167,13 @@ export function chartBase() {
 			chart.svg.selectAll(".data_element")
 				.attr("opacity", 1);
 			chart.markedUpdated();
-			return;
-		}
-		//marked can be either an array of IDs or a selection
-		if(typeof marked.empty === "undefined") {
-			marked = marked.map(function(e) {return escapeRegExp(e).replace(/[ .]/g, "_")});
-			if(marked.length > 0){
-				var marked = chart.svg.selectAll(
-			 		"#" + marked.join(", #"));
-			} else{
-				var marked = chart.svg.select("_____");
-			}
+			return chart;
 		}
 		
-		//now marked is a selection
-		//switch the state of all the elements from this selection
+		//marked can be either an array of IDs or a selection
+		if(typeof marked.empty === "undefined")
+			marked = chart.get_elements(marked);
+		
 		if(chart.svg.selectAll(".data_element.marked").empty())
 			chart.svg.selectAll(".data_element")
 				.attr("opacity", 0.5);
@@ -279,6 +271,8 @@ export function chartBase() {
 	}
 
 	chart.get_elements = function(data){
+		if(!data.splice)
+			data = [data];
 		data = data.map(function(e) {return escapeRegExp(e).replace(/[ .]/g, "_")});
 		return chart.svg.selectAll("#p" + data.join(", #p"));
 	}

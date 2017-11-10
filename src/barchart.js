@@ -132,7 +132,7 @@ export function barchart(id, chart){
 
 				return (lu[0] <= x + width && rb[0] > x && 
 								lu[1] <= y + height && rb[1] > y)
-			}).nodes().map(function(e) {return e.getAttribute("id")});
+			}).data().map(function(e) {return [layer.id, e]});
 	}
 	layer.get_position = function(id){
 		//gets id as data (so here we have an array of three ids)
@@ -140,7 +140,7 @@ export function barchart(id, chart){
 						layer.g.select("#p" + id.join("_-sep-_")).attr("y")];
 	}
 
-	layer.updateElementLocation = function(){
+	layer.updateElementPosition = function(){
 		var groupWidth = layer.chart.axes.scale_x.step() * layer.groupWidth(),
 			barWidth = groupWidth/layer.nbars(),
 			//for now it's just a linear scale
@@ -151,7 +151,7 @@ export function barchart(id, chart){
 			barIds = layer.barIds(),
 			stackIds = layer.stackIds();
 		if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff){
-			layer.g.selectAll(".data_element").transition("elementLocation")
+			layer.g.selectAll(".data_element").transition("elementPosition")
 				.duration(layer.chart.transitionDuration())
 				.attr("width", barWidth)
 				.attr("height", function(d){ 
@@ -259,7 +259,7 @@ export function barchart(id, chart){
 			.append("rect")
 				.attr("class", "data_element")
 				.merge(stacks)
-					.attr("id", function(d) {return "p" + d.join("_-sep-_").replace(/[ .]/g, "_")})
+					.attr("id", function(d) {return "p" + layer.id + "_" + d.join("_-sep-_").replace(/[ .]/g, "_")})
 					.on( "click", function(d) {layer.get_on_click(d[0], d[1], d[2])} )
         	.on( "mouseover", layer.get_elementMouseOver )
         	.on( "mouseout", layer.get_elementMouseOut );		

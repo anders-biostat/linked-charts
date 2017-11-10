@@ -193,9 +193,7 @@ export function heatmap(id, chart){
 						(loc[0] + chart.cellSize.width >= lu[0]) && 
 						(loc[1] + chart.cellSize.height >= lu[1]);
 				});
-			selectedIds = selectedElements.data().map(function(e){
-				return "p" + e[0] + "_-sep-_" + e[1];
-			});
+			selectedIds = selectedElements.data();
 		} else {
 			var selCols = chart.svg.select(".col").selectAll(".label")
 				.filter(function() {
@@ -209,7 +207,7 @@ export function heatmap(id, chart){
 				}).data();
 			for(var i = 0; i < selRows.length; i++)
 				for(var j = 0; j < selCols.length; j++)
-					selectedIds.push("p" + selRows[i] + "_-sep-_" + selCols[j]);
+					selectedIds.push([selRows[i], selCols[j]]);
 		}
 
 		return selectedIds;
@@ -516,8 +514,8 @@ export function heatmap(id, chart){
 			return;
 		var rowIdsAll = [], colIdsAll = [];
 		selectedCells.map(function(e){
-			rowIdsAll.push(e.substr(1).split("_-sep-_")[0]);
-			colIdsAll.push(e.substr(1).split("_-sep-_")[1]);
+			rowIdsAll.push(e[0]);
+			colIdsAll.push(e[1]);
 		});
 		var rowIds = [], colIds = [];
 
@@ -834,7 +832,7 @@ export function heatmap(id, chart){
 		};
 
 		chart["dendogram" + type]
-			.dataIds(function() {
+			.elementIds(function() {
 				return chart["disp" + type + "Ids"]();
 			});
 		if(features === undefined)
@@ -1050,7 +1048,7 @@ export function heatmap(id, chart){
 
 		if(get_mode() == "svg") 
 			return (data.length > 0) ?
-				chart.svg.selectAll("#" + escapeRegExp(data.join(", #").replace(/[ .]/g, "_"))) :
+				chart.svg.selectAll("#" + escapeRegExp(data.join(",#").replace(/[ .]/g, "_"))) :
 				chart.svg.selectAll("______");
 		else
 			return data;

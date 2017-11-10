@@ -86,7 +86,7 @@ export function scatter(id, chart) {
           (loc[1] - layer.get_size(d) <= rb[1]) && 
           (loc[0] + layer.get_size(d) >= lu[0]) && 
           (loc[1] + layer.get_size(d) >= lu[1]);
-      }).nodes().map(function(e) {return e.getAttribute("id")});
+      }).data().map(function(e) {return [layer.id, e]});
   }
   layer.get_position = function(id){
     return [layer.chart.axes.scale_x(layer.get_x(id)), 
@@ -131,7 +131,7 @@ export function scatter(id, chart) {
 
   }
 
-  layer.updateElementLocation = function(){
+  layer.updateElementPosition = function(){
     
     var placeElement = function(d) {
       var x = layer.chart.axes.scale_x( layer.get_x(d) ),
@@ -141,7 +141,7 @@ export function scatter(id, chart) {
     }
 
     if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff){
-      layer.g.selectAll(".data_element").transition("elementLocation")
+      layer.g.selectAll(".data_element").transition("elementPosition")
         .duration(layer.chart.transitionDuration())
         .attr("transform", placeElement);
     } else {

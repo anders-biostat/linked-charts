@@ -210,7 +210,7 @@ export function add_click_listener(chart){
 
     if(chart.canvas && chart.canvas.classed("active")){
       parcer.do(function(){
-        var element = chart.findElements(p, p)[0].substr(1).split("_-sep-_");
+        var element = chart.findElements(p, p)[0];
         chart.container.selectAll(".inform")
           .style("left", (p[0] + 10 + chart.margins().left) + "px")
           .style("top", (p[1] + 10 + chart.margins().top) + "px")
@@ -304,17 +304,16 @@ export function add_click_listener(chart){
       return;      
     }
 
-    //if there is an active canvas (only for heatmaps)
+    //if findElements returned an array of IDs
+    //(what happens if we are working with a heatmap in "canvas" mode)
     if(chart.canvas && chart.canvas.classed("active")){
-      var data;
       for(var i = 0; i < clicked.length; i++){
-        data = clicked[i].substr(1).split("_-sep-_");
-        chart.get_on_click(data[0], data[1]);
+        chart.get_on_click(clicked[0], clicked[1]);
       }
       return;
     }
 
-    var clickedElements = chart.svg.selectAll("#" + clicked.join(",#").replace(/[ .]/g, "_")),
+    var clickedElements = chart.get_elements(clicked),
       activeElement = clickedElements.filter(function(d){
         return d == chart.container.selectAll(".inform").datum();
       });

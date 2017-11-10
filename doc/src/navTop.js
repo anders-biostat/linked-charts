@@ -13,7 +13,10 @@ var pages = {
 	examples: {
 		simpleExample: "A very simple example",
 		layers: "Adding layers",
-		linesAndColour: "Lines and Colour"
+		linesAndColour: "Lines and Colour",
+		labelsAndLegend: "Labels and Legend",
+		colourSlider: "Adding an interactive colour slider",
+		twoChannelsHeatmap: "A heatmap with two colour channels"
 	}
 }
 
