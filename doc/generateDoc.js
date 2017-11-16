@@ -2,7 +2,7 @@ var fs = require("fs"),
 	cheerio = require("cheerio"),
 	pandoc = require('node-pandoc');
 
-var html = fs.readFileSync('./pages/_api.html','utf-8'),
+var html = fs.readFileSync('./_mds/api.html','utf-8'),
 	$ = cheerio.load(html),
 	list = {}, toc = {};
 
@@ -35,48 +35,55 @@ for(var i in toc){
 	}
 }
 
+fs.writeFile("_mds/pages/api.html", $.html())
+
+
+
 //look for links and replace them
-$("a").each(function(){
-	var link, text, resLink = "#", flag = false;
-	link = $(this).attr("href");
-	text = $(this).text();
+var replaceLinks = function(links){
+	links.each(function(){
+		var link, text, resLink = "#", flag = false;
+		link = $(this).attr("href");
+		text = $(this).text();
 
-	link = link || "";
-	if(link.localeCompare("") == 0)
-		link = text;
+		link = link || "";
+		if(link.localeCompare("") == 0)
+			link = text;
 
-	if(list[link]){
-		flag = true;
-		resLink += link;
-		if(list[link].indexOf(text) != -1)
-			resLink += "_" + text;
-	}
-	
-	for(var i in list)
-		if(list[i].indexOf(link) != -1){
+		if(list[link]){
 			flag = true;
-			resLink += i + "_" + link;
-			break;
+			resLink += link;
+			if(list[link].indexOf(text) != -1)
+				resLink += "_" + text;
+		}
+		
+		for(var i in list)
+			if(list[i].indexOf(link) != -1){
+				flag = true;
+				resLink += i + "_" + link;
+				break;
+			}
+
+		if(link.localeCompare("tutorials") * 
+				link.localeCompare("examples") * 
+				link.localeCompare("types") == 0){
+			flag = true;
+			resLink = "../" + link + "/" + text + ".html";
 		}
 
-	if(link.localeCompare("tutorials") * 
-			link.localeCompare("examples") * 
-			link.localeCompare("types") == 0){
-		flag = true;
-		resLink = "../" + link + "/" + text + ".html";
-	}
+		if(link.split("_").length == 2 && 
+				list[link.split("_")[0]] &&
+				list[link.split("_")[0]].indexOf(link.split("_")[1])){
+			flag = true;
+			resLink += link;
+		}
+		if(!flag)
+			resLink = link;
+		
+		$(this).attr("href", resLink);
+	});
+}
 
-	if(link.split("_").length == 2 && 
-			list[link.split("_")[0]] &&
-			list[link.split("_")[0]].indexOf(link.split("_")[1])){
-		flag = true;
-		resLink += link;
-	}
-	if(!flag)
-		resLink = link;
-	
-	$(this).attr("href", resLink);
-});
 
-fs.writeFile("pages/api.html", $.html())
+
 
