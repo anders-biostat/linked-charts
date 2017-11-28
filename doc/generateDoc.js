@@ -1,3 +1,5 @@
+//before running this make sure that all the necessary folders exist
+
 var fs = require("fs"),
 	cheerio = require("cheerio"),
 	nrc = require("node-run-cmd"),
@@ -16,9 +18,11 @@ $(".info").each(function() {
 	$(this).find("h2").attr("id", id);
 
 	$(this).find(".method").each(function(){
-		list[id].push($(this).find("a").text());
+		$(this).find("a").each(function(){
+			list[id].push($(this).text());
+			$(this).attr("name", id + "_" + $(this).text());
+		})
 		toc[id].push($(this).text());
-		$(this).find("a").attr("name", id + "_" + $(this).find("a").text());
 	});
 });
 

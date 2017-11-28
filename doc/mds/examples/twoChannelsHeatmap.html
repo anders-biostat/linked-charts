@@ -1,0 +1,526 @@
+<html>
+
+<head>
+
+<title>Linked charts - Heatmap with two channels</title>
+
+<link rel="stylesheet" href="src/prism.css">
+<script src = "src/prism.js"></script>
+
+</head>
+
+<body>
+
+<h1>Linked charts</h1>
+
+<h2>Heatmap with two channels</h2>
+
+<p>Generally, when a heatmap is generated, each cell corresponds to a single numeric value which in turn 
+unambiguously defines colour of this cell via some colour scale. Yet, nothing in the heatmap chart implemented 
+in the <tt>linked-charts</tt> library requires the variables passed through <tt>value</tt> property to be just 
+single numeric values. Of course, the default way of defining colour scale expects these value to be single numbers,
+but a user can easily override this by setting the <tt>colour</tt> property. The function, user puts here, gets the value 
+exactly how it has been passed to <tt>value</tt> property and it can be anything: an array, a sting, another function - 
+as soon as user can define a way of transforming it into colour this can work.</p>
+<p>Here, we give an example how to utilise values that are not single numbers. The data that we are using here as an 
+example contain the results of two assays: RealTime-Glo (RTG) that measures cell viabilities and CellTox (CTX) that is 
+proportional to the amount of dead cells in a well. For each drug combination and concentration both values have been measured.</p>
+<p>To show both values simultaniously on the same heatmap we will use a green channel for one assay and red for the other one, 
+how it is usually done in macroscopy. Thus, the drugs, which in both assays demonstrated high effect will be shown in yellow, 
+non-effective drugs will be shown as black cells and all others will be either red or green.</p>
+<p>Now, instead of one legend we will have two, and both will be interactive colour sliders.</p> 
+
+
+<link rel = "stylesheet" type = "text/css" href = "lib/linked-charts.css">
+<script src = "lib/linked-charts.min.js"></script>
+<script src = "src/inputdata.js"></script>
+
+<table><tr>
+  <td id="heatmap" valign="top"></td>
+  <td id="scatterplot"></td>
+</tr></table>
+
+<script>
+
+inputData = lc.separateBy( inputData, ["screen", "Drug", "CellLine"] );
+var drugs = Object.keys( inputData.RTG ),
+  cellLines = Object.keys( inputData.RTG[drugs[0]] );
+
+var get_curve = function( screen, drug, cellLine, x ){
+  var max = inputData[screen][drug][cellLine].max,
+    min = inputData[screen][drug][cellLine].min,
+    IC50 = inputData[screen][drug][cellLine].IC50,
+    slope = inputData[screen][drug][cellLine].Slope,
+    minConc = inputData[screen][drug][cellLine].minConc;
+      
+  return min + ( max - min )/
+    (1 + Math.pow( 10, - ( x - Math.log10( IC50/minConc ) ) * slope));
+}
+
+var heatmap = lc.heatmapChart()
+  .rowIds( drugs )
+  .colIds( cellLines )
+  .title( "Drug effect on viability and cytotoxicity" )
+  .showLegend( false )
+  .margin( {top: 100, left: 100, right: 10, bottom: 10} )
+  .value( function( rowId, colId ) {  
+    return [inputData.RTG[rowId][colId].avInh, 
+            inputData.CTX[rowId][colId].avInh];
+   })
+  .informText( function( rowId, colId ) {
+      return "Row: <b>" + rowId + "</b>;<br>" + 
+            "Col: <b>" + colId + "</b>;<br>" + 
+            "RTG = " + heatmap.get_value( rowId, colId )[0].toFixed( 2 ) +
+            " ; CTX = " + heatmap.get_value( rowId, colId )[1].toFixed( 2 );
+      })
+  .on_click( function( rowId, colId ) {
+    heatmap.mark( d3.select( this ) );
+  })
+  .markedUpdated( function(){
+    var ids = [],
+      data = heatmap.svg.selectAll(".marked").data();
+    for(var i = 0; i < data.length; i++){
+      ids.push( data[i][0] + "/" + data[i][1] + "/scatter" );
+      ids.push( data[i][0] + "/" + data[i][1] + "/xLine" );
+    }
+    curveFit
+      .layerIds( ids )
+      .layerType( function( layerId ) {
+        return layerId.split( "/" )[2];
+      })
+      .select_layers()
+        .npoints( function( layerId ) {
+          return layerId.split( "/" )[2] == "scatter" ? 10 : 2;
+        } )
+        .x(function( layerId, k ) {
+          return k % 5;
+        })
+        .y(function( layerId, k ) {
+          var drug = layerId.split( "/" )[0],
+            cellLine = layerId.split( "/" )[1];
+          return Math.floor( k / 5 ) == 0 ? inputData.RTG[drug][cellLine]["D" + ( +k + 1 )] :
+                                          inputData.CTX[drug][cellLine]["D" + ( k - 4 )];
+        })
+        .symbolType( function( layerId, k ) {
+          return k > 4 ? "Triangle" : "Wye";
+        })
+        .lineFun( function( layerId, k, x ) {
+          var drug = layerId.split( "/" )[0],
+            cellLine = layerId.split( "/" )[1], 
+            screen;
+          k == 0 ? screen = "RTG" : screen = "CTX";
+          return get_curve( screen, drug, cellLine, x );
+        })
+        .dasharray ( function( layerId, k ) {
+          return k == 0 ? undefined : 5;
+        })
+        .colour( function( layerId ) {
+          return d3.schemeCategory10[
+                    Math.floor( curveFit.layerIds().indexOf( layerId ) % 20 / 2 )
+                  ]
+        });
+    var legIds = [], colours = [];
+    for( var i = 0; i < ids.length; i += 2 ){
+      legIds.push( ids[i].split( "/" )[0] + "/" + ids[i].split( "/" )[1]);
+      colours.push( 
+        d3.schemeCategory10[Math.floor( curveFit.layerIds().indexOf( ids[i] ) % 20 / 2 )]
+      );
+    }
+    curveFit
+      .update();
+    curveFit.legend.updateScale( [legIds, colours], "drug_and_cell_line" );      
+  })
+  .place( "#heatmap" );
+
+var RTGSlider = lc.sigmoidColorSlider()
+  .set_margin( {left: 100} )
+  .title( "RealTime-Glo" )
+  .titleX( 45 )
+  .titleY( 40 )
+  .titleSize( 14 )
+  .straightColorScale( 
+    d3.scaleLinear()
+      .range( [ "black", "rgb(0, 255, 0)" ] )
+      .domain( [0, 50] ) 
+  )
+  .on_change(function(){
+    heatmap.updateCellColour();
+  })
+  .place( "#heatmap" );
+var CTXSlider = lc.sigmoidColorSlider()
+  .set_margin( {left: 100} )
+  .title( "CellTox" )
+  .titleX( 45 )
+  .titleY( 40 )
+  .titleSize( 14 )  
+  .straightColorScale( 
+    d3.scaleLinear()
+      .range( [ "black", "rgb(255, 0, 0)" ] )
+      .domain( [0, 50] ) 
+  )
+  .on_change(function(){
+    heatmap.updateCellColour();
+  })
+  .place( "#heatmap" );
+
+heatmap.colour( function( val ){
+  return "rgb(" + Math.round( CTXSlider.the_sigmoid( val[1] ) * 255 ) + ", " 
+             + Math.round( RTGSlider.the_sigmoid( val[0] ) * 255 ) + ", 0)";
+} )
+  .updateCellColour();
+
+var curveFit = lc.scatterChart( "void" )
+  .width( 300 )
+  .height( 300 )
+  .labelX( "Drug concentration" )
+  .labelY( "Inhibition" )
+  .domainY( [-25, 100] )
+  .domainX( [0, 4] )
+  .place( "#scatterplot" );
+  
+  curveFit.legend.ncol(1)
+    .legend.add( [["RTG", "CTX"], ["Wye", "Triangle"]], "symbol", "screen" )
+    .legend.add( [["RTG", "CTX"], [undefined, 5]], "dash", "fit" )
+    .legend.add( [[], []], "colour", "drug_and_cell_line" );
+
+</script>
+
+<p style = 'background: #daeaff; padding: 10px; width: 50%;'>Note that on both charts zooming is possible (double-click to show the entire chart). 
+To order rows or columns of the heatmap according to the values in some column or row one can click on the corresponding label on the heatmap. 
+This default behaviour can be changed by user.</p>
+
+<div id = "navPanel"></div>
+<script src = "src/navigation.js"></script>
+<script>
+  showNavigationPanel(d3.select("#navPanel"), 5);
+</script>
+
+<br>
+<br>
+<br>
+<h2>The code for the example</h2>
+
+<p>A user of our framework can create apps with very little code. The following code is not complete, since some lines that were
+explained in the previous example are omitted for the sake of simplicity. <span style = "color: #b44; font-weight: bold;"
+onclick="window.open('twoChannelsHeatmap_code.html', 'newwindow', 'width=800, height=800');">Here</span> one can find the complete code for this example.</p>
+
+<table><tr><td valign="top">
+<pre class = "language-javascript">
+<x-expl id = "skip"></x-expl><<code>...</code>
+<x-expl id = "heatmap"></x-expl><code>var heatmap = lc.heatmapChart()</code>
+<x-expl id = "skip"></x-expl><code>  ...</code>
+<x-expl id = "ids"></x-expl><code>  .rowIds( drugs )</code>
+<x-expl id = "ids"></x-expl><code>  .colIds( cellLines )</code>
+<x-expl id = "value"></x-expl><code>  .value( function( rowId, colId ) {  </code>
+<x-expl id = "value"></x-expl><code>    return [inputData.RTG[rowId][colId].avInh, </code>
+<x-expl id = "value"></x-expl><code>            inputData.CTX[rowId][colId].avInh];</code>
+<x-expl id = "value"></x-expl><code>   })</code>
+<x-expl id = "inform"></x-expl><code>  .informText( function( rowId, colId ) {</code>
+<x-expl id = "inform"></x-expl><code>      return "Row: <b>" + rowId + "</b>;<br>" + </code>
+<x-expl id = "inform"></x-expl><code>            "Col: <b>" + colId + "</b>;<br>" + </code>
+<x-expl id = "inform"></x-expl><code>            "RTG = " + heatmap.get_value( rowId, colId )[0].toFixed( 2 ) +</code>
+<x-expl id = "inform"></x-expl><code>            " ; CTX = " + heatmap.get_value( rowId, colId )[1].toFixed( 2 );</code>
+<x-expl id = "inform"></x-expl><code>      })</code>
+<x-expl id = "onclickHeatmap"></x-expl><code>  .on_click( function( rowId, colId ) {</code>
+<x-expl id = "onclickHeatmap"></x-expl><code>    heatmap.mark( d3.select( this ) );</code>
+<x-expl id = "onclickHeatmap"></x-expl><code>  })</code>
+<x-expl id = "markedUpdated"></x-expl><code>  .markedUpdated( function(){</code>
+<x-expl id = "idsArray"></x-expl><code>    var ids = [],</code>
+<x-expl id = "idsArray"></x-expl><code>      data = heatmap.svg.selectAll(".marked").data();</code>
+<x-expl id = "idsArray"></x-expl><code>    for(var i = 0; i < data.length; i++){</code>
+<x-expl id = "idsArray"></x-expl><code>      ids.push( data[i][0] + "/" + data[i][1] + "/scatter" );</code>
+<x-expl id = "idsArray"></x-expl><code>      ids.push( data[i][0] + "/" + data[i][1] + "/xLine" );</code>
+<x-expl id = "idsArray"></x-expl><code>    }</code>
+<x-expl id = "layerIds"></x-expl><code>    curveFit</code>
+<x-expl id = "layerIds"></x-expl><code>      .layerIds( ids )</code>
+<x-expl id = "layerIds"></x-expl><code>      .layerType( function( layerId ) {</code>
+<x-expl id = "layerIds"></x-expl><code>        return layerId.split( "/" )[2];</code>
+<x-expl id = "layerIds"></x-expl><code>      })</code>
+<x-expl id = "layerIds"></x-expl><code>      .select_layers()</code>
+<x-expl id = "npoints"></x-expl><code>        .npoints( function( layerId ) {</code>
+<x-expl id = "npoints"></x-expl><code>          return layerId.split( "/" )[2] == "scatter" ? 10 : 2;</code>
+<x-expl id = "npoints"></x-expl><code>        } )</code>
+<x-expl id = "xy"></x-expl><code>        .x(function( layerId, k ) {</code>
+<x-expl id = "xy"></x-expl><code>          return k % 5;</code>
+<x-expl id = "xy"></x-expl><code>        })</code>
+<x-expl id = "xy"></x-expl><code>        .y(function( layerId, k ) {</code>
+<x-expl id = "xy"></x-expl><code>          var drug = layerId.split( "/" )[0],</code>
+<x-expl id = "xy"></x-expl><code>            cellLine = layerId.split( "/" )[1];</code>
+<x-expl id = "xy"></x-expl><code>          return Math.floor( k / 5 ) == 0 ? inputData.RTG[drug][cellLine]["D" + ( +k + 1 )] :</code>
+<x-expl id = "xy"></x-expl><code>                                          inputData.CTX[drug][cellLine]["D" + ( k - 4 )];</code>
+<x-expl id = "xy"></x-expl><code>        })</code>
+<x-expl id = "symbol"></x-expl><code>        .symbolType( function( layerId, k ) {</code>
+<x-expl id = "symbol"></x-expl><code>          return k > 4 ? "Triangle" : "Wye";</code>
+<x-expl id = "symbol"></x-expl><code>        })</code>
+<x-expl id = "lineFun"></x-expl><code>        .lineFun( function( layerId, k, x ) {</code>
+<x-expl id = "lineFun"></x-expl><code>          var drug = layerId.split( "/" )[0],</code>
+<x-expl id = "lineFun"></x-expl><code>            cellLine = layerId.split( "/" )[1], </code>
+<x-expl id = "lineFun"></x-expl><code>            screen;</code>
+<x-expl id = "lineFun"></x-expl><code>          k == 0 ? screen = "RTG" : screen = "CTX";</code>
+<x-expl id = "lineFun"></x-expl><code>          return get_curve( screen, drug, cellLine, x );</code>
+<x-expl id = "lineFun"></x-expl><code>        })</code>
+<x-expl id = "dash"></x-expl><code>        .dasharray ( function( layerId, k ) {</code>
+<x-expl id = "dash"></x-expl><code>          return k == 0 ? undefined : 5;</code>
+<x-expl id = "dash"></x-expl><code>        })</code>
+<x-expl id = "colour"></x-expl><code>        .colour( function( layerId ) {</code>
+<x-expl id = "colour"></x-expl><code>          return d3.schemeCategory10[</code>
+<x-expl id = "colour"></x-expl><code>                    Math.floor( curveFit.layerIds().indexOf( layerId ) % 20 / 2 )</code>
+<x-expl id = "colour"></x-expl><code>                  ]</code>
+<x-expl id = "colour"></x-expl><code>        });</code>
+<x-expl id = "legendSc"></x-expl><code>    var legIds = [], colours = [];</code>
+<x-expl id = "legendSc"></x-expl><code>    for( var i = 0; i < ids.length; i += 2 ){</code>
+<x-expl id = "legendSc"></x-expl><code>      legIds.push( ids[i].split( "/" )[0] + "/" + ids[i].split( "/" )[1]);</code>
+<x-expl id = "legendSc"></x-expl><code>      colours.push( </code>
+<x-expl id = "legendSc"></x-expl><code>        d3.schemeCategory10[Math.floor( curveFit.layerIds().indexOf( ids[i] ) % 20 / 2 )]</code>
+<x-expl id = "legendSc"></x-expl><code>      );</code>
+<x-expl id = "legendSc"></x-expl><code>    }</code>
+<x-expl id = "update"></x-expl><code>    curveFit</code>
+<x-expl id = "update"></x-expl><code>      .update();</code>
+<x-expl id = "legendScUpd"></x-expl><code>    curveFit.legend.updateScale( [legIds, colours], "drug_and_cell_line" );      </code>
+<x-expl id = "markedUpdated"></x-expl><code>  })</code>
+<x-expl id = "heatmap"></x-expl><code>  .place( "#heatmap" );</code>
+
+<x-expl id = "slider"></x-expl><code>var RTGSlider = lc.sigmoidColorSlider()</code>
+<code>  .set_margin( {left: 100} )</code>
+<code>  .title( "RealTime-Glo" )</code>
+<code>  .titleX( 45 )</code>
+<code>  .titleY( 40 )</code>
+<code>  .titleSize( 14 )</code>
+<code>  .straightColorScale( </code>
+<code>    d3.scaleLinear()</code>
+<code>      .range( [ "black", "rgb(0, 255, 0)" ] )</code>
+<code>      .domain( [0, 50] ) </code>
+<code>  )</code>
+<code>  .on_change(function(){</code>
+<code>    heatmap.updateCellColour();</code>
+<code>  })</code>
+<x-expl id = "slider"></x-expl><code>  .place( "#heatmap" );</code>
+<x-expl id = "slider"></x-expl><code>var CTXSlider = lc.sigmoidColorSlider()</code>
+<x-expl id = "skip"></x-expl><code>  ...</code>
+<x-expl id = "slider"></x-expl><code>  .place( "#heatmap" );</code>
+
+<code>heatmap.colour( function( val ){</code>
+<code>  return "rgb(" + Math.round( CTXSlider.the_sigmoid( val[1] ) * 255 ) + ", " </code>
+<code>             + Math.round( RTGSlider.the_sigmoid( val[0] ) * 255 ) + ", 0)";</code>
+<code>  } )</code>
+<code>  .updateCellColour();</code>
+
+<code>var curveFit = lc.scatterChart( "void" )</code>
+<code>  .width( 300 )</code>
+<code>  .height( 300 )</code>
+<code>  .labelX( "Drug concentration" )</code>
+<code>  .labelY( "Inhibition" )</code>
+<code>  .domainY( [-25, 100] )</code>
+<code>  .domainX( [0, 4] )</code>
+<code>  .place( "#scatterplot" );</code>
+
+<code>  curveFit.legend.ncol(1)</code>
+<code>    .legend.add( [["RTG", "CTX"], ["Wye", "Triangle"]], "symbol", "screen" )</code>
+<code>    .legend.add( [["RTG", "CTX"], [undefined, 5]], "dash", "fit" )</code>
+<code>    .legend.add( [[], []], "colour", "drug_and_cell_line" );</code>
+
+</pre>
+</td>
+<td valign="top" style="padding-left:20px">
+
+<style>
+div.expl {
+   display: none;
+   position: absolute;
+   background: #EBBCD8;
+   width: 40%;
+   padding: 10px;
+}
+</style>
+
+<p style="background:#f0fff0; padding:10px"><i>Click on all the yellow bubbles (<img height="10pt" src="src/bubble_yellow.svg">),
+going from top to bottom, to see explanations of the code.</i></p>
+<br>
+
+<div class="expl" id="heatmap">
+<p>This heatmap overrides the standard way of defining a heatmap. Usually each cell corresponds to a 
+single value, which is transformed into a colour via some colour scale. Here, instead a cell corresponds
+to values at the same time and the resulting colour is influenced by them separately.</p>
+<p>Another difference from previously described heatmaps is the reaction to click. Now cells are not clicked,
+but rather marked, allowing user to select several cells at once. By default this behaviour is activated, when
+<tt>Shift</tt> is pressed, but here we are using it as a reaction to a usual click as well.</p>
+</div>
+
+<div class="expl" id="skip">
+<p>Some lines of code, whose functionality had been already described in previous examples, were omitted 
+for the sake of simplicity. <span style = "color: #44b; font-weight: bold;"
+ onclick="window.open('twoChannelsHeatmap_code.html', 'newwindow', 'width=800, height=800');">
+Here</span>, you can find the complete working code.</p>
+</div>
+
+<div class="expl" id="ids">
+<p>Here, the row IDs are drugs and column IDs are cell lines.</p>
+</div>
+
+<div class="expl" id="value">
+<p>Here we have not one, but two values. Both are average inhibitions, but measured with two differen assays. 
+RTG shows the proportion of cells that are metabolically inactive, while CTX reflects the proportion of dead cells.
+In this heatmap we want to show the two values simultaniously and therefore both are passed to the heatmap.</p>
+</div>
+
+<div class="expl" id="inform">
+<p>The <tt>informText</tt> property sets the HTML code for the label that appears, when the pointer is hovering
+over a cell or dot or any other data object in linked-charts. The default label assumes that there is only one 
+value for a cell, and can't properly work with an array of two values. So we are redefining it here.</p>
+</div>
+
+<div class="expl" id="onclickHeatmap">
+<p>Here, we replace <tt>on_click</tt> behaviour with <tt>mark</tt> behaviour, which is by default is used, 
+when <tt>Shift</tt> is pressed.</p>
+</div>
+
+<div class="expl" id="markedUpdated">
+<p>The <tt>markedUpdated</tt> property is associated with <tt>mark</tt> behaviour. A function, defined here,
+is called each time a set of marked points or cells is changed. By default it's an empty function. Here, we 
+will define a function that updates layers on the curveFit plot, so that for each selected cell, we would have
+two corresponding layers: one with dots and the other with lines.</p>
+</div>
+
+<div class="expl" id="idsArray">
+<p>Here we generate IDs for all the layers we want to have on the curve fit plot. We select all the marked cells
+and make a combination of drug name, cell line name and the type of layer we want to make.</p>
+</div>
+
+<div class="expl" id="layerIds">
+<p>There is a way to manipulate multiple layers at once, instead of defining each of them separately. This can
+be done by combinations of several functions.</p>
+<p><tt>chart.layerIds(<i>ids</i>)</tt> defines a set of all the layers of a chart.
+When this property is changed, all the layers that are not present in the array are removed, new ones are created as
+void layers, and those, that have already existed are left intact.</p>
+<p><tt>chart.layerType(<i>layerId</i>)</tt> is supposed to return a type for each layer ID.</p>
+<p><tt>chart.selectLayers(<i>ids</i>)</tt> returns an object that allows to set properties of all the selected 
+layers at once. If no argument is passed, then all the layers are selected. If a property is defined only for 
+some of the selected layers, then only these layers are affected by setting this property. Setting property for 
+a selection of layers is almost the same as setting properties for charts and layers. The only difference is that
+the first argument passed to the property functions is always a layer ID.
+</div>
+
+<div class="expl" id="npoints">
+<p>Here we define the number of elements (points) for each layer depending on its type. A scatter plot will
+have ten points, a line chart will get two lines.</p>
+</div>
+
+<div class="expl" id="xy">
+<p>Here we set x and y coordinates for all our scatter charts. Line charts doesn't have x and y properties, 
+so we don't need to care about separating layers of two different types from each other. These properties
+will be set only for scatter charts.</p>
+</div>
+
+<div class="expl" id="symbol">
+<p>Here we set a symbol for each dot. The <tt>linked-charts</tt> library can use the symbols supported by
+<tt>d3.symbol()</tt> function. They are "Circle", "Cross", "Diamond", "Square", "Star", "Triangle", "Wye".</p>
+</div>
+
+<div class="expl" id="lineFun">
+<p>Here we define the lines for curve fits almost like is was done in all previous example. The only difference here is
+that we now use both assays and therefore have slightly modified the <tt>get_curveFit</tt> function so that it, besides drug
+name and cell line name, will also take the assay name.</p>
+</div>
+
+<div class="expl" id="dash">
+<p><tt>dashArray</tt> is a property of a lineChart. It allows the user to make a line dashed.</p>
+</div>
+
+<div class="expl" id="colour">
+<p>Here we set the colours for both scatter and line charts. Both have the <tt>colour</tt> property, and so we don't need to
+do it separately. Here we use one of the predefined colour sets that are provided by the <tt>d3</tt> library.</p>
+</div>
+
+<div class="expl" id="legendSc">
+<p>To define a legend one need to provide either a scaling function that will transform a legend element (colour, size, symbol
+etc.) into a label or an array with two columns, with all the desired labels and corresponding elements. Here, we use 
+the second option and constract an array of colours and an array of IDs that will be later passed to <tt>legend.add()</tt> 
+function.</p>
+</div>
+
+<div class="expl" id="update">
+<p>Here we update the curveFit plot to display all the changes that were made to the layers.</p>
+</div>
+
+<div class="expl" id="legendScUpd">
+<p>Instead of updating the entire legend one can just change a scale for a certain block. The <tt>legend.updateScale()</tt>
+function takes a scale (can be a function or a two-dimensional array) and a legend block ID as arguments.</p>
+</div>
+
+<div class="expl" id="slider">
+<p>A <tt>sigmoidColourSlider</tt> is another type of basic types of charts implemented in the <tt>linked-charts</tt> library. 
+It's not a selfsuficient chart, but it can be linked to any continuous colour scale of any of the plots, to allow an easy and 
+interactive way of changing the contrast and the midpoint of the scale.</p>
+</div>
+
+<div class="expl" id="straightColorScale">
+<p>Here, we define the colour scale that a colour slider will then modify. In both cases here, we used a colour scale that was 
+internaly defined for the plots from user-set <tt>palette</tt> and colourRange <tt>properties</tt>. The other option is use here 
+any other unrelated colour scale, since the colours for the plot will be in any case picked from a transformed by the 
+<tt>sigmoidColorSlider</tt> scale.</p>
+</div>
+
+<div class="expl" id="on_change">
+<p>By setting the <tt>on_change</tt> property user defines, what should be done if one of the pointers of a colour slider has been 
+moved. Generally, we would like to have colours of all the cells or points (or other elements) changed. The most obvious way for that 
+to use the <tt>chart.update()</tt> function. But in this case we know for sure that it's only the colour that has been changes. So we 
+don't need all the chart elements to be recalculated and rerendered, since with larger charts this may take a considerable amount of 
+time. To make this possible the update function for each chart in fact consists of several independent modules that can be called 
+separately. Here, we use <tt>updateCellColour()</tt> function that is defined for heatmaps and <tt>updatePointStyle</tt> for plots with
+axes.</p>
+</div>
+
+
+<div class="expl" id="scatter">
+<p>Initializing and placing a correlation scatter plot and a diogonal line.</p>
+</div>
+
+<div class="expl" id="on_click">
+<p>Another nice thing to do, besides updating a curve fit plot, when a point on a correlation plot is clicked, is to mark this point.
+Among default styles, used by the <tt>linked-charts</tt> library there is a class <tt>"clicked"</tt>. In these few lines, we first 
+deselect all points on the plot, and then select the currently clicked one <tt>d3.select(this)</tt> by adding <tt>clicked</tt> 
+to the list of its classes.</p>
+</div>
+
+<div class="expl" id="layer">
+<p>Here, we save the layer of the correlation plot that contains all the points to a separate variable. The default of the ID of each 
+layer is "layerN", where N is it's number starting from zero. <tt>chart.get_layer(id)</tt> returns a layer by its ID.</p>
+</div>
+
+<div class="expl" id="size">
+<p>Here, we set size of the second colour slider.</p>
+</div>
+
+<div class="expl" id="title">
+<p>Here, we define a title of the second slider.</p>
+</div>
+
+<div class="expl" id="curveFit">
+<p>Here, we initialize and place the a plot to show the curvefits and inhibition values for all individual concentrations.</p>
+</div>
+</td></tr>
+</table>
+
+<script>
+d3.selectAll( "x-expl" )
+   .append( "img" )
+      .attr( "height", "10pt" )
+      .attr( "class", "bubble_icon" )
+      .attr( "src", "src/bubble_yellow.svg" )
+      .style( "padding-right", "15px")
+      .on( "click", function() {
+      	  d3.selectAll( "div.expl" )
+      	     .style( "display", "none" );
+          d3.selectAll( "img.bubble_icon" )
+             .attr( "src", "src/bubble_yellow.svg")
+      	  var tagId = d3.select(this.parentNode).attr("id");
+      	  d3.select( "div.expl#" + tagId )
+      	     .style( "display", "block" )
+          d3.selectAll( "x-expl#" + tagId ).select("img.bubble_icon")
+             .attr( "src", "src/bubble_red.svg")
+       })
+</script>
+
+</body>
+
+</html>
