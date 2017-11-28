@@ -1,0 +1,31 @@
+<head>
+<title></title>
+<link rel = "stylesheet" type = "text/css" href = "../src/default.css">
+<script src="https://d3js.org/d3.v4.min.js"></script>
+</head>
+<body>
+<script src="../src/navTop.js"></script>
+<div class="contentContainer" id="content"></div>
+<div class="tocContainer" id="toc"></div>
+<script src="../src/codeMirror/codemirror.js"></script>
+<link rel="stylesheet" href="../src/codeMirror/codemirror.css"> 
+<link rel="stylesheet" href="../src/codeMirror/mdn-like.css">
+<script src="../src/codeMirror/javascript.js"></script>
+<script src="../src/tiy.js"></script>
+<link rel="stylesheet" href="../src/tiy.css">
+<script>tiy.make_boxes();</script>
+<script type="text/javascript" src="../src/tocbot.min.js"></script>
+<link rel="stylesheet" href="../src/tocbot.css">
+<script>
+	d3.select("head")
+		.select("title")
+			.text(d3.select("#content")
+							.select("h1").text());
+	tocbot.init({
+	  tocSelector: '#toc',
+	  contentSelector: '#content',
+	  headingSelector: 'h1, h2, h3, h4',
+	});
+	tocbot.refresh();
+</script>
+</body>

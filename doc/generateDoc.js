@@ -1,8 +1,9 @@
 var fs = require("fs"),
 	cheerio = require("cheerio"),
-	pandoc = require('node-pandoc');
+	nrc = require("node-run-cmd"),
+	path = require("path");
 
-var html = fs.readFileSync('./_mds/api.html','utf-8'),
+var html = fs.readFileSync('./mds/api.html','utf-8'),
 	$ = cheerio.load(html),
 	list = {}, toc = {};
 
@@ -35,14 +36,64 @@ for(var i in toc){
 	}
 }
 
-fs.writeFile("_mds/pages/api.html", $.html())
+fs.writeFile("mds/pages/api.html", $.html())
 
+var p = "mds/";
+
+
+fs.readdir(p, function(err, files) {
+	if(err)
+		throw err;
+
+	files.map(function(file) {
+		return path.join(p, file);
+	}).filter(function(file){
+		return fs.statSync(file).isDirectory();
+	}).forEach(function(dir){
+		
+		fs.readdir(dir, function(err, files){
+			files.map(function(file) {
+				return path.join(dir, file);
+			}).filter(function(file){
+				return fs.statSync(file).isFile();
+			}).forEach(function(file){
+				if(path.extname(file) == ".md"){
+					
+					var spl = file.split(".");
+					spl[spl.length - 1] = "html";
+					var newFile = spl.join(".");
+					nrc.run("pandoc " + file + ' -f markdown -t html -o ' + newFile).then(function(){
+						var content = fs.readFileSync(newFile, 'utf-8');
+						fs.unlink(newFile);
+						var html = fs.readFileSync("mds/template.html", 'utf-8');
+						var $ = cheerio.load(html);
+						$("#content").html(content);
+						replaceLinks($("a"));
+						newFile = newFile.split("/").splice(1).join("/");
+						fs.writeFile("documentation/" + newFile, $.html().replace(/&quot;/g, '"'));		
+					})
+				}
+				
+				if(path.extname(file) == ".html"){
+					html = fs.readFileSync(file,'utf-8'),
+					$ = cheerio.load(html);
+					replaceLinks($("a"));
+					file = file.split("/").splice(1).join("/");
+					fs.writeFile("documentation/" + file, $.html());		
+				}
+			})
+		})
+	});
+
+})
+
+//fs.unlink("_mds/pages/api.html");
 
 
 //look for links and replace them
 var replaceLinks = function(links){
 	links.each(function(){
-		var link, text, resLink = "#", flag = false;
+		var link, text, resLink = "../pages/api.html#", flag = false;
 		link = $(this).attr("href");
 		text = $(this).text();
 
@@ -79,8 +130,16 @@ var replaceLinks = function(links){
 		}
 		if(!flag)
 			resLink = link;
-		
-		$(this).attr("href", resLink);
+
+		if(resLink.slice(0, 18) == "../pages/api.html#" && 
+				$(this).parent(".method").length == 0){
+			var text = $(this).text();
+			$(this).text("");
+			$(this).append("<code>" + text + "</code>");
+		}
+
+		$(this)
+		 .attr("href", resLink);
 	});
 }
 

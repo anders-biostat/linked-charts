@@ -5,7 +5,6 @@ export function table() {
   var chart = chartBase()
     .add_property( "record", {} )
 
-
   chart.showPanel(false);
 
   var inherited_put_static_content = chart.put_static_content;
@@ -26,7 +25,6 @@ export function table() {
 
   var inherited_update = chart.update;
   chart.update = function( ) {
-
     inherited_update();
     var sel = chart.table.selectAll( "tr" )
       .data( Object.keys( chart.record() ) );
