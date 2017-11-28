@@ -228,7 +228,7 @@ heatmap
 It doesn't matter in which order you define properties. But [cluster](heatmap) is not
 a property. It's a method that performs clusterisation, when called. So if you use
 it, make sure that by that time you've already set all the required prperties. For 
-example try to put [cluster](heatmap) before distance metric is changed and see what 
+example, try to put [cluster](heatmap) before distance metric is changed and see what 
 happens.
 
 By the way, try to click on any branch of the dendogram. Then rows or columns will be
@@ -239,8 +239,8 @@ reclustered, using only the selected cluster as features.
 To change anything in the heatmap, you need to update it. There is an [update](chart)
 method that will just redraw all the elements of the heatmap. But if you know that only
 some of the heatmap's elements have been changed since the last update, you may want to
-change only them for the sake of performance time. So the [update](chart) function
-actually consists of several modules each responsible for a certain type of changes.
+change only them for the sake of performance time. So the [update](chart) method
+actually consists of several modules, each responsible for a certain type of changes.
 These partial updates can be called independently if necessary.
 The most important ones are
 

@@ -3,13 +3,15 @@ Scatter plots
 
 ## Minimal requirements 
 
-To generate a scatter plot one needs to define <tt>x</tt> and <tt>y</tt> properties.
-They expect a function that will take data IDs as arguments and return corresponding <tt>x</tt> or <tt>y</tt> values.
+To generate a scatter plot one needs to define [x](scatter) and [y](scatter) properties.
+They should be functions that will take point IDs as an argument and return 
+corresponding <code>x</code> or <code>y</code> values.
 In some simplest cases this may be enough, since the chart will try to automatically
-estimate the number of points, assuming that their IDs are consequtive numbers and
-trying to access <tt>x</tt> values one by one. The first ID, for which <tt>x</tt> is unaccessable
+estimate the number of points, assuming that their IDs are consequtive numbers.
+To this end the chart tries to access [x](scatter) values one by one. The first ID, 
+for which [x](scatter) is undefined or unaccessable for any reason,
 becomes the number of points. If this for some reason fails, an error will be trown asking 
-user to define the number of points himself via the <tt>nelements</tt> property.
+the user to define the number of points him- or herself via the [nelements]() property.
 
 So the simplest possible scatter plot can be created like this
 
@@ -22,31 +24,33 @@ var scatterplot = lc.scatter()
 </pre>
 
 In this example, the IDs are just numbers, and you can see that on the information labels for
-each point. You can change the names using <tt>elementLabel</tt>. Unlike IDs, names do not need
+each point. You can change the names using [elementLabel](). Unlike IDs, names do not need
 to be unique. This actually can be any text you want to be associated with a data point. Fot
-example, try to add this line of code
+example, try to add these lines to the code
 
 <pre class="tiy" runnable="false">
 scatterplot
   .elementLabel(function(k) {return data[k].species})
+  .update();
 </pre>
 
 More straightforward way to put your text on the information label is, of course, 
-just to set the HTML code for this label through <tt>informText</tt> property.
+just to set the HTML code for this label through [informText](layer) property.
 
 <pre class="tiy" runnable="false">
 scatterplot
   .informText(function(k) {
-    return "Species: " + data[k].species;
+    return "<b>Species:</b> " + data[k].species;
   })
+  .update();
 </pre>
 
 If you don't want IDs to be consequtive numbers, you can set them manually, using
-the <tt>dataIds</tt> property, which should be an array of all the IDs. This may
-be useful if your data are stored in a form of object with named fields. 
+the [elementIds]() property, which should be an array of all the IDs. This may
+be useful if your data are stored in a form of an object with named fields. 
 
-On the chart bellow you can logarithmised expression values of several genes for 
-two patient samples. The <tt>scatterData</tt> variable has the following structure
+On the chart bellow you can see logarithmised expression values of several genes for 
+two patient samples. The <code>scatterData</code> variable has the following structure
 
 <pre class="tiy" runnable="false">
 {
@@ -72,23 +76,23 @@ var scatterplot = lc.scatter()
 
 All these aspects can be set either for all the points or for each of them separately.
 
-The <tt>size</tt> property defines the size of each point (default size is 6).
-To define colour use <tt>colour</tt> or <tt>colourValue</tt> properties. The difference
-between the two is that <tt>colour</tt> property should return colour in any form that
-can be interpreted by JavaScript, while <tt>colourValue</tt> can be anything. It can be
-numeric values or it can be some text. This will be converted either in continuous or in
-categorical colour scale. You can also define a set of colours using the <tt>palette</tt>
+The [size]() property defines the size of each point (default size is 6).
+To define colour use the [colour](layer) or [colourValue]() properties. The difference
+between the two is that the [colour](layer) property should return colour in any form that
+can be interpreted by JavaScript, while [colourValue]() can be anything. It can be a
+numeric value, or it can be some text, or actually anything else. This will be converted either 
+in a continuous or in a categorical colour scale. You can also define a set of colours using the [palette](layer)
 property, which can be an array of colours or a function that converts values from 0 to 1 
 into colours.
 
-Shape can be set by the <tt>symbol</tt> or <tt>symbolValue</tt> property. The difference
-between them is exactly the same as the difference between <tt>colour</tt> and <tt>colourValues</tt>.
-<tt>symbol</tt> is expected to return one of the supported types of symbols which currently 
-are <tt>"Circle", "Cross", "Diamond", "Square", "Star", "Triangle", "Wye"</tt>. <tt>symolValues</tt>
+Shape can be set by the [symbol]() or [symbolValue]() properties. The difference
+between them is exactly the same as the difference between [colour](layer) and [colourValue]().
+[symbol]() is expected to be one of the supported types of symbols which currently 
+are <code>"Circle", "Cross", "Diamond", "Square", "Star", "Triangle", "Wye"</code>. [symbolValue]()
 can be any number or string.
 
-Note that when <tt>colourValue</tt> or <tt>symbolValue</tt> are set, <tt>legend</tt> is automatically
-generated, while after setting <tt>colour</tt> or <tt>symbol</tt> user should add the legend
+Note, that when [colourValue]() or [symbolValue]() is set, a [legend]() is automatically
+generated, while after setting [colour](layer) or [symbol]() the user should add a legend
 manually. 
 
 Let's put all this together into an example
@@ -104,8 +108,9 @@ var scatterplot = lc.scatter()
   .place(); 
 </pre>
 
-To set the same shapes with <tt>symbol</tt> property, one will need to use the 
-following code.
+To set the same shapes with [symbol]() property, one will need to use the 
+following code (insert it instead of the [symbolValue]() property in the 
+example above).
 
 <pre class="tiy" runnable = "false">
 scatterplot
@@ -122,15 +127,15 @@ scatterplot
 ## Titles and labels
 
 One more thing that any chart needs is meaningful labels and titles.
-You can set the main title of the chart using <tt>title</tt> property
-and you can add labels to axes through <tt>labelX</tt> and <tt>labelY</tt>
+You can set the main title of the chart using the [title](chart) property
+and you can add labels to axes using [axisTitleX]() and [axisTitleY]()
 properties.
 
 You can also add, rename or remove parts of the legend to make it customised.
-The more detailed chapter on legends you can find over here. In this article
-we just quickly mention the way to change automatically generated name, which
-is by defauld "type of legend"_"layerID". To this end you can use properties
-<tt>colourLegendName</tt> and <tt>symbolLegendName</tt>. Keep in mind that these
+The more detailed chapter on legends you can find [here](../tutorials/legends.html). In this article
+we just quickly mention a way to change the automatically generated name, which
+is by defauld <code>"type of legend"_"layerID"</code>. To this end you can use properties
+[colourLegendTitle]() and [symbolLegendTitle](). Keep in mind that these
 names are also used as IDs, so they need to be unique.
 
 <pre class="tiy" width="100%" fitHeight="true"
@@ -148,3 +153,25 @@ var scatterplot = lc.scatter()
   .symbolLegendTitle("Species")
   .place(); 
 </pre>
+
+## Update
+
+For any changes, you've added to the chart, to have an effect, you need firt to update the
+chart. Each chart in the _linked-charts_ library has an [update](chart) method, which 
+recalculates and updates all the elements of the chart. But if you know that only
+some of them have been changed since the last update, you may want to
+change only these ones for the sake of performance time. So the [update](chart) method
+actually consists of several modules, each responsible for a certain type of changes.
+These partial updates can be called independently if necessary.
+The most important ones are
+
+- [updateSize](chart) - changes the size of the chart. Internally calls [updateAxes]().
+
+- [updateAxes]() - recalculates the domains and updates both axes. Internally calls
+[updateElementPosition]().
+
+- [updateElements]() - adds or removes elements to fit the current data.
+
+- [updateElementPosition]() - updates the position of all the points of the chart.
+
+- [updateElementStyle]() - updates colour, shape, size, etc. of all the points.
