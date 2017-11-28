@@ -89,10 +89,10 @@ Currently supported types of charts are:
 
 *   [Heatmap](../types/heatmap.html)
 *   [Scatterplot](../types/scatter.html)
-*   Lineplot ([y = f(x)], x = f(y), x = f(t) and y = g(t))
-*   Barchart
-*   Beeswarm
-*   Simple table
+*   [Lineplot](../types/lines.html) ([y = f(x)], x = f(y), x = f(t) and y = g(t))
+*   [Barchart](../types/barchart.html)
+*   [Beeswarm](../types/beeswarm.html)
+*   [Table](../types/table.html)
 
 ## Getting started
 

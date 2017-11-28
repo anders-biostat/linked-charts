@@ -28,6 +28,7 @@ export function layerBase(id) {
       return "<b>ID:</b> " + layer.get_elementLabel(id);
     });
 
+  layer.propList = layer.propList.concat(["updateElementStyle", "updateElements", "updateElementPosition"]);
 	layer.id = id;
 
   //if number of elements is set, define their IDs
