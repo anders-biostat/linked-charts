@@ -1,0 +1,71 @@
+<html>
+<head>
+<title></title>
+<script src="../src/linked-charts.min.js"></script>
+<link rel="stylesheet" type="text/css" href="../src/linked-charts.css">
+<link rel = "stylesheet" type = "text/css" href = "../src/default.css">
+<link rel="stylesheet" href="../src/prism.css">
+<script src = "../src/prism.js"></script>
+</head>
+
+<body>
+<script src="../src/navTop.js"></script>
+<div class="contentContainer">
+	<div class="description"></div>
+	<script class="input"></script>
+	<div class="layout"></div>
+	<script class="code"></script>
+	<h3>The code for the example</h3>
+	<p>A user of our framework can create apps with very little code. The following is the complete code needed to create the app above, with comments.</p>
+	<table><tr><td valign="top">
+		<pre class="example"></pre>
+	</td>
+	<td valign="top" style="padding-left:20px" class="comments">
+
+		<style>
+		div.expl {
+   		display: none;
+   		position: absolute;
+   		background: #ddf;
+   		padding: 10px;
+		}
+		</style>
+
+		<p style="background:#f0fff0; padding:10px" id="bubble">
+			<i>Click on all the yellow bubbles 
+			(<img height="10pt" src="../src/img/bubble_yellow.svg">),
+			going from top to bottom, to see explanations of the code.</i>
+		</p>
+		<br>
+	</td></tr>
+	</table>
+
+	<script>
+	d3.select("head")
+		.select("title")
+			.text(d3.select(".description")
+							.select("h1").text());
+
+	d3.selectAll( "x-expl" )
+	  .append( "img" )
+	      .attr( "height", "10pt" )
+	      .attr( "class", "bubble_icon" )
+	      .attr( "src", "../src/img/bubble_yellow.svg" )
+	      .style( "padding-right", "15px")
+	      .on( "click", function() {
+	      	  d3.selectAll( "div.expl" )
+	      	     .style( "display", "none" );
+	          d3.selectAll( "img.bubble_icon" )
+	             .attr( "src", "../src/img/bubble_yellow.svg")
+	      	  var tagId = d3.select(this.parentNode).attr("id");
+	      	  d3.select( "div.expl#" + tagId )
+	      	     .style( "display", "block" )
+	      	     .style("width", d3.select("#bubble").node().getBoundingClientRect().width)
+	          d3.selectAll( "x-expl#" + tagId ).select("img.bubble_icon")
+	             .attr( "src", "../src/img/bubble_red.svg")
+	       })
+	</script>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<script src="linked-charts.min.js"></script> ///loadlib/html
+<link rel="stylesheet" type="text/css" href="linked-charts.css"> ///loadlib/html
+///
+<script>///inputdata/html
+  geneNames = [ "CD248", "CA6", ... , "PDGFB" ]///labelVectors
+  geneExprs = [ [ 4.3119, 3.1594, ... , 3.516] , [ ... ], ... ]///matrices
+  drugNames = [ "Irinotecan", "Topotecan", ..., "Valrubicin" ]///labelVectors
+  drugScores = [ [ 3.2, 0.1, 0, 4.6, ... ], [ ... ], ... ]///matrices
+</script>///inputdata/html
+///
+<table><tr>///table/html/layout
+  <td id="heatmap" valign="top"></td>///table/html/layout
+  <td id="scatterplot" valign="top"></td>///table/html/layout
+</tr></table>///table/html/layout
+///
+<script>///mainscript/html
+///
+var selGene = 0;///vars/ms
+var selDrug = 0;///vars/ms
+///
+var scatterplot = lc.scatter()///scatter1/ms
+  .x( function( k ) { return geneExprs[selGene][k] } )///xy/ms
+  .y( function( k ) { return drugScores[selDrug][k] } )///xy/ms
+  .place("#scatterplot");///place/ms
+///
+var heatmap = lc.heatmap()///heatmap1/ms
+  .nrows( geneNames.length )///hm_prop/ms
+  .ncols( drugNames.length )///hm_prop/ms
+  .height( 650 )///hm_prop/ms
+  .width( 400 )///hm_prop/ms
+  .colourDomain( [ -1, 1 ] )///hm_col/ms
+  .palette( d3.interpolateRdBu )///hm_col/ms
+  .value( function( row, col ) {///hm_value/ms
+     return lc.pearsonCorr( geneExprs[row], drugScores[col] )///hm_value/ms 
+   } )///hm_value/ms
+  .rowLabel( function(row) {///rowcolnames/ms
+     return geneNames[row]///rowcolnames/ms
+   } )///rowcolnames/ms
+  .colLabel( function(col) {///rowcolnames/ms 
+     return drugNames[col]///rowcolnames/ms
+   } )///rowcolnames/ms
+  .on_click( function( rowId, colId ) {///click/ms
+     selGene = rowId;///click/ms
+     selDrug = colId;///click/ms
+     scatterplot.update();///click/ms
+  })///click/ms
+  .place( "#heatmap")///place/ms
+</script>///mainscript/html
+../src/data/inputdata_simple.js///input
+<div class="description">
+<h1>A very simple example</h1>
+
+<p>To demonstrate how easy it is to create interactive data exploration apps with <i>linked-charts</i>,
+we show here a very simple example, complete with the code needed to create it.</p>
+
+<p>This example visualizes an excerpt of data from a project within <a href="https://www.fimm.fi/">FIMM</a>'s 
+<a href="https://www.fimm.fi/en/research/grand-challenge-programmes/individualized-systems-medicine-cancer">Individualized
+Systems Medicine</a> programme. From a cohort of (here) 52 patients with acute myeloid leukaemia (AML), samples 
+of tumour cells were acquired by means of bone marrow aspiration. Each sample was assayed by various means,
+including RNA-Seq to measure gene expressions and an assay which tested the sensitivity of each sample
+to a large panel of drugs. For the latter, aliqots of the samples were incubated with the drugs and 
+then viability was measured.</p>
+
+<p>For this example, we ask the simple question: Which drugs correlate with which genes?</p>
+
+<p>For illustration purposes, the data was preselected to 10 drugs (all
+topoisomerase inhibitors) and 35 genes. For each pair of a drug and a gene, the heat map
+visualizes the Pearson correlation between the sensitivity of the drug and the expression of
+the gene over all samples.</p>
+
+<p>A correlation coefficient is merely a summary statistic. It is valuable to  be able to inspect the
+underlying data. Here, a click on a heat map cells shows this underlying data in a scatter plot;
+expression of the selected gene on the x axis, sensitivity to the selected drug on the y axis, each
+point representing one sample.</p>
+
+<p>This linking of a chart visualizing a summary statistic with a chart drilling down into the data of a specific
+data element is a prototypical use case of <i>linked-charts</i>.</p>
+</div>
+
+<div class="comments">
+<div class="expl" id="loadlib">
+<p>Here we load the <i>linked-charts</i> library and its stylesheet. It comes bundled with 
+<a href="https://d3js.org/">d3</a>, <a href="https://bl.ocks.org/Kcnarf/5c989173d0e0c74ab4b62161b33bb0a8">
+d3-beeswarm plugin</a> and <a href="https://github.com/eligrey/FileSaver.js/">FileSaver.js</a></p></div>
+
+<div class="expl" id="inputdata">
+<p>There are various ways to load the data. Here, we demonstrate the simplest way:
+just inline it into the page.</p>
+<p>The data was originally an R matrix. We used the toJSON function of R's 'jsonlite' 
+package to write out the data in a form that can be read in JavaScript, and copied and pasted
+this here.</p>
+<p>More about data input you can find <a href="../tutorials/data.html">here</a></p>
+</div>
+
+<div class="expl" id="labelvectors">
+The labels for the heatmap will be taken from these two string vectors. The vectors
+have lengths 35 and 10, but some of the elements have been omitted to not clutter the page. 
+</div>
+
+<div class="expl" id="matrices">
+The main data are given in these two data matrices. The first contains
+35 &times; 52 gene expression values for 35 genes (matrix rows) times
+52 samples (matrix columns). The second contains drug response scores for 10 drugs
+times the same 52 samples.</div>
+
+<div class="expl" id="table">
+The layout of a set of linked charts is specified by writing a normal web page
+in standard HTML. Here, our page merely contains one table with one row and
+two table data (&lt;td>) elements, each of which will take up one of the charts.
+Further below, we will refer to these &lt;td> by the <code>id</code> attributes
+that are set here.</div>
+
+<div class="expl" id="mainscript">
+This is the actual user script to use the <i>linked-charts</i> library. 
+</div>
+
+<div class="expl" id="vars">
+<p>These two global variables provide the link between the heatmap and the scatter plot:</p>
+<p>They always show the row number (gene) and column number (drug) of the last heatmap cell
+on which the user has clicked (or, initially, 0, i.e., the top-left cell).</p>
+</div>
+
+<div class="expl" id="scatter1">
+<p>Here, we initialize a <a>scatter</a> object. This is one of the standard chart 
+<a href="tutorials">types</a> provided by our <i>linked-charts</i> library.</p>
+<p>In the following lines, we set the object's <a href="tutorials">properties</a></p>
+</div>
+
+<div class="expl" id="xy">
+<p>Linked-charts uses call-back functions to access the data: These two functions are called for
+each data point, being passed the number of the data point as argument. They look up the gene 
+expression and drug response score in the input matrices, looking at the column for sample <code>k</code>.<p> 
+<p>The global variables defined above are consulted, so that the scatter plot uses the data from the rows
+corresponding to gene and drug selected by the user's last click on the heatmap.</p>
+<p>Axes and scaling is automatically adjusted to the value range (but this can be overridden).</p>
+<p>Besides <a href="scatter">x</a> and <a href="scatter">y</a> coordinates, other properties of the 
+data points such as <a href="layer">colour</a>, <a>size</a> etc, can 
+be set similarly, either globally for all points by providing constants, or for each point separately.</p> 
+</div>
+
+<div class="expl" id="place">
+<p>The <a href="chart">place</a> function inserts the object into the web page. The argument is a CSS selector,
+here selecting the table elements that were marked with <code>id</code> attributes as the places to
+take up the charts.</div>
+
+<div class="expl" id="heatmap1">
+<p>Here, we instantiate the second chart, namely the heatmap on the left. The <a>heatmap</a> is another
+of the standard chart <a href="tutorials">types</a> provided by the <i>linked-charts</i> library.</div>
+
+<div class="expl" id="hm_prop">
+<p>Here, we set the basic properties of the heatmap: The numbers of rows (<a>nrows</a>) and columns
+(<a>ncols</a>), and the <a href="chart">height</a> and <a href="chart">width</a> (in pixels).</p>
+<p>The number of rows (number of genes) and columns (number of drugs) is read off from the number 
+of rows of the two data arrays.</div>
+
+<div class="expl" id="hm_col">
+<p>We use <a href="https://github.com/d3/d3-scale-chromatic#interpolateRdBu">one of D3's color palettes</a> 
+for the heatmap's colour scale. These colours should map
+the correlation values, which range from -1 to 1.</p></div>
+
+<div class="expl" id="hm_value">
+<p>As do all charts in the linked-charts library, heatmaps access their data via callback functions. For
+this, the property <a href="heatmap">value</a> has to be set to a function that takes two arguments, <code>rowId</code> and
+<code>colId</code> and returns the value that the cell with the given position should show.</p>
+<p>Here, we provide a function that looks up the data row corresponding to <code>rowId</code> in 
+the <code>geneExpr</code> matrix and the data row corresponding to <code>colId</code> in 
+the <code>drugScore</code> matrix. It then calculates for these two row vectors Pearson's correlation coefficient
+and returns it.</p>
+<p>This example shows that it is not necessary to bring the data into a specific form to display it with
+<i>linked-charts</i>. Thanks to the call-back mechanism, we can code access to the data in whatever form it is provided
+and even do small calculations on the fly.
+</p></div>
+
+<div class="expl" id="rowcolnames">
+<p>The row and column labels displayed at the side of the heatmap are also provided by call-back functions,
+which are called individually for each row and each column.</p>
+<p>In our input data, the mapping of rows of the input data matrices to gene and drug names is provided
+by two vectors of labels, which are accessed here.</p>
+</div>
+
+<div class="expl" id="click">
+<p>The property <a href="heatmap">on_click</a> is set here to a call back function that is called whenever the user
+clicks on a cell.</p>
+<p>The function takes the row and column index of the clicked heatmap cell from the provided arguments
+and saves them in the two global variables <code>selGene</code> and <code>selDrug</code> that we have 
+defined at the top and which are read by
+the scatter plot's <a>x</a> and <a>y</a> call-backs. </p>
+<p>Then, the <a href="chart">update</a> function of the scatter chart is called. This has to be done whenever the
+data or appearance of a plot changed and the plot has to be re-rendered.</p>
+<p>This simple and transparent style of linking two plots is the heart of <i>linked-charts</i>.</p>
+</div>  
+</div>

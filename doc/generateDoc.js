@@ -3,7 +3,8 @@
 var fs = require("fs"),
 	cheerio = require("cheerio"),
 	nrc = require("node-run-cmd"),
-	path = require("path");
+	path = require("path"),
+	readline = require("readline");
 
 var html = fs.readFileSync('./mds/api.html','utf-8'),
 	$ = cheerio.load(html),
@@ -61,8 +62,8 @@ fs.readdir(p, function(err, files) {
 			}).filter(function(file){
 				return fs.statSync(file).isFile();
 			}).forEach(function(file){
-				if(path.extname(file) == ".md"){
-					
+				//if a file is a markdown, use a template and convert the links
+				if(path.extname(file) == ".md"){	
 					var spl = file.split(".");
 					spl[spl.length - 1] = "html";
 					var newFile = spl.join(".");
@@ -77,7 +78,56 @@ fs.readdir(p, function(err, files) {
 						fs.writeFile("documentation/" + newFile, $.html().replace(/&quot;/g, '"'));		
 					})
 				}
-				
+				//if a file is htm - it is an example
+				if(path.extname(file) == ".htm"){
+					var html = fs.readFileSync("mds/template_example.html", 'utf-8');
+					var $ = cheerio.load(html);
+					var rd = readline.createInterface({
+					  input: fs.createReadStream(file),
+					  console: false
+					});
+
+					var layout = "";
+
+					rd.on('line', function(line) {
+    				line = line.trim();
+    				if(line.indexOf("///") != -1){
+    					line = line.split("///");
+    					if(line[1] == "input"){
+    						$(".input").attr("src", line[0]);
+    						return;
+    					}
+    					var id = line[1].split("/")[0],
+    						language = (line[1].split("/")[1] == "html" ? "html" : "javascript");
+    					$("pre").append('<x-expl id = "' + id + '"></x-expl><code class = "language-' + 
+    													language +'">' + line[0].replace(/</g, "&lt;") + '</code>' + "\n")
+
+    					if(line[1].split("/")[2] == "layout")
+    						layout += line[0];
+
+    					if(line[1].split("/")[1] == "ms")
+    						$(".code").append(line[0] + "\n");
+    				}				
+					});
+
+					rd.on("close", function(){
+						$(".layout").html(layout);
+
+						var html = fs.readFileSync(file, 'utf-8');
+						var content = cheerio.load(html);
+
+						$(".description").append(content(".description").html());
+						$(".comments").append(content(".comments").html());
+
+						replaceLinks($("a"));
+						var newFile = file.split("/").splice(1).join("/") + "l";
+						fs.writeFile("documentation/" + newFile, $.html().replace(/&quot;/g, '"'));					
+
+					})
+
+				}
+
+				//if a file is html, just convert the links
 				if(path.extname(file) == ".html"){
 					html = fs.readFileSync(file,'utf-8'),
 					$ = cheerio.load(html);

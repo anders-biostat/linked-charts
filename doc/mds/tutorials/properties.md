@@ -363,5 +363,5 @@ chart.wrapSetter("elementIds", function(oldSetter){
 </pre>
 
 This means that each time the [elementIds](layer) setter is replaced with a new
-one that on each call first redefined the [nelements]() getter and only after that
+one that on each call first redefines the [nelements]() getter and only after that
 performs its usual actions.
