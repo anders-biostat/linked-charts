@@ -1,0 +1,230 @@
+<script src="linked-charts.min.js"></script> ///loadlib/html
+<link rel="stylesheet" type="text/css" href="linked-charts.css"> ///loadlib/html
+///
+<script>///inputdata/html
+  inputData = [{"CellLine":"Pa16C","Drug":"Galunisertib","minConc":1, ...}, ... ];///inputdata
+</script>///inputdata/html
+///
+<table><tr>///.../html/layout
+  <td id="heatmap" valign="top"></td>///.../html/layout
+  <td id="scatterplot" valign="top"></td>///.../html/layout
+</tr></table>///.../html/layout
+///
+<script>///mainscript/html
+inputData = lc.separateBy(inputData, ["screen", "Drug", "CellLine"]);///separateBy/ms
+var drugs = Object.keys(inputData.RTG),///list/ms
+  cellLines = Object.keys(inputData.RTG[drugs[0]]);///list/ms
+///
+var selDrugs = [drugs[0], drugs[1]],///vars/ms
+  selCellLine = cellLines[0];///vars/ms
+///
+var heatmap = lc.heatmap()///heatmap/ms
+  .rowIds( drugs )///ids/ms
+  .colIds( drugs )///ids/ms
+  .value( function( rowId, colId ) {///hm_value/ms
+    var rowValues = cellLines.map(function(e) {///hm_value/ms
+        return inputData.RTG[rowId][e].avInh;///hm_value/ms
+      }),///hm_value/ms
+      colValues = cellLines.map(function(e) {///hm_value/ms
+        return inputData.RTG[colId][e].avInh;///hm_value/ms
+      });///hm_value/ms
+    return lc.pearsonCorr( rowValues, colValues );///hm_value/ms 
+   })///hm_value/ms
+  .cluster("Row")///cluster/ms
+  .cluster("Col")///cluster/ms  
+  .margins({top: 50, left: 50, right: 100, bottom: 100})///margins/ms
+  .on_click( function( rowId, colId ) {///.../ms
+     selDrugs = [rowId, colId]///.../ms
+     scatterplot.update();///.../ms
+     curveFit.update();///.../ms
+  })///.../ms
+  .colourDomain( [ -1, 1 ] )///.../ms
+  .palette( d3.interpolateRdBu )///.../ms
+  .place( "#heatmap");///place/ms
+///
+var scatterplot = lc.scatter()///scatter1/ms
+  .elementIds( cellLines )///ids/ms
+  .width( 300 )///.../ms
+  .height( 300 )///.../ms
+  .x( function( k ) { return inputData.RTG[selDrugs[0]][k].avInh } )///.../ms
+  .y( function( k ) { return inputData.RTG[selDrugs[1]][k].avInh } )///.../ms
+  .on_click( function( k ) {///.../ms
+    selCellLine = k;///.../ms
+    curveFit.update();///.../ms
+  })///.../ms
+  .place( "#scatterplot" );///place/ms
+///
+var curveFit = lc.scatter("drug1")///layer1/ms
+  .width( 300 )///.../ms
+  .height( 200 )///.../ms
+  .nelements( 5 )///npoints/ms
+  .x( function( k ) {return k;} )///xy/ms
+  .y( function( k ) {///xy/ms
+    return inputData.RTG[selDrugs[0]][selCellLine]["D" + (k + 1)];///xy/ms
+  })///xy/ms
+  .colour( "blue" );///colour/ms
+lc.scatter("drug2", curveFit)///layer2/ms
+  .nelements( 5 )///npoints/ms
+  .x( function( k ) {return k} )///xy/ms
+  .y( function( k ) {///xy/ms
+    return inputData.RTG[selDrugs[1]][selCellLine]["D" + (k + 1)];///xy/ms
+  })///xy/ms
+  .colour("red")///colour/ms
+  .place( "#scatterplot" );///place/ms
+</script>///mainscript/html
+../src/data/inputdata.js///input
+
+<div class="comments">
+
+<div class="expl" id="skip">
+<p>Some lines of code, that have been already described in the previous examples, were omitted 
+for the sake of simplicity. At the bottom of the page you can find the complete code.</p>
+</div>
+
+<div class="expl" id="loadlib">
+<p>Here we load the <i>linked-charts</i> library and its stylesheet. It comes bundled with 
+<a href="https://d3js.org/">d3</a>, <a href="https://bl.ocks.org/Kcnarf/5c989173d0e0c74ab4b62161b33bb0a8">
+d3-beeswarm plugin</a> and <a href="https://github.com/eligrey/FileSaver.js/">FileSaver.js</a></p></div>
+
+<div class="expl" id="inputdata">
+<p>There are various ways to load the data. Here, we demonstrate the simplest way:
+just inline it into the page.</p>
+<p>The data was originally an R matrix. We used the toJSON function of R's 'jsonlite' 
+package to write out the data in a form that can be read in JavaScript, and copied and pasted
+this here.</p>
+<p>More about data input you can find <a href="../tutorials/data.html">here</a></p>
+</div>
+
+<div class="expl" id="mainscript">
+This is the actual user script to use the <i>linked-charts</i> library. 
+</div>
+
+<div class="expl" id="separateBy">
+<p>The <i>linked-charts</i> library often requires to access a specific row of the data table.
+For example, here we will often want to get a value of avarage inhibition for a specific drug 
+tested against a specific cell line measured using RealTime-Glo assay. To avoid excessive 
+filtering one can assign a unique ID to each sample, as it was done in the previous example.
+Another way to address this problem is demonstrated here</p> 
+<p>Function <code>separateBy(<i>dataset, properties</i>)</code> is a part of the <i>linked-charts</i> 
+library. It takes the data in a form of an array or object and converts it into hierarchical, tree-like
+form, consequently separating the data by the values of provided properties.</p>
+<p>The figure bellow illustrates the transformation of <tt>inputData</tt> made by this function.</p>
+<img src = "src/separateBy_sm.png">
+</div>
+
+<div class="expl" id="list">
+<p>It can be more convenient to keep lists of all tested drugs and cell lines in separate variables.
+In the previous example we got such lists as a part of the input, here we save them manually to the
+<code>drugs</code> and <code>cellLines</code> variables.</p>
+</div>
+
+<div class="expl" id="vars">
+<p>These global variables provide the link between plots on this page:</p>
+<p><code>selDrugs</code> stores names of the two drugs user selects by clicking on a heatmap cell, 
+<code>selCellLine</code> stores the name of the cell line user selects by clicking on a point of the 
+correlation scatter plot.</p>
+<p>Here, we use the firt two drugs and the first cell line as default values.</p>
+</div>
+
+<div class="expl" id="heatmap">
+<p>Here, we instantiate the first chart, namely the heatmap on the left. The <a>heatmap</a> is one
+of the standard chart <a href="tutorials">types</a> provided by the <i>linked-charts</i> library.</p></div>
+
+<div class="expl" id="ids">
+<p>Instead of setting the number of points (rows and colums for the heatmap) one can use an 
+array of IDs of all displayed points (rows and columns). By default, the IDs are also used as
+row and column labels, but this can be changed by user. If these properties are not set by the 
+user, each point (row and column) gets a consequent number as an ID.</p>
+<p>Here, for a correlation heatmap we use names of all the drugs as both row and column names.
+On the scatter plot each dot corresponds to a cell line, so we use the list of all the cell
+lines as IDs.</p>
+</div>
+
+<div class="expl" id="hm_value">
+<p>As it was described in the previous example, the <a href="heatmap">value</a> property is used to get the value
+that the cell given its row and column IDs.</p>
+<p>Here, the function looks more complicated due to different form of the data. First, we need to store
+avarage inhibition values for each cell line in two separate variables (<code>rowValues</code> and <code>colValues</code>)
+and only after can we calculate Pearson correlation.</p>
+</div>
+
+<div class="expl" id="cluster">
+<p>To cluster rows or columns of a heatmap one can use <a href="heatmap">cluster</a> method. By default, the Eucledian
+metric is used, but other metrics can be provided via <a>clusterRowMetric</a> and <a>clusterColMetric</a>
+functions.</p>
+<p>Note, that the clustering is performed immediately when the method is called. Therefore, one needs to ensure
+that the essential properties has already been set.</p>
+</div>
+
+<div class="expl" id="margins">
+<p>Each chart has <code>top, bottom, left</code> and <code>right</code> margins, which are used to place axes, titles, legengds. 
+Margins can be set by defining an object that has these four fields.</p>
+<p>By default, a heatmap has large left and top margins to store row and column labels and small right and bottom ones. But when 
+the rows or columns are clustered and a dendogram is added to the heatmap, the labels are moved to the right or to the bottom 
+respectively. So here, we want to make this margins large enough to fit the labels.</p>
+</div>
+
+<div class="expl" id="place">
+<p>The <a href="chart">place</a> function inserts the object into the web page. The argument is a CSS selector,
+here selecting the table elements that were marked with <code>id</code> attributes as the places to
+take up the charts.</div>
+
+<div class="expl" id="scatter1">
+<p>Here, we initialize a <a>scatter</a> object. This is one of the standard chart 
+<a href="tutorials">types</a> provided by our <i>linked-charts</i> library.</p>
+<p>In the following lines, we set the object's <a href="tutorials">properties</a></p>
+</div>
+
+<div class="expl" id="layer1">
+<p>Here, we initialize a plot with two <a href="tutorials">layers</a> (both are <a>scatter</a> plots). 
+Layers are created by the same function we used to make a single-layer scatter plot. <a>scatter</a> 
+function has two optional arguments. The first one sets the ID of the new layer. If not defined, the ID for 
+the layer will be automatically set to <code>layerN</code>, where <code>N</code> is a number of the layer 
+starting from 0. The second argument is a chart to which the new layer should be added. If not defined 
+a new chart is initialized.</p>
+<p>Here, we are creating a new chart that contains one layer, which is a scatter plot and has ID <tt>drug1</tt></p>
+</div>
+
+<div class="expl" id="npoints">
+<p>If <a>elementIds</a> property is not set, <a>scatter</a> tries to estimate the number of points automatically,
+but in some cases that is not possible due to the specific dataset structure. If this is the case, then one should
+define the number of points manualy by setting the <a>nelements</a> property.</p>
+<p>Here, each drug was tested at five different concentrations, so the number of points is fixed for all cases.</p>
+</div>
+
+<div class="expl" id="xy">
+<p>Linked-charts uses call-back functions to access the data: These two functions are called for
+each data point, being passed the number of the data point as argument. <code>x</code> values are
+just numbers from 0 to 4 - each corresponds to one of the concentrations. <code>y</code> value is
+the inhibition value that for each drug is stored as <code>[D1, D2, ..., D5]</code>.<p> 
+<p>The global variables defined above are consulted, so that the scatter plot uses the data for the
+one of the drugs and the cell line that the user selected by clicking on the heatmap and the scatter
+plot.</p>
+<p>Axes and scaling is automatically adjusted to the value range (but this can be overridden).</p> 
+</div>
+
+<div class="expl" id="colour">
+<p>Here, we define points colour. There is no callback functions, so the
+value of this property will be applied to all the points of the layer.</p> 
+</div>
+</div>
+
+<div class="description">
+
+<h1>Adding layers</h1>
+
+<p>In this and futher examples we provide more insight in the possibilities of the <i>linked-charts</i> 
+library and show how to use it.</p>
+<p>Some types of charts (for example, chart with axes) support <a href="../tutorials/layers.html">layer</a>
+system, where each layer has its own set of properties that are defined independently from other layers' 
+properties. This is a simple example of creating a chart with two layers. Generally, one should use layers
+to put several types of charts on one plot (for example lines and dots), but here both layers are scatters. 
+In futher examples we will generate the same plot with only one layer.</p>
+<p>The data used here are generated in a drug-screening experiment. 50 drugs at 5 different concentrations 
+were tested against 21 pancreatic cancer cell lines. The heatmap shows drug-drug correlation. Like in the 
+previous example, a click on a cell of the heatmap reveals the underlying statistics by demonstrating on 
+the scatter plot (right upper corner) the values of avarage inhibition for all tested cell lines and the two
+selected drugs. By clicking on a data point one can select a cell line, and thus change the third plot 
+(right bottom corner) that demonstrates individual inhibition percent values for the two selected drugs and 
+the selected cell line.</p>
+</div>

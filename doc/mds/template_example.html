@@ -16,7 +16,9 @@
 	<div class="layout"></div>
 	<script class="code"></script>
 	<h3>The code for the example</h3>
-	<p>A user of our framework can create apps with very little code. The following is the complete code needed to create the app above, with comments.</p>
+	<p>A user of our framework can create apps with very little code. Bellow we show the part of
+	the code that hasn't been explained in previous examples. You can find the complete code
+	at the bottom of the page.</p>
 	<table><tr><td valign="top">
 		<pre class="example"></pre>
 	</td>
@@ -40,6 +42,14 @@
 	</td></tr>
 	</table>
 
+	<div class="fullCode off"><pre><code style="font-size: 16px !important;">Show/hide full code</code></pre></div>
+	<div class="fullCode on hidden">
+		<pre class="fullCode">
+<code>Show/hide full code</code>
+<code></code>
+</pre>
+	</div>
+
 	<script>
 	d3.select("head")
 		.select("title")
@@ -48,22 +58,34 @@
 
 	d3.selectAll( "x-expl" )
 	  .append( "img" )
-	      .attr( "height", "10pt" )
-	      .attr( "class", "bubble_icon" )
-	      .attr( "src", "../src/img/bubble_yellow.svg" )
-	      .style( "padding-right", "15px")
-	      .on( "click", function() {
-	      	  d3.selectAll( "div.expl" )
-	      	     .style( "display", "none" );
-	          d3.selectAll( "img.bubble_icon" )
-	             .attr( "src", "../src/img/bubble_yellow.svg")
-	      	  var tagId = d3.select(this.parentNode).attr("id");
-	      	  d3.select( "div.expl#" + tagId )
-	      	     .style( "display", "block" )
-	      	     .style("width", d3.select("#bubble").node().getBoundingClientRect().width)
-	          d3.selectAll( "x-expl#" + tagId ).select("img.bubble_icon")
-	             .attr( "src", "../src/img/bubble_red.svg")
-	       })
+	    .attr( "height", "10pt" )
+	    .attr( "class", "bubble_icon" )
+	    .attr( "src", "../src/img/bubble_yellow.svg" )
+	    .style( "padding-right", "15px")
+	    .on( "click", function() {
+	      d3.selectAll( "div.expl" )
+	        .style( "display", "none" );
+	      d3.selectAll( "img.bubble_icon" )
+	        .attr( "src", "../src/img/bubble_yellow.svg")
+	      var tagId = d3.select(this.parentNode).attr("id");
+	      d3.select( "div.expl#" + tagId )
+	        .style( "display", "block" )
+	        .style("width", d3.select("#bubble").node().getBoundingClientRect().width)
+	      d3.selectAll( "x-expl#" + tagId ).select("img.bubble_icon")
+	        .attr( "src", "../src/img/bubble_red.svg")
+	    });
+
+	d3.select("div.fullCode.off")
+		.on("click", function() {
+			d3.select(this).classed("hidden", true);
+			d3.select("div.fullCode.on").classed("hidden", false);
+		});
+	d3.select("div.fullCode.on")
+		.on("click", function() {
+			d3.select(this).classed("hidden", true);
+			d3.select("div.fullCode.off").classed("hidden", false);
+		})
+
 	</script>
 
 </div>

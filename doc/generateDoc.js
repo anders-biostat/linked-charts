@@ -88,20 +88,32 @@ fs.readdir(p, function(err, files) {
 					});
 
 					var layout = "";
+					var skip = false;
 
 					rd.on('line', function(line) {
-    				line = line.trim();
     				if(line.indexOf("///") != -1){
     					line = line.split("///");
+    					line[1] = line[1].trim();
     					if(line[1] == "input"){
     						$(".input").attr("src", line[0]);
     						return;
     					}
     					var id = line[1].split("/")[0],
     						language = (line[1].split("/")[1] == "html" ? "html" : "javascript");
-    					$("pre").append('<x-expl id = "' + id + '"></x-expl><code class = "language-' + 
-    													language +'">' + line[0].replace(/</g, "&lt;") + '</code>' + "\n")
+    					$("pre.fullCode").append('<code class = "language-' + 
+    													language +'">' + line[0].replace(/</g, "&lt;") + '</code>' + "\n");
 
+    					if(id != "..."){
+	    					$("pre.example").append('<x-expl id = "' + id + '"></x-expl><code class = "language-' + 
+	    													language +'">' + line[0].replace(/</g, "&lt;") + '</code>' + "\n");
+	    					skip = false;
+    					} else {
+	    					if(!skip){
+	    						$("pre.example").append('<x-expl id = "skip"></x-expl><code>...</code>' + "\n");
+	    						skip = true
+	    					}
+
+	    				}    						
     					if(line[1].split("/")[2] == "layout")
     						layout += line[0];
 
