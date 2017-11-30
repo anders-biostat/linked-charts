@@ -720,7 +720,7 @@ var bar = lc.barchart()
         <pre class="tiy" fitheight="true" tiy-preload="../src/linked-charts.min.js;../src/linked-charts.css">var yLine = lc.yLine()
   .height(300)
   .nelements(3)
-  .lineFun(function(d, t) {
+  .lineFun(function(t, d) {
     return (d + 1) * t;
   })
   .layerDomainY([0, 1])
@@ -737,7 +737,7 @@ var bar = lc.barchart()
         <pre class="tiy" fitheight="true" tiy-preload="../src/linked-charts.min.js;../src/linked-charts.css">var xLine = lc.xLine()
   .height(300)
   .nelements(3)
-  .lineFun(function(d, t) {
+  .lineFun(function(t, d) {
     return (d + 1) * t;
   })
   .layerDomainX([0, 1])
@@ -754,10 +754,10 @@ var bar = lc.barchart()
         <pre class="tiy" fitheight="true" tiy-preload="../src/linked-charts.min.js;../src/linked-charts.css">var param = lc.parametricCurve()
   .height(300)
   .nelements(3)
-  .xFunction(function(d, t) {
+  .xFunction(function(t, d) {
     return Math.cos(t) + d;
   })
-  .yFunction(function(d, t){
+  .yFunction(function(t, d){
     return Math.sin(t);
   })
   .colourValue(function(d) {return d.toString()})
@@ -768,7 +768,9 @@ var bar = lc.barchart()
         <h3>Properties</h3>
 
         <p class="method"><a name="parametricCurve_xFunction">xFunction</a>/<a name="parametricCurve_yFunction">yFunction</a></p>
-        <p class="methodDescription">Functions to define the curve <i>x = f(t), y = g(t)</i>.</p>
+        <p class="methodDescription">Functions to define the curve <i>x = f(t), y = g(t)</i>.
+        Provided a value of the parameter and an ID of the line should return values of x and y
+        coordinates.</p>
         <h4>Type</h4>
         <p><code>function</code></p>                
         <h4>Default value</h4>
@@ -791,8 +793,9 @@ var bar = lc.barchart()
 
         <p class="method"><a name="line_lineFun">lineFun</a></p>
         <p class="methodDescription">Function to define each line of the chart.
-        Provided an ID of the line and a value inside <a>layerDomainX</a>, <a>layerDomainY</a>
-        or <a>paramRange</a> (depending on the type of the line) should return a numeric value.</p>
+        Provided a value inside <a>layerDomainX</a>, <a>layerDomainY</a>
+        or <a>paramRange</a> (depending on the type of the line) and an ID of the line 
+        should return a numeric value.</p>
         <h4>Type</h4>
         <p><code>function</code></p>
         <h4>Default value</h4>

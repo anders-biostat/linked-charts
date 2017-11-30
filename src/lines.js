@@ -14,6 +14,8 @@ function line(id, chart){
 		.add_property("dasharray", undefined);
 	chart.syncProperties(layer);
 	
+	layer.nelements(1);
+
 	layer.updateElements = function(){
 		var lines = layer.g.selectAll(".data_element")
 			.data(layer.elementIds(), function(d) {return d;});
@@ -121,14 +123,14 @@ export function xLine(id, chart){
 		for(var i = domain[0]; i < domain[1]; i += lineStep)
 			lineData.push({
 				x: i,
-				y: layer.get_lineFun(d, i)
+				y: layer.get_lineFun(i, d)
 			});
 							
 		var line = d3.line()
 			.x(function(c) {return layer.chart.axes.scale_x(c.x);})
 			.y(function(c) {return layer.chart.axes.scale_y(c.y);});
 							
-		return line(lineData);
+		return lineData;
 	};
 
 	return layer.chart;
@@ -153,14 +155,14 @@ export function yLine(id, chart){
 		for(var i = domain[0]; i < domain[1]; i += lineStep)
 			lineData.push({
 				y: i,
-				x: layer.get_lineFun(d, i)
+				x: layer.get_lineFun(i, d)
 			});
 							
 		var line = d3.line()
 			.x(function(c) {return layer.chart.axes.scale_x(c.x);})
 			.y(function(c) {return layer.chart.axes.scale_y(c.y);});
 							
-		return line(lineData);
+		return lineData;
 	};
 
 	return layer.chart;
@@ -190,8 +192,8 @@ export function parametricCurve(id, chart){
 		var lineData = [];
 		for(var t = paramRange[0]; t < paramRange[1]; t += lineStep)
 			lineData.push({
-				x: layer.get_xFunction(d, t),
-				y: layer.get_yFunction(d, t)
+				x: layer.get_xFunction(t, d),
+				y: layer.get_yFunction(t, d)
 			});
 			
 		return lineData;

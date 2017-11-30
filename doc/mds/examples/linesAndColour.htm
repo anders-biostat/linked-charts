@@ -1,0 +1,250 @@
+<script src="linked-charts.min.js"></script> ///.../html
+<link rel="stylesheet" type="text/css" href="linked-charts.css"> ///.../html
+<script>///.../html
+  inputData = [{"CellLine":"Pa16C","Drug":"Galunisertib","minConc":1, ...}, ... ];///...
+</script>///.../html
+<table><tr>///.../html/layout
+  <td id="heatmap" valign="top"></td>///.../html/layout
+  <td id="scatterplot" valign="top"></td>///.../html/layout
+</tr></table>///.../html/layout
+<script>///.../html
+inputData = lc.separateBy(inputData, ["screen", "Drug", "CellLine"]);///.../ms
+var drugs = Object.keys(inputData.RTG),///.../ms
+  cellLines = Object.keys(inputData.RTG[drugs[0]]);///.../ms
+var selDrugs = [drugs[0], drugs[1]],///.../ms
+  selCellLine = cellLines[0];///.../ms
+///
+var heatmap = lc.heatmap()///heatmap/ms
+  .rowIds( drugs )///.../ms
+  .colIds( drugs )///.../ms
+  .colourDomain( [ -1, 1 ] )///.../ms
+  .palette( d3.interpolateRdBu )///.../ms
+  .margins({top: 50, left: 50, right: 100, bottom: 100})///.../ms  
+  .value( function( rowId, colId ) {///.../ms 
+    var rowValues = cellLines.map(function(e) {///.../ms
+        return inputData.RTG[rowId][e].avInh;///.../ms
+      }),///.../ms
+      colValues = cellLines.map(function(e) {///.../ms
+        return inputData.RTG[colId][e].avInh;///.../ms
+      });///.../ms
+    return lc.pearsonCorr( rowValues, colValues );///.../ms 
+   })///.../ms
+  .cluster( "Row" )///.../ms
+  .cluster( "Col" )///.../ms
+  .on_click( function( rowId, colId ) {///.../ms
+     selDrugs = [rowId, colId]///.../ms
+     scatterplot.update();///.../ms
+     curveFit.update();///.../ms
+  })///.../ms
+  .place( "#heatmap" );///heatmap/ms
+///
+var get_curve = function( drug, cellLine, x ){///get_curve/ms
+  var max = inputData.RTG[drug][cellLine].max,///get_curve/ms
+    min = inputData.RTG[drug][cellLine].min,///get_curve/ms
+    IC50 = inputData.RTG[drug][cellLine].IC50,///get_curve/ms
+    slope = inputData.RTG[drug][cellLine].Slope,///get_curve/ms
+    minConc = inputData.RTG[drug][cellLine].minConc;///get_curve/ms
+///      
+  return min + (max - min)/ ///get_curve/ms
+    (1 + Math.pow(10, -(x - Math.log10(IC50/minConc)) * slope));///get_curve/ms
+}///get_curve/ms
+///
+var scatterplot = lc.scatter()///scatter/ms
+  .width( 300 )///.../ms
+  .height( 300 )///.../ms
+  .elementIds( cellLines )///.../ms
+  .x( function( k ) { return inputData.RTG[selDrugs[0]][k].avInh } )///.../ms
+  .y( function( k ) { return inputData.RTG[selDrugs[1]][k].avInh } )///.../ms
+  .on_click( function( k ) {///.../ms
+    selCellLine = k;///.../ms
+    curveFit.update();///.../ms
+  })///.../ms
+  .aspectRatio( 1 )///aspectRatio/ms
+  .colourValue( function ( k ) {///colourValue/ms
+    var res = 0;///colourValue/ms
+    for( var x = 0; x < 5; x++ )///colourValue/ms
+      for( var l = 0; l < 2; l++ )///colourValue/ms
+        res += Math.pow( get_curve( selDrugs[l], k, x ) - ///colourValue/ms
+                    inputData.RTG[selDrugs[l]][k]["D" + (x + 1)], 2 );///colourValue/ms 
+    res = Math.sqrt( res );///colourValue/ms
+    return res;///colourValue/ms
+  })///colourValue/ms
+  .palette( ["green", "yellow","red"] )///palette/ms
+  .colourDomain([0, 30]);///colourRange/ms
+lc.xLine("line", scatterplot)///line1/ms
+  .lineFun( function( x ){///lineFun1/ms
+    return x;///lineFun1/ms
+  })///lineFun1/ms
+  .place( "#scatterplot" );///place/ms
+///
+var curveFit = lc.scatter( "points" )///scatter/ms
+  .width( 300 )///.../ms
+  .height( 200 )///.../ms
+  .nelements( 10 )///npoints2/ms
+  .x( function( k ) {///xy/ms
+    return k % 5;///xy/ms
+  } )///xy/ms
+  .y( function( k ) {///xy/ms
+    var ind = Math.floor( k / 5 );///xy/ms
+    return inputData.RTG[selDrugs[ind]][selCellLine]["D" + (k % 5 + 1)];///xy/ms
+  })///xy/ms
+  .colour( function( k ) {///colour1/ms
+    return k > 4 ? "red" : "blue";///colour1/ms
+  } );///colour1/ms
+lc.xLine("lines", curveFit)///line2/ms
+  .nelements(2)///npoints3/ms
+  .lineFun( function( x, k ) {///lineFun2/ms
+    return get_curve( selDrugs[k], selCellLine, x );///lineFun2/ms
+  })///lineFun2/ms
+  .colour(function( k ){///colour2/ms
+    return k == 0 ? "blue" : "red";///colour2/ms
+  })///colour2/ms
+  .place( "#scatterplot" );///place/ms
+</script>///.../html
+../src/data/inputdata.js///input
+
+<div class="comments">
+<div class="expl" id="skip">
+<p>Some lines of code, that have been already described in the previous examples, were omitted 
+for the sake of simplicity. At the bottom of the page you can find the complete code.</p>
+</div>
+
+<div class="expl" id="heatmap">
+<p>The <a>heatmap</a> is set exactly as it was done in the previous example. So here, all its properties were omitted
+for the sake of simplisity</p>
+</div>
+
+<div class="expl" id="get_curve">
+<p>In this dataset for each sample we have all the parameters of the fitted sigmoid curve: the lower asymptote 
+(<code>min</code>), the upper asymptote (<code>max</code>), the growth rate (<code>slope</code>) and the inflection point
+(<code>IC50</code>). Using these parameters, here we define the <code>get_curve</code> function that returns 
+the value of the fitted curve at 
+point <code>x</code>. All drugs were tested at five different concentrations, each 10 times
+higher than the previous one. On the scatter plot x-values are numbers from 0 to 4, which correspond to log10 of each 
+concentration divided by minimal tested concentration.</p>
+</div>
+
+<div class="expl" id="scatter">
+<p>Now both scatter plots are parts of charts that have several layers. Note, that setting an ID for a layer is 
+optional. For instance, the ID of scatter plot layer on the first plot will be automatically set to <code>layer0</code></p>
+</div>
+
+<div class="expl" id="aspectRatio">
+<p>Here, we fix the aspect ratio for x and y axes to 1.</p>
+</div>
+
+<div class="expl" id="colourValue">
+<p>Besides defining colours for each point directly (using <a href="layer">colour</a> property), one can set colours by providing a 
+value for each data point, so that points with the same colour value will have the same colour. Numeric colour values will 
+generate a continuous colour scale, while strings will define a categorical colour scale.</p>
+<p>Here, for each point we calculate the squared root of sum of squared residuals for the selected cell line and both selected 
+drug and use this value to define colours.</p>
+</div>
+
+<div class="expl" id="palette">
+<p>The default set of colours for a continuous colour scale is <a href="https://github.com/d3/d3-scale-chromatic#schemeSpectral">
+<code>d3.schemeSpectral</code></a>, which goes from red to blue through 
+yellow. You can change that, setting the <a href="layer">palette</a> property to any other 
+<a href="https://github.com/d3/d3-scale-chromatic">d3.interpolator</a> or any <a href="https://github.com/d3/d3-scale">d3.scale</a>
+that will transform some numeric range or a set of strings into a set of
+colours. Another option is to provide this property with an array of colours as it is shown here. This array will be used as
+a range for the <a href="layer">colourScale</a>. 
+We want "bad" examples to be coloured red, "nice" to be green, suspicious - yellow.</p>
+</div>
+
+<div class="expl" id="colourRange">
+<p>By default the domain of the <a href="layer">colourScale</a> is defined as the range that encompasses all the colour values 
+of the data points. So 
+even if for a certain pair of drugs there is no badly fitted samples, some of the dots still will be coloured red. To address this 
+we can manually defined the domain that will be fixed for all drugs. Now all the points with colour values close to zero 
+will be green, while all with values around 30 and higher - red.</p>
+</div>
+
+<div class="expl" id="line1">
+<p><a>xLine</a> is another basic type of plots that are implemented in the <tt>linked-charts</tt> library. It can display one 
+or several lines, defined as <i>y = f(x)</i> functions. Scatter plots and lines can not be put on one layer, so if you want 
+to have them both on one chart, you need create several layers.</p>
+<p>Here, we add a diagonal line to the plot.</p>
+</div>
+
+<div class="expl" id="line2">
+<p><a>xLine</a> is another basic type of plots that are implemented in the <tt>linked-charts</tt> library. It can display one 
+or several lines, defined as <i>y = f(x)</i> functions. Scatter plots and lines can not be put on one layer, so if you want 
+to have them both on one chart, you need create several layers.</p>
+<p>Here, we add add fitted curves for both drugs to the plot.</p>
+</div>
+
+<div class="expl" id="lineFun1">
+<p>Each line in <a>xLine</a> charts should be defined as <i>y = f(x)</i> function. This is done by setting <a>lineFun</>
+property. This should be a function with two arguements: the first one is an x value, the second is an ID of the line.
+The function should return the corresponding y value.</p>
+<p>Here, we have only one line <i>y = x</i> and thus the second argument is omitted.</p>
+</div>
+
+<div class="expl" id="place">
+<p>The <a href="chart">place</a> function inserts the object into the web page. The argument is a CSS selector,
+here selecting the table elements that were marked with <code>id</code> attributes as the places to
+take up the charts.</p>
+<p>Each plot is placed into a separate <code>div</code> element, so one can place several charts into one 
+element. Here, both scatterplots are placed into a single table cell.</p>
+<p>Here, <a href="chart">place</a> is used after all the layers are defined. This is the recomended way to do it. Another option
+is to use the <a>placeLayer</a> method for each layer added after <a href="chart">place</a> has been 
+called. Note, that calling <a href="chart">place</a> function twice will result in creating multiple instances.</p>
+</div>
+
+<div class="expl" id="npoints2">
+<p>Here, we want to make the same scatter with individual values of inhibition for both selected drugs and all the 
+tested concentrations as in the previous example, but putting all the points on a single layer. So the number of points
+for each case will be 10.</p>
+</div>
+
+<div class="expl" id="npoints3">
+<p>Number of lines is set by the same property as number of points in scatter plots. And in the same manner, instead 
+of setting the number of lines, one can define a set of all IDs via <a>elementIds</a> property.</p>
+<p>Here, we add two curves (for both selected drugs) sumultaniously.</p>
+</div>
+
+<div class="expl" id="xy">
+<p>In the previous example, points, corresponding to each drug, were added separately, using two layers. Here, we show,
+how to do it in one layer. Now we have 10 points with IDs from 0 to 9. The first five (with IDs from 0 to 4) correspond 
+to the first selected drug, while the second five - to the second selected drug. So we use remainder from devision of 
+the index <code>k</code> by 5 as x value, and the floored value of <code>k / 5</code> as an indicator, which of the 
+two selected drugs we are looking at.</p>
+</div>
+
+<div class="expl" id="colour1">
+<p>In the previous example we used the <a href="layer">colour</a> property to set one colour for all the points in the 
+layer. Otherwise, the <a href="layer">colour</a> property can be defined by a callback function that takes an ID of the point  
+returns colour (as name, RGB or HEX value). Note, that setting colours directly via <a href="layer">colour</a> option overrides 
+<a>colourValue</a> and <a href="layer">palette</a> properties.</p>
+<p>Here, if the ID <code>k</code> is greater than 4, the correspoding dot will be red, otherwise - blue.</p>
+</div>
+
+<div class="expl" id="lineFun2">
+<p>Each line in <a>xLine</a> charts should be defined as <i>y = f(x)</i> function. This is done by setting <a>lineFun</>
+property. This should be a function with two arguements: the first one is an x value, the second is an ID of the line.
+The function should return the corresponding y value.</p>
+<p>Here, we use the previously defined function <code>get_curve</code> and use the current values of the global variables
+<code>selDrugs</code> and <code>selCellLine</code> to show the right curves.</p>
+</div>
+
+<div class="expl" id="colour2">
+<p>Here, we just make the first line blue and the other - red.</p>
+</div>
+</div>
+
+<div class="description">
+<h1>Lines and Colour</h1>
+<p>This is one of the series of examples, where we step by step introduce new chart properties for the
+same set of charts.</p>
+<p>Here, we show how to draw line plots. Let's add a diogonal line to the upper scatter plot and fitted curves
+for both drugs to the bottom one. We also use colour to indicate the samples, where curvefitting wasn't succesfull.
+Red dots on the correlation scatterplots show cell lines with bad fitting for at least one of the two selected drugs.</p>
+<p>The data used here are generated in a drug-screening experiment. 50 drugs at 5 different concentrations 
+were tested against 21 pancreatic cancer cell lines. The heatmap shows drug-drug correlation. Like in the 
+previous example, a click on a cell of the heatmap reveals the underlying statistics by demonstrating on 
+the scatter plot (right upper corner) the values of avarage inhibition for all tested cell lines and the two
+selected drugs. By clicking on a data point one can select a cell line, and thus change the third plot 
+(right bottom corner) that demonstrates individual inhibition percent values for the two selected drugs and 
+the selected cell line.</p>
+</div>
