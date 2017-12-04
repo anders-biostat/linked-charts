@@ -1,0 +1,232 @@
+<script src="linked-charts.min.js"></script> ///.../html
+<link rel="stylesheet" type="text/css" href="linked-charts.css"> ///.../html
+///...
+<script>///.../html
+  inputData = [{"CellLine":"Pa16C","Drug":"Galunisertib","minConc":1, ...}, ... ];///...
+</script>///.../html
+///...
+<table><tr>///.../html/layout
+  <td id="heatmap" valign="top"></td>///.../html/layout
+  <td id="scatterplot" valign="top"></td>///.../html/layout
+</tr></table>///.../html/layout
+///...
+<script>///.../html
+inputData = lc.separateBy(inputData, ["screen", "Drug", "CellLine"]);///.../ms
+var drugs = Object.keys(inputData.RTG),///.../ms
+  cellLines = Object.keys(inputData.RTG[drugs[0]]);///.../ms
+var selDrugs = [drugs[0], drugs[1]],///.../ms
+  selCellLine = cellLines[0];///.../ms
+///...
+var heatmap = lc.heatmap()///heatmap/ms
+  .rowIds( drugs )///.../ms
+  .colIds( drugs )///.../ms
+  .colourDomain( [ -1, 1 ] )///.../ms
+  .value( function( rowId, colId ) {///.../ms  
+    var rowValues = cellLines.map(function(e) {///.../ms
+        return inputData.RTG[rowId][e].avInh;///.../ms
+      }),///.../ms
+      colValues = cellLines.map(function(e) {///.../ms
+        return inputData.RTG[colId][e].avInh;///.../ms
+      });///.../ms
+    return lc.pearsonCorr( rowValues, colValues );///.../ms 
+   })///.../ms
+  .on_click( function( rowId, colId ) {///.../ms
+     selDrugs = [rowId, colId];///.../ms
+     scatterplot.update();///.../ms
+     curveFit.update();///.../ms
+  })///.../ms
+  .cluster( "Row" )///.../ms
+  .cluster( "Col" )///.../ms
+  .title( "Drug-drug correlation" )///title/ms
+  .palette( function( val ) { return d3.interpolateRdBu( 1 - val ); } )///palette/ms
+  .place( "#heatmap" );///heatmal/ms
+///...
+var get_curve = function( drug, cellLine, x ){///.../ms
+  var max = inputData.RTG[drug][cellLine].max,///.../ms
+    min = inputData.RTG[drug][cellLine].min,///.../ms
+    IC50 = inputData.RTG[drug][cellLine].IC50,///.../ms
+    slope = inputData.RTG[drug][cellLine].Slope,///.../ms
+    minConc = inputData.RTG[drug][cellLine].minConc;///.../ms
+///...      
+  return min + (max - min)/ ///.../ms
+    (1 + Math.pow(10, -(x - Math.log10(IC50/minConc)) * slope));///.../ms
+}///.../ms
+///
+var scatterplot = lc.scatter()///scatter/ms
+  .width( 300 )///.../ms
+  .height( 300 )///.../ms
+  .elementIds( cellLines )///.../ms
+  .x( function( k ) { return inputData.RTG[selDrugs[0]][k].avInh } )///.../ms
+  .y( function( k ) { return inputData.RTG[selDrugs[1]][k].avInh } )///.../ms
+  .palette( ["green", "yellow","red"] )///.../ms
+  .colourValue( function( k ) {///.../ms
+    var res = 0;///.../ms
+    for( var x = 0; x < 5; x++ )///.../ms
+      for( var l = 0; l < 2; l++ )///.../ms
+        res += Math.pow( get_curve( selDrugs[l], k, x ) - ///.../ms
+                    inputData.RTG[selDrugs[l]][k]["D" + (x + 1)], 2 );///.../ms 
+    res = Math.sqrt( res );///.../ms
+    return res;///.../ms
+  })///.../ms
+  .colourDomain( [ 0, 30 ] )///.../ms
+  .on_click( function( k ) {///.../ms
+    scatterplot.svg.selectAll(".clicked").classed("clicked", false);///.../ms
+    d3.select(this).classed("clicked", true);///.../ms
+    selCellLine = k;///.../ms
+    curveFit.update();///.../ms
+  })///.../ms
+  .axisTitleX(function() {return selDrugs[0]})///label/ms
+  .axisTitleY(function() {return selDrugs[1]})///label/ms
+  .title( "Average inhibition" )///title/ms
+  .colourLegendTitle( "Total curvefitting error" )///legendTitle/ms
+  .domainX([-10, 50])///domain/ms
+  .domainY([-10, 50]);///domain/ms
+lc.xLine( "line", scatterplot )///scatter/ms
+  .lineFun( function( x ){///.../ms
+    return x;///.../ms
+  })///.../ms
+  .place( "#scatterplot" );///scatter/ms
+
+var curveFit = lc.scatter( "points" )///scatter/ms
+  .width( 300 )///.../ms
+  .height( 200 )///.../ms
+  .nelements( 10 )///.../ms
+  .x( function( k ) {///.../ms
+    return k % 5;///.../ms
+  } )///.../ms
+  .y( function( k ) {///.../ms
+    var ind = Math.floor( k / 5 );///.../ms
+    return inputData.RTG[selDrugs[ind]][selCellLine]["D" + (k % 5 + 1)];///.../ms
+  })///.../ms
+  .colour( function( k ) {///.../ms
+    return k > 4 ? "red" : "blue";///.../ms
+  } )///.../ms
+  .title(function() {return selCellLine;})///title/ms
+  .axisTitleX( "Drug concentration" )///label/ms
+  .axisTitleY( "Inhibition" )///label/ms
+  .domainY([-25, 100])///domain/ms
+  .ticksX(function() {///ticks/ms
+    var ticks = [d3.range(5),///ticksArray/ms 
+      d3.range(5).map(function(e) {///ticksArray/ms
+        return inputData.RTG[selDrugs[0]][selCellLine].minConc *///ticksArray/ms 
+                Math.pow(10, e)///ticksArray/ms
+      }),///ticksArray/ms
+      d3.range(5).map(function(e) {///ticksArray/ms
+        return inputData.RTG[selDrugs[1]][selCellLine].minConc *///ticksArray/ms 
+                Math.pow(10, e)///ticksArray/ms
+      })];///ticksArray/ms
+    ticks.colour = ["blue", "red"];///ticksColur/ms
+    return ticks;///ticks/ms
+  });///ticks/ms
+lc.xLine("lines", curveFit)///scatter/ms
+  .nelements(2)///.../ms
+  .lineFun( function( x, k ) {///.../ms
+    return get_curve( selDrugs[k], selCellLine, x );///.../ms
+  })///.../ms
+  .colour(function( k ){///.../ms
+    return k == 0 ? "blue" : "red";///.../ms
+  })///.../ms
+  .place( "#scatterplot" );///scatter/ms
+curveFit.legend.add_block(function() {return [selDrugs, ["blue", "red"]];},///legend/ms 
+                      "colour", "Drugs");///legend/ms  
+</script>///.../html
+../src/data/inputdata.js///input
+
+<div class="comments">
+<div class="expl" id="skip">
+<p>Some lines of code, that have been already described in the previous examples, were omitted 
+for the sake of simplicity. At the bottom of the page you can find the complete code.</p>
+</div>
+
+<div class="expl" id="heatmap">
+<p>The <a>heatmap</a> is set almost exactly as it was done in the previous example. So here, most of its properties were omitted
+for the sake of simplisity</p>
+</div>
+
+<div class="expl" id="title">
+<p>Here, we define a title of the plot. In this example, two plots has fixed titles, while the title of the curvefitting 
+plot changes, indicating what cell line has been selected. So, as any interactively changing property, this title  
+as defined via a callback function, otherwise only the current value of the <code>selCellLine</code> variable will be saved as 
+the title.</p>
+</div>
+
+<div class="expl" id="palette">
+<p>As a <a href="heatmap">palette</a> for heatmaps one can use not only 
+	<a href="https://github.com/d3/d3-scale-chromatic">d3.interpolators</a>, but any other function that takes 
+values from 0 to 1 as arguments and returns colours. So here we define our own function based on a 
+<a href="https://github.com/d3/d3-scale-chromatic">d3.interpolator</a> to 
+make our heatmap more traditionally looking. Now we want high correlations to be shown as red and low correlations to be blue.</p>
+</div>
+
+<div class="expl" id="scatter">
+<p>Initializing and placing a all the scatter plots with all their layers.</p>
+</div>
+
+<div class="expl" id="label">
+<p>Here, we set titles for X and Y axes.</p>
+</div>
+
+<div class="expl" id="legendTitle">
+<p>By default, the title of the legend that is generated after setting the <a>colourValue</a>
+property is <code>colour_layerID</code>. Here, we change the default title into a more meaningful one.</p>
+</div>
+
+<div class="expl" id="domain">
+<p>Here, we fix domains for X and Y axes. By default, domains are defined to fit the current data, but if we want to compare 
+different sets of data, it may be useful to fix scales to encompass all available data. Note, that fixing the domain doesn't 
+prohibit zooming in and out.</p>
+</div>
+
+<div class="expl" id="ticks">
+<p>Here, we set the tick labels to be used instead of default ones, generated by d3.axis. The value passed to this property 
+should be a set of arrays, where the first array should be a set of ticks to be displayed and all others are the labels to use 
+for these values.</p>
+</div>
+
+<div class="expl" id="ticksArray">
+<p>Here, we define a variable to set the ticks. In this example, we used integer values from 0 to 4 to as indeces for the five 
+tested concentrations. Now we want to replace this values with the actual concentrations. We know that all the drugs were tested 
+at five concentrations, each 10 times higher than the previous one. But the minimal tested concentration may differ from drug to 
+drug, so it's not enough to have just one set of labels. The <i>linked-charts</i> library supports having multiple sets of lables 
+(try to find a pair of drugs with different concentrations to see how it works).</p>
+</div>
+
+<div class="expl" id="ticksColour">
+<p>If we have several sets of labels, we would like to have an easy way to indicate what drug this label corresponds to. 
+To this end, here we are adding an optional <code>colour</code> property to the <code>ticks</code> object. This should be an array of 
+colours. Now labels for the first drug are blue, and for the second one are red.</p>
+</div>
+
+<div class="expl" id="legend">
+<p>For each chart a legend is stored in as <code>chart.legend</code>. By default it's empty. One can add an unlimited number of
+blocks to be displayed using the <a>add_block</a> method of the <a>legend</a> object. This method has 4 arguments.
+Alternatively, one may use <a>addLegendBlock</a> method of a selected <a>layer</a>. This method is almost identical
+to the <a>add_block</a> of the <a>legend</a>, but with a predefined optional argument <code>layer</code>.</p>
+<p><code>scale</code> defines the correspondence between colour, size or shape of objects and names or numerical values. This 
+argument can be a <a href="https://github.com/d3/d3-scale">d3.scale</a> or it can be just two arrays with, for example, names 
+and corresponding colours, as it is demonstrated here.</p>
+<p><code>type</code> is a type of the scale. The supported types are <code>&quot;colour&quot;, &quot;size&quot;, 
+&quot;symbol&quot;, &quot;dash&quot;</code>.</p>
+<p><code>name</code> is a title and an ID for the legend block. Since this is used as the ID, all the titles should be unique.
+You still can have non-unique title if you set them using the <a href="legend">title</a> property of the <a>legend</a>.</p>
+<p><code>layer</code> is an optional parameter to bind a block with a specific layer. A layer-specific block is updated
+with the corresponding layer and is automatically removed, when the layer is removed.</p>
+</div>
+</div>
+
+<div class="description">
+<h1>Labels and legend</h1>
+<p>This is one of the series of examples, where we step by step introduce new chart properties for the
+same set of charts.</p>
+<p>Here, we wfurther fine tune our plots, to make them more easy to read. We add titles to axes and plots, 
+and rename axes ticks. One could have already noticed that setting the <a>colourValue</a> property automatically 
+generates a <a>legend</a>. Here, we will show how to manipulate this legend and how to create them manually.</p>
+<p>The data used here are generated in a drug-screening experiment. 50 drugs at 5 different concentrations 
+were tested against 21 pancreatic cancer cell lines. The heatmap shows drug-drug correlation. Like in the 
+previous example, a click on a cell of the heatmap reveals the underlying statistics by demonstrating on 
+the scatter plot (right upper corner) the values of avarage inhibition for all tested cell lines and the two
+selected drugs. By clicking on a data point one can select a cell line, and thus change the third plot 
+(right bottom corner) that demonstrates individual inhibition percent values for the two selected drugs and 
+the selected cell line.</p>
+</div>	
+</div>

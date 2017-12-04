@@ -1,19 +1,23 @@
 <script src="linked-charts.min.js"></script> ///.../html
 <link rel="stylesheet" type="text/css" href="linked-charts.css"> ///.../html
+///...
 <script>///.../html
   inputData = [{"CellLine":"Pa16C","Drug":"Galunisertib","minConc":1, ...}, ... ];///...
 </script>///.../html
+///...
 <table><tr>///.../html/layout
   <td id="heatmap" valign="top"></td>///.../html/layout
   <td id="scatterplot" valign="top"></td>///.../html/layout
 </tr></table>///.../html/layout
+///...
 <script>///.../html
 inputData = lc.separateBy(inputData, ["screen", "Drug", "CellLine"]);///.../ms
 var drugs = Object.keys(inputData.RTG),///.../ms
   cellLines = Object.keys(inputData.RTG[drugs[0]]);///.../ms
+///...
 var selDrugs = [drugs[0], drugs[1]],///.../ms
   selCellLine = cellLines[0];///.../ms
-///
+///...
 var heatmap = lc.heatmap()///heatmap/ms
   .rowIds( drugs )///.../ms
   .colIds( drugs )///.../ms
@@ -32,7 +36,7 @@ var heatmap = lc.heatmap()///heatmap/ms
   .cluster( "Row" )///.../ms
   .cluster( "Col" )///.../ms
   .on_click( function( rowId, colId ) {///.../ms
-     selDrugs = [rowId, colId]///.../ms
+     selDrugs = [rowId, colId];///.../ms
      scatterplot.update();///.../ms
      curveFit.update();///.../ms
   })///.../ms
