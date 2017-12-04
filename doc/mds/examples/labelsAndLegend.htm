@@ -21,6 +21,7 @@ var heatmap = lc.heatmap()///heatmap/ms
   .rowIds( drugs )///.../ms
   .colIds( drugs )///.../ms
   .colourDomain( [ -1, 1 ] )///.../ms
+  .margins({top: 50, left: 50, right: 100, bottom: 100})///.../ms    
   .value( function( rowId, colId ) {///.../ms  
     var rowValues = cellLines.map(function(e) {///.../ms
         return inputData.RTG[rowId][e].avInh;///.../ms

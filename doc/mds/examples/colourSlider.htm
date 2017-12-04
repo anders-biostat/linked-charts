@@ -1,0 +1,243 @@
+<script src="linked-charts.min.js"></script> ///.../html
+<link rel="stylesheet" type="text/css" href="linked-charts.css"> ///.../html
+///...
+<script>///.../html
+  inputData = [{"CellLine":"Pa16C","Drug":"Galunisertib","minConc":1, ...}, ... ];///...
+</script>///.../html
+///...
+<table><tr>///.../html/layout
+  <td id="heatmap" valign="top"></td>///.../html/layout
+  <td id="scatterplot" valign="top"></td>///.../html/layout
+</tr></table>///.../html/layout
+///...
+<script>///.../html
+inputData = lc.separateBy(inputData, ["screen", "Drug", "CellLine"]);///.../ms
+var drugs = Object.keys(inputData.RTG),///.../ms
+  cellLines = Object.keys(inputData.RTG[drugs[0]]);///.../ms
+///...
+var selDrugs = [drugs[0], drugs[1]],///.../ms
+  selCellLine = cellLines[0];///.../ms
+///...
+var heatmap = lc.heatmap()///scatter/ms
+  .rowIds( drugs )///.../ms
+  .colIds( drugs )///.../ms
+  .title( "Drug-drug correlation" )///.../ms
+  .colourDomain( [ -1, 1 ] )///.../ms
+  .margins({top: 50, left: 50, right: 100, bottom: 100})///.../ms    
+  .palette( function( val ) { return d3.interpolateRdBu( 1 - val ); } )///.../ms 
+  .value( function( rowId, colId ) {  ///.../ms 
+    var rowValues = cellLines.map(function( e ) {///.../ms 
+        return inputData.RTG[rowId][e].avInh;///.../ms 
+      }),///.../ms 
+      colValues = cellLines.map(function( e ) {///.../ms 
+        return inputData.RTG[colId][e].avInh;///.../ms 
+      });///.../ms 
+    return lc.pearsonCorr( rowValues, colValues ); ///.../ms 
+   })///.../ms 
+  .on_click( function( rowId, colId ) {///.../ms 
+     selDrugs = [rowId, colId]///.../ms 
+     scatterplot.update();///.../ms 
+     curveFit.update();///.../ms 
+  })///.../ms 
+  .cluster( "Row" )///.../ms
+  .cluster( "Col" )///.../ms  
+  .showLegend( false )///showLegend/ms
+  .place( "#heatmap" );///scatter/ms
+///...
+var heatmapSlider = lc.colourSlider()///colourSlider/ms
+	.straightColourScale( heatmap.colourScale )///straightColorScale/ms
+	.on_change(function(){///on_change/ms
+		heatmap.updateCellColour();///on_change/ms
+	})///on_change/ms
+  .place( "#heatmap" );///colourSlider/ms
+///...
+heatmap.colour( function( val ){///colour/ms
+	return heatmapSlider.colourScale( val );///colour/ms
+} );///colour/ms
+///...
+var get_curve = function( drug, cellLine, x ){///.../ms
+  var max = inputData.RTG[drug][cellLine].max,///.../ms
+    min = inputData.RTG[drug][cellLine].min,///.../ms
+    IC50 = inputData.RTG[drug][cellLine].IC50,///.../ms
+    slope = inputData.RTG[drug][cellLine].Slope,///.../ms
+    minConc = inputData.RTG[drug][cellLine].minConc;///.../ms
+///...      
+  return min + ( max - min )/ ///.../ms
+    (1 + Math.pow( 10, - ( x - Math.log10( IC50/minConc ) ) * slope));///.../ms
+}///.../ms
+///...
+var scatterplot = lc.scatter()///scatter/ms
+  .width( 300 )///.../ms
+  .height( 300 )///.../ms
+  .elementIds( cellLines )///.../ms
+  .x( function( k ) { return inputData.RTG[selDrugs[0]][k].avInh } )///.../ms
+  .y( function( k ) { return inputData.RTG[selDrugs[1]][k].avInh } )///.../ms
+  .axisTitleX( function() {return selDrugs[0]} )///.../ms
+  .axisTitleY( function() {return selDrugs[1]} )///.../ms
+  .title( "Average inhibition" )///.../ms
+  .domainX( [-10, 50] )///.../ms
+  .domainY( [-10, 50] )///.../ms
+  .palette( ["green", "yellow","red"] )///.../ms
+  .colourValue( function( k ) { ///.../ms
+    var res = 0;///.../ms
+    for( var x = 0; x < 5; x++ )///.../ms
+      for( var l = 0; l < 2; l++ )///.../ms
+        res += Math.pow( get_curve( selDrugs[l], k, x ) - ///.../ms
+                    inputData.RTG[selDrugs[l]][k]["D" + (x + 1)], 2 ); ///.../ms
+    res = Math.sqrt( res );///.../ms
+    return res;///.../ms
+  })///.../ms
+  .colourDomain( [ 0, 30 ] ) ///.../ms
+  .on_click( function( k ) {///.../ms
+    selCellLine = k; ///.../ms
+    curveFit.update();///.../ms
+  })///.../ms
+  .showLegend( false );///showLegend/ms
+lc.xLine( "line", scatterplot )///scatter/ms
+  .lineFun( function( x ){ ///.../ms
+    return x;///.../ms
+  })///.../ms
+  .place( "#scatterplot" );///scatter/ms
+///...
+var layer = scatterplot.get_layer( "layer0" );///layer/ms
+///...
+var scatterSlider = lc.colourSlider()///colourSlider/ms
+	.width( 300 )///sizeAndMargins/ms
+	.height( 110 )///sizeAndMargins/ms
+	.set_margins( {top: 50} )///sizeAndMargins/ms
+	.title( "Total curvefitting error" )///title/ms
+	.straightColourScale( layer.colourScale )///straightColorScale/ms
+	.on_change( function(){///on_change/ms
+		layer.updateElementStyle();///on_change/ms
+	} )///on_change/ms
+  .place( "#scatterplot" );///colourSlider/ms
+///...
+layer.colour(function( id ){ ///colour/ms
+	return scatterSlider.colourScale( layer.get_colourValue( id ) );///colour/ms
+});///colour/ms
+///...
+var curveFit = lc.scatter( "points" )///scatter/ms
+  .width( 300 )///.../ms
+  .height( 200 )///.../ms
+  .nelements( 10 )///.../ms
+  .title( function() {return selCellLine;} )///.../ms
+  .axisTitleX( "Drug concentration" )///.../ms
+  .axisTitleY( "Inhibition" )///.../ms
+  .domainY( [-25, 100] )///.../ms
+  .ticksX( function() {///.../ms
+    var ticks = [d3.range( 5 ), ///.../ms
+      d3.range( 5 ).map( function( e ) {///.../ms
+        return inputData.RTG[selDrugs[0]][selCellLine].minConc * ///.../ms
+                Math.pow( 10, e )///.../ms
+      } ),///.../ms
+      d3.range( 5 ).map( function( e ) {///.../ms
+        return inputData.RTG[selDrugs[1]][selCellLine].minConc * ///.../ms
+                Math.pow( 10, e )///.../ms
+      })];///.../ms
+    ticks.colour = ["blue", "red"];///.../ms
+    return ticks;///.../ms
+  })///.../ms
+  .x( function( k ) {///.../ms
+    return k % 5;///.../ms
+  } )///.../ms
+  .y( function( k ) {///.../ms
+    var ind = Math.floor( k / 5 );///.../ms
+    return inputData.RTG[selDrugs[ind]][selCellLine]["D" + (k % 5 + 1)];///.../ms
+  })///.../ms
+  .colour( function( k ) {///.../ms
+    return k > 4 ? "red" : "blue";///.../ms
+  } );///.../ms
+lc.xLine( "lines", curveFit )///scatter/ms
+  .nelements( 2 )///.../ms
+  .lineFun( function( x, k ) {///.../ms
+    return get_curve( selDrugs[k], selCellLine, x );///.../ms
+  })///.../ms
+  .colour(function( k ){///.../ms
+    return k == 0 ? "blue" : "red";///.../ms
+  })///.../ms
+  .place( "#scatterplot" );///scatter/ms
+curveFit.legend.add_block(function() {return [selDrugs, ["blue", "red"]];},///.../ms 
+                      "colour", "Drugs");///.../ms  
+</script>///.../html
+../src/data/inputdata.js///input
+
+<div class="comments">
+<div class="expl" id="skip">
+<p>Some lines of code, that have been already described in the previous examples, were omitted 
+for the sake of simplicity. At the bottom of the page you can find the complete code.</p>
+</div>
+
+<div class="expl" id="scatter">
+<p>In this example all of the charts are defined almost the same way as in the previous example.
+So here, we concentrate on ther colour sliders, and omit most of the properties of all other charts. The full code you can find at the bottom of the page.</p>
+</div>
+
+<div class="expl" id="showLegend">
+<p>Since we are going to use colour slider instead of the default legend, we would like to not to have both. The default 
+legend can be turned off by setting <a>showLegend</a> property to <code>false</code>.</p>
+</div>
+
+<div class="expl" id="colourSlider">
+<p>A <a>colourSlider</a> is another type of basic types of charts implemented in the <i>linked-charts</i> library. 
+It's not a selfsuficient chart, but it can be linked to any continuous colour scale of any of the plots to allow an easy and 
+interactive way of changing the contrast and the midpoint of the scale.</p>
+<p>Here, we intialize and place colour sliders that will be linked to both of our colour scales - of the heatmap and of the scatter plot.</p>
+</div>
+
+<div class="expl" id="straightColorScale">
+<p>Here, we define the colour scale that a colour slider will then modify. In both cases here, we use the default colour scales 
+that were internaly initialized for the plots from user-set <a>palette</a> and <a>colourDomain</a> properties.
+In such a case any change of these properties will also affect the slider. The default scales are 
+stored as <a>colourScale</a> for all the plots and layers. Another option 
+is to use here 
+any other unrelated colour scale, since the colours for the plot will be in any case picked from a transformed by the 
+<a>colourSlider</a> scale.</p>
+</div>
+
+<div class="expl" id="on_change">
+<p>By setting the <a>on_change</a> property the user defines, what should happen if one of the pointers of a colour slider has been 
+moved. Here, we would like to have colours of all the cells or points (or other elements) changed. The most obvious way for that 
+to use the <a href="chart">update</a> function. But in this case we know for sure that it's only the colour that can change. So we 
+don't need all the chart elements to be recalculated and rerendered, since with larger charts this may take a considerable amount of 
+time.  Here, we use the <a>updateCellColour</a> method for the heatmap and the <a>updateElementStyle</a> method for the scatter plot.</p>
+</div>
+
+<div class="expl" id="colour">
+<p>Here, we connect our plots with colour sliders by resetting the <a>colour</a> property. By default, the <a>colour</a> is defined
+using the <a>colourScale</a>, but in this case we want to use the transformed by the <a>colourSlider</a> scale. So here we redefine
+the <a>colour</a> property, using another colour scale instead. This step can't be done before the <a>colourSlider</a> is defined 
+(and we can't set the <a>straightColourScale</a> property of the <a>colourSlider</a> before the corresponding chart is defined),
+so we need to make this change of property after the chart is already initialised.</p>
+</div>
+
+<div class="expl" id="layer">
+<p>Here, we save the first layer of the <code>scatterplot</code> as a separate variable for
+the easy access to its properties and methods in the next few lines.</p>
+</div>
+
+<div class="expl" id="sizeAndMargins">
+<p>Here, we change size and margins of the colour slider to make it fit nicely in the layout.</p>
+</div>
+
+<div class="expl" id="title">
+<p>As other charts, the <a>colourSlider</a> has the <a href="chart">title</a> property that 
+allows to set the main title.</p>
+</div>
+</div>
+
+<div class="description">
+<h1>Adding a colour slider</h1>
+<p>This is the last of the series of examples, where we step by step introduce new chart properties for the
+same set of charts.</p>
+<p>Here, we replace the default static <a>legend</a> with an interactive one. A <a>colourSlider</a>
+is a special type of chart that transforms any given colour scale with a sigmoind function, alloeing the user to change its slope and midpoint. As a result, it allows to change contrast,
+domain and the midpoint of ther colour scale.</p>
+<p>The data used here are generated in a drug-screening experiment. 50 drugs at 5 different concentrations 
+were tested against 21 pancreatic cancer cell lines. The heatmap shows drug-drug correlation. Like in the 
+previous example, a click on a cell of the heatmap reveals the underlying statistics by demonstrating on 
+the scatter plot (right upper corner) the values of avarage inhibition for all tested cell lines and the two
+selected drugs. By clicking on a data point one can select a cell line, and thus change the third plot 
+(right bottom corner) that demonstrates individual inhibition percent values for the two selected drugs and 
+the selected cell line.</p>
+</div>	
+</div>
