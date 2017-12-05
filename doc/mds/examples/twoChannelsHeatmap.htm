@@ -1,0 +1,367 @@
+<script src="linked-charts.min.js"></script> ///.../html
+<link rel="stylesheet" type="text/css" href="linked-charts.css"> ///.../html
+///...
+<script>///.../html
+  inputData = [{"CellLine":"Pa16C","Drug":"Galunisertib","minConc":1, ...}, ... ];///...
+</script>///.../html
+///...
+<table><tr>///.../html/layout
+  <td id="heatmap" valign="top"></td>///.../html/layout
+  <td id="scatterplot" valign="top"></td>///.../html/layout
+</tr></table>///.../html/layout
+///...
+<script>///.../html
+inputData = lc.separateBy(inputData, ["screen", "Drug", "CellLine"]);///.../ms
+var drugs = Object.keys(inputData.RTG),///.../ms
+  cellLines = Object.keys(inputData.RTG[drugs[0]]);///.../ms
+///...
+var get_curve = function( screen, drug, cellLine, x ){///.../ms
+  var max = inputData[screen][drug][cellLine].max,///.../ms
+    min = inputData[screen][drug][cellLine].min,///.../ms
+    IC50 = inputData[screen][drug][cellLine].IC50,///.../ms
+    slope = inputData[screen][drug][cellLine].Slope,///.../ms
+    minConc = inputData[screen][drug][cellLine].minConc;///.../ms
+///...      
+  return min + ( max - min )/ ///.../ms
+    (1 + Math.pow( 10, - ( x - Math.log10( IC50/minConc ) ) * slope));///.../ms
+}///.../ms
+///...
+var heatmap = lc.heatmap()///heatmap/ms
+  .rowIds( drugs )///ids/ms
+  .colIds( cellLines )///ids/ms
+  .title( "Drug effect on viability and cytotoxicity" )///.../ms
+  .showLegend( false )///.../ms
+  .margins( {top: 100, left: 100, right: 10, bottom: 10} )///.../ms
+  .value( function( rowId, colId ) {  ///value/ms
+    return [inputData.RTG[rowId][colId].avInh, ///value/ms
+            inputData.CTX[rowId][colId].avInh];///value/ms
+   })///value/ms
+  .informText( function( rowId, colId ) {///inform/ms
+      return "Row: <b>" + rowId + "</b>;<br>" + ///inform/ms
+            "Col: <b>" + colId + "</b>;<br>" + ///inform/ms
+            "RTG = " + heatmap.get_value( rowId, colId )[0].toFixed( 2 ) + ///inform/ms
+            " ; CTX = " + heatmap.get_value( rowId, colId )[1].toFixed( 2 );///inform/ms
+      })///inform/ms
+  .on_click( function( rowId, colId ) {///on_click/ms
+    heatmap.mark( d3.select( this ) );///on_click/ms
+  })///on_click/ms
+  .markedUpdated( function(){///markedUpdated/ms
+    var ids = [],///idsArray/ms
+      data = heatmap.get_marked();///get_marked/ms
+    for(var i = 0; i < data.length; i++) {///idsArray/ms
+      ids.push( data[i][0] + "/" + data[i][1] + "/scatter" );///idsArray/ms
+      ids.push( data[i][0] + "/" + data[i][1] + "/xLine" );///idsArray/ms
+    }///idsArray/ms
+    curveFit///curveFitUpdate/ms
+      .layerIds( ids )///layerIds/ms
+      .layerType( function( layerId ) {///layerType/ms
+        return layerId.split( "/" )[2];///layerType/ms
+      })///layerType/ms
+      .select_layers()///select_layers/ms
+        .nelements( function( layerId ) {///npoints/ms
+          return layerId.split( "/" )[2] == "scatter" ? 10 : 2;///npoints/ms
+        } )///npoints/ms
+        .x(function( layerId, k ) {///xy/ms
+          return k % 5;///xy/ms
+        })///xy/ms
+        .y(function( layerId, k ) {///xy/ms 
+          var drug = layerId.split( "/" )[0],///xy/ms
+            cellLine = layerId.split( "/" )[1];///xy/ms
+          return Math.floor( k / 5 ) == 0 ? inputData.RTG[drug][cellLine]["D" + ( +k + 1 )] : ///xy/ms
+                                          inputData.CTX[drug][cellLine]["D" + ( k - 4 )];///xy/ms
+        })///xy/ms
+        .symbol( function( layerId, k ) {///symbol/ms
+          return k > 4 ? "Triangle" : "Wye";///symbol/ms
+        })///symbol/ms
+        .lineFun( function( layerId, x, k ) {///lineFun/ms
+          var drug = layerId.split( "/" )[0],///lineFun/ms
+            cellLine = layerId.split( "/" )[1],///lineFun/ms 
+            screen;///lineFun/ms
+          k == 0 ? screen = "RTG" : screen = "CTX";///lineFun/ms
+          return get_curve( screen, drug, cellLine, x );///lineFun/ms
+        })///lineFun/ms
+        .dasharray ( function( layerId, k ) {///dash/ms
+          return k == 0 ? undefined : 5;///dash/ms
+        })///dash/ms
+        .colour( function( layerId ) {///colour/ms
+          return d3.schemeCategory10[///colour/ms
+                    Math.floor( curveFit.layerIds().indexOf( layerId ) % 20 / 2 )///colour/ms
+                  ]///colour/ms
+        });///colour/ms
+    curveFit.update();///update/ms
+    var legIds = [], colours = [];///legendSc/ms
+    for( var i = 0; i < ids.length; i += 2 ){///legendSc/ms
+      legIds.push( ids[i].split( "/" )[0] + "/" + ids[i].split( "/" )[1]);///legendSc/ms
+      colours.push( curveFit.get_layer(ids[i]).get_colour() );///legendSc/ms
+    }///legendSc/ms
+    curveFit.legend.updateScale( [legIds, colours], "drug_and_cell_line" );///legendScUpd/ms     
+  })///markedUpdated/ms
+  .place( "#heatmap" );///heatmap/ms
+///...
+var RTGSlider = lc.colourSlider()///slider/ms
+  .set_margins( {left: 100} )///margins/ms
+  .title( "RealTime-Glo" )///title/ms
+  .titleX( 45 )///titlePos/ms
+  .titleY( 40 )///titlePos/ms
+  .titleSize( 14 )///titlePos/ms
+  .straightColourScale( ///straightColorScale/ms
+    d3.scaleLinear()///straightColorScale/ms
+      .range( [ "black", "rgb(0, 255, 0)" ] )///straightColorScale/ms
+      .domain( [0, 50] ) ///straightColorScale/ms
+  )///straightColorScale/ms
+  .on_change(function(){///on_change/ms
+    heatmap.updateCellColour();///on_change/ms
+  })///on_change/ms
+  .place( "#heatmap" );///slider/ms
+var CTXSlider = lc.colourSlider()///slider/ms
+  .set_margins( {left: 100} )///.../ms
+  .title( "CellTox" )///.../ms
+  .titleX( 45 )///.../ms
+  .titleY( 40 )///.../ms
+  .titleSize( 14 )///.../ms  
+  .straightColourScale(///.../ms 
+    d3.scaleLinear()///.../ms
+      .range( [ "black", "rgb(255, 0, 0)" ] )///.../ms
+      .domain( [0, 50] ) ///.../ms
+  )///.../ms
+  .on_change(function(){///.../ms
+    heatmap.updateCellColour();///.../ms
+  })///.../ms
+  .place( "#heatmap" );///slider/ms
+///...
+heatmap.colour( function( val ){///heatmapColour/ms
+  return "rgb(" + Math.round( CTXSlider.the_sigmoid( val[1] ) * 255 ) + ", " ///heatmapColour/ms
+             + Math.round( RTGSlider.the_sigmoid( val[0] ) * 255 ) + ", 0)";///heatmapColour/ms
+} )///heatmapColour/ms
+  .updateCellColour();///heatmapColour/ms
+///...
+var curveFit = lc.scatter( "void" )///scatter/ms
+  .width( 300 )///.../ms
+  .height( 300 )///.../ms
+  .axisTitleX( "Drug concentration" )///.../ms
+  .axisTitleY( "Inhibition" )///.../ms
+  .domainY( [-25, 100] )///.../ms
+  .domainX( [0, 4] )///.../ms
+  .place( "#scatterplot" );///scatter/ms
+  
+  curveFit.legend.ncol(1)///legendNcol/ms
+    .legend.add_block( [["RTG", "CTX"], ["Wye", "Triangle"]], "symbol", "screen" )///legendFixed/ms
+    .legend.add_block( [["RTG", "CTX"], [undefined, 5]], "dash", "fit" )///legendFixed/ms
+    .legend.add_block( [[], []], "colour", "drug_and_cell_line" );///legendEmpty/ms
+</script>///.../html
+../src/data/inputdata.js///input
+
+<div class="comments">
+<div class="expl" id="skip">
+<p>Some lines of code, that have been already described in the previous examples, were omitted 
+for the sake of simplicity. At the bottom of the page you can find the complete code.</p>
+</div>
+
+<div class="expl" id="heatmap">
+<p>Here, we initialize and place the heampap. This heatmap will have two values per cell and the resulting colour will be 
+influenced by them separately. Another difference from previously described heatmaps will be the reaction to click. Now cells are not clicked,
+but rather marked, allowing user to select several cells at once. By default, this behaviour is activated, when
+<code>Shift</code> is pressed, but here we are using it as a reaction to a usual click as well.</p>
+</div>
+
+<div class="expl" id="ids">
+<p>Here, the row IDs are drug names and column IDs are cell lines.</p>
+</div>
+
+<div class="expl" id="value">
+<p>Here, we have not one, but two values. Both are average inhibitions, but measured by two different assays. 
+RTG shows the decrease of number of metabolically active cells compared to the control, while CTX reflects the proportion of dead cells.
+In this heatmap we want to show the two values simultaniously and therefore both are passed to the heatmap.</p>
+</div>
+
+<div class="expl" id="inform">
+<p>By now you probably have already noticed the label that appears each time the cursor hovers onver a cell, point or line.
+The <a href="heatmap">informText</a> property sets the HTML content of this label. The default setting assumes that there is only one 
+value for a cell, and can't properly work with an array of two values. So we redefine it here.</p>
+</div>
+
+<div class="expl" id="on_click">
+<p>Any chart in the <i>linked-charts</i> library has two modes: clicking and selecting. In clicking mode each click on an element 
+triggers <a>on_click</a> function. In selecting mode a click selects or deselects the element. You can switch between the modes in
+the instrument <a>panel</a>. Also you can keep the <code>Shif</code> button pressed to select an element instead of clicking on it.</p>
+<p>Here, we additionally make <a href="heatmap">on_click</a> work as selector/deselector, using the <a href="heatmap">mark</a> method.</p>
+</div>
+
+<div class="expl" id="markedUpdated">
+<p>The <a href="heatmap">markedUpdated</a> property is connected with the <a href="heatmap">mark</a> method. A function, defined here,
+is called each time a set of marked points or cells is changed. By default, it's an empty function. Here, we 
+will define a function that updates the layers on the <code>curveFit</code> plot, so that for each selected cell, we get
+two layers: one with dots and the other with lines.</p>
+</div>
+
+<div class="expl" id="idsArray">
+<p>Here, we generate IDs for all the layers we want to have on the curve fit plot. We take all the marked cells IDs
+and make a combination of a drug name, a cell line name and a type of the layer we want to have.</p>
+</div>
+
+<div class="expl" id="get_marked">
+<p><a href="heatmap">get_marked</a> returns an array of IDs (or pairs of row and column IDs) for all the marked elements
+of the chart.</p>
+</div>
+
+<div class="expl" id="curveFitUpdate">
+<p><a href="heatmap">Here, we define all the dinamic properties of the <code>curveFit</code> chart.</p>
+</div>
+
+<div class="expl" id="layerIds">
+<p>Here, we define all the layers, providing a set of their IDs. This property works like <a>elementIds</a>
+or <a>rowIds</a>. The layers are added or removed to fit the given array of IDs.</p> 
+</div>
+
+<div class="expl" id="layerType">
+<p>Here, we define a type of each layer. In most cases it happens automatically, since layers are initialised
+by type-specific functions. But here we add layers by updating the set of layer IDs and therefore the type information
+is required for proper layer initialisation.</p> 
+</div>
+
+<div class="expl" id="select_layers">
+<p>The <i>linked-charts</i> library allows the user to manipulate several layers at once. To this end one need
+to first select them. The <a>select_layers</a> method takes an array of layer IDs and returns a selection of 
+layers. This selection is similar to any chart object with the properties of all the selected layers. The only 
+difference is that any property callback function get the layer ID as its first argument.</p>
+<p>Here, we select all the existing layers.</p> 
+</div>
+
+<div class="expl" id="npoints">
+<p>Here, we define the number of elements for each layer depending on its type. A scatter plot will
+have ten points, a line chart will contain two lines.</p>
+</div>
+
+<div class="expl" id="xy">
+<p>Here, we set x and y coordinates for all our scatter layers. Line charts doesn't have <a>x</a> and <a>y</a> properties, 
+so we don't need to care about separating layers of two different types from each other. These properties
+will be set only for the scatters.</p>
+<p>Like in the previous examples, here, on x-axis we have values from 0 to 4 that correspond to one of the tested concentrations.
+y-axis shows inhibition values.</p>
+</div>
+
+<div class="expl" id="symbol">
+<p>Here, we set a symbol for each assay. Inhibition values, measured by RTG will be shown as wyes and by CTX - as triangles.
+The <i>linked-charts</i> library can use the symbols supported by
+<a href="https://github.com/d3/d3-shape/blob/master/README.md#symbols">d3.symbol()</a> function. They are "Circle", "Cross", 
+"Diamond", "Square", "Star", "Triangle", "Wye".</p>
+<p>This property is also specific only to the scatters, so will be applied only to this type of layers.</p>
+</div>
+
+<div class="expl" id="lineFun">
+<p>Here, we define the lines for curve fits almost the same way is has been done in all previous examples. The only difference here is
+that we now use both assays and therefore have slightly modified the <code>get_curveFit</code> function so that it, besides a drug
+name and a cell line name, will also take an assay name.</p>
+</div>
+
+<div class="expl" id="dash">
+<p>The <a>dashArray</a> property can make lines dashed. It sets the  
+<a href="https://developer.mozilla.org/ru/docs/Web/SVG/Attribute/stroke-dasharray">stroke-dasharray</a> attribute of the lines.
+Here, we make the line for RTG solid and for CTX - dashed.</p>
+</div>
+
+<div class="expl" id="colour">
+<p>Here, we set the colours for both scatter and line charts. Both have the <a href="layer">colour</a> property, and so we don't need to
+do it separately. We use one of the predefined colour sets, provided by the <a href="https://github.com/d3/d3-scale#schemeCategory10">d3</a>
+library.</p>
+</div>
+
+<div class="expl" id="legendSc">
+<p>To define a legend one need to provide either a scale function that will transform legend elements (colour, size, symbol
+etc.) into a label. Another option is an array with two columns: one with elements (colours in this case) and the other with
+the corresponding labels. Here, we define such an array. We construct an array of all selected drug-cell line combinations and
+an array of all the used colours.</p>
+</div>
+
+<div class="expl" id="update">
+<p>Here, we update the curveFit plot to display all the changes that were made to the layers.</p>
+</div>
+
+<div class="expl" id="legendScUpd">
+<p>Instead of updating the entire legend one can just update the scale of a certain block. The <a>updateScale</a>
+function takes a scale (can be a function or a two-dimensional array) and a legend block ID as arguments.</p>
+</div>
+
+<div class="expl" id="slider">
+<p>A <a>colourSlider</a> is another type of basic types of charts implemented in the <i>linked-charts</i> library. 
+It's not a selfsuficient chart, but it can be linked to any continuous colour scale of any of the plots, to allow an easy and 
+interactive way of changing the contrast and the midpoint of the scale.</p>
+<p>Here, both sliders are defined in almost identical way, so we explain setting only one of them. The full code you can finde
+at the bottom of the page.</p>
+</div>
+
+<div class="expl" id="straightColorScale">
+<p>Here, we define the colour scale that a colour slider will then modify. This scale will take values from 0 to 50 and change
+from black to green.</p>
+</div>
+
+<div class="expl" id="on_change">
+<p>By setting the <a>on_change</a> property the user defines, what should happen if one of the pointers of a colour slider has been 
+moved. Here, we would like to have colours of all the cells changed. The most obvious way for that 
+to use the <a href="chart">update</a> function. But in this case we know for sure that it's only the colour that can change. So we 
+don't need all the heatmap elements to be recalculated and rerendered, since with larger charts this may take a considerable amount of 
+time. So we use the <a>updateCellColour</a> method instead.</p>
+</div>
+
+<div class="expl" id="title">
+<p>Here, we define a title of the slider.</p>
+</div>
+
+<div class="expl" id="margins">
+<p>Here, we change the left margin of the slider to make it nicely aligned under the heatmap and leave space for the title.</p>
+</div>
+
+<div class="expl" id="titlePos">
+<p>Here, we set the position (x and y coordinates) of the title and its size in pixels.</p>
+</div>
+
+<div class="expl" id="heatmapColour">
+<p>Here, we define colour for each heatmap cell. We can't just take a transformed <a href="colourSlider">colourScale</a> as it
+has been done in the previous example, since our desires colour is a combination of two. So instead from each <a>colourSlider</a>
+we take the sigmoid transformation of the <a>straightColourScale</a> and use it to get the resulting colour by combining red and 
+green channels.</p>
+</div>
+
+<div class="expl" id="scatter">
+<p>Here, we define an empty plot where the individual inhibition values and fitted curves will be shown. We set only global chart
+properties, such as size, axes titles, etc. the same way it has been done previously. You can find the full code at the bottom of
+the page.</p>
+</div>
+
+<div class="expl" id="legendNcol">
+<p>All the blocks of a legend are placed in a rectangle grid. By default, the size of the grid is estimated automatically,
+but here we fix the number of columns of the grid to 1.</p>
+</div>
+
+<div class="expl" id="legendFixed">
+<p>Here, we add to the legend two blocks to show which symbol and which type of line corresponds to which type of assay.</p>
+</div>
+
+<div class="expl" id="legendEmpty">
+<p>Here, we add an empty block to the legend. This block will be updated after selecting cells of the heatmap.</p>
+</div>
+</div>
+
+<div class="description">
+<h1>Heatmap with two colour channels</h1>
+<p>Generally, when a heatmap is generated, each cell corresponds to a single numeric value which in turn 
+unambiguously defines colour of this cell via some colour scale. Yet, nothing in the <a>heatmap</a> chart implemented 
+in the <i>linked-charts</i> library requires the variables passed through the <a href="heatmap">value</a> property to be just 
+single numeric values. Of course, the default way of defining colour scale expects these value to be single numbers,
+but a user can easily override this by setting the <a href="heatmap">colour</a> property. The function, user puts here, gets the value 
+exactly how it has been passed to <a href="heatmap">value</a> property. It can be anything: an array, a sting, another function - 
+everything will do as soon as the user can define a way of transforming it into colour.</p>
+<p>Here, we give an example how to utilise values that are not single numbers. The data that we are using here as an 
+example contain the results of two assays, where 50 drugs in 5 different concentrations each were tested against 21 pancreatic cancer 
+cell lines. RealTime-Glo (RTG) measures cell viability and is proportional to the 
+number of methabolically active cells in a well. CellTox (CTX) gives us a value that is 
+proportional to the amount of dead cells in a well. For each drug combination and concentration both values have been measured.</p>
+<p>If a drug is active only in one of the assays, it means that either it doesn't really kill cells and they can recover afterwards, or
+it kills them not fast enough, leaving plenty of alive and active cells unharmed. Therefore it can be useful to look at both assays
+simultaniously. To this end we decided to use a well known in microscopy trick. We use a green channel for one assay and red for the other. Thus, the drugs, which in both assays demonstrated high effect will be shown in yellow, 
+non-effective drugs will be shown as black cells and all others will be either red or green.</p>
+<p>Therefore, this heatmap has two values per cell, each corresponds to a separate colour channel. For both channels we create an interactive
+<a>colourSlider</a>. We also demonstrate, how one can select and manipulate multiple cells, and how to
+select and update several layers at ones. The chart to the rigth shows the inhibition values for each indifidual concentration of all the
+selected drug.</p>
+</div>

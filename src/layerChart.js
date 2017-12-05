@@ -44,7 +44,7 @@ export function layerChart(){
 
 		return chart.layers[id];
 	}
-	var create_layer = function(id) {
+	chart.create_layer = function(id) {
 		if(typeof id === "undefined")
 			id = "layer" + chart.get_nlayers();
 
@@ -63,8 +63,9 @@ export function layerChart(){
 		try {
 			type = chart.get_layerType(id);
 		} catch (exc) {};
+
 		if(typeof type === "undefined"){
-			create_layer(id);
+			chart.create_layer(id);
 		} else {
 			if(type == "scatter")
 				scatter(id, chart);

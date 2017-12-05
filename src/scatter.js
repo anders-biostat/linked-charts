@@ -8,7 +8,7 @@ export function scatter(id, chart) {
 	if(id === undefined)
 		id = "layer" + chart.get_nlayers();
 
-  var layer = chart.add_layer(id).get_layer(id)
+  var layer = chart.create_layer(id).get_layer(id)
 		.add_property("x")
 		.add_property("y")
     .add_property("size", 6)
