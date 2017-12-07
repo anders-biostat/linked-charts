@@ -52,7 +52,7 @@ var heatmap = lc.heatmap()///heatmap/ms
       ids.push( data[i][0] + "/" + data[i][1] + "/scatter" );///idsArray/ms
       ids.push( data[i][0] + "/" + data[i][1] + "/xLine" );///idsArray/ms
     }///idsArray/ms
-    curveFit///curveFitUpdate/ms
+    curveFit///curveFit/ms
       .layerIds( ids )///layerIds/ms
       .layerType( function( layerId ) {///layerType/ms
         return layerId.split( "/" )[2];///layerType/ms
@@ -204,8 +204,8 @@ and make a combination of a drug name, a cell line name and a type of the layer 
 of the chart.</p>
 </div>
 
-<div class="expl" id="curveFitUpdate">
-<p><a href="heatmap">Here, we define all the dinamic properties of the <code>curveFit</code> chart.</p>
+<div class="expl" id="curveFit">
+<p>Here, we define all the dinamic properties of the <code>curveFit</code> chart.</p>
 </div>
 
 <div class="expl" id="layerIds">
@@ -255,7 +255,7 @@ name and a cell line name, will also take an assay name.</p>
 </div>
 
 <div class="expl" id="dash">
-<p>The <a>dashArray</a> property can make lines dashed. It sets the  
+<p>The <a>dasharray</a> property can make lines dashed. It sets the  
 <a href="https://developer.mozilla.org/ru/docs/Web/SVG/Attribute/stroke-dasharray">stroke-dasharray</a> attribute of the lines.
 Here, we make the line for RTG solid and for CTX - dashed.</p>
 </div>

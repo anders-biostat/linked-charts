@@ -1243,10 +1243,9 @@ function(id) {return chart.get_layer(id).type;}
         allows the user to interactively change contrast or center of his colour scale.
         You can check <a href="../examples/colurSlider.html">here</a> how it works.</p>
         <pre class = "tiy" fitHeight = "true" 
-          tiy-preload="../src/linked-charts.min.js;../src/data/inputdata.js;../src/linked-charts.css">
+          tiy-preload="../src/linked-charts.min.js;../src/linked-charts.css">
 var slider = lc.colourSlider()
   .place();
-
         </pre>
 
         <h3>Properties</h3>
@@ -1437,6 +1436,16 @@ function(a, b) {
         <pre class = "tiy" runnable = "false">
 ['black', 'red']
         </pre>
+
+        <p class = "method"><a>on_click</a></p>
+        <p class = "methodDescription">Actions to be performed, when a branch of the dendogram is clicked.
+        Gets as arguments an array of IDs of all the selected elements.</p>
+        <h4>Type</h4>
+        <p><code>function</code></p>
+        <h4>Default value</h4>
+        <pre class = "tiy" runnable = "false">
+function() {}
+        </pre>        
 
         <h3>Methods</h3>
 

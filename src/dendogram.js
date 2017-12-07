@@ -110,7 +110,8 @@ export function dendogram(heatmap)
 			return lc.getEuclideanDistance(a, b);			
 		})
 		.add_property("data")
-		.add_property("lineColours", ['black', 'red']);
+		.add_property("lineColours", ['black', 'red'])
+		.add_property("on_click", function() {});
 
 
 	//if number of elements is set, define their IDs
@@ -292,6 +293,8 @@ export function dendogram(heatmap)
 				dendogram.heatmap.drawDendogram("Col");
 			}
 			dendogram.heatmap.updateLabelPosition();
+		} else {
+			dendogram.get_on_click(intersect(inds, dendogram.elementIds()));
 		}
 
 		set_color(g, inds, cla, prop);		

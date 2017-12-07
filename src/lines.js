@@ -203,7 +203,7 @@ export function parametricCurve(id, chart){
 		var elementIds = layer.elementIds(),
 			domainX = [];
 		for(var i = 0; i < elementIds.length; i++)
-			domainX = domainX.concat(d3.extent(get_data(elementIds[i]).map(function(e) {return e.x})));
+			domainX = domainX.concat(d3.extent(layer.get_data(elementIds[i]).map(function(e) {return e.x})));
 		return d3.extent(domainX);
 	});
 
@@ -211,7 +211,7 @@ export function parametricCurve(id, chart){
 		var elementIds = layer.elementIds(),
 			domainY = [];
 		for(var i = 0; i < elementIds.length; i++)
-			domainY = domainY.concat(d3.extent(get_data(elementIds[i]).map(function(e) {return e.y})));
+			domainY = domainY.concat(d3.extent(layer.get_data(elementIds[i]).map(function(e) {return e.y})));
 		return d3.extent(domainY);
 	});
 
