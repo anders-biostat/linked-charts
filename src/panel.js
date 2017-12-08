@@ -93,14 +93,16 @@ export function panel(chart) {
 				panel.g.selectAll(".button")
 					.attr("transform", function(d, i){
 						return "translate(" + (i % layout.rowLength * panel.buttonSize()) + ", " +
-							(Math.floor(i / layout.rowLength) * panel.buttonSize()) + ")";
+							(Math.floor(i / layout.rowLength) * panel.buttonSize()) + ") scale(" + 
+							((panel.buttonSize() - 10) / bs) + ")";
 					})
 		} else {
 				optimizeSize(buttons.length, panel.height(), panel.width());
 				panel.g.selectAll(".button")
 					.attr("transform", function(d, i){
 						return "translate(" + (Math.floor(i / layout.rowLength) * panel.buttonSize()) + ", " 
-							+ ((i % layout.rowLength + 1) * panel.buttonSize()) + ")";
+							+ ((i % layout.rowLength + 1) * panel.buttonSize()) + ") scale(" + 
+							((panel.buttonSize() - 10) / bs) + ")";
 					})
 		}
 	}
@@ -165,7 +167,9 @@ export function panel(chart) {
 					.attr("opacity", 0.6);
 			})
 			.append("title")
-				.text(function(d) {return d.name});		
+				.text(function(d) {return d.name});
+
+		return panel;
 	}
 
 	function showHint(hint) {
@@ -213,9 +217,11 @@ export function panel(chart) {
 
 	}
 
+	var bs;
+
 	function initDefs() {
-		var defs = panel.g.append("def"),
-			bs = panel.buttonSize() - 10;
+		var defs = panel.g.append("def");
+		bs = panel.buttonSize() - 10;
 		
 		var d = defs.append("g")
 			.attr("id", "toggleOff");

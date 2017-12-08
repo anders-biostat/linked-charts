@@ -310,4 +310,59 @@ An instrument [panel]() contains button that provide access to charts' functiona
 present in most types of charts. It is shown as a grey triangle which is by default located in the 
 top right corner of the plot. Clicking on the triangle will show or hide the panel. By setting panel's
 properties one may change it's size, location, orientation (use a vertical layout of the buttons instead
-of horizontal). It is also possible to add your own buttons as it is shown in the example above.
+of horizontal). It is also possible to add your own buttons as it is shown in the example bellow.
+
+<pre class="tiy" width="100%" fitHeight="true"
+  tiy-preload="../src/linked-charts.min.js;../src/data/iris.js;../src/linked-charts.css">
+//generate a scatter plot
+var scatterplot = lc.scatter()
+  .x(function(k) {return data[k].sepalLength})
+  .y(function(k) {return data[k].petalLength})
+  .colourValue(function(k) {return data[k].petalWidth})
+  .symbolValue(function(k) {return data[k].species})
+  .place();
+
+//get a "def" object, where all the icons are stored
+var defs = scatterplot.panel.g.select("def"),
+//get the current button size
+//we subtract 10 in order to leave some space between
+//the icons
+  bs = scatterplot.panel.buttonSize() - 10;
+
+//add new icons
+//for the sake of simplicity they are both
+//circles of different size
+defs.append("g")
+  .attr("id", "bigger")
+  .append("circle")
+    .attr("fill", "#444")
+    .attr("cx", bs/2)
+    .attr("cy", bs/2)
+    .attr("r", bs/2);
+
+defs.append("g")
+  .attr("id", "smaller")
+  .append("circle")
+    .attr("fill", "#444")
+    .attr("cx", bs/2)
+    .attr("cy", bs/2)
+    .attr("r", bs/4);
+
+scatterplot.panel
+  //add first button
+  .add_button("Bigger points", "#bigger", function(chart) {
+    var currentSize = chart.get_size();
+    chart.size(currentSize + 1)
+      .updateElementStyle();
+  })
+  //add second button
+  .add_button("Smaller points", "#smaller", function(chart) {
+    var currentSize = chart.get_size();
+    chart.size(currentSize - 1)
+      .updateElementStyle();
+  })
+  //now we need to update the size of the panel
+  .updateSize();
+
+//Now you can try these new buttons
+</pre>
