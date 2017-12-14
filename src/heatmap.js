@@ -19,7 +19,7 @@ export function heatmap(id, chart){
 		.add_property("showDendogramCol", true)
 		.add_property("value")
 		.add_property("mode", "default")
-		.add_property("colour", function(val) {return chart.colourScale(val);})
+		.add_property("colour")
 		.add_property("palette", d3.interpolateOrRd)
 		.add_property("colourDomain", function() {return chart.dataRange()})
 		.add_property("clusterRowMetric", getEuclideanDistance)
@@ -29,9 +29,13 @@ export function heatmap(id, chart){
 		.add_property("showValue", false)
 		.add_property("colTitle", "")
 		.add_property("informText", function(rowId, colId) {
+			var value = chart.get_value(rowId, colId);
+			if(typeof value == "number")
+				value = value.toFixed(2);
+
 			return "Row: <b>" + chart.get_rowLabel(rowId) + "</b>;<br>" + 
 						"Col: <b>" + chart.get_colLabel(colId) + "</b>;<br>" + 
-						"value = " + chart.get_value(rowId, colId).toFixed(2)
+						"value = " + value;
 			});
 
 	chart.margins({top: 100, left: 100, right: 10, bottom: 40});
@@ -43,7 +47,7 @@ export function heatmap(id, chart){
 		chart.wrapSetter("n" + name + "s", function(oldSetter){
 			return function() {
 				chart["get_" + name + "Ids"] = function(){
-					return d3.range(oldSetter()).map(function(e) {return e.toString()});
+					return d3.range(oldSetter());
 				};
 				return oldSetter.apply(chart, arguments);
 			}
@@ -62,6 +66,21 @@ export function heatmap(id, chart){
 			}
 		});
 	});
+
+	chart.wrapSetter("colour", function(oldSetter){
+		return function() {
+			var res = oldSetter.apply(chart, arguments);
+			var oldGetter = chart.get_colour;
+			chart.get_colour = function() {
+				if(arguments.length == 1 && arguments[0] === undefined)
+					return "#eee";
+				return oldGetter.apply(chart, arguments);
+			}
+			return res;
+		}
+	});	
+
+	chart.colour(function(val) {return chart.colourScale(val);});
 
 	chart.axes = {};
 	chart.marked = [];
@@ -400,9 +419,10 @@ export function heatmap(id, chart){
 				.attr("x", - chart.margins().top)
 				.attr("y", chart.width());
 		}
+
 		chart.canvas
-			.style("left", chart.margins().left + "px")
-			.style("top", chart.margins().top + "px")
+			.style("left", (+chart.margins().left + 3) + "px")
+			.style("top", (+chart.margins().top + 3) + "px")
 			.attr("width", chart.plotWidth())
 			.attr("height", chart.plotHeight());		
 
@@ -554,7 +574,17 @@ export function heatmap(id, chart){
 	chart.resetColourScale = function(){
 	//create colorScale
 		var range = chart.colourDomain();
-		chart.colourScale = d3.scaleSequential(chart.get_palette).domain(range);
+		if(range.length == 2 && typeof (range[0] + range[1]) == "number")
+			chart.colourScale = d3.scaleSequential(chart.get_palette).domain(range)
+		else {
+			chart.colourScale = d3.scaleOrdinal()
+				.domain(range);
+			if(chart.get_palette().splice)
+				chart.colourScale.range(chart.get_palette())
+			else
+				chart.colourScale.range(d3.schemeSet1);
+		}
+
 		if(chart.showLegend() && chart.legend)
 			updateLegend();		
 	}	
@@ -857,7 +887,7 @@ export function heatmap(id, chart){
 			})
 			.cluster();
 
-		var newOrder = chart["dendogram" + type].clusters.val_inds.map(function(e) {return e.toString()});
+		var newOrder = chart["dendogram" + type].clusters.val_inds;
 
 		chart.reorder(type, function(a, b){
 			return newOrder.indexOf(a) - newOrder.indexOf(b);
