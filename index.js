@@ -1,5 +1,6 @@
 export { base } from "./src/base";
 export { layerBase } from "./src/layerBase";
+export { layerChart } from "./src/layerChart";
 export { chartBase } from "./src/chartBase";
 export { axesChart } from "./src/axesChart";
 export { scatter } from "./src/scatter";

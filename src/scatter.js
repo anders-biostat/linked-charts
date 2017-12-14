@@ -222,7 +222,6 @@ export function scatter(id, chart) {
 
   layer.updateElementStyle = function() {
     layer.resetColourScale();
-    var ids = layer.elementIds();
     var sel = layer.g.selectAll(".data_element");
     if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
       sel = sel.transition("elementStyle")
@@ -256,6 +255,8 @@ export function scatter(id, chart) {
         .on( "click", layer.get_on_click )
         .on( "mouseover", layer.get_elementMouseOver )
         .on( "mouseout", layer.get_elementMouseOut );
+
+    return chart;
   }
 
   return chart;

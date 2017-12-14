@@ -37,7 +37,7 @@ export function barchart(id, chart){
 		layer.wrapSetter("n" + name + "s", function(oldSetter){
 			return function() {
 				layer["get_" + name + "Ids"] = function(){
-					return d3.range(oldSetter()).map(function(e) {return e.toString()});
+					return d3.range(oldSetter());
 				};
 				return oldSetter.apply(layer, arguments);
 			}

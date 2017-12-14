@@ -118,7 +118,7 @@ export function dendogram(heatmap)
 	dendogram.wrapSetter("nelements", function(oldSetter){
 		return function() {
 			dendogram.get_elementIds = function(){
-				return d3.range(oldSetter()).map(function(e) {return e.toString()});
+				return d3.range(oldSetter());
 			};
 			return oldSetter.apply(dendogram, arguments);
 		}
@@ -279,7 +279,7 @@ export function dendogram(heatmap)
 		{
 			if(dendogram.orientation() == 'horizontal')
 			{
-				var inds_int = intersect(inds.map(function(e) {return e.toString()}),
+				var inds_int = intersect(inds,
 					dendogram.heatmap.colIds())
 				dendogram.heatmap.cluster('Row', inds_int)
 				//TO DO: check if dendogram already exists
@@ -287,7 +287,7 @@ export function dendogram(heatmap)
 			}
 			if(dendogram.orientation() == 'vertical')
 			{
-				var inds_int = intersect(inds.map(function(e) {return e.toString()}),
+				var inds_int = intersect(inds,
 					dendogram.heatmap.rowIds())
 				dendogram.heatmap.cluster('Col', inds_int)
 				dendogram.heatmap.drawDendogram("Col");

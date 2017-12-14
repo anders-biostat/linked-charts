@@ -106,7 +106,8 @@ export function layerChart(){
 			if(chart.layerIds().indexOf(ids[i]) != -1) {
 				if(typeof chart.layers[ids[i]] === "undefined"){
 					chart.add_layer(ids[i]);
-					chart.get_layer(ids[i]).put_static_content();
+					if(chart.svg)
+						chart.get_layer(ids[i]).put_static_content();
 				}
 				layerSelection.layers[ids[i]] = chart.get_layer(ids[i]);
 			} else {
