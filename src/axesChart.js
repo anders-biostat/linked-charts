@@ -12,7 +12,9 @@ export function axesChart() {
 		.add_property("axisTitleX", "")
 		.add_property("axisTitleY", "")
 		.add_property("ticksX", undefined)
-		.add_property("ticksY", undefined);
+		.add_property("ticksY", undefined)
+		.add_property("logScaleX", false)
+		.add_property("logScaleY", false);
 
 	chart.axes = {};
 	
@@ -180,25 +182,9 @@ export function axesChart() {
       .attr( "dy", ".71em" )
       .style( "text-anchor", "end" );
 
-		var domainX = chart.get_domainX();
-		if(domainX.length == 2 && typeof domainX[0] === "number")
-			chart.axes.scale_x = d3.scaleLinear()
-				.nice();
-		else{
-			chart.axes.scale_x = d3.scalePoint() 
-				.padding(0.3);	
-		}
+		chart.origDomainY = chart.get_domainY;
 		chart.origDomainX = chart.get_domainX;
-		
-		var domainY = chart.get_domainY();
-		if(domainY.length == 2 && typeof domainY[0] === "number")
-			chart.axes.scale_y = d3.scaleLinear()
-				.nice();
-		else
-			chart.axes.scale_y = d3.scalePoint()
-				.padding(0.3); 
 
-		chart.origDomainY = chart.get_domainY;	
 		if(chart.showPanel()) {
 			chart.panel.add_button("Zoom in", "#zoomIn", function(chart){
 				var xDomain = chart.axes.scale_x.domain(),
@@ -287,8 +273,6 @@ export function axesChart() {
 			chart.axes.x_label
 				.attr("x", chart.get_plotWidth());
 		}
-		chart.axes.scale_x.range([0, chart.get_plotWidth()]);
-		chart.axes.scale_y.range([chart.get_plotHeight(), 0]);
 
 		chart.updateAxes();
 
@@ -428,13 +412,45 @@ export function axesChart() {
 		chart.updateAxes();
 	}
 
+	var checkType = function(type) {
+		var domain = chart["get_domain" + type]();
+		
+		if(chart.axes["scale_" + type.toLowerCase()] === undefined)
+			chart.axes["scale_" + type.toLowerCase()] = {};
+
+		if(domain.length == 2 && typeof (domain[0] + domain[1]) === "number"){
+			var logBase = chart["logScale" + type]();
+			if(logBase && logBase > 0 && logBase != 1){
+				if(chart.axes["scale_" + type.toLowerCase()].base === undefined)
+					chart.axes["scale_" + type.toLowerCase()] = d3.scaleLog();
+				chart.axes["scale_" + type.toLowerCase()].base(logBase);
+			} else {
+				if(chart.axes["scale_" + type.toLowerCase()].clamp === undefined || 
+					chart.axes["scale_" + type.toLowerCase()].base != undefined)
+				chart.axes["scale_" + type.toLowerCase()] = d3.scaleLinear(); 
+			}
+			chart.axes["scale_" + type.toLowerCase()].nice();
+		} else {
+			if(chart.axes["scale_" + type.toLowerCase()].padding === undefined)
+				chart.axes["scale_" + type.toLowerCase()] = d3.scalePoint()
+					.padding(0.3);
+		}
+	}
+
 	chart.updateAxes = function(){
+
+		checkType("X");
+		checkType("Y");
+
+		chart.axes.scale_x.range([0, chart.get_plotWidth()]);
+		chart.axes.scale_y.range([chart.get_plotHeight(), 0]);
+
     chart.axes.x_label
     	.text( chart.axisTitleX());
 		chart.axes.y_label
    		.text( chart.axisTitleY() );
     chart.axes.scale_x.domain(chart.get_domainX());
-		chart.axes.scale_y.domain(chart.get_domainY());
+    chart.axes.scale_y.domain(chart.get_domainY());
 		if(chart.aspectRatio())
 			fix_aspect_ratio(chart.axes.scale_x, chart.axes.scale_y, chart.get_aspectRatio());
 
