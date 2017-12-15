@@ -19,21 +19,28 @@ var selDrugs = [drugs[0], drugs[1]],///.../ms
   selCellLine = cellLines[0];///.../ms
 ///...
 var heatmap = lc.heatmap()///scatter/ms
+  .value( function( rowId, colId ) {///value/ms 
+    var selCL = [];///selectedCellLines/ms
+    if(scatterplot)///ifdefined/ms
+      selCL = scatterplot.get_marked()///get_marked/ms
+        .filter( function( e ) { return e[0] == "layer0"} )///get_marked/ms
+        .map( function( e ) { return e[1] } );///get_marked/ms
+    if( selCL.length < 2 ) selCL = cellLines;///ifempty/ms
+///
+    var rowValues = selCL.map(function( e ) {///calcValues/ms
+        return inputData.RTG[rowId][e].avInh;///calcValues/ms
+      }),///calcValues/ms
+      colValues = selCL.map(function( e ) {///calcValues/ms
+        return inputData.RTG[colId][e].avInh;///calcValues/ms
+      });///calcValues/ms
+    return lc.pearsonCorr( rowValues, colValues );///calcValues/ms 
+   })///value/ms
   .rowIds( drugs )///.../ms
   .colIds( drugs )///.../ms
   .title( "Drug-drug correlation" )///.../ms
   .colourDomain( [ -1, 1 ] )///.../ms
   .margins({top: 50, left: 50, right: 100, bottom: 100})///.../ms    
   .palette( function( val ) { return d3.interpolateRdBu( 1 - val ); } )///.../ms 
-  .value( function( rowId, colId ) {  ///.../ms 
-    var rowValues = cellLines.map(function( e ) {///.../ms 
-        return inputData.RTG[rowId][e].avInh;///.../ms 
-      }),///.../ms 
-      colValues = cellLines.map(function( e ) {///.../ms 
-        return inputData.RTG[colId][e].avInh;///.../ms 
-      });///.../ms 
-    return lc.pearsonCorr( rowValues, colValues ); ///.../ms 
-   })///.../ms 
   .on_click( function( rowId, colId ) {///.../ms 
      selDrugs = [rowId, colId]///.../ms 
      scatterplot.update();///.../ms 
@@ -41,19 +48,19 @@ var heatmap = lc.heatmap()///scatter/ms
   })///.../ms 
   .cluster( "Row" )///.../ms
   .cluster( "Col" )///.../ms  
-  .showLegend( false )///showLegend/ms
+  .showLegend( false )///.../ms
+  .place( "#heatmap" );///scatter/ms
+///
+var heatmapSlider = lc.colourSlider()///scatter/ms
+	.straightColourScale( heatmap.colourScale )///.../ms
+	.on_change(function(){///.../ms
+		heatmap.updateCellColour();///.../ms
+	})///.../ms
   .place( "#heatmap" );///scatter/ms
 ///...
-var heatmapSlider = lc.colourSlider()///colourSlider/ms
-	.straightColourScale( heatmap.colourScale )///straightColorScale/ms
-	.on_change(function(){///on_change/ms
-		heatmap.updateCellColour();///on_change/ms
-	})///on_change/ms
-  .place( "#heatmap" );///colourSlider/ms
-///...
-heatmap.colour( function( val ){///colour/ms
-	return heatmapSlider.colourScale( val );///colour/ms
-} );///colour/ms
+heatmap.colour( function( val ){///.../ms
+	return heatmapSlider.colourScale( val );///.../ms
+} );///.../ms
 ///...
 var get_curve = function( drug, cellLine, x ){///.../ms
   var max = inputData.RTG[drug][cellLine].max,///.../ms
@@ -92,29 +99,30 @@ var scatterplot = lc.scatter()///scatter/ms
     selCellLine = k; ///.../ms
     curveFit.update();///.../ms
   })///.../ms
-  .showLegend( false );///showLegend/ms
+  .showLegend( false );///.../ms
 lc.xLine( "line", scatterplot )///scatter/ms
   .lineFun( function( x ){ ///.../ms
     return x;///.../ms
   })///.../ms
+  .markedUpdated( heatmap.updateCellColour )///markedUpdated/ms
   .place( "#scatterplot" );///scatter/ms
 ///...
-var layer = scatterplot.get_layer( "layer0" );///layer/ms
+var layer = scatterplot.get_layer( "layer0" );///.../ms
 ///...
-var scatterSlider = lc.colourSlider()///colourSlider/ms
-	.width( 300 )///sizeAndMargins/ms
-	.height( 110 )///sizeAndMargins/ms
-	.set_margins( {top: 50} )///sizeAndMargins/ms
-	.title( "Total curvefitting error" )///title/ms
-	.straightColourScale( layer.colourScale )///straightColorScale/ms
-	.on_change( function(){///on_change/ms
-		layer.updateElementStyle();///on_change/ms
-	} )///on_change/ms
-  .place( "#scatterplot" );///colourSlider/ms
+var scatterSlider = lc.colourSlider()///scatter/ms
+	.width( 300 )///.../ms
+	.height( 110 )///.../ms
+	.set_margins( {top: 50} )///.../ms
+	.title( "Total curvefitting error" )///.../ms
+	.straightColourScale( layer.colourScale )///.../ms
+	.on_change( function(){///.../ms
+		layer.updateElementStyle();///.../ms
+	} )///.../ms
+  .place( "#scatterplot" );///scatter/ms
 ///...
-layer.colour(function( id ){ ///colour/ms
-	return scatterSlider.colourScale( layer.get_colourValue( id ) );///colour/ms
-});///colour/ms
+layer.colour(function( id ){ ///.../ms
+	return scatterSlider.colourScale( layer.get_colourValue( id ) );///.../ms
+});///.../ms
 ///...
 var curveFit = lc.scatter( "points" )///scatter/ms
   .width( 300 )///.../ms
@@ -169,69 +177,62 @@ for the sake of simplicity. At the bottom of the page you can find the complete 
 
 <div class="expl" id="scatter">
 <p>In this example all of the charts are defined almost the same way as in the previous example.
-So here, we concentrate on the colour sliders, and omit most of the properties of all other charts. The full code you can find at the bottom of the page.</p>
+So here, we omit most of the properties of all other charts. The full code you can find at the bottom of the page.</p>
 </div>
 
-<div class="expl" id="showLegend">
-<p>Since we are going to use colour slider instead of the default legend, we would like to not to have both. The default 
-legend can be turned off by setting <a>showLegend</a> property to <code>false</code>.</p>
+<div class="expl" id="value">
+<p>Here, our callback function that returns values for each cell will now use information from another chart 
+(the correlation scatter plot). In this case the both charts can depending on each other.</p>
 </div>
 
-<div class="expl" id="colourSlider">
-<p>A <a>colourSlider</a> is another type of basic types of charts implemented in the <i>linked-charts</i> library. 
-It's not a selfsuficient chart, but it can be linked to any continuous colour scale of any of the plots to allow an easy and 
-interactive way of changing the contrast and the midpoint of the scale.</p>
-<p>Here, we intialize and place colour sliders that will be linked to both of our colour scales - of the heatmap and of the scatter plot.</p>
+<div class="expl" id="get_marked">
+<p><a href="layer">get_marked</a> returns an array with IDs of all currently marked elements. In case of a chart
+with layers the IDs are paired with the corresponding layer ID. So here we first filter for only those that belong
+to out scatter plot layer (leaving the diagonal line out) and then get the IDs of the points.</p>
 </div>
 
-<div class="expl" id="straightColorScale">
-<p>Here, we define the colour scale that a colour slider will then modify. In both cases here, we use the default colour scales 
-that were internaly initialized for the plots from user-set <a>palette</a> and <a>colourDomain</a> properties.
-In such a case any change of these properties will also affect the slider. The default scales are 
-stored as <a>colourScale</a> for all the plots and layers. Another option 
-is to use here 
-any other unrelated colour scale, since the colours for the plot will be in any case picked from a transformed by the 
-<a>colourSlider</a> scale.</p>
+<div class="expl" id="ifempty">
+<p>If none of points is marked or the user marked only one point and therefore it's impossible to calculate the
+correlation values, we will calculate correlations using all the cell lines.</p>
 </div>
 
-<div class="expl" id="on_change">
-<p>By setting the <a>on_change</a> property the user defines, what should happen if one of the pointers of a colour slider has been 
-moved. Here, we would like to have colours of all the cells or points (or other elements) changed. The most obvious way for that 
-to use the <a href="chart">update</a> function. But in this case we know for sure that it's only the colour that can change. So we 
-don't need all the chart elements to be recalculated and rerendered, since with larger charts this may take a considerable amount of 
-time.  Here, we use the <a>updateCellColour</a> method for the heatmap and the <a>updateElementStyle</a> method for the scatter plot.</p>
+<div class="expl" id="calcValues">
+<p>Now in the <code>selCL</code> variable we have a list of all the selected cell lines and so we can use it
+instead of list of all the cell lines as it has been done previously. For each selected cell line, we get an
+array of all the scores against the two drugs and calculate Pearson correlation between the two.</p>
 </div>
 
-<div class="expl" id="colour">
-<p>Here, we connect our plots with colour sliders by resetting the <a>colour</a> property. By default, the <a>colour</a> is defined
-using the <a>colourScale</a>, but in this case we want to use the transformed by the <a>colourSlider</a> scale. So here we redefine
-the <a>colour</a> property, using another colour scale instead. This step can't be done before the <a>colourSlider</a> is defined 
-(and we can't set the <a>straightColourScale</a> property of the <a>colourSlider</a> before the corresponding chart is defined),
-so we need to make this change of property after the chart is already initialised.</p>
+<div class="expl" id="markedUpdated">
+<p>Similar to the <a href="layer">on_click</a> property, the function provided to the <a href="layer">markedUpated</a> is
+called every time any element is selected or deselected. Here, we just update colour of all the cells of the heatmap.</p>
 </div>
 
-<div class="expl" id="layer">
-<p>Here, we save the first layer of the <code>scatterplot</code> as a separate variable for
-the easy access to its properties and methods in the next few lines.</p>
+<div class="expl" id="selectedCellLines">
+<p>In the <code>selCL</code> variable we will store a list of all the currently selected cell lines.</p>
 </div>
 
-<div class="expl" id="sizeAndMargins">
-<p>Here, we change size and margins of the colour slider to make it fit nicely in the layout.</p>
+<div class="expl" id="ifdefined">
+<p>The first time this function is used will be when the heatmap is placed. An by that time the 
+<code>scatterplot</code> will have not yet been defined. Therefore here we make sure that we use
+its methods only if the <code>scatterplot</code> exists. Otherwise we assume that there are no marked
+points.</p>
 </div>
 
-<div class="expl" id="title">
-<p>As other charts, the <a>colourSlider</a> has the <a href="chart">title</a> property that 
-allows to set the main title.</p>
-</div>
 </div>
 
 <div class="description">
-<h1>Adding a colour slider</h1>
-<p>This is one of the series of examples, where we step by step introduce new chart properties for the
+<h1>Recalculate correlation values</h1>
+<p>This is the last of the series of examples, where we step by step introduce new chart properties for the
 same set of charts.</p>
-<p>Here, we replace the default static <a>legend</a> with an interactive one. A <a>colourSlider</a>
-is a special type of chart that transforms any given colour scale with a sigmoind function, alloeing the user to change its slope and midpoint. As a result, it allows to change contrast,
-domain and the midpoint of the colour scale.</p>
+<p>Here, we utilise another aspect of in-built interactive functionality in the <i>linked-charts</i> library.
+In the instrument panel, one can find a "Select elements" button. If it is pressed, then the user can select or
+deselect cells or points by clicking and brushing. A double click will deselect all the elements. You can also
+use this mode just keepint the <code>Shift</code> key pressed. Just like clicking, selecting or - in the
+<i>linked-charts</i> terms, <b>marking</b> - the elements, can trigger various actions. Let's, for example,
+allow user to define, what cell lines to use for correlation calculations, by marking them on the correlation
+scatter plot. Try to mark several points on the top right plot and see how the heatmap changes. By the way, 
+don't forget that you can recluster rows or columns after the correlation values have been recalculated.
+Use the instrument panel for this.</p>
 <p>The data used here are generated in a drug-screening experiment. 50 drugs at 5 different concentrations 
 were tested against 21 pancreatic cancer cell lines. The heatmap shows drug-drug correlation. Like in the 
 previous example, a click on a cell of the heatmap reveals the underlying statistics by demonstrating on 

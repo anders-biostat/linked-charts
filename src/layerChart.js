@@ -166,21 +166,21 @@ export function layerChart(){
 	}
 
 	chart.get_elements = function(ids){
-		if(ids.substr)
+		if(ids.splice === undefined)
 			ids = [ids];
 		if(ids.legnth == 2 && Object.keys(chart.layers).indexOf(ids[0]) > -1)
 			ids = [ids];
 		for(var i = 0; i < ids.length; i++)
-			if(ids[i].substr)
+			if(ids[i].splice === undefined)
 				ids[i] = [ids[i]];
 		
 		var selectedIds = [];
 		for(var i = 0; i < ids.length; i++){
 			if(ids[i].length == 2)
-				if(ids[i][1].substr)
+				if(ids[i][1].splice === undefined)
 					selectedIds.push(("p" + ids[i][0] + "_" + ids[i][1]).replace(/[ .]/g, "_"))
 				else
-					selectedIds.push(("p" + ids[i][0] + "_" + ids[i][1].join("_-sep-_")).replace(/[ .]/g, "_")) 
+					selectedIds.push(("p" + ids[i][0] + "_" + ids[i][1].join("_")).replace(/[ .]/g, "_")) 
 			else
 				selectedIds = selectedIds.concat(Object.keys(chart.layers).map(function(e){
 					return ("p" + e + "_" + ids[i][0]).replace(/[ .]/g, "_");

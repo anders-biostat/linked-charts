@@ -357,7 +357,7 @@ export function dendogram(heatmap)
 					}
 				}
 				//console.log(min_dis);
-				var new_node = new Node(to_clus[0].id + to_clus[1].id, null);
+				var new_node = new Node(to_clus[0].id + "_" + to_clus[1].id, null);
 				new_node.left = to_clus[0];
 				new_node.right = to_clus[1];
 				new_node.height = min_dis;

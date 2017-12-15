@@ -136,8 +136,8 @@ export function barchart(id, chart){
 	}
 	layer.get_position = function(id){
 		//gets id as data (so here we have an array of three ids)
-		return [layer.g.select("#p" + id.join("_-sep-_")).attr("x"),
-						layer.g.select("#p" + id.join("_-sep-_")).attr("y")];
+		return [layer.g.select("#p" + id.join("_")).attr("x"),
+						layer.g.select("#p" + id.join("_")).attr("y")];
 	}
 
 	layer.updateElementPosition = function(){
@@ -259,7 +259,7 @@ export function barchart(id, chart){
 			.append("rect")
 				.attr("class", "data_element")
 				.merge(stacks)
-					.attr("id", function(d) {return "p" + layer.id + "_" + d.join("_-sep-_").replace(/[ .]/g, "_")})
+					.attr("id", function(d) {return "p" + layer.id + "_" + d.join("_").replace(/[ .]/g, "_")})
 					.on( "click", function(d) {layer.get_on_click(d[0], d[1], d[2])} )
         	.on( "mouseover", layer.get_elementMouseOver )
         	.on( "mouseout", layer.get_elementMouseOut );		
