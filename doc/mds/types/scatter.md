@@ -156,7 +156,7 @@ var scatterplot = lc.scatter()
 
 ## Update
 
-For any changes, you've added to the chart, to have an effect, you need firt to update the
+For any changes, you've added to the chart, to have an effect, you need first to update the
 chart. Each chart in the _linked-charts_ library has an [update](chart) method, which 
 recalculates and updates all the elements of the chart. But if you know that only
 some of them have been changed since the last update, you may want to

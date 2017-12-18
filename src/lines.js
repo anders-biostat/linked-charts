@@ -9,7 +9,7 @@ function line(id, chart){
 	
 	var layer = chart.create_layer(id).get_layer(id)
 		.add_property("lineFun")
-		.add_property("lineStepNum", 100)
+		.add_property("nsteps", 100)
 		.add_property("lineWidth", 1.5)
 		.add_property("dasharray", undefined);
 	chart.syncProperties(layer);
@@ -117,7 +117,7 @@ export function xLine(id, chart){
 
 		//define the length of each step
 		var lineStep = (domain[1] - domain[0]) / 
-										layer.get_lineStepNum(d);
+										layer.get_nsteps(d);
 
 		var lineData = [];
 		for(var i = domain[0]; i < domain[1]; i += lineStep)
@@ -132,6 +132,16 @@ export function xLine(id, chart){
 							
 		return lineData;
 	};
+
+	layer.layerDomainY(function() {
+		if(layer.layerDomainX()) {
+			var elementIds = layer.elementIds(),
+				domainY = [];
+			for(var i = 0; i < elementIds.length; i++)
+				domainY = domainY.concat(d3.extent(layer.get_data(elementIds[i]).map(function(e) {return e.y})));
+			return d3.extent(domainY);
+		}
+	});	
 
 	return layer.chart;
 }
@@ -149,7 +159,7 @@ export function yLine(id, chart){
 
 		//define the length of each step
 		var lineStep = (domain[1] - domain[0]) / 
-										layer.get_lineStepNum(d);
+										layer.get_nsteps(d);
 
 		var lineData = [];
 		for(var i = domain[0]; i < domain[1]; i += lineStep)
@@ -164,6 +174,16 @@ export function yLine(id, chart){
 							
 		return lineData;
 	};
+
+	layer.layerDomainX(function() {
+		if(layer.layerDomainY()){
+			var elementIds = layer.elementIds(),
+				domainX = [];
+			for(var i = 0; i < elementIds.length; i++)
+				domainX = domainX.concat(d3.extent(layer.get_data(elementIds[i]).map(function(e) {return e.x})));
+			return d3.extent(domainX);
+		}
+	});	
 
 	return layer.chart;
 }
@@ -187,7 +207,7 @@ export function parametricCurve(id, chart){
 			paramRange = [paramRange[1], paramRange[0]];
 
 		var lineStep = (paramRange[1] - paramRange[0]) / 
-										layer.get_lineStepNum();
+										layer.get_nsteps();
 
 		var lineData = [];
 		for(var t = paramRange[0]; t < paramRange[1]; t += lineStep)
@@ -231,7 +251,7 @@ export function pointLine(id, chart){
 
 	layer.get_data = function(d){
 		var lineData = [];		
-		for(var t = 0; t < layer.lineStepNum(); t++)
+		for(var t = 0; t < layer.nsteps(); t++)
 			lineData.push({
 				x: layer.get_x(d, t),
 				y: layer.get_y(d, t)
@@ -243,7 +263,7 @@ export function pointLine(id, chart){
 	layer.layerDomainX(function() {
 		var domain = [];
 		layer.elementIds().map(function(id) {
-			return d3.extent(d3.range(layer.lineStepNum()).map(function(e){
+			return d3.extent(d3.range(layer.nsteps()).map(function(e){
 				return layer.get_x(id, e);
 			}))
 		}).forEach(function(e) {domain = domain.concat(e)});
@@ -254,7 +274,7 @@ export function pointLine(id, chart){
 	layer.layerDomainY(function() {
 		var domain = [];
 		layer.elementIds().map(function(id) {
-			return d3.extent(d3.range(layer.lineStepNum()).map(function(e){
+			return d3.extent(d3.range(layer.nsteps()).map(function(e){
 				return layer.get_y(id, e);
 			}))
 		}).forEach(function(e) {domain = domain.concat(e)});
@@ -277,12 +297,12 @@ export function pointRibbon(id, chart) {
 
 	layer.get_data = function(d){
 		var lineData = [];		
-		for(var t = 0; t < layer.lineStepNum(); t++)
+		for(var t = 0; t < layer.nsteps(); t++)
 			lineData.push({
 				x: layer.get_x(d, t)[0],
 				y: layer.get_y(d, t)[0]
 			});
-		for(var t = layer.lineStepNum() - 1; t >= 0; t--)
+		for(var t = layer.nsteps() - 1; t >= 0; t--)
 			lineData.push({
 				x: layer.get_x(d, t)[1],
 				y: layer.get_y(d, t)[1]
@@ -300,7 +320,7 @@ export function pointRibbon(id, chart) {
 	layer.layerDomainX(function() {
 		var domain = [];
 		layer.elementIds().map(function(id) {
-			return d3.range(layer.lineStepNum()).map(function(e){
+			return d3.range(layer.nsteps()).map(function(e){
 				if(domain.length == 0)
 					domain = layer.get_x(id, e)
 				else {
@@ -316,7 +336,7 @@ export function pointRibbon(id, chart) {
 	layer.layerDomainY(function() {
 		var domain = [];
 		layer.elementIds().map(function(id) {
-			return d3.range(layer.lineStepNum()).map(function(e){
+			return d3.range(layer.nsteps()).map(function(e){
 				if(domain.length == 0)
 					domain = layer.get_y(id, e)
 				else {
