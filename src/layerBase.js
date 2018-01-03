@@ -59,6 +59,8 @@ export function layerBase(id) {
 
   layer.colourDomain(function() {
     var ids = layer.elementIds();
+    if(ids.length == 0)
+      return;
     if(layer.get_colourValue(ids[0]) !== undefined){
       var range = [];
       for(var i = 0 ; i < ids.length; i++)

@@ -90,7 +90,7 @@ Sometimes you don't have the function, but just want to connect some dots. Curre
 are no special types of lines for this task, but you can use [parametricCurve] and make your functions defined only for some
 certain values inside [paramRange](), by setting a specific number of steps ([nsteps]()).
 
-For examle, you can set the [paramRange]() to <code>[0, n-1]</code> and number of steps to <code>n</code>. Then you can define
+For examle, you can set the [paramRange]() to <code>[0, n]</code> and number of steps to <code>n</code>. Then you can define
 [xFunction]() and [yFunction]() only for integer values from _0_ to _n-1_ and just ennumerate the dots, you want to connect.
 
 Note that because of machine errors, values of the parameter may be not exactly integer and should be rounded.
@@ -107,7 +107,7 @@ for(var i = 0; i < 20; i++){
 var line = lc.parametricCurve()
 	.xFunction(function(t) {return x[Math.round(t)];})
 	.yFunction(function(t) {return y[Math.round(t)];})
-	.paramRange([0, 19])
+	.paramRange([0, 20])
 	.nsteps(20)
   .place();
 
