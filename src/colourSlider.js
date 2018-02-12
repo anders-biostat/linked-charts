@@ -148,14 +148,26 @@ export function colourSlider() {
   var inherited_update = obj.update;
   obj.update = function() {
     inherited_update();
+    if(obj.get_straightColourScale.domain == undefined)
+      obj.get_straightColourScale.domain = function() {
+        return [0, 1];
+      }
 		var domain = obj.get_straightColourScale.domain(),
       percScDomain = [],
       posScDomain = [];
 
+    var allNum = true;
     for(var i = 0; i < domain.length; i++){
       percScDomain.push(i * 100 / (domain.length - 1));
       posScDomain.push(i * obj.plotWidth() / (domain.length - 1));
+      allNum = (typeof domain[i] === "number") && allNum;
     }
+
+    if(!allNum) {
+      obj.colourScale = obj.get_straightColourScale;
+      return obj;
+    }
+
 
     var percent_scale = d3.scaleLinear()
       .domain( percScDomain )

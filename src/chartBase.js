@@ -8,7 +8,7 @@ export function chartBase() {
 	var chart = base()
 		.add_property("width", 500)
 		.add_property("height", 500)
-		.add_property("margins", { top: 15, right: 10, bottom: 50, left: 50 })
+		.add_property("margins", { top: 35, right: 10, bottom: 50, left: 50 })
 		.add_property("title", "")
 		.add_property("titleX", function() {return chart.width() / 2;})
 		.add_property("titleY", function() {return d3.min([17, chart.margins().top * 0.9]);})

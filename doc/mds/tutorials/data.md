@@ -128,7 +128,7 @@ getting all the data in when the page is loading. Let's imagine that we have thr
 and <code>[data3.json](../src/data/data3.json)</code>. For this simple example these are just
 sets of coordinates for a hundred points each.
 
-<pre class = "tiy" height=500 
+<pre class = "tiy" fitHeight=true 
   tiy-preload="../src/linked-charts.min.js;../src/linked-charts.css">
 d3.select("body").append("div")
   .attr("id", "scatter");
@@ -194,7 +194,7 @@ or any other parser of your choice.
 For the next example download [this CSV file](../src/data/iris.csv) and then open it using the
 provided form.
 
-<pre class = "tiy" height=500 
+<pre class = "tiy" fitHeight=true 
   tiy-preload="../src/linked-charts.min.js;../src/linked-charts.css">
 //add an input form
 d3.select("body").append("input")

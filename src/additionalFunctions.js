@@ -12,13 +12,13 @@ export function cache( f ) {
   }
 }
 
-export function separateBy(data, properties){
+export function separateBy(data, properties, type){
   if(typeof data !== "object")
     throw "Error in function 'separateBy': first argument is not an object";
   
   //check if data is an object or an array
   var type;
-  typeof data.length === "undefined" ? type = "obj" : type = "arr";
+  data.length === undefined ? type = "obj" : type = "arr";
 
   if(typeof properties === "number" || typeof properties === "string")
     properties = [properties];
@@ -26,7 +26,7 @@ export function separateBy(data, properties){
   if(typeof properties.length === "undefined")
     throw "Error in function 'separateBy': " + properties.toString() +
           " is not a property name"; 
-  
+
   //end of a recursive function. There are no more properties to
   //separate by
   if(properties.length == 0)
@@ -36,32 +36,42 @@ export function separateBy(data, properties){
   //if data is an array, keys = ["0", "1", "2", ...]
   var keys = Object.keys(data);
 
-  //go through all elements to find all possible values of the selected property
+/*  //go through all elements to find all possible values of the selected property
   for(var i = 0; i < keys.length; i++){
     if(typeof data[keys[i]][properties[0]] !== "undefined" &&
       uniqueList.indexOf(data[keys[i]][properties[0]]) == -1
     )
       uniqueList.push(data[keys[i]][properties[0]]);
-  }
+  } */
 
   //if none of the objects have this property, continue with the next step
   //of the recursion
-  if(uniqueList.length == 0){
+  var found = false, i = 0;
+  while(!found && i < keys.length) {
+    if(data[keys[i]][properties[0]] !== "undefined")
+      found = true;
+    i++;
+  }
+  if(!found) {
     properties.shift();
     return separateBy(data, properties)
   }
+
   //otherwise initialize properties of the new object
-  for(var i = 0; i < uniqueList.length; i++)
-    type == "obj" ? newData[uniqueList[i]] = {} : newData[uniqueList[i]] = [];
+  //for(var i = 0; i < uniqueList.length; i++)
+  //  type == "obj" ? newData[uniqueList[i]] = {} : newData[uniqueList[i]] = [];
 
   //go through all the elements again and place them in a suitable category
   var newElement;
   for(var i = 0; i < keys.length; i++){
     value = data[keys[i]][properties[0]];
-    if(typeof value !== "undefined"){
+    if(value !== undefined) {
       newElement = {};
       Object.assign(newElement, data[keys[i]]);
       delete newElement[properties[0]];
+      if(newData[value] === undefined)
+        type == "obj" ? newData[value] = {} : newData[value] = [];
+
       if(type == "obj") newData[value][keys[i]] = {};
       type == "obj" ? newData[value][keys[i]] = newElement :
                       newData[value].push(newElement);
@@ -69,19 +79,20 @@ export function separateBy(data, properties){
   }
   //if type is array but all values of the property are unique change arrays in objects
   //May be this should be optional
-  if(type == "arr"){
-    var change = true, i = 0;
-    while(change && i < uniqueList.length){
-      change = (newData[uniqueList[i]].length == 1);
+  if(type == "arr") {
+    var change = true, i = 0,
+    newProperties = Object.keys(newData);
+    while(change && i < newProperties.length) {
+      change = (newData[newProperties[i]].length == 1);
       i++;
     }
     if(change){
       var a;
-      for(var i = 0; i < uniqueList.length; i++){
+      for(var i = 0; i < newProperties.length; i++){
         a = {};
-        Object.assign(a, newData[uniqueList[i]][0]);
-        newData[uniqueList[i]] = {};
-        Object.assign(newData[uniqueList[i]], a);
+        Object.assign(a, newData[newProperties[i]][0]);
+        newData[newProperties[i]] = {};
+        Object.assign(newData[newProperties[i]], a);
       }
     }
   }
@@ -89,8 +100,8 @@ export function separateBy(data, properties){
   //recursively
   properties.shift();
   
-  for(var i = 0; i < uniqueList.length; i++)
-    newData[uniqueList[i]] = separateBy(newData[uniqueList[i]], properties.slice());
+  for(var i = 0; i < newProperties.length; i++)
+    newData[newProperties[i]] = separateBy(newData[newProperties[i]], properties.slice());
   return newData;
 }
 

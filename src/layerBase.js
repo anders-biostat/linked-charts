@@ -61,15 +61,19 @@ export function layerBase(id) {
     var ids = layer.elementIds();
     if(ids.length == 0)
       return;
-    if(layer.get_colourValue(ids[0]) !== undefined){
+    //if(layer.get_colourValue(ids[0]) !== undefined){
       var range = [];
       for(var i = 0 ; i < ids.length; i++)
         //colour range can contain only unique values
         if(range.indexOf(layer.get_colourValue(ids[i])) == -1)
           range.push(layer.get_colourValue(ids[i]));
 
+      var undi = range.indexOf(undefined);
+      if(undi > -1)
+        range.splice(undi, 1);
+
       return range;
-    }
+    //}
   });
 
   layer.colourScale = function(){
@@ -78,8 +82,9 @@ export function layerBase(id) {
 
   layer.resetColourScale = function() {
     var range = layer.colourDomain();
-    if(range === undefined)
+    if(range === undefined || range.length == 0)
       return;
+
     //first of all, let's check if the colour scale supposed to be
     //categorical or continuous
     var allNum = true;
@@ -87,18 +92,19 @@ export function layerBase(id) {
       allNum = allNum && typeof range[i] === "number";
     if(allNum)
       range.sort(function(a, b) {return a - b});
+    var palette = layer.palette();    
+    
     if(allNum){
       //the scale is continuous
       //Now look at the palette
-      if(typeof layer.get_palette() == "undefined")
+      if(palette == undefined)
         if(d3.interpolateSpectral)
-          layer.palette(d3.interpolateSpectral)
+          palette = d3.interpolateSpectral
         else
-          layer.palette(["red", "yellow", "green", "blue"]);
+          palette = ["red", "yellow", "green", "blue"];
       //if palette is an array of colors, make a linear colour scale using all
       //values of the palette as intermideate points
-      if(layer.get_palette().splice){
-        var palette = layer.get_palette();
+      if(palette.splice){
         if(palette.length != range.length)
           range = [d3.min(range), d3.max(range)];
         if(palette.length == 1)
@@ -122,22 +128,21 @@ export function layerBase(id) {
         //if palette has a domain - use it, otherwise set a domain to
         //[0, 1] (used in d3. interpolators)
         var pDomain = [0, 1];
-        if(layer.get_palette().domain)
-          pDomain = layer.get_palette().domain();
+        if(palette.domain)
+          pDomain = palette.domain();
 
         layer.colourValueScale = d3.scaleLinear()
           .domain(range)
           .range(pDomain);
         layer.colourScale = function(val) {
-          return layer.get_palette(layer.colourValueScale(val));
+          return palette(layer.colourValueScale(val));
         }
       }
     } else {
       //the colour scale is categorical
-      if(typeof layer.get_palette() === "undefined")
-        layer.palette(["#000"].concat(d3.schemeCategory10));
-      if(layer.get_palette().length){
-        var palette = layer.get_palette();
+      if(palette === undefined)
+        palette = d3.schemeCategory10;
+      if(palette.length){
         //just make sure that palette has enough elements to provide
         //colour to each object type
         var paletteLength = palette.length;
@@ -146,20 +151,21 @@ export function layerBase(id) {
 
         layer.colourValueScale = d3.scaleOrdinal()
           .domain(range)
-          .range(palette);      
+          .range(palette)
+          .unknown("black");      
         layer.colourScale = function(val) {
           return layer.colourValueScale(val);
         }
       } else {
         var pDomain = [0, 1];
-        if(layer.get_palette().domain)
-          pDomain = layer.get_palette().domain();
+        if(palette.domain)
+          pDomain = palette.domain();
 
         layer.colourValueScale = d3.scalePoint()
           .domain(range)
           .range(pDomain);        
         layer.colourScale = function(val) {
-          return layer.get_palette(layer.colourValueScale(val));
+          return palette(layer.colourValueScale(val));
         }
       } 
     }
