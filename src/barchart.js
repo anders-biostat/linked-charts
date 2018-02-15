@@ -57,7 +57,7 @@ export function barchart(id, chart){
 	layer.nstacks(1);
 	layer.contScaleX(false);
 	layer.elementIds(function(){
-		if(layer.nbars() == 1)
+		if(layer.nbars() == 1 && layer.barIds()[0] == 0)
 			return layer.stackIds();
 		var ids = [], barIds = layer.barIds(), stackIds = layer.stackIds();
 		for(var i = 0; i < layer.nbars(); i++)
@@ -65,13 +65,19 @@ export function barchart(id, chart){
 				ids.push(barIds[i] + ", " + stackIds[j]);
 		return ids;
 	});
-	layer.colourValue(function(id) {return id;});
+	layer.colourValue(function(id) {
+		if(id.split && layer.nstacks() == 1 && layer.stackIds()[0] == 0)
+			return id.split(", ")[0]
+		else 
+			return id;
+	});
 	layer.colour(function(gropuId, barId, stackId) {
-      if(layer.nbars() == 1)
-      	return layer.colourScale(layer.get_colourValue(stackId))
+      if((layer.nbars() == 1) && (barId == 0))
+      		return layer.colourScale(layer.get_colourValue(stackId))
       else
       	return layer.colourScale(layer.get_colourValue(barId + ", " + stackId));
     })
+	layer.addColourScaleToLegend(true);
 
 	layer.layerDomainX(function() {
 		return layer.groupIds();

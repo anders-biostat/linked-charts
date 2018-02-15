@@ -28,6 +28,8 @@ export function heatmap(id, chart){
 		.add_property("rowTitle", "")
 		.add_property("showValue", false)
 		.add_property("colTitle", "")
+		.add_property("elementMouseOver")
+		.add_property("elementMouseOut")
 		.add_property("informText", function(rowId, colId) {
 			var value = chart.get_value(rowId, colId);
 			if(typeof value == "number")
@@ -621,6 +623,7 @@ export function heatmap(id, chart){
 		chart.container.select(".inform")
 			.classed("hidden", false);
 		}
+		chart.get_elementMouseOver(d[0], d[1]);
 	};
 	function elementMouseOut(d) {
 		//change colour and class
@@ -638,6 +641,7 @@ export function heatmap(id, chart){
 			chart.container.select(".inform")
 				.classed("hidden", true);
 		}
+		chart.get_elementMouseOut(d[0], d[1]);		
 	};
 	
 	//set default clicking behaviour for labels (ordering)
