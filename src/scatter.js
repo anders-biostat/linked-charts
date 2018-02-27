@@ -236,6 +236,8 @@ export function scatter(id, chart) {
       .attr("stroke", function(d) {return layer.get_stroke(d)})
       .attr("stroke-width", function(d) {return layer.get_strokeWidth(d)})
       .attr( "opacity", function(d) { return layer.get_opacity(d)} )
+    layer.restoreMarked();
+    return layer.chart;
   }
 
   layer.dresser(function(sel) {

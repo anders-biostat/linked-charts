@@ -229,6 +229,7 @@ export function barchart(id, chart){
 				.attr("opacity", function(d){
 					return layer.get_opacity(d[0], d[1], d[2]);
 				});
+		layer.restoreMarked();
 	}
 
 	layer.updateElements = function(){
