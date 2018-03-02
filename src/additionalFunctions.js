@@ -162,23 +162,16 @@ export function add_click_listener(chart){
     chart.container.selectAll(".inform")
       .classed("blocked", true);
 
-    document.addEventListener("mouseup", function() {
-      chart.container.selectAll(".inform")
-        .classed("blocked", false);
-      chart.svg.select("rect.selection").remove();
-      chart.svg.select(".shadow").remove();
-      if(panStarted) {
-        panStarted = false;
-        chart.transitionOff = false;
-      }
+    document.addEventListener("mousemove", on_mousemove, false);
 
-      document.onmouseup = null;
-    }, false);
+    document.addEventListener("mouseup", on_mouseup, false);
   }
   var wait = false;
-  var on_mousemove = function(){
+  var on_mousemove = function(e){
     var s = chart.svg.select(".selection"),
-      p = d3.mouse(this);
+      rect = chart.svg.select(".clickPanel").node().getBoundingClientRect(),
+      p = [d3.max([d3.min([e.clientX - rect.left, chart.plotWidth()]), 0]), 
+            d3.max([d3.min([e.clientY - rect.top, chart.plotHeight()]), 0])]; 
         
     if(panStarted){
       if(!wait){
@@ -232,23 +225,28 @@ export function add_click_listener(chart){
     }
   }
 
-  var on_mouseup = function(){
-    var pos = d3.mouse(this);
+  var on_mouseup = function(e) {
+ 
+    var rect = chart.svg.select(".clickPanel").node().getBoundingClientRect(),
+      pos = [d3.max([d3.min([e.clientX - rect.left, chart.plotWidth()]), 0]), 
+            d3.max([d3.min([e.clientY - rect.top, chart.plotHeight()]), 0])];
+    d3.event = e;
 
+    console.log("up");
     var mark = d3.event.shiftKey || chart.selectMode();
     // remove selection frame
     chart.container.selectAll(".inform")
       .classed("blocked", false);
 
     if(!chart.svg.select("rect.selection").empty())
-      var x = chart.svg.selectAll("rect.selection").attr("x") * 1,
-        y = chart.svg.selectAll("rect.selection").attr("y") * 1,
-        w = chart.svg.selectAll("rect.selection").attr("width") * 1,
-        h = chart.svg.selectAll("rect.selection").attr("height") * 1,
+      var x = +chart.svg.selectAll("rect.selection").attr("x"),
+        y = +chart.svg.selectAll("rect.selection").attr("y"),
+        w = +chart.svg.selectAll("rect.selection").attr("width"),
+        h = +chart.svg.selectAll("rect.selection").attr("height"),
         lu = [x, y], 
         rb = [x + w, y + h];
     
-    var elements = d3.select(this);
+    var elements = chart.svg.selectAll(".plotArea");
     
     chart.svg.selectAll("rect.selection").remove();
     chart.svg.select(".shadow").remove();
@@ -294,7 +292,10 @@ export function add_click_listener(chart){
     if(mark)
       chart.mark(chart.findElements(lu, rb))
     else 
-      chart.zoom(lu, rb);      
+      chart.zoom(lu, rb);
+
+    document.onmousemove = null;
+    document.onmouseup = null;      
   }
   var on_dblclick = function(mark){
     mark ? chart.mark("__clear__") : chart.resetDomain();
@@ -340,8 +341,8 @@ export function add_click_listener(chart){
 
   chart.svg.selectAll(".plotArea")
     .on("mousedown", on_mousedown, true)
-    .on("mousemove", on_mousemove, true)
-    .on("mouseup", on_mouseup, true)
+    //.on("mousemove", on_mousemove, true)
+    //.on("mouseup", on_mouseup, true)
     .on("dblclick", on_dblclick, true)
     .on("click", on_panelClick, true);
   

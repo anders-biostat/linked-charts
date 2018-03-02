@@ -168,7 +168,7 @@ export function layerChart(){
 	chart.get_elements = function(ids){
 		if(ids.splice === undefined)
 			ids = [ids];
-		if(ids.legnth == 2 && Object.keys(chart.layers).indexOf(ids[0]) > -1)
+		if(ids.length == 2 && Object.keys(chart.layers).indexOf(ids[0]) > -1)
 			ids = [ids];
 		for(var i = 0; i < ids.length; i++)
 			if(ids[i].splice === undefined)
@@ -187,7 +187,7 @@ export function layerChart(){
 				}))
 		}
 
-		return selectedIds.legnth == 0 ? d3.select("_______") : 
+		return selectedIds.length == 0 ? d3.select("_______") : 
 			chart.svg.selectAll(".chart_g").selectAll("#" + selectedIds.join(",#").replace(/[ .]/g, "_"));
 
 	}
