@@ -361,12 +361,20 @@ export function axesChart() {
 	chart.panMove = function(p){
 		var domainX = chart.axes.scale_x.domain(),
 			domainY = chart.axes.scale_y.domain();
+		
 		if(chart.axes.scale_x.invert){
+			//x-scale is continuous
 			var invPx = chart.axes.scale_x.invert(p[0]),
 				moveX = invPx - chart.axes.scale_x.invert(chart.pan("down")[0]);
 			chart.pan("down")[0] = p[0];
-			chart.domainX([domainX[0] - moveX, domainX[1] - moveX]);
+			var newDomainX = [domainX[0] - moveX, domainX[1] - moveX];
+			if(chart.logScaleX()){
+				if(newDomainX[0] <= 0) newDomainX[0] = domainX[0];
+				if(newDomainX[1] <= 0) newDomainX[1] = domainX[1]; 
+			}
+			chart.domainX(newDomainX);
 		} else {
+			//x-scale is categorical
 			var moveX = p[0] - chart.pan("down")[0],
 				steps = Math.floor(Math.abs(moveX) / chart.axes.scale_x.step() * 2);
 			if(steps > 0){
@@ -386,11 +394,18 @@ export function axesChart() {
 		}
 
 		if(chart.axes.scale_y.invert){
+			//y-scale is continuous
 			var invPy = chart.axes.scale_y.invert(p[1]),
 				moveY = invPy - chart.axes.scale_y.invert(chart.pan("down")[1]);
 			chart.pan("down")[1] = p[1];
-			chart.domainY([domainY[0] - moveY, domainY[1] - moveY]);
+			var newDomainY = [domainY[0] - moveY, domainY[1] - moveY];
+			if(chart.logScaleY()){
+				if(newDomainY[0] <= 0) newDomainY[0] = domainY[0];
+				if(newDomainY[1] <= 0) newDomainY[1] = domainY[1]; 
+			}
+			chart.domainX(newDomainY);
 		} else {
+			//y-scale is categorical
 			var moveY = p[1] - chart.pan("down")[1],
 				steps = Math.floor(Math.abs(moveY) / chart.axes.scale_y.step() * 2);
 			if(steps > 0){
