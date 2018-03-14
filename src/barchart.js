@@ -199,37 +199,26 @@ export function barchart(id, chart){
 	}
 	layer.updateElementStyle = function(){
 		layer.resetColourScale();
+    var sel = layer.g.selectAll(".data_element");
+    if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
+      sel = sel.transition("elementStyle")
+        .duration(layer.chart.transitionDuration());
 
-		if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
-			layer.g.selectAll(".data_element").transition("elementStyle")
-				.duration(chart.transitionDuration())
-				.attr("fill", function(d) {
-					return layer.get_colour(d[0], d[1], d[2]);
-				})
-				.attr("stroke", function(d) {
-					return layer.get_stroke(d[0], d[1], d[2]);
-				})
-				.attr("stroke-width", function(d) {
-					return layer.get_strokeWidth(d[0], d[1], d[2]);
-				})
-				.attr("opacity", function(d){
-					return layer.get_opacity(d[0], d[1], d[2]);
-				})
-		else
-			layer.g.selectAll(".data_element")
-				.attr("fill", function(d) {
-					return layer.get_colour(d[0], d[1], d[2]);
-				})
-				.attr("stroke", function(d) {
-					return layer.get_stroke(d[0], d[1], d[2]);
-				})
-				.attr("stroke-width", function(d) {
-					return layer.get_strokeWidth(d[0], d[1], d[2]);
-				})
-				.attr("opacity", function(d){
-					return layer.get_opacity(d[0], d[1], d[2]);
-				});
-		layer.restoreMarked();
+		sel.duration(chart.transitionDuration())
+			.attr("fill", function(d) {
+				return layer.get_colour(d[0], d[1], d[2]);
+			})
+			.attr("stroke", function(d) {
+				return layer.get_stroke(d[0], d[1], d[2]);
+			})
+			.attr("stroke-width", function(d) {
+				return layer.get_strokeWidth(d[0], d[1], d[2]);
+			});
+		if(layer.chart.get_marked().length == 0)
+			sel.attr("opacity", function(d){
+				return layer.get_opacity(d[0], d[1], d[2]);
+			});
+
 	}
 
 	layer.updateElements = function(){

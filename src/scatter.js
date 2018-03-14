@@ -234,9 +234,9 @@ export function scatter(id, chart) {
       })
       .attr("fill", function(d) {return layer.get_colour(d)})
       .attr("stroke", function(d) {return layer.get_stroke(d)})
-      .attr("stroke-width", function(d) {return layer.get_strokeWidth(d)})
-      .attr( "opacity", function(d) { return layer.get_opacity(d)} )
-    layer.restoreMarked();
+      .attr("stroke-width", function(d) {return layer.get_strokeWidth(d)});
+    if(layer.chart.get_marked().length == 0)
+      sel.attr("opacity", function(d) { return layer.get_opacity(d)} );
     return layer.chart;
   }
 

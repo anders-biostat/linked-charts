@@ -207,17 +207,10 @@ export function layerBase(id) {
   layer.updateElementStyle = function() {
     layer.resetColourScale();
   	layer.get_dresser(layer.g.selectAll(".data_element"));
-    layer.restoreMarked();
 
   	return layer;
   };
 
-  layer.restoreMarked = function() {
-    var marked = layer.chart.get_elements(layer.chart.get_marked()
-        .filter(function(e) {return e[0] == layer.id}));
-    marked
-      .attr("opacity", 0.5);
-  }
   layer.updateElementPosition = function() {};
   layer.findElements = function() {return d3.select("_______");}; //return empty selection	
 	layer.get_position = function(id) {return undefined;}

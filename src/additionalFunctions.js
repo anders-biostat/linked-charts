@@ -232,7 +232,6 @@ export function add_click_listener(chart){
             d3.max([d3.min([e.clientY - rect.top, chart.plotHeight()]), 0])];
     d3.event = e;
 
-    console.log("up");
     var mark = d3.event.shiftKey || chart.selectMode();
     // remove selection frame
     chart.container.selectAll(".inform")
@@ -289,10 +288,11 @@ export function add_click_listener(chart){
     }
 
     // remove temporary selection marker class
-    if(mark)
-      chart.mark(chart.findElements(lu, rb))
-    else 
-      chart.zoom(lu, rb);
+    if(lu)
+      if(mark)
+        chart.mark(chart.findElements(lu, rb))
+      else 
+        chart.zoom(lu, rb);
 
     document.onmousemove = null;
     document.onmouseup = null;      
