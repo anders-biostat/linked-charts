@@ -204,7 +204,7 @@ export function barchart(id, chart){
       sel = sel.transition("elementStyle")
         .duration(layer.chart.transitionDuration());
 
-		sel.duration(chart.transitionDuration())
+		sel
 			.attr("fill", function(d) {
 				return layer.get_colour(d[0], d[1], d[2]);
 			})

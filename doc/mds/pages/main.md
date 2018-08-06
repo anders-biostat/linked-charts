@@ -165,4 +165,4 @@ Feel free to contact us with any questions or suggestions.
 
 Simon Anders: [s.anders@zmbh.uni-heidelberg.de](mailto:s.anders@zmbh.uni-heidelberg.de)
 
-Svetlana Ovchinnikova: [s.ovchinnikova@uni-heidelberg.de](mailto:s.anders@zmbh.uni-heidelberg.de)
+Svetlana Ovchinnikova: [s.ovchinnikova@zmbh.uni-heidelberg.de](mailto:s.ovchinnikova@zmbh.uni-heidelberg.de)

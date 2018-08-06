@@ -3,25 +3,26 @@ export function base() {
   var obj = {};
   obj.propList = [];
 
-  obj.add_property = function( propertyName, defaultValue ) {
+  obj.add_property = function( propertyName, defaultValue, typeCheck ) {
     //save the name of the property
     obj.propList.push(propertyName);
 		
     var getter = "get_" + propertyName;
 
     //define the setter
-    obj[ propertyName ] = function( vf, wrapFunc ) {
+    obj[ propertyName ] = function( vf ) {
       //if value is not defined, consider this a getter call
       if( vf === undefined )
-        return obj[ getter ]();      
+        return obj[ getter ]();
 
+      if(typeof typeCheck === "function")
+         vf = typeCheck(vf);
       //if value is a function replace the getter with it,
       //otherwise replace getter with a function that returns this value
       if( typeof(vf) === "function" )
         obj[ getter ] = vf
-      else
+      else 
         obj[ getter ] = function() { return vf };
-
 
       //setter always returns chart, never layer
       if(obj.layers)

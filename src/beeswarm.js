@@ -11,7 +11,12 @@ export function beeswarm(id, chart) {
   scatter(id, chart);
   
   var layer = chart.get_layer(id);
-  layer.add_property("valueAxis", "y");
+  layer.add_property("valueAxis", "y", function(value){
+    if(value != "x" && value != "y" && typeof value != "function")
+      throw "Error in 'typeCheck' for 'valueAxis': axis name" +
+            "should be 'x' or 'y'";
+    return value;
+  });
 	chart.syncProperties(layer);
   layer.type = "beeswarm";
 

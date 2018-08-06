@@ -1,28 +1,28 @@
 import { base } from "./base";
-import { getEuclideanDistance } from "./additionalFunctions";
+import { getEuclideanDistance, check } from "./additionalFunctions";
 
 export function layerBase(id) {
 	
 	var layer = base()
-    .add_property("nelements")
-    .add_property("elementIds")
-    .add_property("elementLabel", function(i) {return i;})
+    .add_property("nelements", undefined, check("number_nonneg", "width"))
+    .add_property("elementIds", undefined, check("array", "elementIds"))
+    .add_property("elementLabel", function(i) {return i;}, check("array_fun", "elementLabel"))
 		.add_property("elementMouseOver", function() {})
 		.add_property("elementMouseOut", function() {})
 		.add_property("on_click", function() {})
-		.add_property("layerDomainX")
-		.add_property("layerDomainY")
+		.add_property("layerDomainX", undefined, check("array", "layerDomainX"))
+		.add_property("layerDomainY", undefined, check("array", "layerDomainY"))
 		.add_property("contScaleX", true)
 		.add_property("contScaleY", true)
     .add_property("colour", function(id) {
       return layer.colourScale(layer.get_colourValue(id));
-    })
+    }, check("array_fun", "colour"))
     .add_property("addColourScaleToLegend", true)
-    .add_property("palette")
-    .add_property("colourDomain")
-    .add_property("colourValue", undefined)
+    .add_property("palette", undefined, check("array", "palette"))
+    .add_property("colourDomain", check("array", "colourDomain"))
+    .add_property("colourValue", undefined, check("array_fun", "colourValue"))
     .add_property("colourLegendTitle", function(){return "colour_" + layer.id})
-    .add_property("opacity", 1)
+    .add_property("opacity", 1, check("number_nonneg", "opacity"))
 		.add_property("dresser", function() {})
     .add_property("informText", function(id) {
       return "<b>ID:</b> " + layer.get_elementLabel(id);
@@ -85,6 +85,19 @@ export function layerBase(id) {
     if(range === undefined || range.length == 0)
       return;
 
+    if(layer.chart.globalColourScale()) {
+      range = layer.chart.globalColourDomain(layer.id, range);
+      var l;
+      for(var layerId in layer.chart.layers){
+        l = layer.chart.get_layer(layerId);
+        if(layerId != layer.id && !l.globalScaleUpdate){
+          l.globalScaleUpdate = true;
+          l.updateElementStyle();
+        }
+
+      }
+    }
+
     //first of all, let's check if the colour scale supposed to be
     //categorical or continuous
     var allNum = true;
@@ -140,6 +153,7 @@ export function layerBase(id) {
       }
     } else {
       //the colour scale is categorical
+      range = range.sort()
       if(palette === undefined)
         palette = d3.schemeCategory10;
       if(palette.length){
@@ -198,7 +212,7 @@ export function layerBase(id) {
     layer.g = layer.chart.svg.selectAll(".plotArea").append("g")
       .attr("class", "chart_g")
       .attr("id", layer.id)
-      .attr("clip-path", "url(#" + layer.chart.svg.selectAll("clipPath").attr("id") + ")");
+      .attr("clip-path", "url(#" + layer.chart.svg.selectAll("clippath").attr("id") + ")");
     //layer.chart.svg.select(".clickPanel").raise();
 	};
   

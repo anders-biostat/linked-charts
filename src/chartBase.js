@@ -1,24 +1,38 @@
 import { base } from "./base";
-import { escapeRegExp } from "./additionalFunctions";
+import { escapeRegExp, check } from "./additionalFunctions";
 import { panel } from "./panel";
 import { legend } from "./legend";
 
 export function chartBase() {
 	//add and set new properties
 	var chart = base()
-		.add_property("width", 500)
-		.add_property("height", 500)
-		.add_property("margins", { top: 35, right: 10, bottom: 50, left: 50 })
+		.add_property("width", 500, check("number_nonneg", "width"))
+		.add_property("height", 500, check("number_nonneg", "height"))
+		.add_property("margins", { top: 35, right: 10, bottom: 50, left: 50 }, 
+			function(value) {
+				if(typeof value === "function")
+					return value;
+				if(value.top === undefined)
+					throw "Error in 'typeCheck' for property 'margins': top-margin is not defined";
+				if(value.left === undefined)
+					throw "Error in 'typeCheck' for property 'margins': left-margin is not defined";
+				if(value.bottom === undefined)
+					throw "Error in 'typeCheck' for property 'margins': bottom-margin is not defined";
+				if(value.right === undefined)
+					throw "Error in 'typeCheck' for property 'margins': right-margin is not defined";
+				return value;
+			})
 		.add_property("title", "")
-		.add_property("titleX", function() {return chart.width() / 2;})
-		.add_property("titleY", function() {return d3.min([17, chart.margins().top * 0.9]);})
-		.add_property("titleSize", function() {return d3.min([15, chart.margins().top * 0.8]);})
-		.add_property("transitionDuration", 1000) //may be set to zero
+		.add_property("titleX", function() {return chart.width() / 2;}, check("number_nonneg", "titleX"))
+		.add_property("titleY", function() {return d3.min([17, chart.margins().top * 0.9]);}, check("number_nonneg", "titleY"))
+		.add_property("titleSize", function() {return d3.min([15, chart.margins().top * 0.8]);}, check("number_nonneg", "titleSize"))
+		.add_property("transitionDuration", 1000, check("number_nonneg", "transitionDuration")) //may be set to zero
 		.add_property("markedUpdated", function() {})
 		.add_property("showPanel", true)
+		.add_property("clickSingle", true)		
 		.add_property("showLegend", true)
-		.add_property("plotWidth")
-		.add_property("plotHeight"); 
+		.add_property("plotWidth", undefined, check("number_nonneg", "plotWidth"))
+		.add_property("plotHeight", undefined, check("number_nonneg", "plotHeight")); 
 	  
 	chart.legend = legend(chart); 
 
@@ -139,7 +153,7 @@ export function chartBase() {
 		//for the use tag to work correctly, all the IDs on the page need to
 		//unique. So we generate a random ID for a viewbox
 		chart.viewBox = chart.svg.append("defs")
-			.append("clipPath")
+			.append("clippath")
 				.attr("id", "viewBox" + Math.random().toString(36).substring(2, 6))
 				.append("rect");
 		//information label

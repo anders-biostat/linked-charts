@@ -4,13 +4,14 @@ import { scatter } from "./scatter";
 import { beeswarm } from "./beeswarm";
 import { barchart } from "./barchart";
 import { layerBase } from "./layerBase";
-import { add_click_listener } from "./additionalFunctions"
+import { add_click_listener, check } from "./additionalFunctions"
 
 export function layerChart(){
 	var chart = chartBase()
 		.add_property("activeLayer", undefined)
-		.add_property("layerIds", function() {return Object.keys(chart.layers);})
-		.add_property("layerType", function(id) {return chart.get_layer(id).type;});
+		.add_property("layerIds", function() {return Object.keys(chart.layers);}, check("array", "layerIds"))
+		.add_property("layerType", function(id) {return chart.get_layer(id).type;}, check("array_fun", "layerType"))
+		.add_property("globalColourScale", true);
 
 	//Basic layer functionality
 	chart.layers = {};
@@ -148,6 +149,24 @@ export function layerChart(){
 		if(layerSelection.length == 0)
 			return chart;
 		return layerSelection;
+	}
+
+	var domains = {};
+	chart.globalColourDomain = function(layerId, domain) {
+		if(layerId !== undefined) 
+			domains[layerId] = domain;
+
+		var mainDomain = [];
+		for(var d in chart.layers) {
+			if(!domains[d])
+				domains[d] = chart.get_layer(d).colourDomain();
+			mainDomain = mainDomain.concat(domains[d]);
+		}
+		mainDomain.filter(function(el, ind, self) {
+			return el !== undefined && self.indexOf(el) === ind;
+		})
+
+		return mainDomain;
 	}
 
 	chart.place_layer = function(id){

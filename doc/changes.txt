@@ -1,0 +1,3 @@
+- addProperty got new argument
+- globalColourScale
+- singleClick

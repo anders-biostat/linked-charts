@@ -1,4 +1,5 @@
 import { axesChart } from "./axesChart";
+import { check } from "./additionalFunctions";
 
 function line(id, chart){
 	
@@ -245,8 +246,8 @@ export function pointLine(id, chart){
 	layer.type = "pointLine";
 
 	layer
-		.add_property("x")
-		.add_property("y");
+		.add_property("x", undefined, check("matrix_fun", "x"))
+		.add_property("y", undefined, check("matrix_fun", "y"));
 	layer.chart.syncProperties(layer);
 
 	layer.get_data = function(d){
@@ -289,6 +290,10 @@ export function pointRibbon(id, chart) {
 
 	var layer = pointLine(id, chart).activeLayer();
 
+	layer
+		.add_property("ymax", undefined, check("matrix_fun", "ymax"))
+		.add_property("ymin", undefined, check("matrix_fun", "ymin"));
+
 	layer.type = "pointRibbon";
 	layer.chart.syncProperties(layer);
 
@@ -299,13 +304,13 @@ export function pointRibbon(id, chart) {
 		var lineData = [];		
 		for(var t = 0; t < layer.nsteps(); t++)
 			lineData.push({
-				x: layer.get_x(d, t)[0],
-				y: layer.get_y(d, t)[0]
+				x: layer.get_x(d, t),
+				y: layer.get_ymin(d, t)
 			});
 		for(var t = layer.nsteps() - 1; t >= 0; t--)
 			lineData.push({
-				x: layer.get_x(d, t)[1],
-				y: layer.get_y(d, t)[1]
+				x: layer.get_x(d, t),
+				y: layer.get_ymax(d, t)
 			});
 		return lineData;
 	};
@@ -322,10 +327,10 @@ export function pointRibbon(id, chart) {
 		layer.elementIds().map(function(id) {
 			return d3.range(layer.nsteps()).map(function(e){
 				if(domain.length == 0)
-					domain = layer.get_x(id, e)
+					domain = [layer.get_x(id, e), layer.get_x(id, e)]
 				else {
-					domain[0] = d3.min(layer.get_x(id, e).concat(domain[0]));
-					domain[1] = d3.max(layer.get_x(id, e).concat(domain[1]));
+					domain[0] = d3.min([layer.get_x(id, e), domain[0]]);
+					domain[1] = d3.max([layer.get_x(id, e), domain[1]]);
 				}
 			})
 		});
@@ -338,10 +343,10 @@ export function pointRibbon(id, chart) {
 		layer.elementIds().map(function(id) {
 			return d3.range(layer.nsteps()).map(function(e){
 				if(domain.length == 0)
-					domain = layer.get_y(id, e)
+					domain = [layer.get_y(id, e), layer.get_y(id, e)]
 				else {
-					domain[0] = d3.min(layer.get_y(id, e).concat(domain[0]));
-					domain[1] = d3.max(layer.get_y(id, e).concat(domain[1]));
+					domain[0] = d3.min([domain[0], layer.get_ymax(id, e), layer.get_ymin(id, e)]);
+					domain[1] = d3.max([domain[1], layer.get_ymax(id, e), layer.get_ymin(id, e)]);
 				}
 			})
 		});

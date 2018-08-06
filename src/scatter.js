@@ -1,4 +1,4 @@
-import { get_symbolSize } from "./additionalFunctions";
+import { get_symbolSize, check } from "./additionalFunctions";
 import { axesChart } from "./axesChart";
 
 export function scatter(id, chart) {
@@ -9,17 +9,17 @@ export function scatter(id, chart) {
 		id = "layer" + chart.get_nlayers();
 
   var layer = chart.create_layer(id).get_layer(id)
-		.add_property("x")
-		.add_property("y")
-    .add_property("size", 6)
+		.add_property("x", undefined, check("array_fun", "x"))
+		.add_property("y", undefined, check("array_fun", "y"))
+    .add_property("size", 6, check("number_nonneg", "size"))
     .add_property("stroke", function(d) {
       return d3.rgb(layer.get_colour(d)).darker(0.8)
-    })
+    }, check("array_fun", "stroke"))
     .add_property("strokeWidth", function(d) {
       return layer.get_size(d) * 0.1;
-    })
-    .add_property("symbol", "Circle")
-    .add_property("symbolValue")
+    }, check("array_fun", "strokeWidth"))
+    .add_property("symbol", "Circle", check("array_fun", "symblol"))
+    .add_property("symbolValue", check("array_fun", "symbolValue"))
     .add_property("symbolLegendTitle", function(){return "symbol_" + layer.id});
 		//.add_property("groupName", function(i){return i;})
 
@@ -82,10 +82,10 @@ export function scatter(id, chart) {
       .filter(function(d) {
         var loc = [layer.chart.axes.scale_x(layer.get_x(d)), 
                   layer.chart.axes.scale_y(layer.get_y(d))]
-        return (loc[0] - layer.get_size(d) <= rb[0]) && 
-          (loc[1] - layer.get_size(d) <= rb[1]) && 
-          (loc[0] + layer.get_size(d) >= lu[0]) && 
-          (loc[1] + layer.get_size(d) >= lu[1]);
+        return (loc[0] - layer.get_size(d) - 1 <= rb[0]) && 
+          (loc[1] - layer.get_size(d) - 1 <= rb[1]) && 
+          (loc[0] + layer.get_size(d) + 1 >= lu[0]) && 
+          (loc[1] + layer.get_size(d) + 1 >= lu[1]);
       }).data().map(function(e) {return [layer.id, e]});
   }
   layer.get_position = function(id){

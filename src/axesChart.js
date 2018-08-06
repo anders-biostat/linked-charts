@@ -1,4 +1,5 @@
 import { layerChart } from "./layerChart";
+import { check } from "./additionalFunctions"
 
 export function axesChart() {
 	
@@ -6,9 +7,9 @@ export function axesChart() {
 	
 	chart.add_property("singleScaleX", true)//not active now
 		.add_property("singleScaleY", true)//not active now
-		.add_property("domainX")
-		.add_property("domainY")
-		.add_property("aspectRatio", undefined)
+		.add_property("domainX", undefined, check("array", "domainX"))
+		.add_property("domainY", undefined, check("array", "domainY"))
+		.add_property("aspectRatio", undefined, check("number_nonneg", "aspectRatio"))
 		.add_property("axisTitleX", "")
 		.add_property("axisTitleY", "")
 		.add_property("ticksX", undefined)

@@ -332,6 +332,9 @@ export function add_click_listener(chart){
     if(!activeElement.empty())
       clickedElements = activeElement;
 
+    if(chart.clickSingle())
+      clickedElements = d3.select(clickedElements.node());
+
     var clickFun;
     clickedElements.each(function(d){
       clickFun = d3.select(this).on("click");
@@ -501,7 +504,7 @@ export function escapeRegExp(str) {
   return str.replace(/[\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
 }
 
-function call_pacer( interval ) {
+export function call_pacer( interval ) {
 
    /*
    This "call pacer" serves to avoid jerky appearance when a redraw
@@ -541,4 +544,73 @@ function call_pacer( interval ) {
    }
 
    return obj;
+}
+
+export function check(type, property) {
+  if(type == "number_nonneg") {
+    return function(value) {
+      if(typeof value === "function")
+        return value;
+
+      if(!isNaN(+value)) value = +value;
+      if(typeof value === "number"){
+        if(value >= 0)
+          return value;
+        throw "Error in 'typeCheck' for property '" + property + 
+          "': negative values are not allowed."
+      }
+      throw "Error in 'typeCheck' for property '" + property + 
+        "': numeric value is required."
+    }
+  }
+
+  if(type == "array") {
+    return function(value) {
+      if(typeof value === "function")
+        return value;
+
+      if(Array.isArray(value)) return value;
+    
+      if(typeof value === "object") {
+        var arr = [];
+        for(el in value) 
+          if(typeof value[el] == "string" || typeof value[el] == "number")
+            arr.push(value[el])
+          else
+            throw "Error in 'typeCheck' for property '" + property + 
+                  "': the value is not an array."
+        return arr;
+      }
+      if(typeof value === "number" || typeof value == "string") return [value];
+
+      throw "Error in 'typeCheck' for property '" + property + 
+             "': the value is not an array."
+    }         
+  }
+
+  if(type == "array_fun") {
+    return function(value) {
+      if(typeof value === "object")
+        return function(i) {return value[i]}
+
+      return value;
+    }
+  }
+
+  if(type = "matrix_fun") {
+    return function(value) {
+      if(typeof value === "function")
+        return value;
+      if(typeof value === "object"){
+        var keys = Object.keys(value);
+        if(typeof value[keys[0]] === "object")
+          return function(i, j) {return value[i][j]}
+        else
+          return function(i) {return value[i]}
+      }
+
+      throw "Error in 'typeCheck' for property '" + property + 
+        "': the value is not an array or an object."
+    }
+  }  
 }
