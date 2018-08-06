@@ -57,6 +57,10 @@ export function axesChart() {
 				}
 			}
 			if(domain === undefined) domain = [0, 1];
+			if(contScale) {
+				domain[1] = domain[1] + 0.03 * (domain[1] - domain[0]);
+				domain[0] = domain[0] - 0.03 * (domain[1] - domain[0]);
+			}
 			return domain;
 		}
 	}
