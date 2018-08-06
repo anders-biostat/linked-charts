@@ -150,12 +150,6 @@ export function chartBase() {
 		chart.legend.container(chart.container.selectAll("tr")
 													.append("td").attr("id", "legend"));
 
-		//for the use tag to work correctly, all the IDs on the page need to
-		//unique. So we generate a random ID for a viewbox
-		chart.viewBox = chart.svg.append("defs")
-			.append("clippath")
-				.attr("id", "viewBox" + Math.random().toString(36).substring(2, 6))
-				.append("rect");
 		//information label
 		chart.container.append("div")
 			.attr("class", "inform hidden")
@@ -166,7 +160,7 @@ export function chartBase() {
 			.attr("class", "title plainText")
 			.attr("text-anchor", "middle");
 		//here all the points (lines, cells etc.) will be placed
-		chart.svg.append("g")
+		chart.svg.append("svg")
 			.attr("class", "plotArea");
 		//add instrument panel if needed
 		if(chart.showPanel()) addPanel();
@@ -240,11 +234,6 @@ export function chartBase() {
 	
 	//update parts
 	chart.updateSize = function() {
-		chart.viewBox
-			.attr("x", -5) //Let's leave some margin for a view box so that not to cut
-			.attr("y", -5) //points that are exactly on the edge
-			.attr("width", chart.plotWidth() + 10) 
-			.attr("height", chart.plotHeight() + 10);
 		
 		if(chart.transitionDuration() > 0 && !chart.transitionOff){
 			var t = d3.transition("size")
@@ -257,8 +246,10 @@ export function chartBase() {
 				.attr("x", chart.titleX())
 				.attr("y", chart.titleY());
 			chart.svg.selectAll(".plotArea").transition(t)
-				.attr("transform", "translate(" + chart.margins().left + 
-															", " + chart.margins().top + ")");
+				.attr("x", chart.margins().left)
+				.attr("y", chart.margins().top)
+				.attr("width", chart.plotWidth())
+				.attr("height", chart.plotHeight());
 		} else {
 			chart.svg
 				.attr("width", chart.width())
@@ -268,8 +259,10 @@ export function chartBase() {
 				.attr("x", chart.titleX())
 				.attr("y", chart.titleY());
 			chart.svg.selectAll(".plotArea")
-				.attr("transform", "translate(" + chart.margins().left + 
-															", " + chart.margins().top + ")");
+				.attr("x", chart.margins().left)
+				.attr("y", chart.margins().top)
+				.attr("width", chart.plotWidth())
+				.attr("height", chart.plotHeight());
 		}
 		
 		if(chart.showPanel())

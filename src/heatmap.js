@@ -113,8 +113,7 @@ export function heatmap(id, chart){
 			.style("position", "absolute")
 			.style("z-index", -5);		
 		chart.g = chart.svg.select(".plotArea").append("g")
-			.attr("class", "chart_g")
-			.attr("clip-path", "url(#" + chart.svg.select("clippath").attr("id") + ")");
+			.attr("class", "chart_g");
 		chart.text = chart.g.append("g")
 			.attr("class", "text_g");
 		chart.axes.x_label = chart.svg.append("text")
