@@ -1,4 +1,5 @@
 import { axesChart } from "./axesChart";
+import { check } from "./additionalFunctions";
 
 export function barchart(id, chart){
 	
@@ -8,13 +9,38 @@ export function barchart(id, chart){
 		id = "layer" + chart.get_nlayers();
 	
 	var layer = chart.create_layer(id).get_layer(id)
-		.add_property("ngroups")
-		.add_property("groupIds")
-		.add_property("nbars")
-		.add_property("barIds")
-		.add_property("nstacks")
-		.add_property("stackIds")
-		.add_property("value")
+		.add_property("ngroups", undefined, check("number_nonneg", "ngroups"))
+		.add_property("groupIds", undefined, check("array", "groupIds"))
+		.add_property("nbars", undefined, check("number_nonneg", "nbars"))
+		.add_property("barIds", undefined, check("array", "barIds"))
+		.add_property("nstacks", undefined, check("number_nonneg", "nstacks"))
+		.add_property("stackIds", undefined, check("array", "stackIds"))
+		.add_property("value", undefined, function(value) {
+			if(typeof value === "function")
+				return value;
+
+			if(typeof value === "object") {
+				var groups = Object.keys(value);
+				if(typeof value[groups[0]] === "object") {
+					var bars = Object.keys(value[groups[0]]);
+					if(typeof value[groups[0]][bars[0]] === "object") {
+						var stacks = Object.keys(value[groups[0]][bars[0]]);
+						if(typeof value[groups[0]][bars[0]][stacks[0]] === "object")
+							return function(groupId, barId, stackId) {
+								return value[groupId][barId][stackId][0];
+							}
+						else
+							return function(groupId, barId, stackId) {
+								return value[groupId][barId][stackId];
+							}
+					}
+				}
+			}
+
+		  throw "Error in 'typeCheck' for property 'value" + 
+     			   "': the value is not an array or an object."
+
+		})
 		.add_property("groupWidth", 0.6)
 		.add_property("stroke", "#444")
 		.add_property("strokeWidth", 0);
@@ -66,10 +92,10 @@ export function barchart(id, chart){
 		return ids;
 	});
 	layer.colourValue(function(id) {
-		if(id.split && layer.nstacks() == 1 && layer.stackIds()[0] == 0)
-			return id.split(", ")[0]
+		if(id.split && layer.nstacks() == 1 && (layer.stackIds()[0] == 0 || layer.stackIds()[0] == 1))
+			return id.split(", ")[0].toString()
 		else 
-			return id;
+			return id.toString();
 	});
 	layer.colour(function(gropuId, barId, stackId) {
       if((layer.nbars() == 1) && (barId == 0))
@@ -80,7 +106,11 @@ export function barchart(id, chart){
 	layer.addColourScaleToLegend(true);
 
 	layer.layerDomainX(function() {
-		return layer.groupIds();
+		var groupIds = layer.groupIds();
+		if(layer.contScaleX())
+			return [d3.min(groupIds), d3.max(groupIds)]
+		else
+			return layer.groupIds();
 	});
 	layer.layerDomainY(function(){
 		//go through all bars and find the highest
@@ -147,8 +177,13 @@ export function barchart(id, chart){
 	}
 
 	layer.updateElementPosition = function(){
-		var groupWidth = layer.chart.axes.scale_x.step() * layer.groupWidth(),
-			barWidth = groupWidth/layer.nbars(),
+		var groupWidth, groupIds = layer.groupIds();
+		if(layer.contScaleX())
+			groupWidth = Math.abs(layer.chart.axes.scale_x(groupIds[1]) - layer.chart.axes.scale_x(groupIds[0])) * layer.groupWidth()
+		else
+			groupWidth = layer.chart.axes.scale_x.step() * layer.groupWidth();
+
+		var barWidth = groupWidth/layer.nbars(),
 			//for now it's just a linear scale
 			heightMult = Math.abs(layer.chart.axes.scale_y(1) - layer.chart.axes.scale_y(0)),
 			groupScale = d3.scaleLinear()
