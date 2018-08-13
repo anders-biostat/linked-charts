@@ -19,7 +19,12 @@ export function barchart(id, chart){
 			if(typeof value === "function")
 				return value;
 
+			var inds;
 			if(typeof value === "object") {
+				if(value.__inds__) {
+					inds = value.__inds__;
+					value.__inds__ = null;
+				}
 				var groups = Object.keys(value);
 				if(typeof value[groups[0]] === "object") {
 					var bars = Object.keys(value[groups[0]]);
@@ -27,10 +32,12 @@ export function barchart(id, chart){
 						var stacks = Object.keys(value[groups[0]][bars[0]]);
 						if(typeof value[groups[0]][bars[0]][stacks[0]] === "object")
 							return function(groupId, barId, stackId) {
+								if(inds) groupId = inds.indexOf(groupId) + 1;
 								return value[groupId][barId][stackId][0];
 							}
 						else
 							return function(groupId, barId, stackId) {
+								if(inds) groupId = inds.indexOf[groupId] + 1;
 								return value[groupId][barId][stackId];
 							}
 					}

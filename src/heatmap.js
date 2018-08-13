@@ -1,23 +1,23 @@
-import { getEuclideanDistance, add_click_listener, escapeRegExp, cache } from "./additionalFunctions";
+import { getEuclideanDistance, add_click_listener, escapeRegExp, cache, check } from "./additionalFunctions";
 import { chartBase } from "./chartBase";
 import { dendogram } from "./dendogram";
 
 export function heatmap(id, chart){
 
 	var chart = chartBase()
-		.add_property("nrows")
-		.add_property("ncols")
-		.add_property("colLabel", function(i) {return i;})
-		.add_property("rowLabel", function(i) {return i;})
-		.add_property("colIds")
-		.add_property("rowIds")
-		.add_property("dispColIds", function() {return chart.colIds();})
-		.add_property("dispRowIds", function() {return chart.rowIds();})
-		.add_property("heatmapRow", function(rowId) {return chart.dispRowIds().indexOf(rowId);})
-		.add_property("heatmapCol", function(colId) {return chart.dispColIds().indexOf(colId);})
+		.add_property("nrows", undefined, check("number_nonneg", "nrows"))
+		.add_property("ncols", undefined, check("number_nonneg", "ncols"))
+		.add_property("colLabel", function(i) {return i;}, check("array_fun", "colLabel"))
+		.add_property("rowLabel", function(i) {return i;}, check("array_fun", "rowLabel"))
+		.add_property("colIds", undefined, check("array", "colIds"))
+		.add_property("rowIds", undefined, check("array", "rowIds"))
+		.add_property("dispColIds", function() {return chart.colIds();}, check("array", "dispColIds"))
+		.add_property("dispRowIds", function() {return chart.rowIds();}, check("array", "dispRowIds"))
+		.add_property("heatmapRow", function(rowId) {return chart.dispRowIds().indexOf(rowId);}, check("array", "heatmapRow"))
+		.add_property("heatmapCol", function(colId) {return chart.dispColIds().indexOf(colId);}, check("array", "heatmapCol"))
 		.add_property("showDendogramRow", true)
 		.add_property("showDendogramCol", true)
-		.add_property("value")
+		.add_property("value", undefined, check("matrix_fun", "value"))
 		.add_property("mode", "default")
 		.add_property("colour")
 		.add_property("palette", d3.interpolateOrRd)

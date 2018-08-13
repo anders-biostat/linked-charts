@@ -94,18 +94,32 @@ export function scatter(id, chart) {
   } 
 
 	layer.layerDomainX(function() {
-		if(layer.get_contScaleX()){
-      return d3.extent( layer.elementIds(), function(k) { return layer.get_x(k) } )
-    } else {
-      return layer.elementIds().map(function(e) { return layer.get_x(e);});
+		var vals = layer.elementIds().map(function(e) { return layer.get_x(e);}),
+      allNums = true, i = 0;
+    while(allNums && i < vals.length){
+      if(typeof vals[i] !== "number" && vals[i] != "Inf" && vals[i] !== NaN)
+        allNums = false;
+      i++;
     }
+
+    if(allNums)
+      return d3.extent(vals)
+    else 
+      return vals;
 	});
 	layer.layerDomainY(function() {
-    if(layer.get_contScaleY()) {
-		  return d3.extent( layer.elementIds(), function(k) { return layer.get_y(k) } )
-    } else{
-      return layer.elementIds().map(function(e) { return layer.get_y(e);});
+    var vals = layer.elementIds().map(function(e) { return layer.get_y(e);}),
+      allNums = true, i = 0;
+    while(allNums && i < vals.length){
+      if(typeof vals[i] !== "number" && vals[i] != "Inf" && vals[i] !== NaN)
+        allNums = false;
+      i++;
     }
+
+    if(allNums)
+      return d3.extent(vals)
+    else 
+      return vals;
 	});
 
   layer.resetSymbolScale = function() {
