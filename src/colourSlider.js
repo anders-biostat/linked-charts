@@ -19,6 +19,15 @@ export function colourSlider() {
     .add_property( "straightColourScale" )
     .add_property( "midpoint", undefined )
     .add_property( "slopeWidth", undefined )
+    .add_property( "linkedChart", undefined, function(value) {
+      if(typeof value === "string"){
+        var names = value.split(".");
+        value = window[names[0]];
+        for(var i = 1; i < names.length; i++)
+          value = value[names[i]];
+      }
+      return value;
+    } )
     .add_property( "on_drag", function() {})
 		.add_property( "on_change", function() {})
     .margins( { top: 20, right: 10, bottom: 5, left: 10 } )
@@ -27,9 +36,22 @@ export function colourSlider() {
 
   obj.showPanel(false);
   
-  obj.straightColourScale(
-    d3.scaleLinear()
-      .range( [ "white", "darkblue" ] ) );
+  obj.setStraightColourScale = function() {
+    if(obj.linkedChart() && obj.linkedChart().colourScale) {
+      obj.straightColourScale(obj.linkedChart().colourScale)
+//      obj.linkedChart().colourScale = obj.colourScale;
+      if(obj.linkedChart().updateElementStyle) {
+        obj.on_drag(obj.linkedChart().updateElementStyle);
+      }
+      if(obj.linkedChart().updateCellColour) {
+        obj.on_drag(obj.linkedChart().updateCellColour);
+      }
+    } else {
+      obj.straightColourScale(
+        d3.scaleLinear()
+          .range( [ "white", "darkblue" ] ) );
+    }
+  }
 
   var clamp_markers = function() {
     var min = d3.min( obj.get_straightColourScale.domain() );
@@ -148,6 +170,9 @@ export function colourSlider() {
   var inherited_update = obj.update;
   obj.update = function() {
     inherited_update();
+
+    obj.setStraightColourScale();
+
     if(obj.get_straightColourScale.domain == undefined)
       obj.get_straightColourScale.domain = function() {
         return [0, 1];
@@ -204,6 +229,13 @@ export function colourSlider() {
       return obj.get_straightColourScale( 
           percent_scale( 100 * obj.the_sigmoid( val ) ) );
     }
+
+    if(obj.linkedChart() && obj.linkedChart().colour)
+      obj.linkedChart().colour(function(val) {
+        if(obj.linkedChart().colourValue)
+          val = obj.linkedChart().get_colourValue(val);
+        return obj.colourScale(val);
+      });
 
 
     obj.mainMarker
