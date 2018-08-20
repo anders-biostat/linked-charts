@@ -35,6 +35,10 @@ export function colourSlider() {
     .transitionDuration( 0 );    
 
   obj.showPanel(false);
+
+  obj.straightColourScale(
+    d3.scaleLinear()
+      .range( [ "white", "darkblue" ] ) );
   
   obj.setStraightColourScale = function() {
     if(obj.linkedChart() && obj.linkedChart().colourScale) {
@@ -46,10 +50,6 @@ export function colourSlider() {
       if(obj.linkedChart().updateCellColour) {
         obj.on_drag(obj.linkedChart().updateCellColour);
       }
-    } else {
-      obj.straightColourScale(
-        d3.scaleLinear()
-          .range( [ "white", "darkblue" ] ) );
     }
   }
 
