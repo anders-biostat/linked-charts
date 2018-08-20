@@ -339,15 +339,40 @@ export function add_click_listener(chart){
       return;      
     }
 
-    //if findElements returned an array of IDs
-    //(what happens if we are working with a heatmap in "canvas" mode)
-    if(chart.canvas && chart.canvas.classed("active")){
-      for(var i = 0; i < clicked.length; i++){
-        chart.get_on_click(clicked[0], clicked[1]);
-      }
-      return;
-    }
+    //if we are in canvas mode, on_click can't be called the usual way
+    //there are no 'data_elements' to select
+    var canvases = [];
+    chart.container.selectAll("canvas")
+      .filter(function() {return d3.select(this).classed("active")})
+      .each(function() {canvases.push(d3.select(this).attr("id"));});
 
+    if(canvases.length > 0) 
+      if(Array.isArray(clicked)) {
+          //this is a heatmap in a canvas mode
+          chart.get_on_click(clicked[0], clicked[1])
+          return;
+        } else {
+          //one of the layers is in canvas mode
+          var i = Object.keys(clicked).length,
+            flag = true, layerId;
+
+          while(flag && i > 0) {
+            i--;
+            layerId = Object.keys(clicked)[i]; 
+            if(clicked[layerId].length != 0) {
+              if(chart.clickSingle()) {
+                flag = false;
+                d3.customEvent(d3.event, chart.get_layer(layerId).get_on_click, this, [clicked[layerId][0]])
+              } else {
+                for(var j = 0; j < clicked[layerId].length; j++)
+                  d3.customEvent(d3.event, chart.get_layer(layerId).get_on_click, this, [clicked[layerId][j]])
+              }
+            }
+          }
+
+          return;
+        }
+    
     var clickedElements = chart.get_elements(clicked),
       activeElement = clickedElements.filter(function(d){
         return d == chart.container.selectAll(".inform").datum();
