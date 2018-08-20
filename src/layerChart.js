@@ -193,29 +193,27 @@ export function layerChart(){
 	}	
 
 	chart.get_elements = function(ids){
-		if(ids.splice === undefined)
+		if(typeof ids !== "object")
 			ids = [ids];
-		if(ids.length == 2 && Object.keys(chart.layers).indexOf(ids[0]) > -1)
-			ids = [ids];
-		for(var i = 0; i < ids.length; i++)
-			if(ids[i].splice === undefined)
-				ids[i] = [ids[i]];
+		if(Array.isArray(ids))
+			if(chart.get_nlayers() == 1){
+				var tmp = ids;
+				ids = {};
+				ids[Object.keys(chart.layers)[0]] = tmp;
+			} else {
+				throw "Error in 'get_elements': layerId is not defined";
+			}
 		
 		var selectedIds = [];
-		for(var i = 0; i < ids.length; i++){
-			if(ids[i].length == 2)
-				if(ids[i][1].splice === undefined)
-					selectedIds.push(("p" + ids[i][0] + "_" + ids[i][1]).replace(/[ .]/g, "_"))
-				else
-					selectedIds.push(("p" + ids[i][0] + "_" + ids[i][1].join("_")).replace(/[ .]/g, "_")) 
-			else
-				selectedIds = selectedIds.concat(Object.keys(chart.layers).map(function(e){
-					return ("p" + e + "_" + ids[i][0]).replace(/[ .]/g, "_");
+		for(var i in ids)
+			selectedIds = selectedIds
+				.concat(ids[i].map(function(e) {
+					return ("p" + i + "_" + e).replace(/[ .]/g, "_")
 				}))
-		}
+		
 
 		return selectedIds.length == 0 ? d3.select("_______") : 
-			chart.svg.selectAll(".chart_g").selectAll("#" + selectedIds.join(",#").replace(/[ .]/g, "_"));
+			chart.svg.selectAll(".chart_g").selectAll("#" + selectedIds.join(",#"));
 
 	}
 

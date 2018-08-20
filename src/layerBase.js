@@ -15,11 +15,17 @@ export function layerBase(id) {
 		.add_property("layerDomainY", undefined, check("array", "layerDomainY"))
 		.add_property("contScaleX", function() {
       var domain = layer.layerDomainX();
-      return domain.length == 2 && typeof domain[0] === "number" && typeof domain[1] === "number"
+      if(domain === undefined)
+        return true
+      else
+        return domain.length == 2 && typeof domain[0] === "number" && typeof domain[1] === "number";
     })
 		.add_property("contScaleY", function() {
       var domain = layer.layerDomainY();
-      return domain.length == 2 && typeof domain[0] === "number" && typeof domain[1] === "number"
+      if(domain === undefined)
+        return true
+      else
+        return domain.length == 2 && typeof domain[0] === "number" && typeof domain[1] === "number";
     })
     .add_property("colour", function(id) {
       return layer.colourScale(layer.get_colourValue(id));
