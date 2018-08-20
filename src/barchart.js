@@ -175,7 +175,7 @@ export function barchart(id, chart){
 
 				return (lu[0] <= x + width && rb[0] > x && 
 								lu[1] <= y + height && rb[1] > y)
-			}).data().map(function(e) {return [layer.id, e]});
+			}).data();
 	}
 	layer.get_position = function(id){
 		//gets id as data (so here we have an array of three ids)

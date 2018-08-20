@@ -168,6 +168,7 @@ export function add_click_listener(chart){
   }
   var wait = false;
   var on_mousemove = function(e){
+    console.log("Moving!");
     var s = chart.svg.select(".selection"),
       rect = chart.svg.select(".clickPanel").node().getBoundingClientRect(),
       p = [d3.max([d3.min([e.clientX - rect.left, chart.plotWidth()]), 0]), 
@@ -212,14 +213,36 @@ export function add_click_listener(chart){
      return;
     }
 
-    if(chart.canvas && chart.canvas.classed("active")){
+    var canvases = [];
+    chart.container.selectAll("canvas")
+      .filter(function() {return d3.select(this).classed("active")})
+      .each(function() {canvases.push(d3.select(this).attr("id"));});
+
+    if(canvases.length > 0) {
       parcer.do(function(){
-        var element = chart.findElements(p, p)[0];
-        chart.container.selectAll(".inform")
-          .style("left", (p[0] + 10 + chart.margins().left) + "px")
-          .style("top", (p[1] + 10 + chart.margins().top) + "px")
-          .select(".value")
-            .html(function() {return chart.get_informText(element[0], element[1])});
+        var elements = chart.findElements(p, p);
+        if(Array.isArray(elements)) {
+          //this is a heatmap in a canvas mode
+          chart.container.selectAll(".inform")
+            .style("left", (p[0] + 10 + chart.margins().left) + "px")
+            .style("top", (p[1] + 10 + chart.margins().top) + "px")
+            .select(".value")
+              .html(function() {return chart.get_informText(elements[0][0], elements[0][1])});
+        } else {
+          //one of the layers is in canvas mode
+          var i = Object.keys(elements).length,
+            flag = true, layerId;
+
+          while(flag && i > 0) {
+            i--;
+            layerId = Object.keys(elements)[i]; 
+            flag = (elements[layerId].length == 0)
+          }
+          if(!flag && canvases.indexOf(layerId) != -1)
+            chart.get_layer(layerId).get_elementMouseOver(elements[layerId][0], p);
+          if(flag && chart.get_elementMouseOut)
+            chart.get_elementMouseOut();
+        }
 
       })
     }

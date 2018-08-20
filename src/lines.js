@@ -55,7 +55,7 @@ function line(id, chart){
 					i++;
 				}
 				return inside;
-			}).data().map(function(e) {return [layer.id, e]});
+			}).data();
 	}
 
 	layer.updateElementPosition = function(){

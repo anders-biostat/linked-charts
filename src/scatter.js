@@ -26,6 +26,8 @@ export function scatter(id, chart) {
 	chart.syncProperties(layer);
   layer.type = "scatter";
 
+  layer.mode("default");
+
   layer.chart.informText(function(id){      
     var x = layer.get_x(id),
       y = layer.get_y(id);
@@ -78,15 +80,15 @@ export function scatter(id, chart) {
 
   //These functions are used to react on clicks
   layer.findElements = function(lu, rb){
-    return layer.g.selectAll(".data_element")
-      .filter(function(d) {
-        var loc = [layer.chart.axes.scale_x(layer.get_x(d)), 
-                  layer.chart.axes.scale_y(layer.get_y(d))]
-        return (loc[0] - layer.get_size(d) - 1 <= rb[0]) && 
-          (loc[1] - layer.get_size(d) - 1 <= rb[1]) && 
-          (loc[0] + layer.get_size(d) + 1 >= lu[0]) && 
-          (loc[1] + layer.get_size(d) + 1 >= lu[1]);
-      }).data().map(function(e) {return [layer.id, e]});
+    return layer.elementIds()
+      .filter(function(id) {
+        var loc = [layer.chart.axes.scale_x(layer.get_x(id)), 
+                  layer.chart.axes.scale_y(layer.get_y(id))]
+        return (loc[0] - layer.get_size(id) - 1 <= rb[0]) && 
+          (loc[1] - layer.get_size(id) - 1 <= rb[1]) && 
+          (loc[0] + layer.get_size(id) + 1 >= lu[0]) && 
+          (loc[1] + layer.get_size(id) + 1 >= lu[1]);
+      });
   }
   layer.get_position = function(id){
     return [layer.chart.axes.scale_x(layer.get_x(id)), 
@@ -145,75 +147,88 @@ export function scatter(id, chart) {
 
   }
 
-  layer.updateElementPosition = function(){
-    
-    var placeElement = function(d) {
-      var x = layer.chart.axes.scale_x( layer.get_x(d) ),
-        y = layer.chart.axes.scale_y( layer.get_y(d) );
-      return (x == undefined || y == undefined) ? "translate(-100, 0)" :
-        "translate(" + x + ", " + y + ")";
-    }
+  var get_mode = function() {
+    if(layer.mode() == "default")
+      return layer.nelements() > 2500 ? "canvas" : "svg";
+    return layer.mode();
+  }  
 
-    if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff){
-      layer.g.selectAll(".data_element").transition("elementPosition")
-        .duration(layer.chart.transitionDuration())
-        .attr("transform", placeElement);
+  layer.updateElementPosition = function(){
+    if(!layer.checkMode())
+      return chart;    
+
+    if(get_mode() == "svg") {
+      var placeElement = function(d) {
+        var x = layer.chart.axes.scale_x( layer.get_x(d) ),
+          y = layer.chart.axes.scale_y( layer.get_y(d) );
+        return (x == undefined || y == undefined) ? "translate(-100, 0)" :
+          "translate(" + x + ", " + y + ")";
+      }
+
+      if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff){
+        layer.g.selectAll(".data_element").transition("elementPosition")
+          .duration(layer.chart.transitionDuration())
+          .attr("transform", placeElement);
+      } else {
+        layer.g.selectAll(".data_element")
+          .attr("transform", placeElement);
+      }
+      var domainX = layer.chart.axes.scale_x.domain(),
+        domainY = layer.chart.axes.scale_y.domain();
+      
+      var notShown = layer.g.selectAll(".data_element")
+        .filter(function(d) {
+          return (layer.chart.axes.scale_x.invert != undefined && 
+                    (layer.get_x(d) > domainX[1] || layer.get_x(d) < domainX[0])) ||
+                  (layer.chart.axes.scale_y.invert != undefined &&
+                    (layer.get_y(d) > domainY[1] || layer.get_y(d) < domainY[0]));
+        }).data();
+      
+      var outTicks = layer.g.selectAll(".out_tick").data(notShown, function(d) {return d});
+      outTicks.exit().remove();
+      outTicks.enter()
+        .append("rect")
+          .attr("class", "out_tick")
+          .attr("fill", function(d){return layer.get_colour(d)})
+          .merge(outTicks)
+            .attr("width", function(d){
+              return layer.chart.axes.scale_y.invert != undefined &&
+                        (layer.get_y(d) > domainY[1] || layer.get_y(d) < domainY[0]) ? 4 : 12;
+            })
+            .attr("height", function(d){
+              return layer.chart.axes.scale_x.invert != undefined && 
+                       (layer.get_x(d) > domainX[1] || layer.get_x(d) < domainX[0]) ? 4 : 12;
+            })
+            .attr("x", function(d){
+              if(layer.chart.axes.scale_x.invert != undefined)
+                return d3.max([layer.chart.axes.scale_x(domainX[0]), 
+                  layer.chart.axes.scale_x(d3.min([layer.get_x(d), domainX[1]])) - d3.select(this).attr("width")])
+              else
+                return layer.chart.axes.scale_x(layer.get_x(d));
+            })
+            .attr("y", function(d){
+              if(layer.chart.axes.scale_y.invert != undefined)
+                return d3.min([layer.chart.axes.scale_y(domainY[0]) - d3.select(this).attr("height"), 
+                  layer.chart.axes.scale_y(d3.min([layer.get_y(d), domainY[1]]))])
+              else
+                return layer.chart.axes.scale_y(layer.get_y(d));
+            })
+            .on("mousedown", function(d){
+              if(layer.chart.axes.scale_x.invert != undefined)
+                layer.chart.domainX([d3.min([domainX[0], layer.get_x(d)]), d3.max([domainX[1], layer.get_x(d)])]);
+              if(layer.chart.axes.scale_y.invert != undefined)
+                layer.chart.domainY([d3.min([domainY[0], layer.get_y(d)]), d3.max([domainY[1], layer.get_y(d)])]);
+              layer.chart.updateAxes();
+            });
     } else {
-      layer.g.selectAll(".data_element")
-        .attr("transform", placeElement);
-    }
-    var domainX = layer.chart.axes.scale_x.domain(),
-      domainY = layer.chart.axes.scale_y.domain();
-    
-    var notShown = layer.g.selectAll(".data_element")
-      .filter(function(d) {
-        return (layer.chart.axes.scale_x.invert != undefined && 
-                  (layer.get_x(d) > domainX[1] || layer.get_x(d) < domainX[0])) ||
-                (layer.chart.axes.scale_y.invert != undefined &&
-                  (layer.get_y(d) > domainY[1] || layer.get_y(d) < domainY[0]));
-      }).data();
-    
-    var outTicks = layer.g.selectAll(".out_tick").data(notShown, function(d) {return d});
-    outTicks.exit().remove();
-    outTicks.enter()
-      .append("rect")
-        .attr("class", "out_tick")
-        .attr("fill", function(d){return layer.get_colour(d)})
-        .merge(outTicks)
-          .attr("width", function(d){
-            return layer.chart.axes.scale_y.invert != undefined &&
-                      (layer.get_y(d) > domainY[1] || layer.get_y(d) < domainY[0]) ? 4 : 12;
-          })
-          .attr("height", function(d){
-            return layer.chart.axes.scale_x.invert != undefined && 
-                     (layer.get_x(d) > domainX[1] || layer.get_x(d) < domainX[0]) ? 4 : 12;
-          })
-          .attr("x", function(d){
-            if(layer.chart.axes.scale_x.invert != undefined)
-              return d3.max([layer.chart.axes.scale_x(domainX[0]), 
-                layer.chart.axes.scale_x(d3.min([layer.get_x(d), domainX[1]])) - d3.select(this).attr("width")])
-            else
-              return layer.chart.axes.scale_x(layer.get_x(d));
-          })
-          .attr("y", function(d){
-            if(layer.chart.axes.scale_y.invert != undefined)
-              return d3.min([layer.chart.axes.scale_y(domainY[0]) - d3.select(this).attr("height"), 
-                layer.chart.axes.scale_y(d3.min([layer.get_y(d), domainY[1]]))])
-            else
-              return layer.chart.axes.scale_y(layer.get_y(d));
-          })
-          .on("mousedown", function(d){
-            if(layer.chart.axes.scale_x.invert != undefined)
-              layer.chart.domainX([d3.min([domainX[0], layer.get_x(d)]), d3.max([domainX[1], layer.get_x(d)])]);
-            if(layer.chart.axes.scale_y.invert != undefined)
-              layer.chart.domainY([d3.min([domainY[0], layer.get_y(d)]), d3.max([domainY[1], layer.get_y(d)])]);
-            layer.chart.updateAxes();
-          });
-    
-    return layer;
+      if(!layer.updateStarted)
+        layer.updateCanvas();
+    } 
+    return chart;
   }
 
-  layer.updateSelElementStyle = function(id){
+//not used
+/*  layer.updateSelElementStyle = function(id){
     if(typeof id.length === "undefined")
       id = [id];
     if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
@@ -232,26 +247,35 @@ export function scatter(id, chart) {
           .attr( "style", layer.get_style(id[i]))
           .attr( "opacity", function(d) { return layer.get_opacity(d)} );      
     return layer;
-  }
+  } */
 
   layer.updateElementStyle = function() {
+    if(!layer.checkMode())
+      return chart;
+
     layer.resetColourScale();
-    var sel = layer.g.selectAll(".data_element");
-    if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
-      sel = sel.transition("elementStyle")
-        .duration(layer.chart.transitionDuration());
-    sel
-      .attr("d", function(d) {
-        return d3.symbol()
-          .type(d3["symbol" + layer.get_symbol(d)])
-          .size(get_symbolSize(layer.get_symbol(d), layer.get_size(d)))();
-      })
-      .attr("fill", function(d) {return layer.get_colour(d)})
-      .attr("stroke", function(d) {return layer.get_stroke(d)})
-      .attr("stroke-width", function(d) {return layer.get_strokeWidth(d)});
-    if(layer.chart.get_marked().length == 0)
-      sel.attr("opacity", function(d) { return layer.get_opacity(d)} );
-    return layer.chart;
+
+    if(get_mode() == "svg") {
+      var sel = layer.g.selectAll(".data_element");
+      if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
+        sel = sel.transition("elementStyle")
+          .duration(layer.chart.transitionDuration());
+      sel
+        .attr("d", function(d) {
+          return d3.symbol()
+            .type(d3["symbol" + layer.get_symbol(d)])
+            .size(get_symbolSize(layer.get_symbol(d), layer.get_size(d)))();
+        })
+        .attr("fill", function(d) {return layer.get_colour(d)})
+        .attr("stroke", function(d) {return layer.get_stroke(d)})
+        .attr("stroke-width", function(d) {return layer.get_strokeWidth(d)});
+      if(layer.chart.get_marked().length == 0)
+        sel.attr("opacity", function(d) { return layer.get_opacity(d)} );
+    } else {
+      if(!layer.updateStarted)
+        layer.updateCanvas();
+    }
+    return chart;
   }
 
   layer.dresser(function(sel) {
@@ -259,20 +283,58 @@ export function scatter(id, chart) {
       .attr("r", function(d) {return layer.get_size(d);});
   });
 
-  layer.updateElements = function(){
-    var sel = layer.g.selectAll( ".data_element" )
-      .data( layer.elementIds(), function(d) {return d;} );
-    sel.exit()
-      .remove();  
-    sel.enter().append( "path" )
-      .attr( "class", "data_element" )
-      .merge(sel)
-        .attr("id", function(d) {return "p" + (layer.id + "_" + d).replace(/[ .]/g,"_");})
-        .on( "click", layer.get_on_click )
-        .on( "mouseover", layer.get_elementMouseOver )
-        .on( "mouseout", layer.get_elementMouseOut );
+  layer.updateElements = function() {
+    if(!layer.checkMode())
+      return chart;
 
+    if(get_mode() == "svg") {
+      var sel = layer.g.selectAll( ".data_element" )
+        .data( layer.elementIds(), function(d) {return d;} );
+      sel.exit()
+        .remove();  
+      sel.enter().append( "path" )
+        .attr( "class", "data_element" )
+        .merge(sel)
+          .attr("id", function(d) {return "p" + (layer.id + "_" + d).replace(/[ .]/g,"_");})
+          .on( "click", layer.get_on_click )
+          .on( "mouseover", layer.get_elementMouseOver )
+          .on( "mouseout", layer.get_elementMouseOut );
+    } else {
+      if(!layer.updateStarted)
+        layer.updateCanvas();
+    }
     return chart;
+  }
+
+  layer.updateCanvas = function() {
+    var ids = layer.elementIds();
+    var ctx = layer.canvas.node().getContext("2d");
+    ctx.clearRect(0, 0, chart.plotWidth(), chart.plotHeight());
+
+    var p, x, y;
+    for(var i = 0; i < ids.length; i++) {
+      ctx.strokeStyle = layer.get_stroke(ids[i]);
+      ctx.lineWidth = layer.get_strokeWidth(ids[i]);
+      ctx.fillStyle = layer.get_colour(ids[i]);
+      
+      x = layer.chart.axes.scale_x( layer.get_x(ids[i]) ),
+      y = layer.chart.axes.scale_y( layer.get_y(ids[i]) );
+      if (x == undefined || y == undefined) {
+        x = -100;
+        y = 0
+      }
+      ctx.translate(x, y);
+
+      p = new Path2D(d3.symbol()
+                  .type(d3["symbol" + layer.get_symbol(ids[i])])
+                  .size(get_symbolSize(layer.get_symbol(ids[i]), layer.get_size(ids[i])))());
+      
+
+      ctx.stroke(p);
+      ctx.fill(p);
+      ctx.translate(-x, -y);
+
+    }
   }
 
   return chart;

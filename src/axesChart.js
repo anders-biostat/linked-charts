@@ -109,16 +109,6 @@ export function axesChart() {
 		return elements;
 	}
 
-	chart.findElements = function(lu, rb){
-		var selElements = [];
-		chart.svg.selectAll(".chart_g").each(function(){
-			selElements = selElements.concat(
-				chart.get_layer(d3.select(this).attr("id")).findElements(lu, rb)
-			);
-		});
-		return selElements;
-	}
-
 	chart.get_position = function(id){
 		return chart.get_layer(id[0]).get_position(id[1]);
 	}

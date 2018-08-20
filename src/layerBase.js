@@ -9,6 +9,7 @@ export function layerBase(id) {
     .add_property("elementLabel", function(i) {return i;}, check("array_fun", "elementLabel"))
 		.add_property("elementMouseOver", function() {})
 		.add_property("elementMouseOut", function() {})
+    .add_property("mode", "svg")
 		.add_property("on_click", function() {})
 		.add_property("layerDomainX", undefined, check("array", "layerDomainX"))
 		.add_property("layerDomainY", undefined, check("array", "layerDomainY"))
@@ -207,17 +208,34 @@ export function layerBase(id) {
 
 	layer.update = function() {
     
+    layer.updateStarted = true;
     layer.updateElements();
     layer.updateElementStyle();
     layer.updateElementPosition();
+    layer.updateStarted = false;
 
     return layer;
   };
+
+  var get_mode = function() {
+    if(layer.mode() == "default")
+      return layer.nelements() > 2500 ? "canvas" : "svg";
+    return layer.mode();
+  }
 
 	layer.put_static_content = function() {
     layer.g = layer.chart.svg.selectAll(".plotArea").append("g")
       .attr("class", "chart_g")
       .attr("id", layer.id);
+
+    layer.canvas = layer.chart.container.append("canvas")
+      .style("position", "absolute")
+      .style("z-index", -5)
+      .attr("id", layer.id);
+
+    (get_mode() == "svg") ? layer.g.classed("active", true) : 
+                            layer.canvas.classed("active", true);  
+
     //layer.chart.svg.select(".clickPanel").raise();
 	};
   
@@ -231,19 +249,26 @@ export function layerBase(id) {
   };
 
   layer.updateElementPosition = function() {};
-  layer.findElements = function() {return d3.select("_______");}; //return empty selection	
+  layer.findElements = function() {return [];}; //return empty selection	
 	layer.get_position = function(id) {return undefined;}
 
   //default hovering behaviour
-  layer.elementMouseOver(function(d){
-    var pos = d3.mouse(layer.chart.container.node());
+  layer.elementMouseOver(function(d, pos){
+    console.log(pos);
+    if(pos === undefined)
+      pos = d3.mouse(layer.chart.container.node())
+    else
+      pos = [pos[0] + layer.chart.margins().left, pos[1] + layer.chart.margins().top];
     //change colour and class
-    d3.select(this)
-      .attr("fill", function(d) {
-        return d3.rgb(layer.get_colour(d)).darker(0.5);
-      })
-      .classed("hover", true);
+    if(!this.propList)
+      d3.select(this)
+        .attr("fill", function(d) {
+          return d3.rgb(layer.get_colour(d)).darker(0.5);
+        })
+        .classed("hover", true);
     //show label
+    console.log(d3.mouse(layer.chart.container.node()));
+
     layer.chart.container.selectAll(".inform").data([d])
         .style("left", (pos[0] + 10) + "px")
         .style("top", (pos[1] + 10) + "px")
@@ -253,14 +278,42 @@ export function layerBase(id) {
       .classed("hidden", false);
   });
   layer.elementMouseOut(function(d){
-    d3.select(this)
-      .attr("fill", function(d) {
-        return layer.get_colour(d);
-      })
-      .classed("hover", false);
+    if(!this.propList)
+      d3.select(this)
+        .attr("fill", function(d) {
+          return layer.get_colour(d);
+        })
+        .classed("hover", false);
     layer.chart.container.selectAll(".inform")
       .classed("hidden", true);
   });
+
+  layer.checkMode = function(){
+    if((get_mode() == "svg") && (layer.canvas.classed("active"))) {
+      layer.canvas.classed("active", false);
+      layer.g.classed("active", true);
+      lyaer.canvas.node().getContext("2d")
+        .clearRect(0, 0, layer.chart.plotWidth(), layer.chart.plotHeight());
+
+      if(layer.updateStarted)
+        return true;
+      else{     
+        layer.update();
+        //layer.mark(layer.marked.map(function(e) {return "p" + e.join("_-sep-_")}));
+        //layer.marked = [];
+        return false;
+      }
+    }
+    if((get_mode() == "canvas") && layer.g.classed("active")){
+      layer.canvas.classed("active", true);
+      //layer.marked = layer.g.selectAll(".marked").data();
+      layer.g.classed("active", false);
+      while (layer.g.node().firstChild) 
+        layer.g.node().removeChild(layer.g.node().firstChild);
+    }
+    return true;
+  }
+
 
 	return layer;
 }

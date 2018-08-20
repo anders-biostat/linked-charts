@@ -111,7 +111,8 @@ export function heatmap(id, chart){
 			.attr("class", "col label_panel");
 		chart.canvas = chart.container.append("canvas")
 			.style("position", "absolute")
-			.style("z-index", -5);		
+			.style("z-index", -5)
+			.attr("id", "hCanvas");		
 		chart.g = chart.svg.select(".plotArea").append("g")
 			.attr("class", "chart_g");
 		chart.text = chart.g.append("g")

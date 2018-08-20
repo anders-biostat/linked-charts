@@ -184,6 +184,14 @@ export function layerChart(){
 			chart.get_layer(k).put_static_content();		
 	}
 
+	chart.findElements = function(lu, rb){
+		var selElements = {};
+		Object.keys(chart.layers).forEach(function(layerId){
+			selElements[layerId] = chart.get_layer(layerId).findElements(lu, rb);
+		});
+		return selElements;
+	}	
+
 	chart.get_elements = function(ids){
 		if(ids.splice === undefined)
 			ids = [ids];
@@ -226,8 +234,10 @@ export function layerChart(){
 			if(ids.indexOf(k) == -1)
 				chart.remove_layer(k)
 			else {
+				chart.get_layer(k).updateStarted = true;
 				chart.get_layer(k).updateElements();
 				chart.get_layer(k).updateElementStyle();
+				chart.get_layer(k).updateStarted = false;
 			}	
 		}
 		
@@ -235,12 +245,16 @@ export function layerChart(){
 		return chart;
 	}
 
-	/*var inherited_updateSize = chart.updateSize;
+	var inherited_updateSize = chart.updateSize;
 	chart.updateSize = function(){
 		inherited_updateSize();
 		for(var k in chart.layers)
-			chart.get_layer(k).updateSize();
-	}*/
+			chart.get_layer(k).canvas
+				.style("left", (+chart.margins().left + 3) + "px")
+				.style("top", (+chart.margins().top + 3) + "px")
+				.attr("width", chart.plotWidth())
+				.attr("height", chart.plotHeight());
+	}
 
 	return chart;
 }
