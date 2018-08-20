@@ -168,7 +168,6 @@ export function add_click_listener(chart){
   }
   var wait = false;
   var on_mousemove = function(e){
-    console.log("Moving!");
     var s = chart.svg.select(".selection"),
       rect = chart.svg.select(".clickPanel").node().getBoundingClientRect(),
       p = [d3.max([d3.min([e.clientX - rect.left, chart.plotWidth()]), 0]), 
@@ -239,7 +238,8 @@ export function add_click_listener(chart){
             flag = (elements[layerId].length == 0)
           }
           if(!flag && canvases.indexOf(layerId) != -1)
-            chart.get_layer(layerId).get_elementMouseOver(elements[layerId][0], p);
+            d3.customEvent(e, chart.get_layer(layerId).get_elementMouseOver, this, [elements[layerId][0]]);
+            //chart.get_layer(layerId).get_elementMouseOver(elements[layerId][0]);
           if(flag && chart.get_elementMouseOut)
             chart.get_elementMouseOut();
         }
@@ -372,6 +372,8 @@ export function add_click_listener(chart){
     .on("dblclick", on_dblclick, true)
     .on("click", on_panelClick, true);
   
+  chart.container.node().addEventListener("mousemove", on_mousemove, false);
+
   return chart;
 }
 

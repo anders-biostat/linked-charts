@@ -253,22 +253,19 @@ export function layerBase(id) {
 	layer.get_position = function(id) {return undefined;}
 
   //default hovering behaviour
-  layer.elementMouseOver(function(d, pos){
-    console.log(pos);
-    if(pos === undefined)
-      pos = d3.mouse(layer.chart.container.node())
-    else
-      pos = [pos[0] + layer.chart.margins().left, pos[1] + layer.chart.margins().top];
+  layer.elementMouseOver(function(d){
+    var rect = layer.chart.container.node().getBoundingClientRect(),
+      pos = [d3.max([d3.min([d3.event.clientX - rect.left, layer.chart.plotWidth()]), 0]), 
+            d3.max([d3.min([d3.event.clientY - rect.top, layer.chart.plotHeight()]), 0])]; 
+
     //change colour and class
-    if(!this.propList)
+    if(!this || !this.prev_time)
       d3.select(this)
         .attr("fill", function(d) {
           return d3.rgb(layer.get_colour(d)).darker(0.5);
         })
         .classed("hover", true);
     //show label
-    console.log(d3.mouse(layer.chart.container.node()));
-
     layer.chart.container.selectAll(".inform").data([d])
         .style("left", (pos[0] + 10) + "px")
         .style("top", (pos[1] + 10) + "px")
