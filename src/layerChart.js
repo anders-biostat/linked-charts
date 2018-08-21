@@ -204,17 +204,55 @@ export function layerChart(){
 				throw "Error in 'get_elements': layerId is not defined";
 			}
 		
-		var selectedIds = [];
-		for(var i in ids)
-			selectedIds = selectedIds
-				.concat(ids[i].map(function(e) {
-					return ("p" + i + "_" + e).replace(/[ .]/g, "_")
-				}))
+		var selectedIds = [], canv = {};
+		for(var i in ids) {
+			if(chart.get_layer(i).canvas && chart.get_layer(i).canvas.classed("active"))
+				canv[i] = ids[i]
+			else
+				selectedIds = selectedIds
+					.concat(ids[i].map(function(e) {
+						if(typeof e === "object")
+							e = e.join("_");
+						return ("p" + i + "_" + e).replace(/[ .]/g, "_")
+					}))
+		}
 		
+		var points = (selectedIds.length == 0 ? d3.select("_______") : 
+					chart.svg.selectAll(".chart_g").selectAll("#" + selectedIds.join(",#")));
+		points.canvas = canv;
+		return points;
 
-		return selectedIds.length == 0 ? d3.select("_______") : 
-			chart.svg.selectAll(".chart_g").selectAll("#" + selectedIds.join(",#"));
+	}
 
+	chart.get_marked = function(){
+		var elements = {};
+		for(var layerId in chart.layers)
+			elements[layerId] = chart.get_layer(layerId).get_marked();
+		return elements;
+	}
+
+
+	var inherited_mark = chart.mark;
+	chart.mark = function(marked) {
+		if(Array.isArray(marked)) {
+			inherited_mark(marked);
+			return;
+		}
+		if(marked.empty && (!marked.canvas || Object.keys(marked.canvas) == 0)) {
+			inherited_mark(marked);
+			return;
+		}
+
+		if(marked == "__clear__"){
+			for(var layerId in chart.layers)
+				chart.get_layer(layerId).mark(marked);
+			return;
+		}
+		
+		if(marked.canvas)
+			marked = marked.canvas;
+		for(var layerId in marked)
+			chart.get_layer(layerId).mark(marked[layerId]);
 	}
 
 	var inherited_update = chart.update;

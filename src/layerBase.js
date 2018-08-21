@@ -43,7 +43,8 @@ export function layerBase(id) {
 
   layer.propList = layer.propList.concat(["updateElementStyle", "updateElements", "updateElementPosition"]);
 	layer.id = id;
-
+  layer.marked = [];
+  
   //if number of elements is set, define their IDs
   layer.wrapSetter("nelements", function(oldSetter){
     return function() {
@@ -291,6 +292,15 @@ export function layerBase(id) {
       .classed("hidden", true);
   });
 
+  layer.get_marked = function() {
+    if(get_mode() == "svg") 
+      return layer.g.selectAll(".data_element")
+        .filter(function() {return d3.select(this).classed("marked")})
+        .data()
+    else
+      return layer.marked;
+  }
+
   layer.checkMode = function(){
     if((get_mode() == "svg") && (layer.canvas.classed("active"))) {
       layer.canvas.classed("active", false);
@@ -317,6 +327,64 @@ export function layerBase(id) {
     return true;
   }
 
+  layer.mark = function(marked) {
+    if(get_mode() == "svg") {
+      if(marked == "__clear__"){
+        layer.g.selectAll(".data_element.marked")
+          .classed("marked", false);
+        layer.g.selectAll(".data_element")
+          .attr("opacity", 1);
+        layer.chart.markedUpdated();
+        return layer.chart;
+      }
+    
+      //marked can be either an array of IDs or a selection
+      if(!marked.empty){
+        var obj = {};
+        obj[layer.id] = marked;
+        marked = layer.chart.get_elements(obj);
+      }
+    
+      if(layer.g.selectAll(".data_element.marked").empty())
+        layer.g.selectAll(".data_element")
+          .attr("opacity", 0.5);
+      marked.classed("switch", true);
+      if(marked.size() < 2)
+        marked.filter(function() {return d3.select(this).classed("marked");})
+          .classed("switch", false)
+          .classed("marked", false)
+          .attr("opacity", 0.5);
+      marked.filter(function() {return d3.select(this).classed("switch");})
+        .classed("marked", true)
+        .classed("switch", false)
+        .attr("opacity", 1);
+      if(layer.g.selectAll(".data_element.marked").empty())
+        layer.g.selectAll(".data_element")
+          .attr("opacity", 1);      
+    } else {
+      if(marked == "__clear__")
+        layer.marked = []
+      else {
+        var ids = layer.marked.map(function(e) {return Array.isArray(e) ? e.join("_") : e}),
+          ind;
+        for(var i = 0; i < marked.length; i++){
+          if(marked[i].join)
+            ind = ids.indexOf(marked[i].join("_"))
+          else
+            ind = ids.indexOf(marked[i]);
+
+          if(ind == -1)
+            layer.marked.push(marked[i])
+          else {
+            lyaer.marked.splice(ind, 1);
+            ids.splice(ind, 1);
+          }
+        }
+      }
+      layer.updateCanvas();      
+    }
+    layer.chart.markedUpdated();
+  }
 
 	return layer;
 }

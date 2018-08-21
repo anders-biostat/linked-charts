@@ -179,7 +179,7 @@ export function chartBase() {
 		}
 		
 		//marked can be either an array of IDs or a selection
-		if(typeof marked.empty === "undefined")
+		if(!marked.empty)
 			marked = chart.get_elements(marked);
 		
 		if(chart.svg.selectAll(".data_element.marked").empty())
@@ -202,14 +202,6 @@ export function chartBase() {
 		chart.markedUpdated();
 
 		return chart;
-	}
-
-	chart.get_marked = function(){
-		var elements = [];
-		chart.svg.selectAll(".marked").each(function() {
-			elements.push(d3.select(this).datum());
-		});
-		return elements;
 	}
 
   chart.place = function( element ) {

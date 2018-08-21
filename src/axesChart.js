@@ -100,15 +100,6 @@ export function axesChart() {
 		return chart;
 	}
 
-	chart.get_marked = function(){
-		var elements = [];
-		chart.svg.selectAll(".marked").each(function() {
-			elements.push([d3.select(this.parentNode).attr("id"), 
-										d3.select(this).datum()]);
-		});
-		return elements;
-	}
-
 	chart.get_position = function(id){
 		return chart.get_layer(id[0]).get_position(id[1]);
 	}

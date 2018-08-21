@@ -41,7 +41,7 @@ export function scatter(id, chart) {
   // Set default for numPoints, namely to count the data provided for x
   layer.nelements( function() {
     var val;
-    for( var i = 0; i < 10000; i++ ) {
+    for( var i = 0; i < 100000; i++ ) {
       try {
         // try to get a value
         val = layer.get_x(i)
@@ -99,7 +99,7 @@ export function scatter(id, chart) {
 		var vals = layer.elementIds().map(function(e) { return layer.get_x(e);}),
       allNums = true, i = 0;
     while(allNums && i < vals.length){
-      if(typeof vals[i] !== "number" && vals[i] != "Inf" && vals[i] !== NaN)
+      if(typeof vals[i] !== "number" && vals[i] != "Inf" && vals[i] !== NaN && vals[i] !== "NaN")
         allNums = false;
       i++;
     }
@@ -113,7 +113,7 @@ export function scatter(id, chart) {
     var vals = layer.elementIds().map(function(e) { return layer.get_y(e);}),
       allNums = true, i = 0;
     while(allNums && i < vals.length){
-      if(typeof vals[i] !== "number" && vals[i] != "Inf" && vals[i] !== NaN)
+      if(typeof vals[i] !== "number" && vals[i] != "Inf" && vals[i] !== NaN && vals[i] !== "NaN")
         allNums = false;
       i++;
     }
@@ -316,7 +316,9 @@ export function scatter(id, chart) {
       ctx.strokeStyle = layer.get_stroke(ids[i]);
       ctx.lineWidth = layer.get_strokeWidth(ids[i]);
       ctx.fillStyle = layer.get_colour(ids[i]);
-      
+      if(layer.marked.length != 0 && layer.marked.indexOf(ids[i]) == -1)
+        ctx.globalAlpha = 0.5;
+
       x = layer.chart.axes.scale_x( layer.get_x(ids[i]) ),
       y = layer.chart.axes.scale_y( layer.get_y(ids[i]) );
       if (x == undefined || y == undefined) {
@@ -333,6 +335,7 @@ export function scatter(id, chart) {
       ctx.stroke(p);
       ctx.fill(p);
       ctx.translate(-x, -y);
+      ctx.globalAlpha = 1;
 
     }
   }

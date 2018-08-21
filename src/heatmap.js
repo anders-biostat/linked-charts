@@ -1088,11 +1088,14 @@ export function heatmap(id, chart){
 			return data;
 	}
 
-	var inherited_get_marked = chart.get_marked;
 	chart.get_marked = function(){
-		if(get_mode() == "svg")
-			return inherited_get_marked()
-		else
+		if(get_mode() == "svg"){
+			var elements = [];
+			chart.svg.selectAll(".marked").each(function() {
+				elements.push(d3.select(this).datum());
+			});
+			return elements;
+		} else
 			return chart.marked;
 	}
 
