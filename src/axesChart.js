@@ -57,10 +57,15 @@ export function axesChart() {
 				}
 			}
 			if(domain === undefined) domain = [0, 1];
-			if(contScale) {
-				domain[1] = domain[1] + 0.03 * (domain[1] - domain[0]);
-				domain[0] = domain[0] - 0.03 * (domain[1] - domain[0]);
-			}
+			if(contScale) 
+				if(chart["logScale" + axis]()) {
+					domain[1] = domain[1] * 2;
+					domain[0] = domain[0] / 2;
+				} else {
+					domain[1] = domain[1] + 0.03 * (domain[1] - domain[0]);
+					domain[0] = domain[0] - 0.03 * (domain[1] - domain[0]);
+				}
+			
 			return domain;
 		}
 	}
@@ -438,6 +443,21 @@ export function axesChart() {
 		}
 	}
 
+	var checkDomain = function(type) {
+		var domain = chart["get_domain" + type]();
+		if(domain.length == 2 && typeof domain[0] === "number" && typeof domain[1] === "number") {
+			if(domain[0] == domain[1]) {
+				domain[0] = domain[0] - 0.5;
+				domain[1] = domain[1] + 0.5;
+			}
+			//if(chart["logScale" + type]()){
+			//	domain = [d3.max([domain[0], 0.00000000001]), d3.max([domain[1], 0.1])];
+			//}
+			
+		}
+		return domain;
+	}
+
 	chart.updateAxes = function(){
 
 		checkType("X");
@@ -450,8 +470,9 @@ export function axesChart() {
     	.text( chart.axisTitleX());
 		chart.axes.y_label
    		.text( chart.axisTitleY() );
-    chart.axes.scale_x.domain(chart.get_domainX());
-    chart.axes.scale_y.domain(chart.get_domainY());
+
+    chart.axes.scale_x.domain(checkDomain("X"));
+    chart.axes.scale_y.domain(checkDomain("Y"));
 		if(chart.aspectRatio())
 			fix_aspect_ratio(chart.axes.scale_x, chart.axes.scale_y, chart.get_aspectRatio());
 
