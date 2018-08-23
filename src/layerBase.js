@@ -37,6 +37,7 @@ export function layerBase(id) {
     .add_property("colourLegendTitle", function(){return "colour_" + layer.id})
     .add_property("opacity", 1, check("number_nonneg", "opacity"))
 		.add_property("dresser", function() {})
+    .add_property("markedUpdated", function() {layer.chart.markedUpdated();})
     .add_property("informText", function(id) {
       return "<b>ID:</b> " + layer.get_elementLabel(id);
     });
@@ -383,7 +384,7 @@ export function layerBase(id) {
       }
       layer.updateCanvas();      
     }
-    layer.chart.markedUpdated();
+    layer.markedUpdated();
   }
 
 	return layer;
