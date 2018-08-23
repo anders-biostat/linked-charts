@@ -241,7 +241,7 @@ export function add_click_listener(chart){
             d3.customEvent(e, chart.get_layer(layerId).get_elementMouseOver, this, [elements[layerId][0]]);
             //chart.get_layer(layerId).get_elementMouseOver(elements[layerId][0]);
           if(flag && chart.get_elementMouseOut)
-            chart.get_elementMouseOut();
+            chart.get_layer(layerId).get_elementMouseOut();
         }
 
       })

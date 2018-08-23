@@ -9,7 +9,15 @@ function line(id, chart){
 		id = "layer" + chart.get_nlayers();
 	
 	var layer = chart.create_layer(id).get_layer(id)
-		.add_property("lineFun")
+		.add_property("lineFun", undefined, function(value) {
+			if(typeof value === "function")
+				return value;
+			if(typeof value === "string") 
+				return new Function("return " + value)()	
+
+			throw "Error in 'typeCheck' for property 'lineFun': value must be a function or" +
+				"a string that can be evaluated."
+		})
 		.add_property("nsteps", 100)
 		.add_property("lineWidth", 1.5)
 		.add_property("dasharray", undefined);
