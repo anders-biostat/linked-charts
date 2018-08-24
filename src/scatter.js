@@ -266,7 +266,7 @@ export function scatter(id, chart) {
     layer.resetColourScale();
 
     if(get_mode() == "svg") {
-      var sel = layer.g.selectAll(".data_element");
+       var sel = layer.g.selectAll(".data_element");
       if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
         sel = sel.transition("elementStyle")
           .duration(layer.chart.transitionDuration());
@@ -276,11 +276,16 @@ export function scatter(id, chart) {
             .type(d3["symbol" + layer.get_symbol(d)])
             .size(get_symbolSize(layer.get_symbol(d), layer.get_size(d)))();
         })
-        .attr("fill", function(d) {return layer.get_colour(d)})
+        .attr("fill", function(d) {
+
+          return layer.get_colour(d)
+        })
         .attr("stroke", function(d) {return layer.get_stroke(d)})
-        .attr("stroke-width", function(d) {return layer.get_strokeWidth(d)});
-      if(layer.chart.get_marked().length == 0)
-        sel.attr("opacity", function(d) { return layer.get_opacity(d)} );
+        .attr("stroke-width", function(d) {return layer.get_strokeWidth(d)})
+        .attr("opacity", function(d) { return layer.get_opacity(d)} );
+
+        if(!layer.get_marked().empty())
+          layer.colourMarked();
     } else {
       if(!layer.updateStarted)
         layer.updateCanvas();
@@ -325,9 +330,12 @@ export function scatter(id, chart) {
     for(var i = 0; i < ids.length; i++) {
       ctx.strokeStyle = layer.get_stroke(ids[i]);
       ctx.lineWidth = layer.get_strokeWidth(ids[i]);
-      ctx.fillStyle = layer.get_colour(ids[i]);
       if(layer.marked.length != 0 && layer.marked.indexOf(ids[i]) == -1)
-        ctx.globalAlpha = 0.5;
+        ctx.fillStyle = "#aaa"
+      else       
+        ctx.fillStyle = layer.get_colour(ids[i]);
+      
+      ctx.globalAlpha = layer.get_opacity(ids[i]);
 
       x = layer.chart.axes.scale_x( layer.get_x(ids[i]) ),
       y = layer.chart.axes.scale_y( layer.get_y(ids[i]) );
@@ -345,8 +353,6 @@ export function scatter(id, chart) {
       ctx.stroke(p);
       ctx.fill(p);
       ctx.translate(-x, -y);
-      ctx.globalAlpha = 1;
-
     }
   }
 

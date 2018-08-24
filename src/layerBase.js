@@ -253,6 +253,9 @@ export function layerBase(id) {
     layer.resetColourScale();
   	layer.get_dresser(layer.g.selectAll(".data_element"));
 
+    if(layer.get_marked().empty())
+      layer.colourMarked();
+
   	return layer;
   };
 
@@ -346,22 +349,14 @@ export function layerBase(id) {
         marked = layer.chart.get_elements(obj);
       }
     
-      if(layer.g.selectAll(".data_element.marked").empty())
-        layer.g.selectAll(".data_element")
-          .attr("opacity", 0.5);
       marked.classed("switch", true);
       if(marked.size() < 2)
         marked.filter(function() {return d3.select(this).classed("marked");})
           .classed("switch", false)
-          .classed("marked", false)
-          .attr("opacity", 0.5);
+          .classed("marked", false);
       marked.filter(function() {return d3.select(this).classed("switch");})
         .classed("marked", true)
-        .classed("switch", false)
-        .attr("opacity", 1);
-      if(layer.g.selectAll(".data_element.marked").empty())
-        layer.g.selectAll(".data_element")
-          .attr("opacity", 1);      
+        .classed("switch", false);
     } else {
       if(marked == "__clear__")
         layer.marked = []
@@ -385,6 +380,22 @@ export function layerBase(id) {
       layer.updateCanvas();      
     }
     layer.markedUpdated();
+  }
+
+  layer.colourMarked = function() {
+    if(get_mode() == "svg") {
+      var marked = layer.get_marked();
+      if(marked.empty())
+        layer.g.selectAll(".data_element")
+          .attr("fill", function(d) {return layer.get_colour(d)});
+      else {
+        layer.g.selectAll(".data_element")
+          .attr("fill", function(d) {
+            return d3.select(this).classed("marked") ? layer.get_colour(d) : "#aaa";
+          })
+      }
+
+    }
   }
 
 	return layer;

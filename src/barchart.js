@@ -255,11 +255,13 @@ export function barchart(id, chart){
 			})
 			.attr("stroke-width", function(d) {
 				return layer.get_strokeWidth(d[0], d[1], d[2]);
-			});
-		if(layer.chart.get_marked().length == 0)
-			sel.attr("opacity", function(d){
+			})
+			.attr("opacity", function(d){
 				return layer.get_opacity(d[0], d[1], d[2]);
 			});
+
+			if(layer.chart.get_marked().length != 0)
+				layer.colourMarked();
 
 	}
 
