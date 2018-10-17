@@ -237,11 +237,24 @@ var updateGrid = function() {
 			sampleValues = d3.range(steps).map(function(e) {
 				return (blocks[id].domain[0] + e * 
 								(blocks[id].domain[1] - blocks[id].domain[0]) / 
-								(steps - 1)).toFixed(2);
+								(steps - 1));
 			})
-		var sampleData = [];
-		for(var i = 0; i < sampleValues.length; i++)
+		var sampleData = [],n;
+		for(var i = 0; i < sampleValues.length; i++){
+			if(typeof sampleValues[i] === "number")
+				if(Math.abs(sampleValues[i] >= 1 || sampleValues[i] == 0))
+					sampleValues[i] = sampleValues[i].toFixed(2)
+				else {
+					n = 1 - Math.floor(Math.log(Math.abs(sampleValues[i]))/Math.log(10));
+					if(n > 5)
+						sampleValues[i] =  sampleValues[i].toExponential()
+					else	
+						sampleValues[i] =  sampleValues[i].toFixed(n);
+				}	
+					
+
 			sampleData.push([sampleValues[i]]);
+		}
 		
 		var samples = blockSvg.selectAll(".sample").data(sampleData);
 		samples.exit().remove();

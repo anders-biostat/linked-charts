@@ -64,7 +64,7 @@ export function axesChart() {
 				} else {
 					domain[1] = domain[1] + 0.03 * (domain[1] - domain[0]);
 					domain[0] = domain[0] - 0.03 * (domain[1] - domain[0]);
-				}
+				} 
 			
 			return domain;
 		}
@@ -394,7 +394,7 @@ export function axesChart() {
 				if(newDomainY[0] <= 0) newDomainY[0] = domainY[0];
 				if(newDomainY[1] <= 0) newDomainY[1] = domainY[1]; 
 			}
-			chart.domainX(newDomainY);
+			chart.domainY(newDomainY);
 		} else {
 			//y-scale is categorical
 			var moveY = p[1] - chart.pan("down")[1],

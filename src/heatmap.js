@@ -30,6 +30,8 @@ export function heatmap(id, chart){
 		.add_property("colTitle", "")
 		.add_property("elementMouseOver")
 		.add_property("elementMouseOut")
+		.add_property("clusterRows", false)
+		.add_property("clusterCols", false)
 		.add_property("informText", function(rowId, colId) {
 			var value = chart.get_value(rowId, colId);
 			if(typeof value == "number")
@@ -1161,8 +1163,14 @@ export function heatmap(id, chart){
 		chart.axes.y_label
 			.text(chart.get_rowTitle());
 		chart.updateStarted = true;
-		chart.updateLabels()
-			.updateSize()
+		chart.updateLabels();
+		
+		if(chart.clusterRows())
+			chart.cluster("Row");
+		if(chart.clusterCols())
+			chart.cluster("Col");
+		
+		chart.updateSize()
 			.updateLabelText()
 			.updateCellColour();
 		chart.updateStarted = false;

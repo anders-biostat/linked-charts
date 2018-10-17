@@ -155,9 +155,12 @@ export function barchart(id, chart){
       .classed("hidden", false);
   });
   layer.elementMouseOut(function(d){
+  	var mark = layer.get_marked().length > 0;
+
     d3.select(this)
       .attr("fill", function(d) {
-        return layer.get_colour(d[0], d[1], d[2]);
+      	return mark ^ d3.select(this).classed("marked") ?
+        		"#aaa" : layer.get_colour(d[0], d[1], d[2]);
       })
       .classed("hover", false);
     layer.chart.container.select(".inform")
@@ -260,7 +263,7 @@ export function barchart(id, chart){
 				return layer.get_opacity(d[0], d[1], d[2]);
 			});
 
-			if(layer.chart.get_marked().length != 0)
+			if(layer.get_marked().empty && !layer.get_marked().empty())
 				layer.colourMarked();
 
 	}
@@ -304,6 +307,22 @@ export function barchart(id, chart){
         	.on( "mouseover", layer.get_elementMouseOver )
         	.on( "mouseout", layer.get_elementMouseOut );		
 	}
+
+  layer.colourMarked = function() {
+    var marked = {};
+    marked[layer.id] = layer.get_marked();
+    marked = layer.chart.get_elements(marked);
+    
+    if(marked.empty())
+      layer.g.selectAll(".data_element")
+        .attr("fill", function(d) {return layer.get_colour(d[0], d[1], d[2])});
+    else {
+      layer.g.selectAll(".data_element")
+        .attr("fill", function(d) {
+          return d3.select(this).classed("marked") ? layer.get_colour(d[0], d[1], d[2]) : "#aaa";
+        })
+    }
+  }	
 
 	return layer.chart;
 }

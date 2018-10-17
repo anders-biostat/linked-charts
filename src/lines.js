@@ -19,8 +19,9 @@ function line(id, chart){
 				"a string that can be evaluated."
 		})
 		.add_property("nsteps", 100)
-		.add_property("lineWidth", 1.5)
-		.add_property("dasharray", undefined);
+		.add_property("lineWidth", 1.5, check("array_fun", "lineWidth"))
+		.add_property("dasharray", undefined, check("array_fun", "dasharray"))
+		.add_property("fill", "none", check("array_fun", "fill"));
 	chart.syncProperties(layer);
 	
 	layer.nelements(1);
@@ -33,7 +34,6 @@ function line(id, chart){
 		lines.enter()
 			.append("path")
 				.attr("class", "data_element")
-				.attr("fill", "none")
 			.merge(lines)
 				.attr("id", function(d) {return "p" + (layer.id + "_" + d).replace(/[ .]/g,"_");})
         .on( "click", layer.get_on_click )
@@ -45,7 +45,8 @@ function line(id, chart){
 		sel.attr("stroke", function(d) {return layer.get_colour(d);})
 			.attr("stroke-width", function(d) {return layer.get_lineWidth(d);})
 			.attr("stroke-dasharray", function(d) {return layer.get_dasharray(d)})
-			.attr("opacity", function(d) { return layer.get_opacity(d)} );
+			.attr("opacity", function(d) { return layer.get_opacity(d)} )
+			.attr("fill", function(d) {return layer.get_fill(d)});
 	});
 
 	layer.findElements = function(lu, rb) {
@@ -109,6 +110,22 @@ function line(id, chart){
     layer.chart.container.selectAll(".inform")
       .classed("hidden", true);
   });		
+
+  layer.colourMarked = function() {
+    var marked = {};
+    marked[layer.id] = layer.get_marked();
+    marked = layer.chart.get_elements(marked);
+    
+    if(marked.empty())
+      layer.g.selectAll(".data_element")
+        .attr("stroke", function(d) {return layer.get_colour(d)});
+    else {
+      layer.g.selectAll(".data_element")
+        .attr("stroke", function(d) {
+          return d3.select(this).classed("marked") ? layer.get_colour(d) : "#aaa";
+        })
+    }
+  }	
 
 	return chart;
 }

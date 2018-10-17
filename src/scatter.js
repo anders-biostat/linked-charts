@@ -11,15 +11,15 @@ export function scatter(id, chart) {
   var layer = chart.create_layer(id).get_layer(id)
 		.add_property("x", undefined, check("array_fun", "x"))
 		.add_property("y", undefined, check("array_fun", "y"))
-    .add_property("size", 6, check("number_nonneg", "size"))
+    .add_property("size", 6, check("array_fun", "size"))
     .add_property("stroke", function(d) {
       return d3.rgb(layer.get_colour(d)).darker(0.8)
     }, check("array_fun", "stroke"))
     .add_property("strokeWidth", function(d) {
       return layer.get_size(d) * 0.1;
     }, check("array_fun", "strokeWidth"))
-    .add_property("symbol", "Circle", check("array_fun", "symblol"))
-    .add_property("symbolValue", check("array_fun", "symbolValue"))
+    .add_property("symbol", "Circle", check("array_fun", "symbol"))
+    .add_property("symbolValue", undefined, check("array_fun", "symbolValue"))
     .add_property("symbolLegendTitle", function(){return "symbol_" + layer.id});
 		//.add_property("groupName", function(i){return i;})
 
@@ -284,7 +284,7 @@ export function scatter(id, chart) {
         .attr("stroke-width", function(d) {return layer.get_strokeWidth(d)})
         .attr("opacity", function(d) { return layer.get_opacity(d)} );
 
-        if(!layer.get_marked().empty())
+        if(layer.get_marked().empty && !layer.get_marked().empty())
           layer.colourMarked();
     } else {
       if(!layer.updateStarted)

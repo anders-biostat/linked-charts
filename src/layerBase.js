@@ -35,7 +35,7 @@ export function layerBase(id) {
     .add_property("colourDomain", check("array", "colourDomain"))
     .add_property("colourValue", undefined, check("array_fun", "colourValue"))
     .add_property("colourLegendTitle", function(){return "colour_" + layer.id})
-    .add_property("opacity", 1, check("number_nonneg", "opacity"))
+    .add_property("opacity", 1, check("array_fun", "opacity"))
 		.add_property("dresser", function() {})
     .add_property("markedUpdated", function() {layer.chart.markedUpdated();})
     .add_property("informText", function(id) {
@@ -253,7 +253,7 @@ export function layerBase(id) {
     layer.resetColourScale();
   	layer.get_dresser(layer.g.selectAll(".data_element"));
 
-    if(layer.get_marked().empty())
+    if(layer.get_marked().empty && !layer.get_marked().empty())
       layer.colourMarked();
 
   	return layer;
@@ -286,12 +286,16 @@ export function layerBase(id) {
       .classed("hidden", false);
   });
   layer.elementMouseOut(function(d){
-    if(!this.propList)
+    if(!this.propList){
+      var mark = layer.get_marked().length > 0;
+
       d3.select(this)
         .attr("fill", function(d) {
-          return layer.get_colour(d);
+          return mark ^ d3.select(this).classed("marked") ?
+                  "#aaa": layer.get_colour(d);
         })
         .classed("hover", false);
+    }
     layer.chart.container.selectAll(".inform")
       .classed("hidden", true);
   });
@@ -309,7 +313,7 @@ export function layerBase(id) {
     if((get_mode() == "svg") && (layer.canvas.classed("active"))) {
       layer.canvas.classed("active", false);
       layer.g.classed("active", true);
-      lyaer.canvas.node().getContext("2d")
+      layer.canvas.node().getContext("2d")
         .clearRect(0, 0, layer.chart.plotWidth(), layer.chart.plotHeight());
 
       if(layer.updateStarted)
@@ -339,6 +343,8 @@ export function layerBase(id) {
         layer.g.selectAll(".data_element")
           .attr("opacity", 1);
         layer.chart.markedUpdated();
+        layer.colourMarked();
+
         return layer.chart;
       }
     
@@ -349,20 +355,22 @@ export function layerBase(id) {
         marked = layer.chart.get_elements(obj);
       }
     
-      marked.classed("switch", true);
-      if(marked.size() < 2)
-        marked.filter(function() {return d3.select(this).classed("marked");})
-          .classed("switch", false)
-          .classed("marked", false);
-      marked.filter(function() {return d3.select(this).classed("switch");})
-        .classed("marked", true)
-        .classed("switch", false);
+      if(marked.empty())
+        return layer.chart;
+
+      if(marked.size() == 1)
+        marked.classed("marked", !marked.classed("marked"))
+      else
+        marked.classed("marked", true);
+
+      layer.colourMarked();
     } else {
       if(marked == "__clear__")
         layer.marked = []
       else {
         var ids = layer.marked.map(function(e) {return Array.isArray(e) ? e.join("_") : e}),
           ind;
+
         for(var i = 0; i < marked.length; i++){
           if(marked[i].join)
             ind = ids.indexOf(marked[i].join("_"))
@@ -372,8 +380,8 @@ export function layerBase(id) {
           if(ind == -1)
             layer.marked.push(marked[i])
           else {
-            lyaer.marked.splice(ind, 1);
-            ids.splice(ind, 1);
+            if(marked.length == 1)
+              layer.marked.splice(ind, 1);
           }
         }
       }
@@ -384,7 +392,10 @@ export function layerBase(id) {
 
   layer.colourMarked = function() {
     if(get_mode() == "svg") {
-      var marked = layer.get_marked();
+      var marked = {};
+      marked[layer.id] = layer.get_marked();
+      marked = layer.chart.get_elements(marked);
+    
       if(marked.empty())
         layer.g.selectAll(".data_element")
           .attr("fill", function(d) {return layer.get_colour(d)});
