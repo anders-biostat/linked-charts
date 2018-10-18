@@ -37,7 +37,7 @@ export function heatmap(id, chart){
       throw "Error in 'typeCheck' for 'palette': invalid type. Palette must be " +
              "a name of a d3 interpolator, an array of colours or a function.";
 		})
-		.add_property("colourDomain", function() {return chart.dataRange()}, check("array_fun", "colourDomain"))
+		.add_property("colourDomain", function() {return chart.dataRange()}, check("array", "colourDomain"))
 		.add_property("clusterRowMetric", getEuclideanDistance)
 		.add_property("clusterColMetric", getEuclideanDistance)
 		.add_property("on_click", function() {})
