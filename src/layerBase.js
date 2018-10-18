@@ -109,7 +109,6 @@ export function layerBase(id) {
           l.globalScaleUpdate = true;
           l.updateElementStyle();
         }
-
       }
     }
 
@@ -168,7 +167,7 @@ export function layerBase(id) {
       }
     } else {
       //the colour scale is categorical
-      range = range.sort()
+      //range = range.sort()
       if(palette === undefined)
         palette = d3.schemeCategory10;
       if(palette.length){

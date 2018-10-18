@@ -13,15 +13,31 @@ export function heatmap(id, chart){
 		.add_property("rowIds", undefined, check("array", "rowIds"))
 		.add_property("dispColIds", function() {return chart.colIds();}, check("array", "dispColIds"))
 		.add_property("dispRowIds", function() {return chart.rowIds();}, check("array", "dispRowIds"))
-		.add_property("heatmapRow", function(rowId) {return chart.dispRowIds().indexOf(rowId);}, check("array", "heatmapRow"))
-		.add_property("heatmapCol", function(colId) {return chart.dispColIds().indexOf(colId);}, check("array", "heatmapCol"))
+		.add_property("heatmapRow", function(rowId) {return chart.dispRowIds().indexOf(rowId);}, check("array_fun", "heatmapRow"))
+		.add_property("heatmapCol", function(colId) {return chart.dispColIds().indexOf(colId);}, check("array_fun", "heatmapCol"))
 		.add_property("showDendogramRow", true)
 		.add_property("showDendogramCol", true)
 		.add_property("value", undefined, check("matrix_fun", "value"))
 		.add_property("mode", "default")
 		.add_property("colour")
-		.add_property("palette", d3.interpolateOrRd)
-		.add_property("colourDomain", function() {return chart.dataRange()})
+		.add_property("palette", d3.interpolateOrRd, function(value) {
+			if(typeof value === "string") {
+				if(!d3[value])
+		      throw "Error in 'typeCheck' for 'palette': invalid palette name, " +
+		               "must be one of d3 interpolators (e.g. 'interpolateOrRd').";
+		    return d3[value];
+			}
+			if(Array.isArray(value))
+				return d3.scaleLinear()
+									.domain(d3.range(value.length).map(function(el) {return el/value.length}))
+									.range(value);
+			if(typeof value === "function")
+				return value
+
+      throw "Error in 'typeCheck' for 'palette': invalid type. Palette must be " +
+             "a name of a d3 interpolator, an array of colours or a function.";
+		})
+		.add_property("colourDomain", function() {return chart.dataRange()}, check("array_fun", "colourDomain"))
 		.add_property("clusterRowMetric", getEuclideanDistance)
 		.add_property("clusterColMetric", getEuclideanDistance)
 		.add_property("on_click", function() {})
