@@ -6,14 +6,10 @@ This document describes a standard analysis of the RNA-Seq dataset used in [this
 
 We are working with data from this paper:
 
-| C. Conway et al.:
-| Elucidating drivers of oral epithelial dysplasia formation and malignant 
-|   transformation to cancer using RNAseq
-| Oncotarget, 6:40186-40201 (2015)
-| [doi:10.18632/oncotarget.5529](https://doi.org/10.18632/oncotarget.5529)
+| C. Conway et al.: *Elucidating drivers of oral epithelial dysplasia formation and malignant transformation to cancer using RNAseq*. Oncotarget, 6:40186-40201 (2015), [doi:10.18632/oncotarget.5529](https://doi.org/10.18632/oncotarget.5529)
 
 Conweay et al. have collected tissue samples from 19 patients with oral squamous
-cell carcinoma. From each patient, they took 3 samples, one of normal oral mucosa 
+cell carcinoma (OSCC). From each patient, they took 3 samples, one of normal oral mucosa 
 ("N"), one of epithelial dysplasia (i.e., abnormal but not yet malignant tissue, 
 "D"), and one sample of the tumour ("T"). They prepared RNA-Seq libraries from
 the samples and sequenced them. They deposited their raw data at the European
@@ -53,7 +49,7 @@ available from ERA, however, does (though it took us a bit to find this).
 We went to the [ERA page for the project](https://www.ebi.ac.uk/ena/data/view/PRJEB7455).
 There, we clicked on "Select column" and selected the columns "Run accession" and 
 "Submitter's sample name", then downloaded this table. A copy of this table is available
-from the present site: [`PRJEB7455.txt`](PRJEB7455.txt).
+from the present site: [PRJEB7455.txt](PRJEB7455.txt).
 
 We will use [tidyverse](https://www.tidyverse.org/) functionality to process the table
 
@@ -131,14 +127,6 @@ Now, we have this
 countMatrix[ 1:5, 1:5 ]
 ```
 
-```{r}
-AnnotationDbi::select( 
-      org.Hs.eg.db::org.Hs.eg.db, 
-      str_extract( rownames(countMatrix), "ENSG\\d*" ), 
-      "SYMBOL", "ENSEMBL" ) %>%
-   mutate( gene_name = ifelse( !is.na(SYMBOL), SYMBOL, ENSEMBL ) )   
-```
-
 ### Running limma-voom
 
 With everything in place, we now run a standard differential expression analysis using
@@ -155,7 +143,7 @@ This is our model matrix
 
 ```{r}
 mm <- model.matrix( ~ patient + tissue, sampleTable )
-head(mm)
+colnames(mm)
 ```
 
 The model matrix columns concerning the tissue type are the last two
@@ -185,7 +173,7 @@ head(voomResult)
 Let's make an MA plot of these, showing the log fold change tumour/normal versus the average expression and
 highlighting genes significant at 10% FDR in the F test.
 
-```{r}
+```{r maplot}
 plot( voomResult$AveExpr, voomResult$tissuetumour, 
    col = ifelse( voomResult$adj.P.Val < .1, "red", "black" ), pch=20, cex=.3 )
 ```
@@ -195,10 +183,10 @@ plot( voomResult$AveExpr, voomResult$tissuetumour,
 We save the result 
 
 ```{r}
-save( countMatrix, sampleTable, voomResult, file="orcc.rda" )
+save( countMatrix, sampleTable, voomResult, file="oscc.rda" )
 ```
 
-This file is available here: [`orcc.rda`](orcc.rda)
+This file is available here: [oscc.rda](oscc.rda)
 
 
 ### Session info

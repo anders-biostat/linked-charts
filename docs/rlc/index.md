@@ -19,7 +19,7 @@ devtools::install_github( "anders-biostat/rlc" )
 
 #### Understanding RNA-Seq data
 
-**This simple tutorial** [being written] shows how R/LinkedCharts can help you with a standard bioinformatics task: analysing an RNA-Seq data set, here of tissue samples from patients with oral cancer. The tutorial shows how scatter plots and heatmaps can easily be interactively combined. This is a good start into R/LinkedCharts
+[**This simple tutorial**](oscc/oscc.html) shows how R/LinkedCharts can help you with a standard bioinformatics task: analysing an RNA-Seq data set, here of tissue samples from patients with oral cancer. The tutorial shows how scatter plots and heatmaps can easily be interactively combined. This is a good start into R/LinkedCharts
 
 #### Exploring single-cell data
 

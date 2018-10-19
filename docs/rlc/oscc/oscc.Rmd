@@ -27,94 +27,21 @@ we describe these preparatory steps in an [appendix](data_prep.md).
 We hence start by loading the data file resulting from the preparations, which is 
 available here: [oscc.rda](oscc.rda)
 
-
-```r
+```{r}
 load( "oscc.rda" )
 ```
 
 We have data for 57 samples (19 patients x 3 tissue samples per patient), with the metadata in `sampleTable`:
 
-
-```r
+```{r}
 sampleTable
-```
-
-```
-##    run_accession sample_name patient    tissue
-## 1      ERR649059     PG004-N   PG004    normal
-## 2      ERR649060     PG004-D   PG004 dysplasia
-## 3      ERR649061     PG004-T   PG004    tumour
-## 4      ERR649035     PG038-N   PG038    normal
-## 5      ERR649018     PG038-D   PG038 dysplasia
-## 6      ERR649025     PG038-T   PG038    tumour
-## 7      ERR649022     PG049-N   PG049    normal
-## 8      ERR649021     PG049-D   PG049 dysplasia
-## 9      ERR649020     PG049-T   PG049    tumour
-## 10     ERR649026     PG063-N   PG063    normal
-## 11     ERR649023     PG063-D   PG063 dysplasia
-## 12     ERR649024     PG063-T   PG063    tumour
-## 13     ERR649062     PG079-N   PG079    normal
-## 14     ERR649064     PG079-D   PG079 dysplasia
-## 15     ERR649065     PG079-T   PG079    tumour
-## 16     ERR649034     PG086-N   PG086    normal
-## 17     ERR649037     PG086-D   PG086 dysplasia
-## 18     ERR649036     PG086-T   PG086    tumour
-## 19     ERR649053     PG105-N   PG105    normal
-## 20     ERR649063     PG105-D   PG105 dysplasia
-## 21     ERR649045     PG105-T   PG105    tumour
-## 22     ERR649029     PG108-N   PG108    normal
-## 23     ERR649028     PG108-D   PG108 dysplasia
-## 24     ERR649027     PG108-T   PG108    tumour
-## 25     ERR649072     PG114-N   PG114    normal
-## 26     ERR649073     PG114-D   PG114 dysplasia
-## 27     ERR649074     PG114-T   PG114    tumour
-## 28     ERR649069     PG122-N   PG122    normal
-## 29     ERR649070     PG122-D   PG122 dysplasia
-## 30     ERR649071     PG122-T   PG122    tumour
-## 31     ERR649043     PG123-N   PG123    normal
-## 32     ERR649033     PG123-D   PG123 dysplasia
-## 33     ERR649044     PG123-T   PG123    tumour
-## 34     ERR649030     PG129-N   PG129    normal
-## 35     ERR649031     PG129-D   PG129 dysplasia
-## 36     ERR649032     PG129-T   PG129    tumour
-## 37     ERR649019     PG136-N   PG136    normal
-## 38     ERR649041     PG136-D   PG136 dysplasia
-## 39     ERR649042     PG136-T   PG136    tumour
-## 40     ERR649038     PG137-N   PG137    normal
-## 41     ERR649039     PG137-D   PG137 dysplasia
-## 42     ERR649040     PG137-T   PG137    tumour
-## 43     ERR649046     PG144-N   PG144    normal
-## 44     ERR649047     PG144-D   PG144 dysplasia
-## 45     ERR649048     PG144-T   PG144    tumour
-## 46     ERR649049     PG146-N   PG146    normal
-## 47     ERR649050     PG146-D   PG146 dysplasia
-## 48     ERR649051     PG146-T   PG146    tumour
-## 49     ERR649052     PG174-N   PG174    normal
-## 50     ERR649055     PG174-D   PG174 dysplasia
-## 51     ERR649054     PG174-T   PG174    tumour
-## 52     ERR649058     PG187-N   PG187    normal
-## 53     ERR649057     PG187-D   PG187 dysplasia
-## 54     ERR649056     PG187-T   PG187    tumour
-## 55     ERR649066     PG192-N   PG192    normal
-## 56     ERR649067     PG192-D   PG192 dysplasia
-## 57     ERR649068     PG192-T   PG192    tumour
 ```
 
 Our actual data is a matrix of read counts: The samples are the columns, the rows the genes, the matrix entries the
 number of RNA-Seq reads that mapped to each gene in each sample. Here is the top left corner of `countMatrix`:
 
-
-```r
+```{r}
 countMatrix[ 1:5, 1:5 ]
-```
-
-```
-##          PG004-N PG004-D PG004-T PG038-N PG038-D
-## TSPAN6     11642   25423    1526   37354   30699
-## TNMD         405       0    1628     371       0
-## DPM1       21828   32694     973   55566   33814
-## SCYL3      31332   38436   11661   77985   63853
-## C1orf112   14207   21808    8047   25159   25862
 ```
 
 ## An interactive heatmap for quality assessment
@@ -124,32 +51,19 @@ that all of these many samples are of equally perfect quality. A good way to che
 all pairs of samples. We use Spearman correlation so that we don not have to worry (yet) about how to normalize and transform
 the data.
 
-
-```r
+```{r}
 corrMat <- cor( countMatrix, method="spearman" )
 corrMat[1:5,1:5]
 ```
 
-```
-##           PG004-N   PG004-D   PG004-T   PG038-N   PG038-D
-## PG004-N 1.0000000 0.8927562 0.7745358 0.8963811 0.8948413
-## PG004-D 0.8927562 1.0000000 0.7775693 0.9026254 0.9015365
-## PG004-T 0.7745358 0.7775693 1.0000000 0.7569003 0.7538902
-## PG038-N 0.8963811 0.9026254 0.7569003 1.0000000 0.9363055
-## PG038-D 0.8948413 0.9015365 0.7538902 0.9363055 1.0000000
-```
-
 We visualize this matrix as a heatmap (using Raivo Kolde's `pheatmap` package)
 
-
-```r
+```{r heatmap,fig.height=7,fig.width=8}
 rownames(sampleTable) <- sampleTable$sample_name  # pheatmap insists on that
 pheatmap::pheatmap( corrMat,
    cluster_rows=FALSE, cluster_cols=FALSE,
    annotation_col = sampleTable[,c("patient","tissue")] )
 ```
-
-![plot of chunk heatmap](figure/heatmap-1.png)
 
 We can see that most samples pairs correlate well with each other, with correlation coefficients
 above ~0.85, in the yellow-orange colour range. Same samples, however, show consitently poorer
@@ -159,15 +73,12 @@ arbitrary color scale happens to highlight?
 Each square in this heatmap summerizes a scatter plot. For example, the square between relating
 to the first two samples, PG004-N and PG004-D, is the Spearman correlation associated with this plot:
 
-
-```r
+```{r scatter}
 plot( 
    log10( 1 + countMatrix[,"PG004-N"] ), 
    log10( 1 + countMatrix[,"PG004-D"] ), 
    asp=1, col=adjustcolor("black",0.2), pch=20, cex=.5 )
 ```
-
-![plot of chunk scatter](figure/scatter-1.png)
 
 We have plotted here logarithms of the count values, $\log_{10}(k+1)$, with one pseudocount added to avoid zeroes, 
 which cannot be shown in a log-log plot, because $\log 0 = -\infty$.
@@ -181,40 +92,18 @@ the heatmap square.
 
 Here is first the code to display the two plots side-by-side, for now without linking them (i.e., without handling mouse clicks):
 
-
-```r
+```{r}
 library( rlc )
 
 openPage( useViewer=FALSE, layout="table1x2" )
-```
 
-```
-## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/JsRCom/http_root/index.html"
-## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/JsRCom//http_root/JsRCom.js"
-## [1] "WebSocket opened"
-## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/rlc//http_root/linked-charts.css"
-## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/rlc//http_root/rlc.js"
-## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/rlc//http_root/linked-charts.min.js"
-```
-
-```r
 lc_heatmap(
    dat(
       value = corrMat
    ),
    place = "A1"
 )
-```
 
-```
-## [1] "main"
-```
-
-```
-## The following `from` values were not present in `x`: labels, color, colorValue, colourValues, colorValues, colorDomain, colorLegendTitle, addColorScaleToLegend, symbols, symbolValues, strokes, values, heatmapRows, heatmapCols, showValues
-```
-
-```r
 sampleX <- "PG004-N"
 sampleY <- "PG004-D"
 
@@ -227,15 +116,7 @@ lc_scatter(
    ),
    place = "A2"
 )
-```
 
-```
-## [1] "main"
-## [1] "Layer1"
-```
-
-```
-## The following `from` values were not present in `x`: labels, color, colorValue, colourValues, colorValues, colorDomain, colorLegendTitle, addColorScaleToLegend, symbols, symbolValues, strokes, values, heatmapRows, heatmapCols, showValues
 ```
 
 To run this code, you first need to install R/LinkedChart. If you haven't done so yet, see the simple instructions on 
@@ -271,23 +152,11 @@ them somewhat transparent, by reducing the opacity, `alpha`, so that one can see
 Next, we need to "link" the charts. For this, we just add four very simple lines, marked below with hashes (#):
 
 
-
-```r
+```{r}
 library( rlc )
 
 openPage( useViewer=FALSE, layout="table1x2" )
-```
 
-```
-## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/JsRCom/http_root/index.html"
-## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/JsRCom//http_root/JsRCom.js"
-## [1] "WebSocket opened"
-## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/rlc//http_root/linked-charts.css"
-## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/rlc//http_root/rlc.js"
-## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/rlc//http_root/linked-charts.min.js"
-```
-
-```r
 sampleX <- "PG004-N"
 sampleY <- "PG004-D"
 
@@ -302,17 +171,7 @@ lc_heatmap(
    ),
    place = "A1"
 )
-```
 
-```
-## [1] "main"
-```
-
-```
-## The following `from` values were not present in `x`: labels, color, colorValue, colourValues, colorValues, colorDomain, colorLegendTitle, addColorScaleToLegend, symbols, symbolValues, strokes, values, heatmapRows, heatmapCols, showValues
-```
-
-```r
 countMatrix_downsampled <- 
    countMatrix[ sample.int( nrow(countMatrix), 8000 ), ]
 
@@ -325,15 +184,6 @@ lc_scatter(
    ),
    place = "A2"
 )
-```
-
-```
-## [1] "main"
-## [1] "Layer1"
-```
-
-```
-## The following `from` values were not present in `x`: labels, color, colorValue, colourValues, colorValues, colorDomain, colorLegendTitle, addColorScaleToLegend, symbols, symbolValues, strokes, values, heatmapRows, heatmapCols, showValues
 ```
 
 We have added a second property to the heatmap, inside the `dat`. The property `on_click` tells LinkedCharts what to
