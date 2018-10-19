@@ -6,7 +6,7 @@ export function layerBase(id) {
 	var layer = base()
     .add_property("nelements", undefined, check("number_nonneg", "width"))
     .add_property("elementIds", undefined, check("array", "elementIds"))
-    .add_property("elementLabel", function(i) {return i;}, check("array_fun", "elementLabel"))
+    .add_property("label", function(i) {return i;}, check("array_fun", "label"))
 		.add_property("elementMouseOver", function() {})
 		.add_property("elementMouseOut", function() {})
     .add_property("mode", "svg")
@@ -39,7 +39,7 @@ export function layerBase(id) {
 		.add_property("dresser", function() {})
     .add_property("markedUpdated", function() {layer.chart.markedUpdated();})
     .add_property("informText", function(id) {
-      return "<b>ID:</b> " + layer.get_elementLabel(id);
+      return "<b>ID:</b> " + layer.get_label(id);
     });
 
   layer.propList = layer.propList.concat(["updateElementStyle", "updateElements", "updateElementPosition"]);

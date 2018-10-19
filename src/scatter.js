@@ -33,7 +33,7 @@ export function scatter(id, chart) {
       y = layer.get_y(id);
     if(x.toFixed) x = x.toFixed(2);
     if(y.toFixed) y = y.toFixed(2);
-    return "ID: <b>" + layer.get_elementLabel(id) + "</b>;<br>" + 
+    return "ID: <b>" + layer.get_label(id) + "</b>;<br>" + 
           "x = " + x + ";<br>" + 
           "y = " + y
   });
