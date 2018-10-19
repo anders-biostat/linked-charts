@@ -36,7 +36,7 @@ export function beeswarm(id, chart) {
         if(layer.valueAxis() == "x")
           return layer.chart.axes.scale_y(layer.get_y(d))
         else
-          return layer.chart.axes.scale_x(layer.get_x(d))          
+          return layer.chart.axes.scale_x(layer.get_x(d))
       })
       .radius(layer.size())
       .arrange();

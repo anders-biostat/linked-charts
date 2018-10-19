@@ -238,7 +238,7 @@ export function add_click_listener(chart){
             flag = (elements[layerId].length == 0)
           }
           if(!flag && canvases.indexOf(layerId) != -1)
-            d3.customEvent(e, chart.get_layer(layerId).get_elementMouseOver, this, [elements[layerId][0]]);
+            d3.customEvent(e, chart.get_layer(layerId).get_elementMouseOver, this, [elements[layerId][elements[layerId].length - 1]]);
             //chart.get_layer(layerId).get_elementMouseOver(elements[layerId][0]);
           if(flag && chart.get_elementMouseOut)
             chart.get_layer(layerId).get_elementMouseOut();
@@ -279,7 +279,6 @@ export function add_click_listener(chart){
       if(wait_dblClick && 
         getEuclideanDistance(click_coord, d3.mouse(document.body)) < tolerance
       ){
-        //console.log("doubleclick");
         window.clearTimeout(wait_dblClick);
         wait_dblClick = null;
         elements.on("dblclick").apply(elements, [mark]);
