@@ -334,7 +334,13 @@ function saveAsPng(chart) {
 	}
 
 	chart.svg.selectAll("text").attr("fill", "black");
-	drawInlineSVG(chart.svg.node(), canvas.getContext("2d"), 
+
+ 	var ch = chart.svg.node().cloneNode(true);
+ 	for(var i = 0; i < ch.childNodes.length; i++)
+ 		if(ch.childNodes[i].classList[0] == "panel_g")
+ 			ch.removeChild(ch.childNodes[i]);	
+
+	drawInlineSVG(ch, canvas.getContext("2d"), 
 		function(){
 			var dataURL = canvas.toDataURL('image/png');
 			var data = atob(dataURL.substring('data:image/png;base64,'.length)),
@@ -351,19 +357,24 @@ function saveAsPng(chart) {
 }
 
 function saveAsSvg(chart){
- 	chart.svg.selectAll(".panel_g")
- 		.style("display", "none");
+ 	//chart.svg.selectAll(".panel_g")
+ 	//	.style("display", "none");
  	
+ 	var ch = chart.svg.node().cloneNode(true);
+ 	for(var i = 0; i < ch.childNodes.length; i++)
+ 		if(ch.childNodes[i].classList[0] == "panel_g")
+ 			ch.removeChild(ch.childNodes[i]);
+
  	var html;
   if(chart.legend !== undefined){
   	var w, h = 0, lsvg, hlist;
-  	html = "<g>" + chart.svg.node().innerHTML + "</g>";
+  	html = "<g>" + ch.innerHTML + "</g>";
   	chart.legend.container().selectAll("tr").each(function(){
 	  	w = 0;
 	  	hlist = [];
 	  	d3.select(this).selectAll("td").each(function(){
 	  		lsvg = d3.select(this).selectAll("svg");
-	  		html += "<g transform='translate(" + (chart.width() + w) + ", "+ h + ")'>" +
+	  		html += "<g transform='translate(" + (chart.width() + w) + ", " + h + ")'>" +
 	  						lsvg.node().innerHTML + "</g>"
 	  		hlist.push(lsvg.attr("height"));
 	  		w += +lsvg.attr("width");
@@ -379,8 +390,8 @@ function saveAsSvg(chart){
   var blob = new Blob([html], {type: "image/svg+xml"});
 	saveAs(blob, 'export_' + Date.now() + '.svg');
 
-	chart.svg.selectAll(".panel_g")
-		.style("display", undefined);
+	//chart.svg.selectAll(".panel_g")
+	//	.style("display", undefined);
 }
 
 function selection(chart, button){
