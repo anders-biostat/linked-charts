@@ -2,7 +2,7 @@
 # Augmenting and checking a standard RNA-Seq analysis
 ## Appendix
 
-This document describes a standard analysis of the RNA-Seq dataset used in [this tutorial]().
+This document describes a standard analysis of the RNA-Seq dataset used in [this tutorial](oscc.md).
 
 We are working with data from this paper:
 

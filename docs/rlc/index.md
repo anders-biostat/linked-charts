@@ -37,4 +37,6 @@ If you have any questions, send us an e-mail, or, even better, ask them at the [
 
 ## Authors
 
-LinkedChart and R/LinkedChart are being developed by **Svetlana Ovchinnikova** ([s.ovchinnikova@zmbh.uni-heidelberg.de](mailto:s.ovchinnikova@zmbh.uni-heidelberg.de), [kloivenn](https://github.com/kloivenn) on GitHub) and **Simon Anders** ([s.anders@zmbh.uni-heidelberg.de](mailto:s.anders@zmbh.uni-heidelberg.de), [simon-anders](https://github.com/simon-anders) on GitHub). We are researchers at the [Center for Molecular Biology of the **University of Heidelberg**](https://www.zmbh.uni-heidelberg.de/).
+LinkedChart and R/LinkedChart are being developed by **Svetlana Ovchinnikova** ([s.ovchinnikova@zmbh.uni-heidelberg.de](mailto:s.ovchinnikova@zmbh.uni-heidelberg.de), [kloivenn](https://github.com/kloivenn) on GitHub) and **Simon Anders** ([s.anders@zmbh.uni-heidelberg.de](mailto:s.anders@zmbh.uni-heidelberg.de), [simon-anders](https://github.com/simon-anders) on GitHub). 
+
+We are researchers at the [Center for Molecular Biology of the **University of Heidelberg**](https://www.zmbh.uni-heidelberg.de/).

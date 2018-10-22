@@ -218,4 +218,65 @@ If you use the app, you can now easily see which samples are bad and how bad the
 
 ## Exploring the differentially expressed genes
 
-[...]
+In the [appendix](data_prep.md), which shows the data preparation, we have also performed a differential expression analysis using limma-voom. For details, see there. In brief, we have looked for genes whose expression differs between the three tissue types. The result table was also in the
+data file `oscc.rda` that we have loaded in the beginning:
+
+```{r}
+voomResult
+```
+
+Here, `tissuedysplasia` and `tissuetumour` are the log fold changes (LFCs) between dysplasia an normal, and between tumour and normal, respectively. `P.Value` is the p value from an F test comparing the the three tissue types after account for patient-to-patient baseline differences, and `adj.P.Val` is the result of a Benjamini-Hochberg adjustment.
+
+The following code shows how to use R/LinkedChart to explore these results
+```{r}
+openPage( useViewer=FALSE, layout="table1x2" )
+
+gene <- 1
+
+lc_scatter(
+   dat(
+      x = voomResult$AveExpr,
+      y = voomResult$tissuetumour,
+      color = ifelse( voomResult$adj.P.Val < 0.1, "red", "black" ),
+      label = rownames(voomResult),
+      size = 1.3,
+      on_click = function(k) { gene <<- k; updateChart("A2") }
+   ),
+   "A1"
+)
+
+countsums <- colSums(countMatrix)
+
+lc_scatter(
+   dat(
+      x = sampleTable$patient,
+      y = countMatrix[gene,] / countsums * 1e6 + .1,
+      logScaleY = 10,
+      colorValue = sampleTable$tissue,
+      title = rownames(countMatrix)[gene],
+      axisTitleY = "counts per million (CPM)"
+   ),
+   "A2"
+)
+```
+
+![](MA_details.png)
+
+The left plot is an MA plot: Each point is one gene in the result table, the x axis is the average expression of the gene (column `AveExpr` in `voomResult`), the y axis is the log fold change between tissue and normal (column `tissuetumour`). The colour of the points is red or black, indicating whether the gene is significant at 10% false discovery rate (`voomResult$adj.P.Val < 0.1`). If one hovers the mouse over a point, the gene name is shown, which is taken from the rownames of the result table (`label = rownames(voomResult)`).
+
+The right plot now shows details of a selected gene, and as before, there is a global variable, `gene`, which contains a number, indicating a row and hence a gene in the results table and the count matrix. (The rows of both `voomResults` and `countMatrix` are in the same order). Each point in the plot is one sample, the x position indicates the patient (`x = sampleTable$patient`) and the colour the tissue type (`colorValue = sampleTable$tissue`). The y axis shows the expression of the selected gene (`countMatrix[gene,]`; remember that the rows in `countMatrix` and `resultsTable` are in the same order). We display the expression of the gene as "counts per million" (CPM). To this end, we divide the count value by the total count for each libary (`countsums = colSums(countMatrix)`) and multiply by one million (`1e6`). We also add 0.1 pseudocounts to avoid losing zeroes on the axis, which we have made logarithmic with decadic tic marks (`logScaleY = 10`).ABove the plot, a title shows the name of the displayed gene, as given by the rowname of the result table (`title = rownames(countMatrix)[gene]`)
+
+Note here that in the left plot, we used `colour`, in the right plot `colourValue`: The difference is that in the left plot, we passed a string vector with elements that directly prescribe a color (`"red"` or `"black"`), in the right plot, we pass a word (`normal`, `dysplasia` or `tumour`) and expect LinkedCharts to choose three colours to map these to. LinkedCharts therefore also adds a legend.
+
+Describing the two plots did not require more R code than when describing the same plots, when using e.g., ggplot2. To link the two plots, we 
+only needed a single extra line: `on_click = function(k) { gene <<- k; updateChart("A2") }`
+As explained before, this simply changes the gloabl variable `gene` to the index of the point the user clicked to and then redraws the
+right-hand plot: There, reevaluating the content of the `dat` call gives the new plot, because `gene` has changed and now, another row of the `countMatrix` is used.
+
+If you play a bit with these linked charts you will quickly notice that they are helpful to gain a better feel for the data. You will quickly see how common it is that a gene really behaves the same way in all patients, and how strong such changes are; and you might even come up with ideas for a better statistic to use as y axis in the left-hand plot to really find the genes with the most consistant patterns.
+
+<!--
+
+Lastly, you may want to examine interesting genes. What is INHBA, for example? A look at [Gene Cards](https://www.genecards.org/) might tell as more, but entering each gene symbol in Gene Cards' search box is cumbersome. As Gene Cards URLs always have the form `https://www.genecards.org/cgi-bin/carddisp.pl?gene=SYMBOL`, with `SYMBOL` replaced by some gene symbol, we could automatically put a link below the right-hand plot. Here's the code from above, with a few more lines to this end:
+
+-->
