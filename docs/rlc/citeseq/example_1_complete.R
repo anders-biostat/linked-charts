@@ -7,8 +7,8 @@ devtools::install_github( "anders-biostat/rlc" )
 library( rlc )
 
 # Load the prepared data. You can get this file from here:
-# https://github.com/anders-biostat/rlc_tutorial/blob/master/citeseq_example/citeseq_data.rda?raw=true
-download.file( "https://github.com/anders-biostat/rlc_tutorial/blob/master/citeseq_example/citeseq_data.rda?raw=true", "citeseq_data.rda" )
+# https://https://anders-biostat.github.io/linked-charts/rlc/citeseq/citeseq_data.rda
+#download.file( "https://anders-biostat.github.io/linked-charts/rlc/citeseq/citeseq_data.rda", "citeseq_data.rda" )
 
 load( "citeseq_data.rda" )
 

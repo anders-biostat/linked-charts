@@ -11,6 +11,8 @@ While the screenshot above is just a picture, the code when run in R, will produ
 
 Readers in a hurry can download the final script [here](example_1_complete.R), and run it as is in R. Of course, you will have to read on to see what the different charts are supposed to show.
 
+You can also download the file that produced this document: [example_1.Rmd](example_1.Rmd)
+
 ## Example data
 
 As example data, we use single-cell transcriptomics data from the "CiteSeq" paper (Stoeckius et al., *Simultaneous epitope and transcriptome measurement in single cells*, [Nature Methods, 14:865](https://doi.org/10.1038/nmeth.4380), 2017). This paper describes a new method to simultaneously measure the transcriptome as well as the "epitome" (the abundance of selected surface markers) of single cells, using droplet sequencing. They demonstrate it with a 
@@ -26,7 +28,10 @@ The file contains a table with one row per gene and one column per cell, giving 
 We first perform some very simple data preparation, using only base R commands. If you have worked with expression
 data before, this will look completely familiar.
 
+Some of these steps take time, but you can skip over them and then later just read in the R data file [citeseq_data.rda](citeseq_data.rda).
+
 First, we load the data matrix
+
 
 ```r
 # The path to the data file downloaded to GEO
@@ -40,6 +45,7 @@ Stoecklin et al. have spiked in a few mouse cells to their human cord blood samp
 control purposes, and have therefore mapped everything against both the human and the mouse genome.
 We keep only the cells with nearly only human transcripts and also remove the mouse gene counts from
 the data matrix.
+
 
 ```r
 # Calculate for each cell ratio of molecules mapped to human genes
@@ -60,19 +66,34 @@ rownames(countMatrix) <- sub( "HUMAN_", "", rownames(countMatrix) )
 
 Now, we have a matrix of counts that looks like this
 
-```r
-> # size of the matrix
-> dim(countMatrix)
-[1] 20400  8005
 
-> # top left corner of the matrix
-> countMatrix[ 1:5, 1:5 ]
-         TACAGTGTCTCGGACG GTTTCTACATCATCCC ATCATGGAGTAGGCCA GTACGTATCCCATTTA ATGTGTGGTCGCCATG
-A1BG                    0                0                0                0                0
-A1BG-AS1                0                0                0                0                0
-A1CF                    0                0                0                0                0
-A2M                     0                0                0                0                0
-A2M-AS1                 0                0                0                0                0
+```r
+# size of the matrix
+dim(countMatrix)
+```
+
+```
+## [1] 20400  8005
+```
+
+```r
+# top left corner of the matrix
+countMatrix[ 1:5, 1:5 ]
+```
+
+```
+##          TACAGTGTCTCGGACG GTTTCTACATCATCCC ATCATGGAGTAGGCCA
+## A1BG                    0                0                0
+## A1BG-AS1                0                0                0
+## A1CF                    0                0                0
+## A2M                     0                0                0
+## A2M-AS1                 0                0                0
+##          GTACGTATCCCATTTA ATGTGTGGTCGCCATG
+## A1BG                    0                0
+## A1BG-AS1                0                0
+## A1CF                    0                0
+## A2M                     0                0
+## A2M-AS1                 0                0
 ```
 
 Each column corresponds to a cell, identified by its DNA barcode, and each row to a gene. The 
@@ -83,12 +104,14 @@ Next, we calculate the sums of the counts for each cell, and divide them by 1000
 the "size factors" and use them for normalization: when comparing the counts from two cells, we will
 consider them as comparable after dividing them by their respective size factors.
 
+
 ```r
 sf <- colSums(countMatrix) / 1000
 ```
 
 For our first example, we will ask which genes actually differ in an interesting way from cell to cell.
 To this end, we calculate for each gene the mean and variance of the normalized counts
+
 
 ```r
 means <- apply( countMatrix, 1, function(x) mean( x / sf ) )
@@ -97,25 +120,35 @@ vars <- apply( countMatrix, 1, function(x) var( x / sf ) )
 
 We save these variable into an R data file, to be used later
 
+
 ```r
 save( countMatrix, sf, means, vars, file = "citeseq_data.rda" )
 ```
 
-If you want to skip over preceding steps, you can also just load this R data file from [here](https://github.com/anders-biostat/rlc_tutorial/blob/master/citeseq_example/citeseq_data.rda?raw=true).
+If you want to skip over preceding steps, you can also just load this R data file from here: [citeseq_data.rda](citeseq_data.rda).
 
 ## Analysis the old-fashioned way
 
 Here is a plot of the variance-to-mean ratios versus the means
 
+
 ```r
 plot( means, vars / means, 
    pch = ".", log = "xy", col = adjustcolor( "black", 0.4 ) )
+```
 
+```
+## Warning in xy.coords(x, y, xlabel, ylabel, log): 221 x values <= 0 omitted
+## from logarithmic plot
+```
+
+```r
 abline( h = mean( 1/sf ), 
 	col = adjustcolor( "red", 0.5 ) )
 ```
 
-![](var_mean_simple.png)
+![plot of chunk var_mean_simple](figure/var_mean_simple-1.png)
+
 
 All the genes that are scattering close to the red line have no or only little signal:
 the Poisson noise dominates over any biological signal of interest that may there be.
@@ -129,6 +162,7 @@ Are they active in only few cells or in many cells?
 
 It would be helpful if, for each gene, we could get a plot like this one
 
+
 ```r
 gene <- "CD79A"
 
@@ -136,7 +170,7 @@ plot( sf, countMatrix[ gene, ],
    log = "x", col = adjustcolor( "black", 0.4 ), main = gene )
 ```
 
-![](CD79A_simple.png)
+![plot of chunk CD79A_simple](figure/CD79A_simple-1.png)
 
 But where is gene "CD79A" on the previous plot? And, given a specific point on the overview plot (the first one), how can
 we quickly get the detail plot (the second one)?
@@ -152,21 +186,48 @@ Now, we show how to create such linked charts with R/LinkedCharts.
 ## Using LinkedCharts
 
 If you haven't done so yet, install the R/LinkedChart package with
+
 ```r
 devtools::install_github( "anders-biostat/JsRCom" ) # required for rlc
+```
+
+```
+## Skipping install of 'JsRCom' from a github remote, the SHA1 (b104dc0c) has not changed since last install.
+##   Use `force = TRUE` to force installation
+```
+
+```r
 devtools::install_github( "anders-biostat/rlc" )
 ```
 
+```
+## Skipping install of 'rlc' from a github remote, the SHA1 (fb39637c) has not changed since last install.
+##   Use `force = TRUE` to force installation
+```
+
 Load the R/LinkedCharts library
+
 ```r
 library( rlc )
 ```
 
 To produce the first scatter plot, use
 
+
 ```r
 openPage( useViewer = FALSE, layout = "table2x2" )
+```
 
+```
+## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/JsRCom/http_root/index.html"
+## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/JsRCom//http_root/JsRCom.js"
+## [1] "WebSocket opened"
+## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/rlc//http_root/linked-charts.css"
+## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/rlc//http_root/rlc.js"
+## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/rlc//http_root/linked-charts.min.js"
+```
+
+```r
 lc_scatter(
   dat( 
     x = means, 
@@ -176,6 +237,15 @@ lc_scatter(
   ), 
   "A1"
 )
+```
+
+```
+## [1] "main"
+## [1] "Layer1"
+```
+
+```
+## The following `from` values were not present in `x`: labels, color, colorValue, colourValues, colorValues, colorDomain, colorLegendTitle, addColorScaleToLegend, symbols, symbolValues, strokes, values, heatmapRows, heatmapCols, showValues
 ```
 The `openPage` function opens a new page, either in your web browser (for `useViewer=FALSE`) or
 in the "Viewer" pane of RStudio (for `useViewer=TRUE`, the default). We have chosen to use a browser 
@@ -189,6 +259,7 @@ of 10. Note how all the parameters are wrapped in a call to a function named `da
 The second parameter ("`place`") specifies where to put the plot on the page: here, at position `A1`, i.e., top left.
 
 We will explain more details further below; but first, let's add the second plot:
+
 
 ```r
 gene <- "CD79A"
@@ -204,6 +275,15 @@ lc_scatter(
 )
 ```
 
+```
+## [1] "main"
+## [1] "Layer1"
+```
+
+```
+## The following `from` values were not present in `x`: labels, color, colorValue, colourValues, colorValues, colorDomain, colorLegendTitle, addColorScaleToLegend, symbols, symbolValues, strokes, values, heatmapRows, heatmapCols, showValues
+```
+
 As before, we have used `lc_scatter` to insert a scatter plot, now at position `A2` (to the right of `A1`). As before,
 we use the vector `sf` for the `x` axis, and one row of `countMatrix` for the `y` axis. The variable `gene` contains
 the rowname of the row to display. We also use two further optional parameters: `title` sets the plot title above the chart
@@ -212,6 +292,7 @@ that we can better see whether several points are sitting on top of each other.
 
 Now, we need to *link* the two charts. When the user clicks on a point in the left chart (chart A1), then the value of the variable `gene` should be changed to the name of the gene onto which the user has clicked. If we then cause the second chart (A2) to be redrawn, it will show the data for that gene. To explain to R/LinkedChart that this should happen
 when the user clicks on a data point, we change the code for the first chart to the following:
+
 
 ```r
 lc_scatter(
@@ -227,6 +308,14 @@ lc_scatter(
   ), 
   "A1"
 )
+```
+
+```
+## [1] "Layer2"
+```
+
+```
+## The following `from` values were not present in `x`: labels, color, colorValue, colourValues, colorValues, colorDomain, colorLegendTitle, addColorScaleToLegend, symbols, symbolValues, strokes, values, heatmapRows, heatmapCols, showValues
 ```
 
 As you can see, we have merely added one more optional parameter to the `dat` block. It is called `on_click` and set
@@ -245,13 +334,25 @@ After changing the variable, we simply instruct R/LinkedCharts to update chart A
 
 Here, again, is the complete code. It is not much longer than the R code one would have written for normal static plots: Adding interactivity is easy with R/LinkedCharts.
 
+
 ```r
 library( rlc )
 
 load( "citeseq_data.rda" )
 
 openPage( useViewer=FALSE, layout = "table2x2" )
+```
 
+```
+## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/JsRCom/http_root/index.html"
+## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/JsRCom//http_root/JsRCom.js"
+## [1] "WebSocket opened"
+## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/rlc//http_root/linked-charts.css"
+## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/rlc//http_root/rlc.js"
+## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/rlc//http_root/linked-charts.min.js"
+```
+
+```r
 gene <- "CD79A"
 
 lc_scatter(
@@ -267,7 +368,18 @@ lc_scatter(
   ), 
   "A1"
 )
+```
 
+```
+## [1] "main"
+## [1] "Layer1"
+```
+
+```
+## The following `from` values were not present in `x`: labels, color, colorValue, colourValues, colorValues, colorDomain, colorLegendTitle, addColorScaleToLegend, symbols, symbolValues, strokes, values, heatmapRows, heatmapCols, showValues
+```
+
+```r
 lc_scatter(
   dat( 
     x = sf, 
@@ -277,6 +389,15 @@ lc_scatter(
     opacity = 0.4 ),
   "A2"
 )
+```
+
+```
+## [1] "main"
+## [1] "Layer1"
+```
+
+```
+## The following `from` values were not present in `x`: labels, color, colorValue, colourValues, colorValues, colorDomain, colorLegendTitle, addColorScaleToLegend, symbols, symbolValues, strokes, values, heatmapRows, heatmapCols, showValues
 ```
 
 
@@ -294,10 +415,11 @@ So far, our app demonstrated well the principle of using R/LinkedChart, but prac
 
 In single-cell RNA-Seq, one often employs dimension reduction methods, such as [t-SNE](https://lvdmaaten.github.io/tsne/). These produce a plot with points representing the cells such that cells with similar transcriptome are closeby.
 
-Let's use the `Rtsne` package to calculate a t-SNE plot for our expression data. (The t-SNE calculation takes a few minutes. If you don't like to wait, just load the [`citeseq_data.rda`](https://github.com/anders-biostat/rlc_tutorial/blob/master/citeseq_example/citeseq_data.rda?raw=true) file, which contains the result.)
+Let's use the `Rtsne` package to calculate a t-SNE plot for our expression data. (The t-SNE calculation takes a few minutes. If you don't like to wait, just load the [`citeseq_data.rda`](citeseq_data.rda) file, which contains the result.)
+
 
 ```r
-install.packages( "Rtsne" )   # if needed
+# install.packages( "Rtsne" )   # uncomment if needed
 
 library( Rtsne )
 
@@ -311,11 +433,48 @@ varGenes <- names( tail( sort( vars/means ), 1000 ) )
 
 # Calculate the t-SNE embedding. This may take a while.
 tsne <- Rtsne( t( expr[varGenes, ] ), verbose = TRUE )
+```
 
+```
+## Read the 8005 x 50 data matrix successfully!
+## Using no_dims = 2, perplexity = 30.000000, and theta = 0.500000
+## Computing input similarities...
+## Normalizing input...
+## Building tree...
+##  - point 0 of 8005
+## Done in 5.91 seconds (sparsity = 0.017480)!
+## Learning embedding...
+## Iteration 50: error is 92.687355 (50 iterations in 9.64 seconds)
+## Iteration 100: error is 81.709375 (50 iterations in 7.72 seconds)
+## Iteration 150: error is 79.890016 (50 iterations in 6.89 seconds)
+## Iteration 200: error is 79.406947 (50 iterations in 7.00 seconds)
+## Iteration 250: error is 79.170064 (50 iterations in 7.47 seconds)
+## Iteration 300: error is 3.098144 (50 iterations in 7.08 seconds)
+## Iteration 350: error is 2.846250 (50 iterations in 6.42 seconds)
+## Iteration 400: error is 2.709149 (50 iterations in 6.26 seconds)
+## Iteration 450: error is 2.620060 (50 iterations in 6.25 seconds)
+## Iteration 500: error is 2.558519 (50 iterations in 6.42 seconds)
+## Iteration 550: error is 2.513018 (50 iterations in 6.46 seconds)
+## Iteration 600: error is 2.479982 (50 iterations in 6.33 seconds)
+## Iteration 650: error is 2.456638 (50 iterations in 6.63 seconds)
+## Iteration 700: error is 2.438347 (50 iterations in 6.89 seconds)
+## Iteration 750: error is 2.423501 (50 iterations in 7.10 seconds)
+## Iteration 800: error is 2.411614 (50 iterations in 6.61 seconds)
+## Iteration 850: error is 2.401951 (50 iterations in 7.03 seconds)
+## Iteration 900: error is 2.394369 (50 iterations in 6.44 seconds)
+## Iteration 950: error is 2.387273 (50 iterations in 6.32 seconds)
+## Iteration 1000: error is 2.384277 (50 iterations in 6.19 seconds)
+## Fitting performed in 137.14 seconds.
+```
+
+```r
+# Save the citeseq_data.rda file again, now, with the tsne result added
+save( countMatrix, sf, means, vars, tsne, file = "citeseq_data.rda" )
 ```
 
 The embedding is in the `Y` field of the object returned by `Rtsne`.
 We display it with a third scatter plot:
+
 
 ```r
 lc_scatter(
@@ -327,6 +486,15 @@ lc_scatter(
     size = 1 ),
   "B1"
 )
+```
+
+```
+## [1] "main"
+## [1] "Layer1"
+```
+
+```
+## The following `from` values were not present in `x`: labels, color, colorValue, colourValues, colorValues, colorDomain, colorLegendTitle, addColorScaleToLegend, symbols, symbolValues, strokes, values, heatmapRows, heatmapCols, showValues
 ```
 
 This plot is now placed a position "B1", i.e., under A1. We use the two columns of the
@@ -344,6 +512,7 @@ on chart A1 to select a gene, the `gene` variable will be changed and this will 
 shown now in both the charts A2 and B1. The only thing that is missing is that we need to change
 the event handler in A1 to also update B2. So, we simply add this to the `updateChart` call from above:
 
+
 ```r
 lc_scatter(
   dat( 
@@ -354,11 +523,19 @@ lc_scatter(
     on_click = function( i ) {
        gene <<- rownames(countMatrix)[ i ]
        updateChart( c( "A2", "B1" ) )
-       #            ##     ########   <- only change to above
+       #            ^^     ########   <- the only change to above
     }
   ), 
   "A1"
 )
+```
+
+```
+## [1] "Layer2"
+```
+
+```
+## The following `from` values were not present in `x`: labels, color, colorValue, colourValues, colorValues, colorDomain, colorLegendTitle, addColorScaleToLegend, symbols, symbolValues, strokes, values, heatmapRows, heatmapCols, showValues
 ```
 
 Have a look below for the final code, if you are unsure how this fits in.
@@ -373,10 +550,14 @@ Mark one of the cell clusters in the t-SNE plot by drawing a rectangle with the 
 
 After marking cells in the browser, you can go right back to your R session and inquire about them using the `getMarked` function.
 
+I have just marked these 147 cells:
+
+
+
+
 ```r
 marked <- getMarked( "B1" )
 ```
-Here are the indices of the 147 cells that I have just marked:
 
 ```r
 > marked
@@ -387,10 +568,21 @@ Here are the indices of the 147 cells that I have just marked:
 [141]  975 1034 1465 1911 5803 7975 7996
 ```
 
-They are all from the same small cluster at the periphery of the t-SNE plot. What genes might have particularly high expression in
+They are all from the same small cluster at the periphery of the t-SNE plot:
+
+
+```r
+plot( tsne$Y, asp=1, col=1+(1:nrow(tsne$Y)%in%marked), pch=".", 
+   cex=2, xaxt="n", yaxt="n", xlab="", ylab="", bty="n" )
+```
+
+![plot of chunk tsne_cluster](figure/tsne_cluster-1.png)
+
+What genes might have particularly high expression in
 this cluster? To see, let's calculate, for each gene, mean and standard deviation first over all the marked cells and
 then over all the remaining cells. To save time, let's do it only for the informative genes that we have selected above 
 and stored in the variable `varGenes`.
+
 
 ```r
 df <- data.frame(
@@ -408,51 +600,66 @@ add up for both groups). Notably, if the standard deviations are extremely small
 this by 
 setting a minimum value of 0.002. Not a very sophisticated approach, but it works well enough for this demonstration.
 
-```r 
+
+```r
 df$sepScore <- ( df$meanMarked - df$meanUnmarked ) / pmax( df$sdMarked + df$sdUnmarked, 0.002 )
 ```
 
 Now we have this
 
+
 ```r
-> head( df )
-            meanMarked   sdMarked meanUnmarked sdUnmarked    sepScore
-DGCR5      0.000000000 0.00000000 0.0002171349 0.01362520 -0.01593628
-AC091814.2 0.002994731 0.03630918 0.0004960033 0.02021686  0.04420489
-MIR663A    0.000000000 0.00000000 0.0003498924 0.01637477 -0.02136778
-HP         0.000000000 0.00000000 0.0053221283 0.06398697 -0.08317518
-PRKCQ-AS1  0.148005784 0.21193058 0.1709553286 0.33820823 -0.04171592
-TALDO1     0.677642630 0.27947742 0.3403140015 0.43947661  0.46919360
+head( df )
+```
+
+```
+##             meanMarked   sdMarked meanUnmarked sdUnmarked    sepScore
+## DGCR5      0.000000000 0.00000000 0.0002171349 0.01362520 -0.01593628
+## AC091814.2 0.002994731 0.03630918 0.0004960033 0.02021686  0.04420489
+## MIR663A    0.000000000 0.00000000 0.0003498924 0.01637477 -0.02136778
+## HP         0.000000000 0.00000000 0.0053221283 0.06398697 -0.08317518
+## PRKCQ-AS1  0.148005784 0.21193058 0.1709553286 0.33820823 -0.04171592
+## TALDO1     0.677642630 0.27947742 0.3403140015 0.43947661  0.46919360
 ```
 
 Here are the top genes, i.e., those with the highest score
 
+
 ```r
-> head( df[ order( df$sepScore, decreasing=TRUE ), ] )
-             meanMarked  sdMarked meanUnmarked sdUnmarked sepScore
-PRSS57        0.7250667 0.3690533 0.0126227363 0.10363671 1.507212
-SPINK2        0.8310036 0.4939622 0.0131388229 0.09469020 1.389385
-C1QTNF4       0.6207673 0.4672307 0.0009496667 0.02462847 1.260152
-STMN1         1.0419737 0.3661231 0.1571042083 0.35102983 1.233864
-C17orf76-AS1  2.0924204 0.3084434 1.0117939060 0.59899410 1.190855
-KIAA0125      0.6097646 0.4287839 0.0095667244 0.08837219 1.160574
+head( df[ order( df$sepScore, decreasing=TRUE ), ] )
+```
+
+```
+##              meanMarked  sdMarked meanUnmarked sdUnmarked sepScore
+## PRSS57        0.7250667 0.3690533 0.0126227363 0.10363671 1.507212
+## SPINK2        0.8310036 0.4939622 0.0131388229 0.09469020 1.389385
+## C1QTNF4       0.6207673 0.4672307 0.0009496667 0.02462847 1.260152
+## STMN1         1.0419737 0.3661231 0.1571042083 0.35102983 1.233864
+## C17orf76-AS1  2.0924204 0.3084434 1.0117939060 0.59899410 1.190855
+## KIAA0125      0.6097646 0.4287839 0.0095667244 0.08837219 1.160574
 ```
 
 It would be nice to have this table appear in our app. There is still space at the bottom
 right-hand corner (position B2). We can use the `hwrite` function from the simple but very 
 useful `hwriter` package to transform the table into HTML code
 
+
 ```r
 html_table <- hwriter::hwrite( head( df[ order( df$sepScore, decreasing=TRUE ), ] ) )
 ```
 
+
 ```r
-> html_table
-[1] "<table border=\"1\">\n<tr>\n<td></td><td>meanMarked</td><td>sdMarked</td><td>meanUnmarked</td><td>sdUnmarked</td><td>sepScore</td></tr>\n<tr>\n<td>PRSS57</td><td>0.725066676278626</td><td>0.369053339059246</td><td>0.0126227362973354</td><td>0.103636705089765</td><td>1.5072116470401</td></tr>\n<tr>\n<td>SPINK2</td><td>0.831003575054457</td><td>0.493962176122786</td><td>0.013138822891984</td><td>0.0946902014959639</td><td>1.38938494646186</td></tr>\n<tr>\n<td>C1QTNF4</td><td>0.620767250693636</td><td>0.467230715177914</td><td>0.000949666672459759</td><td>0.024628474625193</td><td>1.26015249256457</td></tr>\n<tr>\n<td>STMN1</td><td>1.04197366701963</td><td>0.366123080494962</td><td>0.157104208312422</td><td>0.351029833213004</td><td>1.23386441272627</td></tr>\n<tr>\n<td>C17orf76-AS1</td><td>2.09242035687478</td><td>0.308443407217987</td><td>1.01179390598515</td><td>0.598994096952368</td><td>1.19085495797048</td></tr>\n<tr>\n<td>KIAA0125</td><td>0.609764572553002</td><td>0.42878392946118</td><td>0.00956672439381324</td><td>0.0883721856290961</td><td>1.16057382025622</td></tr>\n</table>\n"
+html_table
+```
+
+```
+## [1] "<table border=\"1\">\n<tr>\n<td></td><td>meanMarked</td><td>sdMarked</td><td>meanUnmarked</td><td>sdUnmarked</td><td>sepScore</td></tr>\n<tr>\n<td>PRSS57</td><td>0.725066676278626</td><td>0.369053339059246</td><td>0.0126227362973354</td><td>0.103636705089765</td><td>1.5072116470401</td></tr>\n<tr>\n<td>SPINK2</td><td>0.831003575054457</td><td>0.493962176122786</td><td>0.013138822891984</td><td>0.0946902014959639</td><td>1.38938494646186</td></tr>\n<tr>\n<td>C1QTNF4</td><td>0.620767250693636</td><td>0.467230715177914</td><td>0.000949666672459759</td><td>0.024628474625193</td><td>1.26015249256457</td></tr>\n<tr>\n<td>STMN1</td><td>1.04197366701963</td><td>0.366123080494962</td><td>0.157104208312422</td><td>0.351029833213004</td><td>1.23386441272627</td></tr>\n<tr>\n<td>C17orf76-AS1</td><td>2.09242035687478</td><td>0.308443407217987</td><td>1.01179390598515</td><td>0.598994096952368</td><td>1.19085495797048</td></tr>\n<tr>\n<td>KIAA0125</td><td>0.609764572553002</td><td>0.42878392946118</td><td>0.00956672439381324</td><td>0.0883721856290961</td><td>1.16057382025622</td></tr>\n</table>\n"
 ```
 
 This cryptic line will become nice and readable once we put it into our web app to let 
 the web browser interpret the HTML code:
+
 
 ```r
 lc_html( html_table , "B2" )
@@ -463,6 +670,7 @@ How can we make this automatic, so that all this happens whenever we mark a grou
 an event handler again, only this time we use `markedUpdated` rather than `on_click`.
 
 Let's add such an event handler to the t-SNE plot:
+
 
 ```r
 lc_scatter(
@@ -479,7 +687,16 @@ lc_scatter(
 )
 ```
 
+```
+## [1] "Layer2"
+```
+
+```
+## The following `from` values were not present in `x`: labels, color, colorValue, colourValues, colorValues, colorDomain, colorLegendTitle, addColorScaleToLegend, symbols, symbolValues, strokes, values, heatmapRows, heatmapCols, showValues
+```
+
 And the function `showHighGenes` contains the analysis just described:
+
 
 ```r
 showHighGenes <- function( marked ) {
@@ -506,6 +723,8 @@ showHighGenes <- function( marked ) {
 ## Everything put together
 
 In case you got lost with the individual pieces of code, [here](example_1_complete.R) is everything put together.
+
+
 
 
 ## What else is there?
