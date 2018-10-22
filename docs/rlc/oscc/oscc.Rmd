@@ -222,7 +222,7 @@ In the [appendix](data_prep.md), which shows the data preparation, we have also 
 data file `oscc.rda` that we have loaded in the beginning:
 
 ```{r}
-voomResult
+head( voomResult )
 ```
 
 Here, `tissuedysplasia` and `tissuetumour` are the log fold changes (LFCs) between dysplasia an normal, and between tumour and normal, respectively. `P.Value` is the p value from an F test comparing the the three tissue types after account for patient-to-patient baseline differences, and `adj.P.Val` is the result of a Benjamini-Hochberg adjustment.
