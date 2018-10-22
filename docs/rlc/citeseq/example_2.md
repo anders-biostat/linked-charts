@@ -1,4 +1,4 @@
-## R/LinkedCharts Tutorial: Example 2
+## R/LinkedCharts Tutorial: 
 # A multi-coloured t-SNE plot
 
 In this example, we continue our exploration of the CiteSeq cord blood single-cell dataset by Stoecklin et al. ([Nature Methods, 2017](https://doi.org/10.1038/nmeth.4380)). If you haven't read the [first part](example_1.md) yet, please go there first.

@@ -1,4 +1,4 @@
-## R/LinkedCharts Tutorial: Example 1
+## R/LinkedCharts Tutorial: 
 # Exploring single-cell data with R/LinkedCharts
 
 This tutorial demonstrates how our R/LinkedCharts package can be used to created linked scatter charts. 
