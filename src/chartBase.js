@@ -27,7 +27,7 @@ export function chartBase() {
 		.add_property("titleY", function() {return d3.min([17, chart.margins().top * 0.9]);}, check("number_nonneg", "titleY"))
 		.add_property("titleSize", function() {return d3.min([15, chart.margins().top * 0.8]);}, check("number_nonneg", "titleSize"))
 		.add_property("transitionDuration", 1000, check("number_nonneg", "transitionDuration")) //may be set to zero
-		.add_property("markedUpdated", function() {})
+		.add_property("on_marked", function() {})
 		.add_property("showPanel", true)
 		.add_property("clickSingle", true)		
 		.add_property("showLegend", true)
@@ -174,7 +174,7 @@ export function chartBase() {
 				.classed("marked", false);
 			chart.svg.selectAll(".data_element")
 				.attr("opacity", 1);
-			chart.markedUpdated();
+			chart.on_marked();
 			return chart;
 		}
 		
@@ -199,7 +199,7 @@ export function chartBase() {
 			chart.svg.selectAll(".data_element")
 				.attr("opacity", 1);
 
-		chart.markedUpdated();
+		chart.on_marked();
 
 		return chart;
 	}

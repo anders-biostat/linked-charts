@@ -312,8 +312,8 @@ export function scatter(id, chart) {
         .merge(sel)
           .attr("id", function(d) {return "p" + (layer.id + "_" + d).replace(/[ .]/g,"_");})
           .on( "click", layer.get_on_click )
-          .on( "mouseover", layer.get_elementMouseOver )
-          .on( "mouseout", layer.get_elementMouseOut );
+          .on( "mouseover", layer.get_on_mouseover )
+          .on( "mouseout", layer.get_on_mouseout );
     } else {
       if(!layer.updateStarted)
         layer.updateCanvas();

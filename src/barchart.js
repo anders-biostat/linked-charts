@@ -137,7 +137,7 @@ export function barchart(id, chart){
 	});
 
   //default hovering behaviour
-  layer.elementMouseOver(function(d){
+  layer.on_mouseover(function(d){
     var pos = d3.mouse(chart.container.node());
     //change colour and class
     d3.select(this)
@@ -154,7 +154,7 @@ export function barchart(id, chart){
     layer.chart.container.select(".inform")
       .classed("hidden", false);
   });
-  layer.elementMouseOut(function(d){
+  layer.on_mouseout(function(d){
   	var mark = layer.get_marked().length > 0;
 
     d3.select(this)
@@ -304,8 +304,8 @@ export function barchart(id, chart){
 				.merge(stacks)
 					.attr("id", function(d) {return "p" + layer.id + "_" + d.join("_").replace(/[ .]/g, "_")})
 					.on( "click", function(d) {layer.get_on_click(d[0], d[1], d[2])} )
-        	.on( "mouseover", layer.get_elementMouseOver )
-        	.on( "mouseout", layer.get_elementMouseOut );		
+        	.on( "mouseover", layer.get_on_mouseover )
+        	.on( "mouseout", layer.get_on_mouseout );		
 	}
 
   layer.colourMarked = function() {

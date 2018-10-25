@@ -238,10 +238,10 @@ export function add_click_listener(chart){
             flag = (elements[layerId].length == 0)
           }
           if(!flag && canvases.indexOf(layerId) != -1)
-            d3.customEvent(e, chart.get_layer(layerId).get_elementMouseOver, this, [elements[layerId][elements[layerId].length - 1]]);
-            //chart.get_layer(layerId).get_elementMouseOver(elements[layerId][0]);
-          if(flag && chart.get_elementMouseOut)
-            chart.get_layer(layerId).get_elementMouseOut();
+            d3.customEvent(e, chart.get_layer(layerId).get_on_mouseover, this, [elements[layerId][elements[layerId].length - 1]]);
+            //chart.get_layer(layerId).get_on_mouseover(elements[layerId][0]);
+          if(flag && chart.get_on_mouseout)
+            chart.get_layer(layerId).get_on_mouseout();
         }
 
       })

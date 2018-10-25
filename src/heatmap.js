@@ -44,8 +44,8 @@ export function heatmap(id, chart){
 		.add_property("rowTitle", "")
 		.add_property("showValue", false)
 		.add_property("colTitle", "")
-		.add_property("elementMouseOver")
-		.add_property("elementMouseOut")
+		.add_property("on_mouseover")
+		.add_property("on_mouseout")
 		.add_property("clusterRows", false)
 		.add_property("clusterCols", false)
 		.add_property("informText", function(rowId, colId) {
@@ -276,10 +276,10 @@ export function heatmap(id, chart){
 	}
 
 	//set default hovering behaviour
-	function labelMouseOver() {
+	function on_mouseoverLabel() {
 		d3.select(this).classed("hover", true);
 	};
-	function labelMouseOut() {
+	function on_mouseoutLabel() {
 		d3.select(this).classed("hover", false);
 	};
 
@@ -514,8 +514,8 @@ export function heatmap(id, chart){
 				.attr("dx", 2)
 				.merge(colLabel)
 					.attr("id", function(d) {return d.toString().replace(/[ .]/g,"_")})
-					.on("mouseover", labelMouseOver)
-					.on("mouseout", labelMouseOut)
+					.on("mouseover", on_mouseoverLabel)
+					.on("mouseout", on_mouseoverLabel)
 					.on("click", labelClick);
 		rowLabel.enter()
 			.append("text")
@@ -524,8 +524,8 @@ export function heatmap(id, chart){
 				.attr("dx", -2)
 				.merge(rowLabel)
 					.attr("id", function(d) {return d.toString().replace(/[ .]/g,"_")})
-					.on("mouseover", labelMouseOver)
-					.on("mouseout", labelMouseOut)
+					.on("mouseover", on_mouseoverLabel)
+					.on("mouseout", on_mouseoverLabel)
 					.on("click", labelClick);
 
 		chart.updateCells();
@@ -611,7 +611,7 @@ export function heatmap(id, chart){
 
 	//some default onmouseover and onmouseout behaviour for cells and labels
 	//may be later moved out of the main library
-	function elementMouseOver(d) {
+	function on_mouseover(d) {
 		var pos = d3.mouse(chart.container.node());
 		//change colour and class
 		d3.select(this)
@@ -641,9 +641,9 @@ export function heatmap(id, chart){
 		chart.container.select(".inform")
 			.classed("hidden", false);
 		}
-		chart.get_elementMouseOver(d[0], d[1]);
+		chart.get_on_mouseover(d[0], d[1]);
 	};
-	function elementMouseOut(d) {
+	function on_mouseout(d) {
 		//change colour and class
 		d3.select(this)
 			.attr("fill", function(d) {
@@ -659,7 +659,7 @@ export function heatmap(id, chart){
 			chart.container.select(".inform")
 				.classed("hidden", true);
 		}
-		chart.get_elementMouseOut(d[0], d[1]);		
+		chart.get_on_mouseout(d[0], d[1]);		
 	};
 	
 	//set default clicking behaviour for labels (ordering)
@@ -800,8 +800,8 @@ export function heatmap(id, chart){
 						.attr("id", function(d) {return "p" + (d[0] + "_-sep-_" + d[1]).replace(/[ .]/g,"_")})
 						.attr("rowId", function(d) {return d[0];})
 						.attr("colId", function(d) {return d[1];})
-						.on("mouseover", elementMouseOver)
-						.on("mouseout", elementMouseOut)
+						.on("mouseover", on_mouseover)
+						.on("mouseout", on_mouseout)
 						.on("click", function(d) {
 							chart.get_on_click.apply(this, [d[0], d[1]]);
 						});
@@ -825,7 +825,7 @@ export function heatmap(id, chart){
 		var newMarked = chart.get_marked().length;
 
 		if(markedCells > newMarked)
-			chart.markedUpdated();
+			chart.on_marked();
 		if(newMarked == 0)
 			chart.g.selectAll(".data_element")
 				.attr("opacity", 1);
@@ -1143,7 +1143,7 @@ export function heatmap(id, chart){
 
 		if(get_mode() == "canvas")
 			chart.updateCanvas();
-		chart.markedUpdated();
+		chart.on_marked();
 		return chart;
 	}	
 	

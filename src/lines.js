@@ -37,8 +37,8 @@ function line(id, chart){
 			.merge(lines)
 				.attr("id", function(d) {return "p" + (layer.id + "_" + d).replace(/[ .]/g,"_");})
         .on( "click", layer.get_on_click )
-        .on( "mouseover", layer.get_elementMouseOver )
-        .on( "mouseout", layer.get_elementMouseOut );			
+        .on( "mouseover", layer.get_on_mouseover )
+        .on( "mouseout", layer.get_on_mouseout );			
 	};
 
 	layer.dresser(function(sel){
@@ -84,7 +84,7 @@ function line(id, chart){
 	}
 
   //default hovering behaviour
-  layer.elementMouseOver(function(d){
+  layer.on_mouseover(function(d){
     var pos = d3.mouse(layer.chart.container.node());
     //change colour and class
     d3.select(this)
@@ -101,7 +101,7 @@ function line(id, chart){
     layer.chart.container.selectAll(".inform")
       .classed("hidden", false);
   });
-  layer.elementMouseOut(function(d){
+  layer.on_mouseout(function(d){
     d3.select(this)
       .attr("stroke", function(d) {
         return layer.get_colour(d);

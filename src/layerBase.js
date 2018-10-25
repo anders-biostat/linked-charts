@@ -7,8 +7,8 @@ export function layerBase(id) {
     .add_property("nelements", undefined, check("number_nonneg", "width"))
     .add_property("elementIds", undefined, check("array", "elementIds"))
     .add_property("label", function(i) {return i;}, check("array_fun", "label"))
-		.add_property("elementMouseOver", function() {})
-		.add_property("elementMouseOut", function() {})
+		.add_property("on_mouseover", function() {})
+		.add_property("on_mouseout", function() {})
     .add_property("mode", "svg")
 		.add_property("on_click", function() {})
 		.add_property("layerDomainX", undefined, check("array", "layerDomainX"))
@@ -37,7 +37,7 @@ export function layerBase(id) {
     .add_property("colourLegendTitle", function(){return "colour_" + layer.id})
     .add_property("opacity", 1, check("array_fun", "opacity"))
 		.add_property("dresser", function() {})
-    .add_property("markedUpdated", function() {layer.chart.markedUpdated();})
+    .add_property("on_marked", function() {layer.chart.on_marked();})
     .add_property("informText", function(id) {
       return "<b>ID:</b> " + layer.get_label(id);
     });
@@ -263,7 +263,7 @@ export function layerBase(id) {
 	layer.get_position = function(id) {return undefined;}
 
   //default hovering behaviour
-  layer.elementMouseOver(function(d){
+  layer.on_mouseover(function(d){
     var rect = layer.chart.container.node().getBoundingClientRect(),
       pos = [d3.max([d3.min([d3.event.clientX - rect.left, layer.chart.plotWidth()]), 0]), 
             d3.max([d3.min([d3.event.clientY - rect.top, layer.chart.plotHeight()]), 0])]; 
@@ -284,7 +284,7 @@ export function layerBase(id) {
     layer.chart.container.selectAll(".inform")
       .classed("hidden", false);
   });
-  layer.elementMouseOut(function(d){
+  layer.on_mouseout(function(d){
     if(!this.propList){
       var mark = layer.get_marked().length > 0;
 
@@ -341,7 +341,7 @@ export function layerBase(id) {
           .classed("marked", false);
         layer.g.selectAll(".data_element")
           .attr("opacity", 1);
-        layer.chart.markedUpdated();
+        layer.chart.on_marked();
         layer.colourMarked();
 
         return layer.chart;
@@ -386,7 +386,7 @@ export function layerBase(id) {
       }
       layer.updateCanvas();      
     }
-    layer.markedUpdated();
+    layer.on_marked();
   }
 
   layer.colourMarked = function() {
