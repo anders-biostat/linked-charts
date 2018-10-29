@@ -136,6 +136,7 @@ export function chartBase() {
 		//outer div that contains everything related to this chart
 		chart.container = element.append("div")
 			.style("position", "relative")
+			.style("overflow", "auto")
 			.attr("class", "linked-charts");
 		//prohibit standart dragging behaviour
 		chart.container.node().ondragstart = function() { return false; };

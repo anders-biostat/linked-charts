@@ -43,3 +43,42 @@ export function table() {
 
   return chart;
 }
+
+//used in R/linked-charts
+export function html() {
+  var chart = chartBase()
+    .add_property("content", "");
+
+  chart.width(0)
+    .height(0)
+    .margins({top: 5, left: 5, bottom: 5, right: 5})
+    .showPanel(false);
+
+  var inherited_put_static_content = chart.put_static_content;
+  chart.put_static_content = function( element ) {
+    inherited_put_static_content(element);
+    chart.svg.remove();
+  }
+
+  chart.updateSize = function(){
+    chart.container
+      .style("width", chart.width() != 0 ? chart.width() : undefined)
+      .style("height", chart.height() != 0 ? chart.height() : undefined)
+      .style("padding-top", chart.margins().top)
+      .style("padding-left", chart.margins().left)
+      .style("padding-right", chart.margins().right)
+      .style("padding-bottom", chart.margins().bottom);
+
+    return chart;
+  }
+
+   
+  var inherited_update = chart.update;
+  chart.update = function( ) {
+    inherited_update();
+    chart.container.node().innerHTML = chart.content();
+    return chart;
+  };
+
+  return chart;
+}
