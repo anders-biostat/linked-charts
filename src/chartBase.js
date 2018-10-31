@@ -322,9 +322,6 @@ function saveAsPng(chart) {
   	img.src = 'data:image/svg+xml; charset=utf8, '+encodeURIComponent(svgInnerHTML);
  	}
 
- 	chart.svg.selectAll(".panel_g")
- 		.style("display", "none");
-
 	var canvas = document.createElement('canvas');
 	if(chart.legend === undefined){
 		canvas.height = chart.svg.attr('height');
@@ -333,6 +330,14 @@ function saveAsPng(chart) {
 		canvas.height = d3.max([chart.height(), chart.legend.height()]);
 		canvas.width = chart.width() + chart.legend.width();					
 	}
+
+	var ctx = canvas.getContext("2d");
+	var actCanv = chart.container
+		.selectAll("canvas")
+			.filter(function() {return d3.select(this).classed("active")})
+				.nodes();
+	for(var i = 0; i < actCanv.length; i++) 
+		ctx.drawImage(actCanv[i], chart.margins().left, chart.margins().top);
 
 	chart.svg.selectAll("text").attr("fill", "black");
 
@@ -353,8 +358,6 @@ function saveAsPng(chart) {
 			var blob = new Blob([asArray.buffer], {type: 'image/png'});
 			saveAs(blob, 'export_' + Date.now() + '.png');
 		}, chart.legend);
-	chart.svg.selectAll(".panel_g")
-		.style("display", undefined);
 }
 
 function saveAsSvg(chart){
@@ -366,6 +369,22 @@ function saveAsSvg(chart){
  		if(ch.childNodes[i].classList[0] == "panel_g")
  			ch.removeChild(ch.childNodes[i]);
 
+	if(!chart.container
+			.selectAll("canvas")
+				.filter(function() {return d3.select(this).classed("active")})
+					.empty()) {
+		chart.container.append("div")
+			.attr("class", "hint")
+			.attr("id", "errMessage")
+			.style("left", (chart.width()/3) + "px")
+			.style("top", (chart.height()/3) + "px")
+			.style("width", (chart.width()/3) + "px")
+			.text("Chart in the canvas mode cannot be saved as SVG.");
+		setTimeout(function() {chart.container.select("#errMessage").remove()}, 2000);
+		return;
+	}
+
+	
  	var html;
   if(chart.legend !== undefined){
   	var w, h = 0, lsvg, hlist;
