@@ -90,7 +90,7 @@ export function barchart(id, chart){
 	layer.nstacks(1);
 	layer.contScaleX(false);
 	layer.elementIds(function(){
-		if(layer.nbars() == 1 && layer.barIds()[0] == 0)
+		if(layer.nbars() == 1 && (layer.barIds()[0] == 0 || layer.barIds()[0] == 1))
 			return layer.stackIds();
 		var ids = [], barIds = layer.barIds(), stackIds = layer.stackIds();
 		for(var i = 0; i < layer.nbars(); i++)
@@ -105,7 +105,7 @@ export function barchart(id, chart){
 			return id.toString();
 	});
 	layer.colour(function(gropuId, barId, stackId) {
-      if((layer.nbars() == 1) && (barId == 0))
+      if((layer.nbars() == 1) && (barId == 0 || barId == 1)) //if the bars are not named, default ID is 0 in JS and 1 in R
       		return layer.colourScale(layer.get_colourValue(stackId))
       else
       	return layer.colourScale(layer.get_colourValue(barId + ", " + stackId));
