@@ -379,7 +379,7 @@ function saveAsSvg(chart){
 			.style("left", (chart.width()/3) + "px")
 			.style("top", (chart.height()/3) + "px")
 			.style("width", (chart.width()/3) + "px")
-			.text("Chart in the canvas mode cannot be saved as SVG.");
+			.text("Chart in canvas mode cannot be saved as SVG.");
 		setTimeout(function() {chart.container.select("#errMessage").remove()}, 2000);
 		return;
 	}

@@ -515,7 +515,7 @@ export function heatmap(id, chart){
 				.merge(colLabel)
 					.attr("id", function(d) {return d.toString().replace(/[ .]/g,"_")})
 					.on("mouseover", on_mouseoverLabel)
-					.on("mouseout", on_mouseoverLabel)
+					.on("mouseout", on_mouseoutLabel)
 					.on("click", labelClick);
 		rowLabel.enter()
 			.append("text")
@@ -525,7 +525,7 @@ export function heatmap(id, chart){
 				.merge(rowLabel)
 					.attr("id", function(d) {return d.toString().replace(/[ .]/g,"_")})
 					.on("mouseover", on_mouseoverLabel)
-					.on("mouseout", on_mouseoverLabel)
+					.on("mouseout", on_mouseoutLabel)
 					.on("click", labelClick);
 
 		chart.updateCells();

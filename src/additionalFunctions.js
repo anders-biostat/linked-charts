@@ -120,7 +120,7 @@ export function add_click_listener(chart){
 
   var wait_dblClick = null, down, wait_click = null,
     tolerance = 5, click_coord, downThis,
-    parcer = call_pacer(100), panStarted = false;
+    pacer = call_pacer(100), panStarted = false;
  
   //add a transparent rectangle to detect clicks
   //and make changes to update function
@@ -218,7 +218,7 @@ export function add_click_listener(chart){
       .each(function() {canvases.push(d3.select(this).attr("id"));});
 
     if(canvases.length > 0) {
-      parcer.do(function(){
+      pacer.do(function(){
         var elements = chart.findElements(p, p);
         if(Array.isArray(elements)) {
           //this is a heatmap in a canvas mode

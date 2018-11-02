@@ -104,7 +104,7 @@ export function scatter(id, chart) {
   
 
     while(allNums && i < vals.length){
-      if(typeof vals[i] !== "number" && vals[i] != "Inf" && vals[i] !== NaN && vals[i] !== "NaN")
+      if(typeof vals[i] !== "number" && vals[i] != "Inf" && !isNaN(vals[i]))
         allNums = false;
       i++;
     }
@@ -123,7 +123,7 @@ export function scatter(id, chart) {
       return d3.extent(vals.filter(function(e) {return e > 0}))
 
     while(allNums && i < vals.length){
-      if(typeof vals[i] !== "number" && vals[i] != "Inf" && vals[i] !== NaN && vals[i] !== "NaN")
+      if(typeof vals[i] !== "number" && vals[i] != "Inf" && !isNaN(vals[i]))
         allNums = false;
       i++;
     }
