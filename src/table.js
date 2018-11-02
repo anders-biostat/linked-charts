@@ -54,6 +54,9 @@ export function html() {
     .margins({top: 5, left: 5, bottom: 5, right: 5})
     .showPanel(false);
 
+  chart.container
+    .style("overflow", "auto");
+
   var inherited_put_static_content = chart.put_static_content;
   chart.put_static_content = function( element ) {
     inherited_put_static_content(element);
