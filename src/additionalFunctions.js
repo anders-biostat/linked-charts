@@ -222,6 +222,11 @@ export function add_click_listener(chart){
         var elements = chart.findElements(p, p);
         if(Array.isArray(elements)) {
           //this is a heatmap in a canvas mode
+          if(elements.length == 0) {
+            chart.get_on_mouseout();
+            return;
+          }
+
           chart.container.selectAll(".inform")
             .style("left", (p[0] + 10 + chart.margins().left) + "px")
             .style("top", (p[1] + 10 + chart.margins().top) + "px")
