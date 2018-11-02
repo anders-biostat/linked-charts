@@ -116,7 +116,7 @@ export function layerBase(id) {
     //categorical or continuous
     var allNum = true;
     for(var i = 0; i < range.length; i++)
-      allNum = allNum && typeof range[i] === "number" && !isNaN(range[i]);
+      allNum = allNum && typeof range[i] === "number" && !lc.isNaN(range[i]);
     if(allNum)
       range.sort(function(a, b) {return a - b});
     var palette = layer.palette();    

@@ -1,3 +1,17 @@
+.linked-charts {
+	line-height: 1;
+	color: #000;
+}
+
+.linked-charts td {
+	padding: 1px 1px 1px 1px !important;
+	border-style: none !important;
+}
+
+.linked-charts table {
+	overflow: visible !important;	
+}
+
 .linked-charts text.plainText{
 	fill: #555;
 	font-family: Consolas, courier;

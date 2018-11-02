@@ -668,3 +668,7 @@ export function check(type, property) {
     }
   }  
 }
+
+export function isNaN(value) {
+  return (value == "NA" || value == "NaN" || value == "NAN" || value == "na") 
+}
