@@ -11,11 +11,36 @@ library( rlc )
 #download.file( "https://anders-biostat.github.io/linked-charts/rlc/citeseq/citeseq_data.rda", "citeseq_data.rda" )
 
 load( "citeseq_data.rda" )
-
+# threshold for variable genes
+variableGenes <- vars / means > 1.5  &  means > 1e-3
 
 openPage( layout = "table2x2", useViewer=FALSE )
 
 gene <- "CD79A"
+# the function to find genes high in the selected cells that
+# writes its result to the table in B2
+getHighGenes <- function(){
+  
+  marked <- getMarked("B1")
+  
+  # If no genes are marked, clear output, do nothing else
+  if( length(marked) == 0 ) {
+    return( "" )
+  }
+  
+  df <- data.frame(
+    meanMarked   =  apply( countMatrix[ variableGenes,  marked ], 1, mean ),
+    sdMarked     =  apply( countMatrix[ variableGenes,  marked ], 1, sd ),
+    meanUnmarked =  apply( countMatrix[ variableGenes, -marked ], 1, mean ),
+    sdUnmarked   =  apply( countMatrix[ variableGenes, -marked ], 1, sd )
+  )
+  df$sepScore <- ( df$meanMarked - df$meanUnmarked ) / pmax( df$sdMarked + df$sdUnmarked, 0.002 )
+  
+  df <- round(df * 100)/100
+  
+  head( df[ order( df$sepScore, decreasing=TRUE ), ], 15 )
+}
+
 
 # the variance-mean overview plot (A1)
 lc_scatter(
@@ -27,7 +52,7 @@ lc_scatter(
     size=2.5,
     on_click = function(i) {
       gene <<- names(means)[i]
-      updateChart( c( "A2", "B1" ) )
+      updateCharts( c( "A2", "B1" ) )
     } ), 
   "A1"
 )
@@ -51,30 +76,14 @@ lc_scatter(
     colourValue = sqrt( countMatrix[ gene, ] / sf ),
     palette = RColorBrewer::brewer.pal( 9, "YlOrRd" ),
     size = 1,
-    markedUpdated = function() {
-       showHighGenes( getMarked( "B1" ) )
+    on_marked = function() {
+       updateCharts("B2")
     }),
   "B1"
 )
 
-# the function to find genes high in the selected cells that
-# writes its result to the table in B2
-showHighGenes <- function( marked ){
-  
-  # If no genes are marked, clear output, do nothing else
-  if( length(marked) == 0 ) {
-    lc_html( "", "B2" )
-    return()
-  }
-
-  df <- data.frame(
-    meanMarked   =  apply( expr[ varGenes,  marked ], 1, mean ),
-    sdMarked     =  apply( expr[ varGenes,  marked ], 1, sd ),
-    meanUnmarked =  apply( expr[ varGenes, -marked ], 1, mean ),
-    sdUnmarked   =  apply( expr[ varGenes, -marked ], 1, sd )
-  )
-  df$sepScore <- ( df$meanMarked - df$meanUnmarked ) / pmax( df$sdMarked + df$sdUnmarked, 0.002 )
-
-  html_table <- hwriter::hwrite( head( df[ order( df$sepScore, decreasing=TRUE ), ] ) )
-  lc_html( html_table , "B2" )
-}
+#table with the top significantly different genes
+lc_html(dat(
+  content = getHighGenes() ), 
+  "B2"
+)
