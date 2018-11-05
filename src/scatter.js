@@ -86,8 +86,10 @@ export function scatter(id, chart) {
   } 
 
 	layer.layerDomainX(function() {
-		var vals = layer.elementIds().map(function(e) { return layer.get_x(e);}),
-      allNums = true, i = 0;
+		var vals = layer.elementIds()
+      .map(function(el) { return layer.get_x(el);})
+      .filter(function(el) {return el != "Infinity"});
+    var allNums = true, i = 0;
     //logscale can use only numeric and only positive values
     if(layer.chart.logScaleX())
       return d3.extent(vals.filter(function(e) {return e > 0}))
@@ -105,8 +107,10 @@ export function scatter(id, chart) {
       return vals;
 	});
 	layer.layerDomainY(function() {
-    var vals = layer.elementIds().map(function(e) { return layer.get_y(e);}),
-      allNums = true, i = 0;
+    var vals = layer.elementIds()
+      .map(function(e) { return layer.get_y(e);})
+      .filter(function(el) {return el != "Infinity"});
+    var allNums = true, i = 0;
     
     //logscale can use only numeric and only positive values
     if(layer.chart.logScaleY())

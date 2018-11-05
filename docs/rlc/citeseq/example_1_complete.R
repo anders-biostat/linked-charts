@@ -73,6 +73,7 @@ lc_scatter(
   dat(
     x = tsne$Y[,1],
     y = tsne$Y[,2],
+    label = colnames(countMatrix),
     colourValue = sqrt( countMatrix[ gene, ] / sf ),
     palette = RColorBrewer::brewer.pal( 9, "YlOrRd" ),
     size = 1,
