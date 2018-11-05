@@ -669,6 +669,7 @@ export function check(type, property) {
   }  
 }
 
+//interpretes NAs from R as NaNs
 export function isNaN(value) {
   return (value == "NA" || value == "NaN" || value == "NAN" || value == "na") 
 }

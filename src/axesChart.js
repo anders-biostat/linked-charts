@@ -13,6 +13,20 @@ export function axesChart() {
 		.add_property("axisTitleX", "")
 		.add_property("axisTitleY", "")
 		.add_property("ticksX", undefined)
+		.add_property("ticksRotateX", 0, function(value) {
+			if(isNaN(value))
+				throw "Error in 'typeCheck' for property 'ticksRotateX': " +
+							"the value is not a number.";
+
+			return value % 90;
+		})
+		.add_property("ticksRotateY", 0, function(value) {
+			if(isNaN(value))
+				throw "Error in 'typeCheck' for property 'ticksRotateY': " +
+							"the value is not a number.";
+
+			return value % 90;
+		})
 		.add_property("ticksY", undefined)
 		.add_property("logScaleX", false)
 		.add_property("logScaleY", false);
@@ -504,7 +518,7 @@ export function axesChart() {
 	      .scale( chart.axes.scale_y )
 	      .tickValues(ticksY.tickValues)
 	      .tickFormat(ticksY.tickFormat) 
-	      ( chart.axes.y_g );    	
+	      ( chart.axes.y_g ); 	
     }
 
     var updateX = function() {
@@ -526,6 +540,18 @@ export function axesChart() {
     		setTimeout(updateY, chart.transitionDuration())
     	else
     		updateY();
+
+    chart.axes.y_g.selectAll(".tick").selectAll("text")
+    	.attr("transform", "rotate(-" + chart.ticksRotateY() + ", -9, 0)")
+    	.style("text-anchor", chart.ticksRotateY() > 69 ? "middle" : "end")
+    	.attr("dy", chart.ticksRotateY() > 69 ? 0 : "0.32em");
+    
+    chart.axes.x_g.selectAll(".tick").selectAll("text")
+    	.attr("transform", "rotate(-" + chart.ticksRotateX() + ")")
+    	.style("text-anchor", chart.ticksRotateX() > 19 ? "end" : "middle")
+      .attr("dx", chart.ticksRotateX() > 19 ? "-.8em" : 0)
+      .attr("dy", chart.ticksRotateX() > 19 ? (0.55 - (chart.ticksRotateX() - 20) * 0.01) + "em" : ".71em");
+
 
     for(var k in chart.layers)
     	chart.get_layer(k).updateElementPosition();
