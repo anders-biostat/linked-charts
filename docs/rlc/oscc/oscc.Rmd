@@ -1,3 +1,6 @@
+<script src = "../../src/linked-charts.min.js"></script>
+<link rel="stylesheet" type="text/css" href="../../src/linked-charts.css">
+
 ## R/LinkedCharts Tutorial
 # Augmenting and checking a standard RNA-Seq analysis
 
@@ -10,8 +13,8 @@ We are working with data from this paper:
 | C. Conway et al.: *Elucidating drivers of oral epithelial dysplasia formation and malignant transformation to cancer using RNAseq*. Oncotarget, 6:40186-40201 (2015), [doi:10.18632/oncotarget.5529](https://doi.org/10.18632/oncotarget.5529)
 
 Conweay et al. have collected tissue samples from 19 patients with oral squamous
-cell carcinoma (OSCC). From each patient, they took 3 samples, one of normal oral mucosa, 
-one of epithelial dysplasia (i.e., abnormal but not yet malignant tissue, 
+cell carcinoma (OSCC). From each patient, they took 3 samples, one of normal oral mucosa ("N"), 
+one of epithelial dysplasia (i.e., abnormal but not yet malignant tissue, "D"), 
 and one sample of the tumour ("T"). We will use their data (available from the European
 Read Archive (ERA) under accession [PRJEB7455](https://www.ebi.ac.uk/ena/data/view/PRJEB7455))
 to demonstrate how LinkedCharts can be helpful in a standard bioinformatics task like
@@ -86,7 +89,7 @@ which cannot be shown in a log-log plot, because $\log 0 = -\infty$.
 If we looked at several such plots for different squares in the heatmap, maybe some orange ones, a few yellow ones, and
 some of the blueish ones, we could get a quick feeling about how good or bad a correlation value of 0.9 or 0.8 is.
 
-With LinkedChart, we can do precisely that. We can display the two plots side-by-side, and when one clicks with the mouse 
+With LinkedCharts, we can do precisely that. We can display the two plots side-by-side, and when one clicks with the mouse 
 on a square on the heatmap, the scatter plot will change to display the correlation between the two samples associated with 
 the heatmap square.
 
@@ -112,27 +115,36 @@ lc_scatter(
       x = log10( 1 + countMatrix[,sampleX] ),
       y = log10( 1 + countMatrix[,sampleY] ),
       size = .3,
-      alpha = .3
+      opacity = .3
    ),
    place = "A2"
 )
 
 ```
 
-To run this code, you first need to install R/LinkedChart. If you haven't done so yet, see the simple instructions on 
+To run this code, you first need to install R/LinkedCharts. If you haven't done so yet, see the simple instructions on 
 the [overview page](..). 
 
-Once you run the code, you should see, in your web browser, a picture like this. (Give the scatter plot a few seconds to appear; it has nearly 60,000 points.) Note how sample names and gene names are displayed when you hover your mouse over a square or point. You can also zoom in (draw a rectangle with the mouse) or out (double-click) or use other functions in the tool menu (click on the arrow button).
+Once you run the code, you should see, in your web browser, charts like these. (Give the scatter plot a few seconds to appear; it has nearly 60,000 points.) Note how sample names and gene names are displayed when you hover your mouse over a square or point. You can also zoom in (draw a rectangle with the mouse) or out (double-click) or use other functions in the tool menu (click on the arrow button).
 
-![](heatmap_scatter.png)
+<script src = "heatmapData.js"></script>
+<div id = "heatmap-scatter">
+<table>
+   <tr>
+      <td id = "heatmap"></td>
+      <td id = "scatter"></td>
+   </tr>
+</table>
+</div>
+<script src = "heatmap.js"></script>
 
 We go through this code now and explain line for line:
 
-First, we load the R/LinkedChart package ("`rlc`"). Then, we use `openPage` to open a new page. We can open the page 
+First, we load the R/LinkedCharts package ("`rlc`"). Then, we use `openPage` to open a new page. We can open the page 
 either in the web browser (`useViewer=FALSE`) or in the viewer pane of RStudio (`useViewer=TRUE`, the default). As
 we have two plots, we opt for a layout with 1 row and 2 columns (`layout="table1x2"`). 
 
-Next, we insert the first chart, teh heatmap, using the `lc_heatmap` fucntion. All charts in R/LinkedChart are placed
+Next, we insert the first chart, the heatmap, using the `lc_heatmap` fucntion. All charts in R/LinkedCharts are placed
 with functions starting with `lc_`, and they all want a first argument that sets all their data and that has to be enclosed
 in `dat(...)` (which we will explain later). For a heatmap, we just need a matrix, which has to be assigned (in the `dat` phrase)
 to `value`. The second argument is the `place` where the chart should be put. In our `table1x2` layout, the places are 
@@ -142,11 +154,11 @@ Now, we set two global variables, `sampleX` and `sampleY`, to the names of the t
 display in the scatter plot.
 
 The scatter plot is inserted with `lc_scatter`. Again, its first argument must be enclosed in `dat(...)`. Within the `dat`, we 
-set four properties: `x`, `y`, `size` and `alpha`. The first two are mandatory: They are vectors with the values of the x
+set four properties: `x`, `y`, `size` and `opacity`. The first two are mandatory: They are vectors with the values of the x
 and y coordinates. As before, when using R's standard `plot` function, we use `log10( 1 + countMatrix[,sample])`. 
 
 The other two properties are optional: We set `size = .3` to make the points a bit smaller than the default, and we make 
-them somewhat transparent, by reducing the opacity, `alpha`, so that one can see whether several points sit on top of each other 
+them somewhat transparent, by reducing the `opacity`, so that one can see whether several points sit on top of each other 
 (similar to the use of `adjustcolor` above). We place the chart at position `A2`, to the right of the heatmap at `A1`.
 
 Next, we need to "link" the charts. For this, we just add four very simple lines, marked below with hashes (#):
@@ -166,7 +178,7 @@ lc_heatmap(
       on_click = function(k) {     #  \  
          sampleX <<- k[1]          #  |  Linking the
          sampleY <<- k[2]          #  |  charts
-         updateChart( "A2" )       #  /
+         updateCharts( "A2" )       #  /
       }
    ),
    place = "A1"
@@ -180,21 +192,21 @@ lc_scatter(
       x = log10( 1 + countMatrix_downsampled[,sampleX] ),
       y = log10( 1 + countMatrix_downsampled[,sampleY] ),
       size = .3,
-      alpha = .3
+      opacity = .3
    ),
    place = "A2"
 )
 ```
 
 We have added a second property to the heatmap, inside the `dat`. The property `on_click` tells LinkedCharts what to
-do when the user clicks on a square in the heatmap. It is a function with one argument, `k`, which R/LinkedChart will
-call whenever a mouse-click event happens in the heatmap, and R/LinkedChart will then place in `k` the row and column 
+do when the user clicks on a square in the heatmap. It is a function with one argument, `k`, which R/LinkedCharts will
+call whenever a mouse-click event happens in the heatmap, and R/LinkedCharts will then place in `k` the row and column 
 indices of the square that was clicked.
 
 Our `on_click` function just does two things: First, it stores the row and column indices (passed as `k[1]` and `k[2]`) in
 `sampleX` and `sampleY`, the two global variables that we used to indicate which samples the scatter plot should show. Now, they
 indicate that the scatter plot should show the samples corresponding to the square that has just been clicked. We only need to tell
-the scatter plot that its data has changes and that it should redraw itself. Hence, the call to `updateChart`, which causes
+the scatter plot that its data has changes and that it should redraw itself. Hence, the call to `updateCharts`, which causes
 the indicated chart (here the one at `A2`) to be redrawn.
 
 Now we can also see why the property assignments have to be enclosed into `dat`: `dat` is a construct that keeps the code it 
@@ -227,7 +239,7 @@ head( voomResult )
 
 Here, `tissuedysplasia` and `tissuetumour` are the log fold changes (LFCs) between dysplasia an normal, and between tumour and normal, respectively. `P.Value` is the p value from an F test comparing the the three tissue types after account for patient-to-patient baseline differences, and `adj.P.Val` is the result of a Benjamini-Hochberg adjustment.
 
-The following code shows how to use R/LinkedChart to explore these results
+The following code shows how to use R/LinkedCharts to explore these results
 ```{r}
 openPage( useViewer=FALSE, layout="table1x2" )
 
@@ -240,7 +252,7 @@ lc_scatter(
       color = ifelse( voomResult$adj.P.Val < 0.1, "red", "black" ),
       label = rownames(voomResult),
       size = 1.3,
-      on_click = function(k) { gene <<- k; updateChart("A2") }
+      on_click = function(k) { gene <<- k; updateCharts("A2") }
    ),
    "A1"
 )
@@ -254,22 +266,32 @@ lc_scatter(
       logScaleY = 10,
       colorValue = sampleTable$tissue,
       title = rownames(countMatrix)[gene],
-      axisTitleY = "counts per million (CPM)"
+      axisTitleY = "counts per million (CPM)",
+      ticksRotateX = 45
    ),
    "A2"
 )
 ```
 
-![](MA_details.png)
+<script type="text/javascript" src = "maData.js"></script>
+<div id = "ma-expr">
+<table>
+   <tr>
+      <td id = "ma"></td>
+      <td id = "expr"></td>
+   </tr>
+</table>
+</div>	
+<script type="text/javascript" src="maPlot.js"></script>
 
-The left plot is an MA plot: Each point is one gene in the result table, the x axis is the average expression of the gene (column `AveExpr` in `voomResult`), the y axis is the log fold change between tissue and normal (column `tissuetumour`). The colour of the points is red or black, indicating whether the gene is significant at 10% false discovery rate (`voomResult$adj.P.Val < 0.1`). If one hovers the mouse over a point, the gene name is shown, which is taken from the rownames of the result table (`label = rownames(voomResult)`).
+The left plot is an MA plot: Each point is one gene in the result table, the x axis is the average expression of the gene (column `AveExpr` in `voomResult`), the y axis is the log fold change between tumour and normal tissue (column `tissuetumour`). The colour of the points is red or black, indicating whether the gene is significant at 10% false discovery rate (`voomResult$adj.P.Val < 0.1`). If one hovers the mouse over a point, the gene name is shown, which is taken from the rownames of the result table (`label = rownames(voomResult)`).
 
-The right plot now shows details of a selected gene, and as before, there is a global variable, `gene`, which contains a number, indicating a row and hence a gene in the results table and the count matrix. (The rows of both `voomResults` and `countMatrix` are in the same order). Each point in the plot is one sample, the x position indicates the patient (`x = sampleTable$patient`) and the colour the tissue type (`colorValue = sampleTable$tissue`). The y axis shows the expression of the selected gene (`countMatrix[gene,]`; remember that the rows in `countMatrix` and `resultsTable` are in the same order). We display the expression of the gene as "counts per million" (CPM). To this end, we divide the count value by the total count for each libary (`countsums = colSums(countMatrix)`) and multiply by one million (`1e6`). We also add 0.1 pseudocounts to avoid losing zeroes on the axis, which we have made logarithmic with decadic tic marks (`logScaleY = 10`).ABove the plot, a title shows the name of the displayed gene, as given by the rowname of the result table (`title = rownames(countMatrix)[gene]`)
+The right plot now shows details of a selected gene, and as before, there is a global variable, `gene`, which contains a number, indicating a row and hence a gene in the results table and the count matrix. (The rows of both `voomResults` and `countMatrix` are in the same order). Each point in the plot is one sample, the x position indicates the patient (`x = sampleTable$patient`) and the colour the tissue type (`colorValue = sampleTable$tissue`). The y axis shows the expression of the selected gene (`countMatrix[gene,]`; remember that the rows in `countMatrix` and `resultsTable` are in the same order). We display the expression of the gene as "counts per million" (CPM). To this end, we divide the count value by the total count for each libary (`countsums = colSums(countMatrix)`) and multiply by one million (`1e6`). We also add 0.1 pseudocounts to avoid losing zeroes on the axis, which we have made logarithmic with decadic tick marks (`logScaleY = 10`). Ticks on the other axis are rotated by 45 degrees (`ticksRotateX = 45`) so that they don't overlap with each other. Above the plot, a title shows the name of the displayed gene, as given by the rowname of the result table (`title = rownames(countMatrix)[gene]`).
 
 Note here that in the left plot, we used `colour`, in the right plot `colourValue`: The difference is that in the left plot, we passed a string vector with elements that directly prescribe a color (`"red"` or `"black"`), in the right plot, we pass a word (`normal`, `dysplasia` or `tumour`) and expect LinkedCharts to choose three colours to map these to. LinkedCharts therefore also adds a legend.
 
 Describing the two plots did not require more R code than when describing the same plots, when using e.g., ggplot2. To link the two plots, we 
-only needed a single extra line: `on_click = function(k) { gene <<- k; updateChart("A2") }`
+only needed a single extra line: `on_click = function(k) { gene <<- k; updateCharts("A2") }`
 As explained before, this simply changes the gloabl variable `gene` to the index of the point the user clicked to and then redraws the
 right-hand plot: There, reevaluating the content of the `dat` call gives the new plot, because `gene` has changed and now, another row of the `countMatrix` is used.
 

@@ -7,3 +7,13 @@ lib/put_together\.pl
 doc/_tmp/
 
 doc/documentation/
+
+docs/Gemfile
+
+docs/Gemfile\.lock
+
+docs/_site/
+
+docs/rlc/oscc/\.Rhistory
+
+docs/rlc/oscc/_site/
