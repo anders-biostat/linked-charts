@@ -9,7 +9,8 @@ lc.scatter()
 	.size(1.3)
 	.on_click(i => {selGene = i; exprPlot.update();})
 	.width(340)
-	.height(340)	
+	.height(340)
+	.set_margins({left: 15})
 	.place(d3.select("#ma-expr").select("#ma"));
 
 var exprPlot = lc.scatter()
