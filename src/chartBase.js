@@ -142,6 +142,7 @@ export function chartBase() {
 		//container for all svg elements
 		chart.svg =	chart.container
 			.append("table")
+				.attr("class", "mainTable")
 				.append("tr")
 					.append("td")
 						.append("svg");

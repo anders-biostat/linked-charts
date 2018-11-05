@@ -3,9 +3,9 @@
 	color: #000;
 }
 
-.linked-charts td {
-	padding: 1px 1px 1px 1px !important;
-	border-style: none !important;
+.linked-charts .mainTable td {
+	padding: 1px 1px 1px 1px;
+	border-style: none;
 }
 
 .linked-charts table {
