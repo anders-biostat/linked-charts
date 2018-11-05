@@ -76,6 +76,7 @@ lc_scatter(
     colourValue = sqrt( countMatrix[ gene, ] / sf ),
     palette = RColorBrewer::brewer.pal( 9, "YlOrRd" ),
     size = 1,
+    colourLegendTitle = gene,
     on_marked = function() {
        updateCharts("B2")
     }),

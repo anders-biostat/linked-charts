@@ -6,12 +6,22 @@ export function legend(chart) {
 		.add_property("width", 200)
 		.add_property("height", function() {return chart.height();})
 		.add_property("sampleHeight", 20)
-		.add_property("title", function(id) {return id;})
+		.add_property("titles", {})
 		.add_property("ncol")
 		.add_property("container");
 
 	var blocks = {};
 	legend.chart = chart;
+
+	legend.set_title = function(titles) {
+		var curTitles = legend.titles();
+		for(i in titles) 
+			curTitles[i] = titles[i];
+		
+		legend.titles(curTitles);
+
+		return legend;
+	}
 
 	legend.get_nblocks = function() {
 		return Object.keys(blocks).length;
@@ -227,7 +237,7 @@ var updateGrid = function() {
 			title = blockSvg.append("g")
 				.attr("class", "title");
 		var titleWidth = d3.min([20, cellWidth * 0.2]);
-		fillTextBlock(title, cellHeight, titleWidth, legend.get_title(id));
+		fillTextBlock(title, cellHeight, titleWidth, legend.titles()[id] || id);
 		title.attr("transform", "rotate(-90)translate(-" + cellHeight + ", 0)");
 
 		var sampleValues;

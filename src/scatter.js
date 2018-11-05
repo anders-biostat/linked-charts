@@ -68,16 +68,6 @@ export function scatter(id, chart) {
     return returnedValue;
   }
 
-  var symbolLegendTitle = layer.symbolLegendTitle;
-  layer.symbolLegendTitle = function(vf, propertyName, overrideFunc) {
-    if(vf)
-      var oldName = symbolLegendTitle();
-    var returnedValue = symbolLegendTitle(vf, propertyName, overrideFunc);
-    if(vf)
-      layer.chart.legend.renameBlock(oldName, symbolLegendTitle());
-    return returnedValue;
-  }
-
   //These functions are used to react on clicks
   layer.findElements = function(lu, rb){
     return layer.elementIds()
@@ -152,8 +142,12 @@ export function scatter(id, chart) {
       return layer.symbolScale(layer.get_symbolValue(id));
     })
 
-    if(layer.chart.showLegend())
-      layer.addLegendBlock(layer.symbolScale, "symbol", layer.symbolLegendTitle());
+    if(layer.chart.showLegend()) {
+      layer.addLegendBlock(layer.symbolScale, "symbol", layer.id + "_symbol");
+      var tObj = {};
+      tObj[layer.id + "_symbol"] = layer.symbolLegendTitle();
+      layer.chart.legend.titles(tObj);
+    }
 
   }
 
