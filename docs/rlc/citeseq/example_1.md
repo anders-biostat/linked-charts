@@ -1,3 +1,6 @@
+<script src = "../../src/linked-charts.min.js"></script>
+<link rel="stylesheet" type="text/css" href="../../src/linked-charts.css">
+
 ## R/LinkedCharts Tutorial: 
 # Exploring single-cell data with R/LinkedCharts
 
@@ -5,9 +8,22 @@ This tutorial demonstrates how our R/LinkedCharts package can be used to created
 
 We will develop an interactive app that produces, from less than a page of R code, this here:
 
-![](example_1_screenshot.png)
+<script type="text/javascript" src = "citeSeqData.js"></script>
+<div id = "fullApp">
+<table>
+   <tr>
+      <td id = "mean-var"></td>
+      <td id = "expr"></td>
+   </tr>
+   <tr>
+   		<td id = "tsne"></td>
+   		<td id = "table"><table border="1"></table></td>
+   </tr>
+</table>
+</div>	
+<script type="text/javascript" src="fullApp.js"></script>
 
-While the screenshot above is just a picture, the code when run in R, will produce an interactive app, where clicking on one point will change the displayed charts.
+The app above is provided for demonstration purposes. Functionally, it is identical to what you get after running the code in R, but uses subsampled data so that not to load too big data files.
 
 Readers in a hurry can download the final script [here](example_1_complete.R), and run it as is in R. Of course, you will have to read on to see what the different charts are supposed to show.
 
@@ -192,8 +208,24 @@ devtools::install_github( "anders-biostat/JsRCom" ) # required for rlc
 ```
 
 ```
-## Skipping install of 'JsRCom' from a github remote, the SHA1 (b104dc0c) has not changed since last install.
-##   Use `force = TRUE` to force installation
+## Downloading GitHub repo anders-biostat/JsRCom@master
+## from URL https://api.github.com/repos/anders-biostat/JsRCom/zipball/master
+```
+
+```
+## Installing JsRCom
+```
+
+```
+## '/usr/lib/R/bin/R' --no-site-file --no-environ --no-save --no-restore  \
+##   --quiet CMD INSTALL  \
+##   '/tmp/RtmpeLU5sl/devtools54c6596667b8/anders-biostat-JsRCom-9dc0f33'  \
+##   --library='/home/tyranchik/R/x86_64-pc-linux-gnu-library/3.5'  \
+##   --install-tests
+```
+
+```
+## 
 ```
 
 ```r
@@ -201,8 +233,28 @@ devtools::install_github( "anders-biostat/rlc" )
 ```
 
 ```
-## Skipping install of 'rlc' from a github remote, the SHA1 (fb39637c) has not changed since last install.
-##   Use `force = TRUE` to force installation
+## Downloading GitHub repo anders-biostat/rlc@master
+## from URL https://api.github.com/repos/anders-biostat/rlc/zipball/master
+```
+
+```
+## Installing rlc
+```
+
+```
+## '/usr/lib/R/bin/R' --no-site-file --no-environ --no-save --no-restore  \
+##   --quiet CMD INSTALL  \
+##   '/tmp/RtmpeLU5sl/devtools54c6f509e73/anders-biostat-rlc-0ad3c8e'  \
+##   --library='/home/tyranchik/R/x86_64-pc-linux-gnu-library/3.5'  \
+##   --install-tests
+```
+
+```
+## 
+```
+
+```
+## Reloading installed rlc
 ```
 
 Load the R/LinkedCharts library
@@ -219,12 +271,7 @@ openPage( useViewer = FALSE, layout = "table2x2" )
 ```
 
 ```
-## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/JsRCom/http_root/index.html"
-## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/JsRCom//http_root/JsRCom.js"
-## [1] "WebSocket opened"
-## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/rlc//http_root/linked-charts.css"
-## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/rlc//http_root/rlc.js"
-## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/rlc//http_root/linked-charts.min.js"
+## WebSocket opened
 ```
 
 ```r
@@ -240,12 +287,16 @@ lc_scatter(
 ```
 
 ```
-## [1] "main"
-## [1] "Layer1"
+## Chart 'A1' added.
 ```
 
 ```
-## The following `from` values were not present in `x`: labels, color, colorValue, colourValues, colorValues, colorDomain, colorLegendTitle, addColorScaleToLegend, symbols, symbolValues, strokes, values, heatmapRows, heatmapCols, showValues
+## Layer 'Layer1' is added to chart 'A1'.
+```
+
+```
+## Warning in setProperties(c(data, nonEv), id, layerId): In chart 'A1':
+## Property '' doesn't exist.
 ```
 The `openPage` function opens a new page, either in your web browser (for `useViewer=FALSE`) or
 in the "Viewer" pane of RStudio (for `useViewer=TRUE`, the default). We have chosen to use a browser 
@@ -276,12 +327,11 @@ lc_scatter(
 ```
 
 ```
-## [1] "main"
-## [1] "Layer1"
+## Chart 'A2' added.
 ```
 
 ```
-## The following `from` values were not present in `x`: labels, color, colorValue, colourValues, colorValues, colorDomain, colorLegendTitle, addColorScaleToLegend, symbols, symbolValues, strokes, values, heatmapRows, heatmapCols, showValues
+## Layer 'Layer1' is added to chart 'A2'.
 ```
 
 As before, we have used `lc_scatter` to insert a scatter plot, now at position `A2` (to the right of `A1`). As before,
@@ -311,11 +361,7 @@ lc_scatter(
 ```
 
 ```
-## [1] "Layer2"
-```
-
-```
-## The following `from` values were not present in `x`: labels, color, colorValue, colourValues, colorValues, colorDomain, colorLegendTitle, addColorScaleToLegend, symbols, symbolValues, strokes, values, heatmapRows, heatmapCols, showValues
+## Layer 'Layer1' is added to chart 'A1'.
 ```
 
 As you can see, we have merely added one more optional parameter to the `dat` block. It is called `on_click` and set
@@ -344,12 +390,7 @@ openPage( useViewer=FALSE, layout = "table2x2" )
 ```
 
 ```
-## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/JsRCom/http_root/index.html"
-## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/JsRCom//http_root/JsRCom.js"
-## [1] "WebSocket opened"
-## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/rlc//http_root/linked-charts.css"
-## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/rlc//http_root/rlc.js"
-## [1] "Reading /home/anders/R/x86_64-pc-linux-gnu-library/3.4/rlc//http_root/linked-charts.min.js"
+## WebSocket opened
 ```
 
 ```r
@@ -371,12 +412,11 @@ lc_scatter(
 ```
 
 ```
-## [1] "main"
-## [1] "Layer1"
+## Chart 'A1' added.
 ```
 
 ```
-## The following `from` values were not present in `x`: labels, color, colorValue, colourValues, colorValues, colorDomain, colorLegendTitle, addColorScaleToLegend, symbols, symbolValues, strokes, values, heatmapRows, heatmapCols, showValues
+## Layer 'Layer1' is added to chart 'A1'.
 ```
 
 ```r
@@ -392,12 +432,11 @@ lc_scatter(
 ```
 
 ```
-## [1] "main"
-## [1] "Layer1"
+## Chart 'A2' added.
 ```
 
 ```
-## The following `from` values were not present in `x`: labels, color, colorValue, colourValues, colorValues, colorDomain, colorLegendTitle, addColorScaleToLegend, symbols, symbolValues, strokes, values, heatmapRows, heatmapCols, showValues
+## Layer 'Layer1' is added to chart 'A2'.
 ```
 
 
@@ -442,29 +481,29 @@ tsne <- Rtsne( t( expr[varGenes, ] ), verbose = TRUE )
 ## Normalizing input...
 ## Building tree...
 ##  - point 0 of 8005
-## Done in 5.91 seconds (sparsity = 0.017480)!
+## Done in 5.89 seconds (sparsity = 0.017480)!
 ## Learning embedding...
-## Iteration 50: error is 92.687355 (50 iterations in 9.64 seconds)
-## Iteration 100: error is 81.709375 (50 iterations in 7.72 seconds)
-## Iteration 150: error is 79.890016 (50 iterations in 6.89 seconds)
-## Iteration 200: error is 79.406947 (50 iterations in 7.00 seconds)
-## Iteration 250: error is 79.170064 (50 iterations in 7.47 seconds)
-## Iteration 300: error is 3.098144 (50 iterations in 7.08 seconds)
-## Iteration 350: error is 2.846250 (50 iterations in 6.42 seconds)
-## Iteration 400: error is 2.709149 (50 iterations in 6.26 seconds)
-## Iteration 450: error is 2.620060 (50 iterations in 6.25 seconds)
-## Iteration 500: error is 2.558519 (50 iterations in 6.42 seconds)
-## Iteration 550: error is 2.513018 (50 iterations in 6.46 seconds)
-## Iteration 600: error is 2.479982 (50 iterations in 6.33 seconds)
-## Iteration 650: error is 2.456638 (50 iterations in 6.63 seconds)
-## Iteration 700: error is 2.438347 (50 iterations in 6.89 seconds)
-## Iteration 750: error is 2.423501 (50 iterations in 7.10 seconds)
-## Iteration 800: error is 2.411614 (50 iterations in 6.61 seconds)
-## Iteration 850: error is 2.401951 (50 iterations in 7.03 seconds)
-## Iteration 900: error is 2.394369 (50 iterations in 6.44 seconds)
-## Iteration 950: error is 2.387273 (50 iterations in 6.32 seconds)
-## Iteration 1000: error is 2.384277 (50 iterations in 6.19 seconds)
-## Fitting performed in 137.14 seconds.
+## Iteration 50: error is 92.686490 (50 iterations in 16.59 seconds)
+## Iteration 100: error is 81.682848 (50 iterations in 14.29 seconds)
+## Iteration 150: error is 79.972503 (50 iterations in 6.91 seconds)
+## Iteration 200: error is 79.483382 (50 iterations in 6.93 seconds)
+## Iteration 250: error is 79.238949 (50 iterations in 7.07 seconds)
+## Iteration 300: error is 3.117598 (50 iterations in 6.75 seconds)
+## Iteration 350: error is 2.848230 (50 iterations in 6.39 seconds)
+## Iteration 400: error is 2.709155 (50 iterations in 6.24 seconds)
+## Iteration 450: error is 2.622022 (50 iterations in 6.18 seconds)
+## Iteration 500: error is 2.561374 (50 iterations in 6.17 seconds)
+## Iteration 550: error is 2.518067 (50 iterations in 6.23 seconds)
+## Iteration 600: error is 2.487800 (50 iterations in 6.28 seconds)
+## Iteration 650: error is 2.464465 (50 iterations in 6.30 seconds)
+## Iteration 700: error is 2.445678 (50 iterations in 6.36 seconds)
+## Iteration 750: error is 2.430248 (50 iterations in 6.91 seconds)
+## Iteration 800: error is 2.418950 (50 iterations in 6.70 seconds)
+## Iteration 850: error is 2.409612 (50 iterations in 6.50 seconds)
+## Iteration 900: error is 2.402697 (50 iterations in 6.32 seconds)
+## Iteration 950: error is 2.397645 (50 iterations in 6.28 seconds)
+## Iteration 1000: error is 2.395305 (50 iterations in 6.38 seconds)
+## Fitting performed in 147.78 seconds.
 ```
 
 ```r
@@ -489,12 +528,11 @@ lc_scatter(
 ```
 
 ```
-## [1] "main"
-## [1] "Layer1"
+## Chart 'B1' added.
 ```
 
 ```
-## The following `from` values were not present in `x`: labels, color, colorValue, colourValues, colorValues, colorDomain, colorLegendTitle, addColorScaleToLegend, symbols, symbolValues, strokes, values, heatmapRows, heatmapCols, showValues
+## Layer 'Layer1' is added to chart 'B1'.
 ```
 
 This plot is now placed a position "B1", i.e., under A1. We use the two columns of the
@@ -531,11 +569,7 @@ lc_scatter(
 ```
 
 ```
-## [1] "Layer2"
-```
-
-```
-## The following `from` values were not present in `x`: labels, color, colorValue, colourValues, colorValues, colorDomain, colorLegendTitle, addColorScaleToLegend, symbols, symbolValues, strokes, values, heatmapRows, heatmapCols, showValues
+## Layer 'Layer1' is added to chart 'A1'.
 ```
 
 Have a look below for the final code, if you are unsure how this fits in.
@@ -664,6 +698,14 @@ the web browser interpret the HTML code:
 ```r
 lc_html( html_table , "B2" )
 ```
+
+```
+## Chart 'B2' added.
+```
+
+```
+## Error: in data expression for chart 'B2': no applicable method for 'hwrite' applied to an object of class "NULL".
+```
 The moment your R executes this line, the table appears on the web page.
 
 How can we make this automatic, so that all this happens whenever we mark a group of cells? Simple: We just have to write
@@ -688,11 +730,12 @@ lc_scatter(
 ```
 
 ```
-## [1] "Layer2"
+## Layer 'Layer1' is added to chart 'B1'.
 ```
 
 ```
-## The following `from` values were not present in `x`: labels, color, colorValue, colourValues, colorValues, colorDomain, colorLegendTitle, addColorScaleToLegend, symbols, symbolValues, strokes, values, heatmapRows, heatmapCols, showValues
+## Warning in setProperties(c(data, nonEv), id, layerId): In chart 'B1':
+## Property 'markedUpdated' doesn't exist.
 ```
 
 And the function `showHighGenes` contains the analysis just described:

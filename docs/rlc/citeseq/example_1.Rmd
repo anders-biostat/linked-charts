@@ -1,3 +1,6 @@
+<script src = "../../src/linked-charts.min.js"></script>
+<link rel="stylesheet" type="text/css" href="../../src/linked-charts.css">
+
 ## R/LinkedCharts Tutorial: 
 # Exploring single-cell data with R/LinkedCharts
 
@@ -5,9 +8,22 @@ This tutorial demonstrates how our R/LinkedCharts package can be used to created
 
 We will develop an interactive app that produces, from less than a page of R code, this here:
 
-![](example_1_screenshot.png)
+<script type="text/javascript" src = "citeSeqData.js"></script>
+<div id = "fullApp">
+<table>
+   <tr>
+      <td id = "mean-var"></td>
+      <td id = "expr"></td>
+   </tr>
+   <tr>
+   		<td id = "tsne"></td>
+   		<td id = "table"><table border="1"></table></td>
+   </tr>
+</table>
+</div>	
+<script type="text/javascript" src="fullApp.js"></script>
 
-While the screenshot above is just a picture, the code when run in R, will produce an interactive app, where clicking on one point will change the displayed charts.
+The app above is provided for demonstration purposes. Functionally, it is identical to what you get after running the code in R, but uses subsampled data so that not to load too big data files.
 
 Readers in a hurry can download the final script [here](example_1_complete.R), and run it as is in R. Of course, you will have to read on to see what the different charts are supposed to show.
 
