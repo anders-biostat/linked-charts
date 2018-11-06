@@ -238,6 +238,7 @@ lc_scatter(
     y = vars / means,
     logScaleX = 10, 
     logScaleY = 10,
+    size=2.5
   ), 
   "A1"
 )
@@ -250,19 +251,14 @@ lc_scatter(
 ```
 ## Layer 'Layer1' is added to chart 'A1'.
 ```
-
-```
-## Warning in setProperties(c(data, nonEv), id, layerId): In chart 'A1':
-## Property '' doesn't exist.
-```
 The `openPage` function opens a new page, either in your web browser (for `useViewer=FALSE`) or
 in the "Viewer" pane of RStudio (for `useViewer=TRUE`, the default). We have chosen to use a browser 
 window, as the viewer pane is a bit small to show two plots side by side. As layout for our charts, we 
-use a simple 2x2 grid, with four chart positions labelled "A1", "A2", "B1", and "B2".
+use a simple 2x2 grid, with four chart positions labeled "A1", "A2", "B1", and "B2".
 
 The `lc_scatter` function inserts a scatter plot. The first argument sepcifies values for the plots parameters. Unsurprisingly, we have to pass two vectors with x and y coordinates of the points, and furthermore, we specify
-a few more optional parameters: Both axes should be logarithmic, with tic marks labelling multiples
-of 10. Note how all the parameters are wrapped in a call to a function named `dat`. This will be explained later.
+a few more optional parameters: Both axes should be logarithmic, with tick marks labelling multiples
+of 10 and `size` of the points should be smaller than the default one (`6`). Note how all the parameters are wrapped in a call to a function named `dat`. This will be explained later.
 
 The second parameter ("`place`") specifies where to put the plot on the page: here, at position `A1`, i.e., top left.
 
@@ -278,7 +274,7 @@ lc_scatter(
     y = countMatrix[ gene, ], 
     logScaleX = 10, 
     title = gene,
-    opacity = 0.4 ),
+    opacity = 0.2 ),
   "A2"
 )
 ```
@@ -308,9 +304,10 @@ lc_scatter(
     y = vars / means,
     logScaleX=10, 
     logScaleY=10,
+    size = 2.5,
     on_click = function( i ) {
        gene <<- rownames(countMatrix)[ i ]
-       updateChart( "A2" )
+       updateCharts( "A2" )
     }
   ), 
   "A1"
@@ -331,7 +328,7 @@ we assign to the variable `gene` using the `<<-` operator. This variant of the u
 a global rather than a local variable. Had we used the normal `<-`, R would have created a local variable called `gene`
 within the function and forgot it immediately afterwards, rather than changing the global variable that we had defined before.
 
-After changing the variable, we simply instruct R/LinkedCharts to update chart A2: `updateChart( "A2" )`. 
+After changing the variable, we simply instruct R/LinkedCharts to update chart A2: `updateCharts( "A2" )`. 
 
 *This is all we need to link the two charts.*
 
@@ -359,9 +356,10 @@ lc_scatter(
     y = vars / means,
     logScaleX = 10, 
     logScaleY = 10,
+    size = 2.5,
     on_click = function( i ) {
        gene <<- rownames(countMatrix)[ i ]
-       updateChart( "A2" )
+       updateCharts( "A2" )
     }
   ), 
   "A1"
@@ -383,7 +381,7 @@ lc_scatter(
     y = countMatrix[ gene, ], 
     logScaleX = 10, 
     title = gene,
-    opacity = 0.4 ),
+    opacity = 0.2 ),
   "A2"
 )
 ```
@@ -397,7 +395,7 @@ lc_scatter(
 ```
 
 
-How does it work? The call to `updateChart` causes
+How does it work? The call to `updateCharts` causes
 all the code within the `dat` function of chart A2 to be re-evaluated, and then, the new data to be sent to the browser. As `gene` has changed, the re-evaluation of the code in the `dat` call will now give different values to `y` and to
 `title`, and the plot changes. This is why all the plot parameters (means, vars, etc.) have to be placed inside the `dat` call:
 The `dat` function is a little trick to keep R from evaluating this code straight away when you call lc_scatter but rather to
@@ -438,34 +436,29 @@ tsne <- Rtsne( t( expr[varGenes, ] ), verbose = TRUE )
 ## Normalizing input...
 ## Building tree...
 ##  - point 0 of 8005
-## Done in 3.45 seconds (sparsity = 0.017480)!
+## Done in 5.61 seconds (sparsity = 0.017480)!
 ## Learning embedding...
-## Iteration 50: error is 92.687119 (50 iterations in 5.82 seconds)
-## Iteration 100: error is 81.325732 (50 iterations in 6.17 seconds)
-## Iteration 150: error is 79.825633 (50 iterations in 6.49 seconds)
-## Iteration 200: error is 79.391243 (50 iterations in 6.77 seconds)
-## Iteration 250: error is 79.168792 (50 iterations in 6.86 seconds)
-## Iteration 300: error is 3.100496 (50 iterations in 5.83 seconds)
-## Iteration 350: error is 2.845213 (50 iterations in 5.45 seconds)
-## Iteration 400: error is 2.704445 (50 iterations in 5.38 seconds)
-## Iteration 450: error is 2.614996 (50 iterations in 5.37 seconds)
-## Iteration 500: error is 2.553300 (50 iterations in 5.39 seconds)
-## Iteration 550: error is 2.507253 (50 iterations in 5.37 seconds)
-## Iteration 600: error is 2.472259 (50 iterations in 5.40 seconds)
-## Iteration 650: error is 2.447102 (50 iterations in 5.78 seconds)
-## Iteration 700: error is 2.428702 (50 iterations in 5.38 seconds)
-## Iteration 750: error is 2.414941 (50 iterations in 5.39 seconds)
-## Iteration 800: error is 2.407708 (50 iterations in 5.37 seconds)
-## Iteration 850: error is 2.401483 (50 iterations in 5.42 seconds)
-## Iteration 900: error is 2.394886 (50 iterations in 5.79 seconds)
-## Iteration 950: error is 2.388671 (50 iterations in 6.11 seconds)
-## Iteration 1000: error is 2.382872 (50 iterations in 5.88 seconds)
-## Fitting performed in 115.41 seconds.
-```
-
-```r
-# Save the citeseq_data.rda file again, now, with the tsne result added
-save( countMatrix, sf, means, vars, tsne, file = "citeseq_data.rda" )
+## Iteration 50: error is 92.686867 (50 iterations in 12.12 seconds)
+## Iteration 100: error is 81.432236 (50 iterations in 11.90 seconds)
+## Iteration 150: error is 79.811206 (50 iterations in 6.83 seconds)
+## Iteration 200: error is 79.363792 (50 iterations in 8.41 seconds)
+## Iteration 250: error is 79.201870 (50 iterations in 9.94 seconds)
+## Iteration 300: error is 3.102253 (50 iterations in 6.11 seconds)
+## Iteration 350: error is 2.843499 (50 iterations in 5.57 seconds)
+## Iteration 400: error is 2.704308 (50 iterations in 5.63 seconds)
+## Iteration 450: error is 2.615466 (50 iterations in 5.54 seconds)
+## Iteration 500: error is 2.554361 (50 iterations in 5.65 seconds)
+## Iteration 550: error is 2.509575 (50 iterations in 5.65 seconds)
+## Iteration 600: error is 2.474847 (50 iterations in 5.75 seconds)
+## Iteration 650: error is 2.448393 (50 iterations in 6.13 seconds)
+## Iteration 700: error is 2.427876 (50 iterations in 5.79 seconds)
+## Iteration 750: error is 2.411301 (50 iterations in 5.84 seconds)
+## Iteration 800: error is 2.398774 (50 iterations in 5.83 seconds)
+## Iteration 850: error is 2.389587 (50 iterations in 5.97 seconds)
+## Iteration 900: error is 2.383173 (50 iterations in 6.15 seconds)
+## Iteration 950: error is 2.377968 (50 iterations in 6.11 seconds)
+## Iteration 1000: error is 2.374461 (50 iterations in 6.82 seconds)
+## Fitting performed in 137.74 seconds.
 ```
 
 The embedding is in the `Y` field of the object returned by `Rtsne`.
@@ -476,9 +469,11 @@ We display it with a third scatter plot:
 lc_scatter(
   dat( 
     x = tsne$Y[,1], 
-    y = tsne$Y[,2], 
+    y = tsne$Y[,2],
+    label = colnames(countMatrix),  
     colourValue = expr[ gene, ],
     palette = RColorBrewer::brewer.pal( 9, "YlOrRd" ),
+    colourLegendTitle = gene,
     size = 1 ),
   "B1"
 )
@@ -493,19 +488,20 @@ lc_scatter(
 ```
 
 This plot is now placed a position "B1", i.e., under A1. We use the two columns of the
-2x*N* matrix in `tsne$Y` for x and y. Each data point represents a cell, and we use
+2x*N* matrix in `tsne$Y` for x and y. Each data point represents a cell, and we label it with the cell tag and use
 the points' colours to indicate the expression strength of the currently selected gene.
 To this end, we read the corresponding row from the `expr` matrix that we have also used to
 calculate the t-SNE plot.
 
 For the colour palette, we set the parameter `palette`. We have to provide a vector of colours, and
 LinkedCharts will interpolate between these. Here, we have used the "YlOrRd" (for "Yellow-Orange-Red")
-palette provided by the RColorBrewer package.
+palette provided by the RColorBrewer package. We also use the name of the selected gene as a title for
+the automatically generated legend.
 
 Note how it easy it is again to link this chart with the existing ones. If the use clicks on a point
 on chart A1 to select a gene, the `gene` variable will be changed and this will affect what data is
 shown now in both the charts A2 and B1. The only thing that is missing is that we need to change
-the event handler in A1 to also update B2. So, we simply add this to the `updateChart` call from above:
+the event handler in A1 to also update B2. So, we simply add this to the `updateCharts` call from above:
 
 
 ```r
@@ -515,9 +511,10 @@ lc_scatter(
     y = vars / means,
     logScaleX = 10, 
     logScaleY = 10,
+    size = 2.5,
     on_click = function( i ) {
        gene <<- rownames(countMatrix)[ i ]
-       updateChart( c( "A2", "B1" ) )
+       updateCharts( c( "A2", "B1" ) )
        #            ^^     ########   <- the only change to above
     }
   ), 
@@ -653,20 +650,30 @@ the web browser interpret the HTML code:
 
 
 ```r
-lc_html( html_table , "B2" )
+lc_html( content = html_table, place = "B2" )
 ```
 
 ```
 ## Chart 'B2' added.
 ```
-
-```
-## Error: in data expression for chart 'B2': no applicable method for 'hwrite' applied to an object of class "NULL".
-```
 The moment your R executes this line, the table appears on the web page.
 
+`lc_html` is another simple type of charts that puts its `content` parameter on the web page. It behaves as any other chart
+in R/LinkedCharts. It also can be updated using the `updateCharts` function and its parameters can be wrapped in the `dat`
+function. This code is equivalent to the `lc_html` call above
+
+
+```r
+lc_html(dat(
+    content = html_table,), 
+  "B2"
+)
+```
+
+Note how you can also put parameters outside of the `dat` function if you don't want them to be reevaluated in the future.
+
 How can we make this automatic, so that all this happens whenever we mark a group of cells? Simple: We just have to write
-an event handler again, only this time we use `markedUpdated` rather than `on_click`.
+an event handler again, only this time we use `on_marked` rather than `on_click`.
 
 Let's add such an event handler to the t-SNE plot:
 
@@ -676,11 +683,14 @@ lc_scatter(
   dat(
     x = tsne$Y[,1],
     y = tsne$Y[,2],
+    label = colnames(countMatrix), 
     colourValue = sqrt( countMatrix[ gene, ] / sf ),
     palette = RColorBrewer::brewer.pal( 9, "YlOrRd" ),
     size = 1,
-    markedUpdated = function() {
-       showHighGenes( getMarked( "B1" ) )
+    colourLegendTitle = gene,
+    on_marked = function() {
+      html_table <<- getHighGenes()
+      updateCharts("B2")
     }),
   "B1"
 )
@@ -690,22 +700,19 @@ lc_scatter(
 ## Layer 'Layer1' is added to chart 'B1'.
 ```
 
-```
-## Warning in setProperties(c(data, nonEv), id, layerId): In chart 'B1': Property 'markedUpdated' doesn't exist.
-```
-
 And the function `showHighGenes` contains the analysis just described:
 
 
 ```r
-showHighGenes <- function( marked ) {
-
-  # if no genes marked, clear output, do nothing more
+getHighGenes <- function(){
+  
+  marked <- getMarked("B1")
+  
+  # If no genes are marked, clear output, do nothing else
   if( length(marked) == 0 ) {
-    lc_html( "", "B2" )
-    return()
+    return( "" )
   }
-
+  
   df <- data.frame(
     meanMarked   =  apply( expr[ varGenes,  marked ], 1, mean ),
     sdMarked     =  apply( expr[ varGenes,  marked ], 1, sd ),
@@ -713,9 +720,11 @@ showHighGenes <- function( marked ) {
     sdUnmarked   =  apply( expr[ varGenes, -marked ], 1, sd )
   )
   df$sepScore <- ( df$meanMarked - df$meanUnmarked ) / pmax( df$sdMarked + df$sdUnmarked, 0.002 )
-
-  html_table <- hwriter::hwrite( head( df[ order( df$sepScore, decreasing=TRUE ), ] ) )
-  lc_html( html_table , "B2" )
+  
+  # round to two decimal places
+  df <- round(df * 100)/100
+  
+  head( df[ order( df$sepScore, decreasing=TRUE ), ], 15 )
 }
 ```
 
@@ -731,8 +740,8 @@ In case you got lost with the individual pieces of code, [here](example_1_comple
 R/LinkedCharts has many more possibilities than this simple example could demonstrate. Here are a few:
 
 - There are many **more options** that you can put in `dat`. We have seen the mandatory parameters `x` and `y`, and
-the optional parameters `logScaleX` and `logScaleY` for logarithmic axes, `size` and opacity to control the 
-appearance of the points, and `on_click` to specify how to react to user interaction.
+the optional parameters `logScaleX` and `logScaleY` for logarithmic axes, `size` and `opacity` to control the 
+appearance of the points, and `on_click` and `on_marked` to specify how to react to user interaction.
 
 - **Point appearance** can be specified point by point, by passing a vector of values instead of a single value. Of 
 course, you can also change the **shape** and **colour** of the points (parameters **todo: fill in**)
@@ -751,12 +760,6 @@ to `openPage` and to mark the places where the charts should go with `id` tags (
 to make beautiful apps with little work.
 
 - If you want a web app that runs independent of R, you can use plain LinkedCharts instead of R/LinkedCharts. You have to write in JavaScript instead of in R, but you only have know enough to load the data and write code as simple as what we have written in R above.
-
-
-## Where to find more information
-
-**[TO DO: Links to further documentation go here.]**
-
 
 ## Some of the ideas behind R/LinkedCharts
 

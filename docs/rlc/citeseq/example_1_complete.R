@@ -11,8 +11,6 @@ library( rlc )
 #download.file( "https://anders-biostat.github.io/linked-charts/rlc/citeseq/citeseq_data.rda", "citeseq_data.rda" )
 
 load( "citeseq_data.rda" )
-# threshold for variable genes
-variableGenes <- vars / means > 1.5  &  means > 1e-3
 
 openPage( layout = "table2x2", useViewer=FALSE )
 
@@ -29,13 +27,14 @@ getHighGenes <- function(){
   }
   
   df <- data.frame(
-    meanMarked   =  apply( countMatrix[ variableGenes,  marked ], 1, mean ),
-    sdMarked     =  apply( countMatrix[ variableGenes,  marked ], 1, sd ),
-    meanUnmarked =  apply( countMatrix[ variableGenes, -marked ], 1, mean ),
-    sdUnmarked   =  apply( countMatrix[ variableGenes, -marked ], 1, sd )
+    meanMarked   =  apply( expr[ varGenes,  marked ], 1, mean ),
+    sdMarked     =  apply( expr[ varGenes,  marked ], 1, sd ),
+    meanUnmarked =  apply( expr[ varGenes, -marked ], 1, mean ),
+    sdUnmarked   =  apply( expr[ varGenes, -marked ], 1, sd )
   )
   df$sepScore <- ( df$meanMarked - df$meanUnmarked ) / pmax( df$sdMarked + df$sdUnmarked, 0.002 )
   
+  # round to two decimal places
   df <- round(df * 100)/100
   
   head( df[ order( df$sepScore, decreasing=TRUE ), ], 15 )
