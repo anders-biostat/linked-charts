@@ -30,7 +30,10 @@ buttonMatrix <- outer( buttonRows, buttonCols, function( row, col )
       type = "radio",       # it's radio buttons again
       name = col,           # each column (red, green or blue) is one group
       value = row,          # the rowname (an antibody, or "off") is the value
-      onchange = "jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateChart()' )" ) ) 
+      onchange = "jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )" ) ) 
+
+rownames(buttonMatrix) <- buttonRows
+colnames(buttonMatrix) <- buttonCols
 
 writeLines(
    hwrite( c(
