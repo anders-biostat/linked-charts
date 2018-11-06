@@ -153,16 +153,22 @@ we quickly get the detail plot (the second one)?
 
 Here we can click on a point in the left chart, to change what is displayed in the right plot:
 
-![](lc_upper_mockup.png)
-
-**[[Todo: Replace this with a JS/LinkedChart app that mimics the R/LinkedChart one made below]]**
+<div id = "halfApp">
+<table>
+   <tr>
+      <td id = "mean-var"></td>
+      <td id = "expr"></td>
+   </tr>
+</table>
+</div>	
+<script type="text/javascript" src="halfApp.js"></script>
 
 Now, we show how to create such linked charts with R/LinkedCharts.
 
 ## Using LinkedCharts
 
 If you haven't done so yet, install the R/LinkedChart package with
-```{r}
+```{r message=FALSE}
 devtools::install_github( "anders-biostat/JsRCom" ) # required for rlc
 devtools::install_github( "anders-biostat/rlc" )
 ```

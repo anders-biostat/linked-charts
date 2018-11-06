@@ -193,9 +193,15 @@ we quickly get the detail plot (the second one)?
 
 Here we can click on a point in the left chart, to change what is displayed in the right plot:
 
-![](lc_upper_mockup.png)
-
-**[[Todo: Replace this with a JS/LinkedChart app that mimics the R/LinkedChart one made below]]**
+<div id = "halfApp">
+<table>
+   <tr>
+      <td id = "mean-var"></td>
+      <td id = "expr"></td>
+   </tr>
+</table>
+</div>	
+<script type="text/javascript" src="halfApp.js"></script>
 
 Now, we show how to create such linked charts with R/LinkedCharts.
 
@@ -205,56 +211,7 @@ If you haven't done so yet, install the R/LinkedChart package with
 
 ```r
 devtools::install_github( "anders-biostat/JsRCom" ) # required for rlc
-```
-
-```
-## Downloading GitHub repo anders-biostat/JsRCom@master
-## from URL https://api.github.com/repos/anders-biostat/JsRCom/zipball/master
-```
-
-```
-## Installing JsRCom
-```
-
-```
-## '/usr/lib/R/bin/R' --no-site-file --no-environ --no-save --no-restore  \
-##   --quiet CMD INSTALL  \
-##   '/tmp/RtmpeLU5sl/devtools54c6596667b8/anders-biostat-JsRCom-9dc0f33'  \
-##   --library='/home/tyranchik/R/x86_64-pc-linux-gnu-library/3.5'  \
-##   --install-tests
-```
-
-```
-## 
-```
-
-```r
 devtools::install_github( "anders-biostat/rlc" )
-```
-
-```
-## Downloading GitHub repo anders-biostat/rlc@master
-## from URL https://api.github.com/repos/anders-biostat/rlc/zipball/master
-```
-
-```
-## Installing rlc
-```
-
-```
-## '/usr/lib/R/bin/R' --no-site-file --no-environ --no-save --no-restore  \
-##   --quiet CMD INSTALL  \
-##   '/tmp/RtmpeLU5sl/devtools54c6f509e73/anders-biostat-rlc-0ad3c8e'  \
-##   --library='/home/tyranchik/R/x86_64-pc-linux-gnu-library/3.5'  \
-##   --install-tests
-```
-
-```
-## 
-```
-
-```
-## Reloading installed rlc
 ```
 
 Load the R/LinkedCharts library
@@ -481,29 +438,29 @@ tsne <- Rtsne( t( expr[varGenes, ] ), verbose = TRUE )
 ## Normalizing input...
 ## Building tree...
 ##  - point 0 of 8005
-## Done in 5.89 seconds (sparsity = 0.017480)!
+## Done in 3.45 seconds (sparsity = 0.017480)!
 ## Learning embedding...
-## Iteration 50: error is 92.686490 (50 iterations in 16.59 seconds)
-## Iteration 100: error is 81.682848 (50 iterations in 14.29 seconds)
-## Iteration 150: error is 79.972503 (50 iterations in 6.91 seconds)
-## Iteration 200: error is 79.483382 (50 iterations in 6.93 seconds)
-## Iteration 250: error is 79.238949 (50 iterations in 7.07 seconds)
-## Iteration 300: error is 3.117598 (50 iterations in 6.75 seconds)
-## Iteration 350: error is 2.848230 (50 iterations in 6.39 seconds)
-## Iteration 400: error is 2.709155 (50 iterations in 6.24 seconds)
-## Iteration 450: error is 2.622022 (50 iterations in 6.18 seconds)
-## Iteration 500: error is 2.561374 (50 iterations in 6.17 seconds)
-## Iteration 550: error is 2.518067 (50 iterations in 6.23 seconds)
-## Iteration 600: error is 2.487800 (50 iterations in 6.28 seconds)
-## Iteration 650: error is 2.464465 (50 iterations in 6.30 seconds)
-## Iteration 700: error is 2.445678 (50 iterations in 6.36 seconds)
-## Iteration 750: error is 2.430248 (50 iterations in 6.91 seconds)
-## Iteration 800: error is 2.418950 (50 iterations in 6.70 seconds)
-## Iteration 850: error is 2.409612 (50 iterations in 6.50 seconds)
-## Iteration 900: error is 2.402697 (50 iterations in 6.32 seconds)
-## Iteration 950: error is 2.397645 (50 iterations in 6.28 seconds)
-## Iteration 1000: error is 2.395305 (50 iterations in 6.38 seconds)
-## Fitting performed in 147.78 seconds.
+## Iteration 50: error is 92.687119 (50 iterations in 5.82 seconds)
+## Iteration 100: error is 81.325732 (50 iterations in 6.17 seconds)
+## Iteration 150: error is 79.825633 (50 iterations in 6.49 seconds)
+## Iteration 200: error is 79.391243 (50 iterations in 6.77 seconds)
+## Iteration 250: error is 79.168792 (50 iterations in 6.86 seconds)
+## Iteration 300: error is 3.100496 (50 iterations in 5.83 seconds)
+## Iteration 350: error is 2.845213 (50 iterations in 5.45 seconds)
+## Iteration 400: error is 2.704445 (50 iterations in 5.38 seconds)
+## Iteration 450: error is 2.614996 (50 iterations in 5.37 seconds)
+## Iteration 500: error is 2.553300 (50 iterations in 5.39 seconds)
+## Iteration 550: error is 2.507253 (50 iterations in 5.37 seconds)
+## Iteration 600: error is 2.472259 (50 iterations in 5.40 seconds)
+## Iteration 650: error is 2.447102 (50 iterations in 5.78 seconds)
+## Iteration 700: error is 2.428702 (50 iterations in 5.38 seconds)
+## Iteration 750: error is 2.414941 (50 iterations in 5.39 seconds)
+## Iteration 800: error is 2.407708 (50 iterations in 5.37 seconds)
+## Iteration 850: error is 2.401483 (50 iterations in 5.42 seconds)
+## Iteration 900: error is 2.394886 (50 iterations in 5.79 seconds)
+## Iteration 950: error is 2.388671 (50 iterations in 6.11 seconds)
+## Iteration 1000: error is 2.382872 (50 iterations in 5.88 seconds)
+## Fitting performed in 115.41 seconds.
 ```
 
 ```r
@@ -734,8 +691,7 @@ lc_scatter(
 ```
 
 ```
-## Warning in setProperties(c(data, nonEv), id, layerId): In chart 'B1':
-## Property 'markedUpdated' doesn't exist.
+## Warning in setProperties(c(data, nonEv), id, layerId): In chart 'B1': Property 'markedUpdated' doesn't exist.
 ```
 
 And the function `showHighGenes` contains the analysis just described:
