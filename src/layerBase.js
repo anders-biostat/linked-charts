@@ -257,7 +257,7 @@ export function layerBase(id) {
     layer.resetColourScale();
   	layer.get_dresser(layer.g.selectAll(".data_element"));
 
-    if(layer.get_marked().empty && !layer.get_marked().empty())
+    if(layer.get_marked().length != 0)
       layer.colourMarked();
 
   	return layer;

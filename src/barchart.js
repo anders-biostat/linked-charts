@@ -245,7 +245,7 @@ export function barchart(id, chart){
 	layer.updateElementStyle = function(){
 		layer.resetColourScale();
     var sel = layer.g.selectAll(".data_element");
-    if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
+    if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff && layer.get_marked().length == 0)
       sel = sel.transition("elementStyle")
         .duration(layer.chart.transitionDuration());
 
@@ -263,7 +263,7 @@ export function barchart(id, chart){
 				return layer.get_opacity(d[0], d[1], d[2]);
 			});
 
-			if(layer.get_marked().empty && !layer.get_marked().empty())
+			if(layer.get_marked().length != 0)
 				layer.colourMarked();
 
 	}

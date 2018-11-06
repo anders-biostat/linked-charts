@@ -264,8 +264,9 @@ export function scatter(id, chart) {
     layer.resetColourScale();
 
     if(get_mode() == "svg") {
+
        var sel = layer.g.selectAll(".data_element");
-      if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff)
+      if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff && layer.get_marked().length == 0)
         sel = sel.transition("elementStyle")
           .duration(layer.chart.transitionDuration());
       sel
@@ -282,8 +283,9 @@ export function scatter(id, chart) {
         .attr("stroke-width", function(d) {return layer.get_strokeWidth(d)})
         .attr("opacity", function(d) { return layer.get_opacity(d)} );
 
-        if(layer.get_marked().empty && !layer.get_marked().empty())
-          layer.colourMarked();
+      if(layer.get_marked().length != 0)
+        layer.colourMarked();
+
     } else {
       if(!layer.updateStarted)
         layer.updateCanvas();
