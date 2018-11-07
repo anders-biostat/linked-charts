@@ -108,12 +108,6 @@ means <- apply( countMatrix, 1, function(x) mean( x / sf ) )
 vars <- apply( countMatrix, 1, function(x) var( x / sf ) )
 ```
 
-We save these variable into an R data file, to be used later
-
-```{r}
-save( countMatrix, sf, means, vars, file = "citeseq_data.rda" )
-```
-
 If you want to skip over preceding steps, you can also just load this R data file from here: [citeseq_data.rda](citeseq_data.rda).
 
 ## Analysis the old-fashioned way
@@ -330,6 +324,9 @@ varGenes <- names( tail( sort( vars/means ), 1000 ) )
 
 # Calculate the t-SNE embedding. This may take a while.
 tsne <- Rtsne( t( expr[varGenes, ] ), verbose = TRUE )
+
+#save all the necessary data
+save( countMatrix, sf, means, vars, tsne, expr, varGenes, file = "citeseq_data.rda" )
 ```
 
 The embedding is in the `Y` field of the object returned by `Rtsne`.

@@ -134,13 +134,6 @@ means <- apply( countMatrix, 1, function(x) mean( x / sf ) )
 vars <- apply( countMatrix, 1, function(x) var( x / sf ) )
 ```
 
-We save these variable into an R data file, to be used later
-
-
-```r
-save( countMatrix, sf, means, vars, file = "citeseq_data.rda" )
-```
-
 If you want to skip over preceding steps, you can also just load this R data file from here: [citeseq_data.rda](citeseq_data.rda).
 
 ## Analysis the old-fashioned way
@@ -436,29 +429,34 @@ tsne <- Rtsne( t( expr[varGenes, ] ), verbose = TRUE )
 ## Normalizing input...
 ## Building tree...
 ##  - point 0 of 8005
-## Done in 5.61 seconds (sparsity = 0.017480)!
+## Done in 3.04 seconds (sparsity = 0.017480)!
 ## Learning embedding...
-## Iteration 50: error is 92.686867 (50 iterations in 12.12 seconds)
-## Iteration 100: error is 81.432236 (50 iterations in 11.90 seconds)
-## Iteration 150: error is 79.811206 (50 iterations in 6.83 seconds)
-## Iteration 200: error is 79.363792 (50 iterations in 8.41 seconds)
-## Iteration 250: error is 79.201870 (50 iterations in 9.94 seconds)
-## Iteration 300: error is 3.102253 (50 iterations in 6.11 seconds)
-## Iteration 350: error is 2.843499 (50 iterations in 5.57 seconds)
-## Iteration 400: error is 2.704308 (50 iterations in 5.63 seconds)
-## Iteration 450: error is 2.615466 (50 iterations in 5.54 seconds)
-## Iteration 500: error is 2.554361 (50 iterations in 5.65 seconds)
-## Iteration 550: error is 2.509575 (50 iterations in 5.65 seconds)
-## Iteration 600: error is 2.474847 (50 iterations in 5.75 seconds)
-## Iteration 650: error is 2.448393 (50 iterations in 6.13 seconds)
-## Iteration 700: error is 2.427876 (50 iterations in 5.79 seconds)
-## Iteration 750: error is 2.411301 (50 iterations in 5.84 seconds)
-## Iteration 800: error is 2.398774 (50 iterations in 5.83 seconds)
-## Iteration 850: error is 2.389587 (50 iterations in 5.97 seconds)
-## Iteration 900: error is 2.383173 (50 iterations in 6.15 seconds)
-## Iteration 950: error is 2.377968 (50 iterations in 6.11 seconds)
-## Iteration 1000: error is 2.374461 (50 iterations in 6.82 seconds)
-## Fitting performed in 137.74 seconds.
+## Iteration 50: error is 92.687248 (50 iterations in 6.02 seconds)
+## Iteration 100: error is 81.410034 (50 iterations in 6.36 seconds)
+## Iteration 150: error is 79.892466 (50 iterations in 5.48 seconds)
+## Iteration 200: error is 79.467873 (50 iterations in 5.74 seconds)
+## Iteration 250: error is 79.215171 (50 iterations in 5.63 seconds)
+## Iteration 300: error is 3.094673 (50 iterations in 4.89 seconds)
+## Iteration 350: error is 2.842026 (50 iterations in 4.74 seconds)
+## Iteration 400: error is 2.698681 (50 iterations in 4.68 seconds)
+## Iteration 450: error is 2.609065 (50 iterations in 4.79 seconds)
+## Iteration 500: error is 2.547338 (50 iterations in 4.68 seconds)
+## Iteration 550: error is 2.502403 (50 iterations in 4.63 seconds)
+## Iteration 600: error is 2.470435 (50 iterations in 4.67 seconds)
+## Iteration 650: error is 2.447999 (50 iterations in 4.61 seconds)
+## Iteration 700: error is 2.432011 (50 iterations in 4.73 seconds)
+## Iteration 750: error is 2.419994 (50 iterations in 4.71 seconds)
+## Iteration 800: error is 2.411963 (50 iterations in 4.70 seconds)
+## Iteration 850: error is 2.405731 (50 iterations in 4.73 seconds)
+## Iteration 900: error is 2.401174 (50 iterations in 4.78 seconds)
+## Iteration 950: error is 2.397651 (50 iterations in 4.74 seconds)
+## Iteration 1000: error is 2.394201 (50 iterations in 4.73 seconds)
+## Fitting performed in 100.05 seconds.
+```
+
+```r
+#save all the necessary data
+save( countMatrix, sf, means, vars, tsne, expr, varGenes, file = "citeseq_data.rda" )
 ```
 
 The embedding is in the `Y` field of the object returned by `Rtsne`.
