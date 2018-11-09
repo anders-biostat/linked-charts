@@ -998,14 +998,9 @@ export function heatmap(id, chart){
 
 
 	function updateLegend() {
-		chart.legend.title(function(id){
-			if(id == "heatmap")
-				return ""
-			else
-				return id;
-		})
-		.legend.add_block(chart.colourScale, "colour", "heatmap");
-
+		chart.legend
+			.set_title({"heatmap": ""})
+			.add_block(chart.colourScale, "colour", "heatmap");
 
 		return chart;
 	}
