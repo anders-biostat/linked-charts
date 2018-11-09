@@ -15,7 +15,7 @@ export function legend(chart) {
 
 	legend.set_title = function(titles) {
 		var curTitles = legend.titles();
-		for(i in titles) 
+		for(var i in titles) 
 			curTitles[i] = titles[i];
 		
 		legend.titles(curTitles);
