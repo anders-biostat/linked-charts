@@ -672,5 +672,5 @@ export function check(type, property) {
 //interpretes NAs from R as NaNs and other cases that we don't want to use,
 //when defining domains
 export function isNaN(value) {
-  return (value == "NA" || value == "NaN" || value == "NAN" || value == "na" || value == "Infinity") 
+  return (value == "NA" || value == "NaN" || value == "NAN" || value == "na" || value == "Infinity" || value == "Inf") 
 }

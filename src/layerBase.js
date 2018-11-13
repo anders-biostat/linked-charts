@@ -205,7 +205,7 @@ export function layerBase(id) {
       layer.addLegendBlock(layer.colourScale, "colour", layer.id + "_colour");
       var tObj = {};
       tObj[layer.id + "_colour"] = layer.colourLegendTitle();
-      layer.chart.legend.titles(tObj);
+      layer.chart.legend.set_title(tObj);
     }
   }
 

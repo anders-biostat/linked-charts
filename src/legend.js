@@ -237,7 +237,7 @@ var updateGrid = function() {
 			title = blockSvg.append("g")
 				.attr("class", "title");
 		var titleWidth = d3.min([20, cellWidth * 0.2]);
-		fillTextBlock(title, cellHeight, titleWidth, legend.titles()[id] || id);
+		fillTextBlock(title, cellHeight, titleWidth, (legend.titles()[id] == "") ? "" : (legend.titles()[id] || id));
 		title.attr("transform", "rotate(-90)translate(-" + cellHeight + ", 0)");
 
 		var sampleValues;

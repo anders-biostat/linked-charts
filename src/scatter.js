@@ -88,7 +88,7 @@ export function scatter(id, chart) {
 	layer.layerDomainX(function() {
 		var vals = layer.elementIds()
       .map(function(el) { return layer.get_x(el);})
-      .filter(function(el) {return el != "Infinity"});
+      .filter(function(el) {return !lc.isNaN(el)});
     var allNums = true, i = 0;
     //logscale can use only numeric and only positive values
     if(layer.chart.logScaleX())
@@ -96,7 +96,7 @@ export function scatter(id, chart) {
   
 
     while(allNums && i < vals.length){
-      if(!(typeof vals[i] == "number" || vals[i] == "Inf" || lc.isNaN(vals[i])))
+      if(!(typeof vals[i] == "number"))
         allNums = false;
       i++;
     }
@@ -109,7 +109,7 @@ export function scatter(id, chart) {
 	layer.layerDomainY(function() {
     var vals = layer.elementIds()
       .map(function(e) { return layer.get_y(e);})
-      .filter(function(el) {return el != "Infinity"});
+      .filter(function(el) {return !lc.isNaN(el)});
     var allNums = true, i = 0;
     
     //logscale can use only numeric and only positive values
@@ -117,7 +117,7 @@ export function scatter(id, chart) {
       return d3.extent(vals.filter(function(e) {return e > 0}))
 
     while(allNums && i < vals.length){
-      if(!(typeof vals[i] == "number" || vals[i] == "Inf" || lc.isNaN(vals[i])))
+      if(!(typeof vals[i] == "number"))
         allNums = false;
       i++;
     }
@@ -150,7 +150,7 @@ export function scatter(id, chart) {
       layer.addLegendBlock(layer.symbolScale, "symbol", layer.id + "_symbol");
       var tObj = {};
       tObj[layer.id + "_symbol"] = layer.symbolLegendTitle();
-      layer.chart.legend.titles(tObj);
+      layer.chart.legend.set_title(tObj);
     }
 
   }
