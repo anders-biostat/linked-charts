@@ -434,15 +434,21 @@ export function axesChart() {
 
 	var checkType = function(type) {
 		var domain = chart["get_domain" + type]();
-		
-		if(chart.axes["scale_" + type.toLowerCase()] === undefined)
+			
+		if(chart.axes["scale_" + type.toLowerCase()] === undefined) {
 			chart.axes["scale_" + type.toLowerCase()] = {};
+			chart.axes["shiftScale" + type] = d3.scaleLinear()
+				.domain([0, 1]);
+		}
 
 		if(domain.length == 2 && typeof (domain[0] + domain[1]) === "number"){
 			var logBase = chart["logScale" + type]();
 			if(logBase && logBase > 0 && logBase != 1){
+				//we want logscale
 				if(chart.axes["scale_" + type.toLowerCase()].base === undefined)
-					chart.axes["scale_" + type.toLowerCase()] = d3.scaleLog();
+					//but we have something else
+					chart.axes["scale_" + type.toLowerCase()] = d3.scaleLog();					
+	
 				chart.axes["scale_" + type.toLowerCase()].base(logBase);
 			} else {
 				if(chart.axes["scale_" + type.toLowerCase()].clamp === undefined || 
@@ -472,6 +478,19 @@ export function axesChart() {
 		return domain;
 	}
 
+	var updateShiftScale = function(type) {
+		var range = [0];
+		var scale = chart.axes["scale_" + type.toLowerCase()];
+		if(scale.padding)
+			range.push(scale(scale.domain()[1]) - scale(scale.domain()[0]) || scale(scale.domain()[0]));
+		if(scale.base)
+			range.push(scale(chart["logScale" + type]()) - scale(1));
+		if(scale.clamp && !scale.base)
+			range.push(scale(1) - scale(0));
+
+		chart.axes["shiftScale" + type].range(range);
+	}
+
 	chart.updateAxes = function(){
 
 		checkType("X");
@@ -489,6 +508,9 @@ export function axesChart() {
     chart.axes.scale_y.domain(checkDomain("Y"));
 		if(chart.aspectRatio())
 			fix_aspect_ratio(chart.axes.scale_x, chart.axes.scale_y, chart.get_aspectRatio());
+
+		updateShiftScale("X");
+		updateShiftScale("Y");
 
 		var ticksX = get_ticks("X"),
 			ticksY = get_ticks("Y");
@@ -551,7 +573,6 @@ export function axesChart() {
     	.style("text-anchor", chart.ticksRotateX() > 19 ? "end" : "middle")
       .attr("dx", chart.ticksRotateX() > 19 ? "-.8em" : 0)
       .attr("dy", chart.ticksRotateX() > 19 ? (0.55 - (chart.ticksRotateX() - 20) * 0.01) + "em" : ".71em");
-
 
     for(var k in chart.layers)
     	chart.get_layer(k).updateElementPosition();

@@ -6,7 +6,7 @@ export { axesChart } from "./src/axesChart";
 export { scatter } from "./src/scatter";
 export { xLine, yLine, parametricCurve, pointLine, pointRibbon } from "./src/lines";
 export { heatmap } from "./src/heatmap";
-export { cache, separateBy, getEuclideanDistance, add_click_listener, pearsonCorr, fillTextBlock, get_symbolSize, escapeRegExp, check, call_pacer, isNaN } from "./src/additionalFunctions";
+export { cache, separateBy, getEuclideanDistance, add_click_listener, pearsonCorr, fillTextBlock, get_symbolSize, escapeRegExp, check, call_pacer, isNaN, random } from "./src/additionalFunctions";
 export { colourSlider } from "./src/colourSlider";
 export { table, html } from "./src/table";
 export { barchart } from "./src/barchart";

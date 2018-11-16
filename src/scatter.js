@@ -1,4 +1,4 @@
-import { get_symbolSize, check } from "./additionalFunctions";
+import { get_symbolSize, check, cache } from "./additionalFunctions";
 import { axesChart } from "./axesChart";
 
 export function scatter(id, chart) {
@@ -20,8 +20,35 @@ export function scatter(id, chart) {
     }, check("array_fun", "strokeWidth"))
     .add_property("symbol", "Circle", check("array_fun", "symbol"))
     .add_property("symbolValue", undefined, check("array_fun", "symbolValue"))
-    .add_property("symbolLegendTitle", function(){return "symbol_" + layer.id});
+    .add_property("symbolLegendTitle", function(){return "symbol_" + layer.id})
+    .add_property("jitterX", 0)
+    .add_property("jitterY", 0)
+    .add_property("shiftX", 0, check("array_fun", "shiftX"))
+    .add_property("shiftY", 0, check("array_fun", "shiftY"));
 		//.add_property("groupName", function(i){return i;})
+
+  ["X", "Y"].forEach(function(name){
+    //if number of elements is set, define their IDs
+    layer.wrapSetter("jitter" + name, function(oldSetter){
+      return function() {
+        layer["get_scaledShift" + name] = function(id) {
+          return layer.chart.axes["shiftScale" + name](layer["get_shift" + name](id));
+        }
+
+        return oldSetter.apply(chart, arguments);
+      }
+    });
+
+    layer.wrapSetter("shift" + name, function(oldSetter){
+      return function() {
+        layer["get_scaledShift" + name] = function(id) {
+          return layer.chart.axes["shiftScale" + name](layer["get_shift" + name](id));
+        }
+
+        return oldSetter.apply(chart, arguments);
+      }
+    });    
+  });
 
 	chart.syncProperties(layer);
   layer.type = "scatter";
@@ -68,12 +95,19 @@ export function scatter(id, chart) {
     return returnedValue;
   }
 
+  layer.get_scaledShiftX = function() {
+    return 0;
+  }
+  layer.get_scaledShiftY = function() {
+    return 0;
+  }
+
   //These functions are used to react on clicks
   layer.findElements = function(lu, rb){
     return layer.elementIds()
       .filter(function(id) {
-        var loc = [layer.chart.axes.scale_x(layer.get_x(id)), 
-                  layer.chart.axes.scale_y(layer.get_y(id))]
+        var loc = [layer.chart.axes.scale_x(layer.get_x(id)) + layer.get_scaledShiftX(id), 
+                  layer.chart.axes.scale_y(layer.get_y(id)) + layer.get_scaledShiftY(id)]
         return (loc[0] - layer.get_size(id) - 1 <= rb[0]) && 
           (loc[1] - layer.get_size(id) - 1 <= rb[1]) && 
           (loc[0] + layer.get_size(id) + 1 >= lu[0]) && 
@@ -81,8 +115,8 @@ export function scatter(id, chart) {
       });
   }
   layer.get_position = function(id){
-    return [layer.chart.axes.scale_x(layer.get_x(id)), 
-            layer.chart.axes.scale_y(layer.get_y(id))];
+    return [layer.chart.axes.scale_x(layer.get_x(id)) + layer.get_scaledShiftX(id), 
+            layer.chart.axes.scale_y(layer.get_y(id)) + layer.get_scaledShiftY(id)];
   } 
 
 	layer.layerDomainX(function() {
@@ -167,8 +201,8 @@ export function scatter(id, chart) {
 
     if(get_mode() == "svg") {
       var placeElement = function(d) {
-        var x = layer.chart.axes.scale_x( layer.get_x(d) ),
-          y = layer.chart.axes.scale_y( layer.get_y(d) );
+        var x = layer.chart.axes.scale_x( layer.get_x(d) ) + layer.get_scaledShiftX(d),
+          y = layer.chart.axes.scale_y( layer.get_y(d) ) + layer.get_scaledShiftY(d);
         return (x == undefined || y == undefined) ? "translate(-100, 0)" :
           "translate(" + x + ", " + y + ")";
       }
@@ -355,6 +389,6 @@ export function scatter(id, chart) {
       ctx.translate(-x, -y);
     }
   }
-
+  
   return chart;
 }
