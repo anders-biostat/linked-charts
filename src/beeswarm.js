@@ -22,8 +22,6 @@ export function beeswarm(id, chart) {
 
   var inherited_updateElementPosition = layer.updateElementPosition;
   layer.updateElementPosition = function(){
-    inherited_updateElementPosition();
-
     var orientation = (layer.valueAxis() == "y" ? "vertical" : "horizontal");
     var swarm = d3.beeswarm()
       .data(layer.elementIds().sort(function(a, b){
@@ -45,28 +43,16 @@ export function beeswarm(id, chart) {
     for(var i = 0; i < swarm.length; i++)
       swarm.res[swarm[i].datum] = swarm[i];
 
-    if(layer.chart.transitionDuration() > 0 && !layer.chart.transitionOff){
-      layer.g.selectAll(".data_element").transition("elementPosition")
-        .attr("transform", function(d){
-          if(layer.valueAxis() == "x")
-            return "translate(" + layer.chart.axes.scale_x( layer.get_x(d) ) +
-                    ", " + swarm.res[d].x + ")"
-          else
-          return "translate(" + swarm.res[d].y +
-                  ", " + layer.chart.axes.scale_y( layer.get_y(d) ) + ")";
-        });
-    } else {
-      layer.g.selectAll(".data_element")
-        .attr("transform", function(d){
-          if(layer.valueAxis() == "x")
-            return "translate(" + layer.chart.axes.scale_x( layer.get_x(d) ) +
-                    ", " + swarm.res[d].x + ")"
-          else
-          return "translate(" + swarm.res[d].y +
-                  ", " + layer.chart.axes.scale_y( layer.get_y(d) ) + ")";
-        });
-    }
+    if(layer.valueAxis() == "y")
+      layer.get_scaledShiftX = function(id) {
+        return swarm[id].axis - swarm[id].y
+      }
+    else
+      layer.get_scaledShiftY = function(id) {
+        return swarm[id].axis - swarm[id].y
+      };
 
+    return inherited_updateElementPosition();
   }
 
   return chart;

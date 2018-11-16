@@ -21,24 +21,11 @@ export function scatter(id, chart) {
     .add_property("symbol", "Circle", check("array_fun", "symbol"))
     .add_property("symbolValue", undefined, check("array_fun", "symbolValue"))
     .add_property("symbolLegendTitle", function(){return "symbol_" + layer.id})
-    .add_property("jitterX", 0)
-    .add_property("jitterY", 0)
     .add_property("shiftX", 0, check("array_fun", "shiftX"))
     .add_property("shiftY", 0, check("array_fun", "shiftY"));
 		//.add_property("groupName", function(i){return i;})
 
   ["X", "Y"].forEach(function(name){
-    //if number of elements is set, define their IDs
-    layer.wrapSetter("jitter" + name, function(oldSetter){
-      return function() {
-        layer["get_scaledShift" + name] = function(id) {
-          return layer.chart.axes["shiftScale" + name](layer["get_shift" + name](id));
-        }
-
-        return oldSetter.apply(chart, arguments);
-      }
-    });
-
     layer.wrapSetter("shift" + name, function(oldSetter){
       return function() {
         layer["get_scaledShift" + name] = function(id) {
