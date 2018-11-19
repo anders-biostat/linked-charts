@@ -1,0 +1,136 @@
+<script src = "../../src/linked-charts.min.js"></script>
+<link rel="stylesheet" type="text/css" href="../../src/linked-charts.css">
+
+## R/LinkedCharts Tutorial
+# Customising your chart
+
+Here we will show how one can use various built-in properties to customise charts.
+The main goal of this tutorial is to give overview of the adjuststable apects in R/LinkedCharts, 
+(colours, axes, labels, etc.). Therefore we are going to use well known example data sets
+such ss [Iris](https://en.wikipedia.org/wiki/Iris_flower_data_set) flower data set or randomly 
+generated data. 
+
+```{r}
+data("iris") #load Iris data set
+head(iris)
+```
+
+We assume that you are already familiar with R/LinkedCharts and its main ideas and principles
+and want to explore more possibilities of the library. Otherwise, it can be better first to 
+go through [this](../oscc/oscc.html) tutorial.
+
+```{r message=FALSE}
+library(rlc) #load the library
+```
+
+## Colour
+
+The simplest way to colour elements of a chart is to use the `colourValue` property.
+It takes numbers or strings for each point (line, bar, etc.) and based on that generates
+a continuous or categorical colour scale.
+
+```{r}
+openPage(layout = "table1x2")
+
+# a scatter plot with a categorical colour scale
+lc_scatter(dat(x = iris$Sepal.Length,
+               y = iris$Petal.Length,
+               colourValue = iris$Species),
+           width = 300, height = 300, #change width and height of the chart to 300px
+           place = "A1")
+
+# a scatter plot with a continuous colour scale
+lc_scatter(dat(x = iris$Sepal.Length,
+               y = iris$Petal.Length,
+               colourValue = iris$Petal.Width),
+           width = 300, height = 300,
+           place = "A2")
+```
+To further specify colours one can use `palette` and `colourDomain` properties. 
+
+In case of categorical colour scale `colourDomain` is a set of all possible colour values.
+Thus for the chart on the left by default `colourDomain = c("setosa", "versicolor", "virginica")`.
+If a value is not included in colourDomain, corresponding points will be black.
+
+For continuous colour scales, `colourDomain` defines the range in wich colour values can change. All values
+outside this range will produce colours that correspond to maximal or to minimal value of the `colourDomain`.
+
+To illustrate all this, let's add `colourDomain` to our example.
+
+```{r}
+openPage(layout = "table1x2")
+
+# a scatter plot with a categorical colour scale
+lc_scatter(dat(x = iris$Sepal.Length,
+               y = iris$Petal.Length,
+               colourValue = iris$Species,
+               colourDomain = c("setosa", "something else", "virginica")),
+           width = 300, height = 300, #change width and height of the chart to 300px
+           place = "A1")
+
+# a scatter plot with a continuous colour scale
+lc_scatter(dat(x = iris$Sepal.Length,
+               y = iris$Petal.Length,
+               colourValue = iris$Petal.Width,
+               colourDomain = c(-1, 1)),
+           width = 300, height = 300,
+           place = "A2")
+```
+
+On the left plot, all the "versicolor" points are now black, since this value is no longer present in
+`colourDomain`. At the same time, orange colour is reserved for "something else". On the plot to the right,
+colour scale now varies between -1 and 1. All the points with `colourValue` greater than 1 are just purple.
+
+Finally, `palette` defines what colours are used. It is always a vector of colours (their 
+[names](http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf) or
+[hexadecimal](https://en.wikipedia.org/wiki/Web_colors#HTML_color_names) codes). For categorical colour scale,
+`palette` must have a colour for each element from `colourDomain`. For continous scales, `palette` is a set of
+"reference points" for the colour scale. By default, they are spread evenly withing `colourDomain`, but one can
+also specify intermediate points.
+
+```{r}
+openPage(layout = "table1x2")
+
+# a scatter plot with a categorical colour scale
+lc_scatter(dat(x = iris$Sepal.Length,
+               y = iris$Petal.Length,
+               colourValue = iris$Species,
+               colourDomain = c("setosa", "something else", "virginica", "versicolor")),
+               palette = c("gold", "hotpink", "dodgerblue"),
+           width = 300, height = 300, #change width and height of the chart to 300px
+           place = "A1")
+
+# a scatter plot with a continuous colour scale
+lc_scatter(dat(x = iris$Sepal.Length,
+               y = iris$Petal.Length,
+               colourValue = iris$Petal.Width,
+               colourDomain = c(0, 0.3, 2.6),
+               palette = c("red", "grey", "black")),
+           width = 300, height = 300,
+           place = "A2")
+```
+Now chart to the left has more elements in `colourDomain` than colours in `palette` and therefore colours are repeated, 
+starting from the first element in `palette`. For the chart to the right we've provided `palette` with three colours
+and also we've added an intermediate point in `colourDomain`. 
+
+
+
+```{r}
+lc_scatter(dat(x = 1:5,  # x-coordinates of the points are 1, 2, 3, 4, 5
+               y = rep(1, 5), # all 5 points has 1 as their y-coordinates
+               size = 15, # Let's have big points! (Default point size is 6)
+               width = 350, # Our chart will be 350px wide...
+               height = 200, # ...and 200px high.
+               colour = c("red", "#123456", rgb(0.4, 0.8, 0.1), "#aaa", "some_strange_colour"))
+          )
+```
+
+Here, we are interested in `colour` property. 
+
+## Shape
+
+## Labels
+
+## Chart Setting
+
+## Others
