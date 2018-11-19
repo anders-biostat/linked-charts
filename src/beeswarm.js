@@ -45,11 +45,11 @@ export function beeswarm(id, chart) {
 
     if(layer.valueAxis() == "y")
       layer.get_scaledShiftX = function(id) {
-        return swarm[id].axis - swarm[id].y
+        return swarm.res[id].axis - swarm.res[id].y
       }
     else
       layer.get_scaledShiftY = function(id) {
-        return swarm[id].axis - swarm[id].y
+        return swarm.res[id].axis - swarm.res[id].y
       };
 
     return inherited_updateElementPosition();
