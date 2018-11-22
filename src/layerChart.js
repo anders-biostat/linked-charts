@@ -233,26 +233,26 @@ export function layerChart(){
 
 
 	var inherited_mark = chart.mark;
-	chart.mark = function(marked) {
+	chart.mark = function(marked, pe) {
 		if(Array.isArray(marked)) {
-			inherited_mark(marked);
+			inherited_mark(marked, pe);
 			return;
 		}
 		if(marked.empty && (!marked.canvas || Object.keys(marked.canvas) == 0)) {
-			inherited_mark(marked);
+			inherited_mark(marked, pe);
 			return;
 		}
 
 		if(marked == "__clear__"){
 			for(var layerId in chart.layers)
-				chart.get_layer(layerId).mark(marked);
+				chart.get_layer(layerId).mark(marked, pe);
 			return;
 		}
 		
 		if(marked.canvas)
 			marked = marked.canvas;
 		for(var layerId in marked)
-			chart.get_layer(layerId).mark(marked[layerId]);
+			chart.get_layer(layerId).mark(marked[layerId], pe);
 	}
 
 	var inherited_update = chart.update;

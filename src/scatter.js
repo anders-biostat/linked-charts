@@ -75,12 +75,12 @@ export function scatter(id, chart) {
     throw "There seem to be very many data points. Please supply a number via 'nelements'."
   });
 
-  var symbolValue = layer.symbolValue;
-  layer.symbolValue = function(vf, propertyName, overrideFunc) {
-    var returnedValue = symbolValue(vf, propertyName, overrideFunc);
-    layer.resetSymbolScale();
-    return returnedValue;
-  }
+//  var symbolValue = layer.symbolValue;
+//  layer.symbolValue = function(vf, propertyName, overrideFunc) {
+//    var returnedValue = symbolValue(vf, propertyName, overrideFunc);
+//    layer.resetSymbolScale();
+//    return returnedValue;
+//  }
 
   layer.get_scaledShiftX = function() {
     return 0;
@@ -283,6 +283,7 @@ export function scatter(id, chart) {
       return chart;
 
     layer.resetColourScale();
+    layer.resetSymbolScale();
 
     if(get_mode() == "svg") {
 
@@ -358,8 +359,8 @@ export function scatter(id, chart) {
       
       ctx.globalAlpha = layer.get_opacity(ids[i]);
 
-      x = layer.chart.axes.scale_x( layer.get_x(ids[i]) ),
-      y = layer.chart.axes.scale_y( layer.get_y(ids[i]) );
+      x = layer.chart.axes.scale_x( layer.get_x(ids[i]) ) + layer.get_scaledShiftX(ids[i]),
+      y = layer.chart.axes.scale_y( layer.get_y(ids[i]) ) + + layer.get_scaledShiftY(ids[i]);
       if (x == undefined || y == undefined) {
         x = -100;
         y = 0

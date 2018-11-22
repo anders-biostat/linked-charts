@@ -1020,7 +1020,7 @@ export function heatmap(id, chart){
 					.updateLabelText()
 					.updateCellColour();
 				chart.updateStarted = false;
-				chart.mark(chart.marked.map(function(e) {return "p" + e.join("_-sep-_")}));
+				chart.mark(chart.marked.map(function(e) {return "p" + e.join("_-sep-_")}), true);
 				chart.marked = [];
 				return false;
 			}
@@ -1113,9 +1113,9 @@ export function heatmap(id, chart){
 	}
 
 	var inherited_mark = chart.mark;
-	chart.mark = function(marked){
+	chart.mark = function(marked, pe){
 		if(get_mode() == "svg")
-			inherited_mark(marked)
+			inherited_mark(marked, pe)
 		else {
 			if(marked == "__clear__")
 				chart.marked = []
@@ -1138,7 +1138,8 @@ export function heatmap(id, chart){
 
 		if(get_mode() == "canvas")
 			chart.updateCanvas();
-		chart.on_marked();
+		if(!pe)
+			chart.on_marked();
 		return chart;
 	}	
 	

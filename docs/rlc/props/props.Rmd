@@ -25,6 +25,17 @@ library(rlc) #load the library
 
 ## Colour
 
+This section describes the following properties:
+- `colourValue`
+- `colourDomain`
+- `palette`
+- `colour`
+- `fill`
+- `stroke`
+- `colourLegendTitle`
+- `globalColourScale`
+- `addColourScaleToLegend`
+
 The simplest way to colour elements of a chart is to use the `colourValue` property.
 It takes numbers or strings for each point (line, bar, etc.) and based on that generates
 a continuous or categorical colour scale.
@@ -111,8 +122,12 @@ lc_scatter(dat(x = iris$Sepal.Length,
 ```
 Now chart to the left has more elements in `colourDomain` than colours in `palette` and therefore colours are repeated, 
 starting from the first element in `palette`. For the chart to the right we've provided `palette` with three colours
-and also we've added an intermediate point in `colourDomain`. 
+and also we've added an intermediate point in `colourDomain`. This tells R/LinkedCharts to interpolate colours from red to grey
+between 0 and 0.3 and from grey to black between 0.3 and 2.6.
 
+Intead of using `colourValue` and `palette` one can also assign colours directly. `colour` is similar to `colourValue`, 
+but it assigns colours without generating a colour scale. Here is an example. Note how the fifth circle is coloured black,
+since `some_strange_colour` doesn't correspond to any colour.
 
 
 ```{r}
@@ -125,12 +140,343 @@ lc_scatter(dat(x = 1:5,  # x-coordinates of the points are 1, 2, 3, 4, 5
           )
 ```
 
-Here, we are interested in `colour` property. 
+Besides that you can also change stroke colour (`stroke`) in scatters, bar charts and ribbons and `fill` lines (`lc_line`, 
+`lc_abLine`, etc.) with some colour. These two properties work the same way as `colour`.
+
+```{r}
+openPage(layout = "table1x2")
+
+# some filled lines
+points <- seq(0, 6.5, 0.1)
+x <- cos(points)
+y <- sin(points)
+lc_path(dat(x = sapply(0:2, function(i) x + i), # coordinates for three circles
+            y = sapply(0:2, function(i) y + i),
+            lineWidth = 5, # make lines thicker
+            fill = c("blue", "red", "black"),
+            # colour of the elements (in this case - lines)
+            colour = c("cornflowerblue", "coral", "grey")),
+        width = 300, height = 300,
+        place = "A1")
+
+# same plot, but using lc_scatter
+lc_scatter(dat(x = 0:2, y = 0:2, size = 55, # three huge points instead of circles
+               # change default axes limits to those of the chart to the left
+               domainX = c(-1, 3), domainY = c(-1, 3),
+               strokeWidth = 5, # make strokes thicker
+               stroke = c("blue", "red", "black"),
+               # colour of the elements (in this case - points)
+               colour = c("cornflowerblue", "coral", "grey")),
+           width = 300, height = 300,
+           place = "A2")
+```
+
+`colourLegendTitle` allows to give a meaningfull name to your legend.
+`globalColourScale` can be useful, when your chart has several layers with coloured elements. If `globalColourScale` is 
+`TRUE` (default value) a single global scale is created for all the layers. Otherwise, each layer gets its own colour
+scale.
+`addColourScaleToLegend` (by default, `TRUE`) defines whether or not display legend for the colour scale of this layer.
+
+Imagine, we have three types data samples. Samples of type "a" are randomly scattered, samples of types "b" and "c" are
+distributed along some lines, but for type "c" we don't have any points only the area, where they are likely to be found.
+This artificial example can help us illustrate the meaning of having a global colour scale. So we are going to have a chart
+with three layers: one with points of type "a" and "b", another for lines along which type "b" and "c" samples are scattered, 
+and one more to highlight the area of most likely location for type "c" samples.
+
+```{r}
+# generate 20 randomly distributed points, and 20 that
+# are scattered along y = 3 * x line
+pointsX <- runif(40)
+pointsY <- c(runif(20, 0, 3), pointsX[21:40] * 3 + rnorm(20, sd = 0.2))
+
+x <- seq(0, 1, 0.05)
+
+openPage(layout = "table1x2")
+# first we add filled area first to put it under all other elements
+lc_ribbon(dat(
+    x = x,
+    # lc_ribbon fills area between ymax and ymin values
+    ymax = x * 2 + abs(x - 0.5), 
+    ymin = x * 2 - abs(x - 0.5),
+    colourValue = "c",
+    # properties that influence the entire chart can be
+    # set in any of its layers
+    width = 300, height = 300),
+  place = "A1")
+
+lc_scatter(dat(
+    x = pointsX,
+    y = pointsY,
+    # first 20 points are of class "a"
+    # the other 20 are of class "b"
+    colourValue = c(rep("a", 20), rep("b", 20))),
+    # to add a layer one need either define "lyaerId"
+    # or set "addLayer = TRUE"
+  place = "A1", addLayer = T)
+
+lc_abLine(dat(
+    # we can add 'n' lines by defining 'n' values
+    # of slope ('a') and intercept ('b')
+    a = c(3, 2), b = c(0, 0),
+    colourValue = c("b", "c"),
+    addColourScaleToLegend = F),
+  place = "A1", addLayer = T)
+
+# The same chart but without global colour scale
+lc_ribbon(dat(
+    x = x,
+    ymax = x * 2 + abs(x - 0.5),
+    ymin = x * 2 - abs(x - 0.5),
+    colourValue = "c",
+    globalColourScale = F,
+    colourLegendTitle = "ribbon",
+    width = 300, height = 300),
+  place = "A2")
+
+lc_scatter(dat(
+    x = pointsX,
+    y = pointsY,
+    colourLegendTitle = "scatter",
+    colourValue = c(rep("a", 20), rep("b", 20))),
+  place = "A2", addLayer = T)
+
+lc_abLine(dat(
+    a = c(3, 2),
+    b = c(0, 0),
+    colourLegendTitle = "lines",
+    colourValue = c("b", "c")),
+  place = "A2", addLayer = T)
+  
+```
+Note, how on the cahrt to the left all three layers use exactly the same colour for the three data types.
+On the left one, where we didn't use global colour scale (`globalColourScale = F`), each layer has its own
+`colourDomain` and the same default `palette`. `lc_ribbon` has only one element and its type is "c", so it
+uses the first colour of the default `palette` (which is blue) for this type. `lc_abLine` has types "b" and "c",
+but it has no idea, that blue has already been used for type "c". "b" comes first in the data and it gets the
+first colour (blue), and "c" is now orange. In a similar manner colours are defined for `lc_scatter`.
+You make chart to the right look like the one to the left by adding to each layer `colourDomain = c("a", "b", "c")`.
+
+R/LinkedCharts shows colour legend for each layer. It is useful for the chart to the right, where meaning of each colour
+changes from layer to layer, but doesn't make sence for a chart to the left. It shows to legends, because we've hidden
+one with `addColourScaleToLegend = F`. It is probably a good idea to do the same for one more layer (doesn't matter which
+one).
+
+So far we didn't mention heatmaps (`lc_heatmap`), but their colouring is defined by the already mentioned `palette` and
+`colourDomain` properties the same way it happens for all other charts. It can also be interesting to use an interactive
+`lc_colourSlider` instead of static colour scale.
+
+```{r}
+# if you want to plot 150x150 correlation matrix, it's better to 
+# use your browser instead of RStudio Viewer.
+openPage(useViewer = F)
+
+lc_heatmap(dat(
+  values = cor(t(iris[, 1:4])),
+  colourDomain = c(-1, 1),
+  palette = RColorBrewer::brewer.pal(11, "RdBu"),
+  # if we use colour slider, we don't need the static legend
+  showLegend = F
+))
+
+lc_colourSlider(chart = "Chart1")
+```
 
 ## Shape
 
-## Labels
+This section describes the following properties:
+- `symbol`
+- `symbolValue`
+- `symbolLegendTitle`
+- `size`
+- `strokeWidth`
+- `lineWidth`
+- `opacity`
+- `dasharray`
 
-## Chart Setting
+Scatters and beeswarms in R/LinkedCharts can display points as one of seven standard d3 
+[symbols](https://bl.ocks.org/d3indepth/bae221df69af953fb06351e1391e89a0). `symbolValue`,
+which is similar to `colourValue`, generates a scale that converts some user-provided values
+to one of the symbols. `symbol` property directly assigns symbol types to each element.
+Possible symble types are `"Circle", "Cross", "Diamond", "Square", "Star", "Triangle", "Wye"`.
+`symbolLegendTitle` adds a title to the symbol legend.
 
-## Others
+```{r}
+openPage(layout = "table1x2")
+
+lc_scatter(dat(x = iris$Sepal.Length,
+               y = iris$Petal.Length,
+               symbolLegendTitle = "Species",
+               symbolValue = iris$Species),
+           width = 300, height = 300,
+           place = "A1")
+
+lc_scatter(dat(x = iris$Sepal.Length,
+               y = iris$Petal.Length,
+               symbol = ifelse(iris$Species == "setosa", "Star", "Cross")),
+           width = 300, height = 300,
+           place = "A2")
+```
+On the left chart R/LinkedCharts automatically puts a symbol for each of the present species
+`symbolValue = iris$Species`. On the chart to the right we do it manualy 
+`symbol = ifelse(iris$Species == "setosa", "Star", "Cross")` (for the sake of simplicity, we only distinguish
+"setosa" from everything else).
+
+We can also change `size` of the points (default is 6), `opacity` (value from 0 to 1), or `strokeWidth` (by default, 
+`0.1 * size`).
+
+```{r}
+lc_scatter(dat(x = iris$Sepal.Length,
+               y = iris$Petal.Length,
+               size = iris$Sepal.Width * 2,
+               colourValue = iris$Petal.Width,
+               strokeWidth = 3,
+               opacity = runif(150)),
+           place = "A1")
+```
+
+Lines can have different width (`lineWidth`, default is 1.5) and dashes pattern (`dasharray`). `dasharray` is defined
+the same way as CSS [stroke-dasharray](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dasharray)
+attribute. It is a list of numbers that specify legnth of alternating dashes and gaps. First number is length
+of the first dash, second - of the first gap, third - of the second dash, and so on, and so forth.
+
+```{r}
+lc_hLine(dat(
+  h = 1:5,
+  lineWidth = 1:5 * 2,
+  dasharray = c("", "10", "10 2", "15 3 8", "3 6 9 12"),
+  domainY = c(0, 6)
+))
+```
+
+## Titles and labels
+This section describes the following properties:
+- `label`
+- `title`
+- `titleSize`
+- `titleX`
+- `titleY`
+- `axisTitleX`
+- `axisTitleY`
+- `colourLegendTitle`
+- `symbolLegendTitle`
+
+`label` defines text that you see when hovering mouse over some element. If vectors that specify `x` or `y` coordinates
+have names, these names will be used as labels. Otherwise, element's index is used as its label (note, that indices start 
+from 0). One can also define the main `title` of a plot, its size (`titleSize`) and position. `titleX` specifies horisontal
+position of title midpoint, while `titleY` is vertical position of its bottom. 
+`axisTitleX` and `axisTitleY` set title to x and y axes respectively. `colourLegendTitle` and `symbolLegendTitle` have 
+already been mentioned in the sections above - they specify titles for colour and symbol legends.
+
+```{r}
+lc_scatter(dat(
+  x = iris$Sepal.Length,
+  y = iris$Petal.Length,
+  size = iris$Sepal.Width * 2,
+  colourValue = iris$Petal.Width,
+  symbolValue = iris$Species,
+  title = "Iris dataset",
+  titleX = 100,
+  titleY = 500,
+  titleSize = 30,
+  axisTitleX = "Sepal Length",
+  axisTitleY = "Petal Length",
+  colourLegendTitle = "Petal Width",
+  symbolLegendTitle = "Species"
+))
+```
+
+## Interactivity
+This section describes the following properties:
+- `on_click`
+- `on_mouseover`
+- `on_mouseout`
+- `on_marked`
+
+R/LinkedCharts is designed as an easy-to-use framework to create sets of interactive linked charts. 
+From [this](../oscc/oscc.html) tutorial you can already get a pretty good idea of how it 
+works, but let's quickly go through it again here.
+
+All the interactivity in R/LinkedCharts is based on the two main ideas. 
+
+First is the `dat()` function.
+Properties, defined inside this function (e.g. `dat(x = somePoints$x, y = somePoints$y)`) can be reevaluated 
+any moment by calling the `updateCharts()` function and the chart will be changed accordingly. For example, if
+`somePoints` is changed, then `updateCharts()` will make the points move to new positions.
+
+```{r eval=FALSE}
+lc_scatter(dat(x = rnorm(10)), 
+           y = rnorm(10))
+updateCharts()
+```
+
+Note, how each time you call `updateCharts()`, points are moved along the x-axis to some new randomly 
+generated locations. At the same time y-coordinates of each point remain unchanged.
+
+Second is a system of callback functions. Whenever something happens on the opened web page (e.g. a point is clicked)
+a user-defined function is called. The most simple way to use this function, is to change some global variable that the
+charts depends on and then call `updateCharts`. Of course, you can also run calculations, print some information to console,
+make static plots or whatever else you want.
+
+So here is a basic example with reaction to click (`on_click`). In this example we have a set of ten colours and a 
+scatter plot with ten points. When any of the points is clicked, all of them change colour and index of the clicked
+point is printed in the console. To do this we create a variable that stores currently selected colour `selColor` and
+then use it to set `colour` property. When a point is clicked, the function assigned to the `on_click` property is called.
+It gets index of the clicked point and prints it (`print(i)`). It also changes `selColour` and updates chart. Note, that 
+inside this function we use global assignment operator `<<-` instead of usual `<-`. `<-` will just create a local variable 
+`selColour` inside the function.
+
+```{r}
+colours <- RColorBrewer::brewer.pal(10, "Set3")
+selColour <- 1
+
+lc_scatter(dat(
+  x = 1:10,
+  y = 1:10,
+  colour = colours[selColour],
+  on_click = function(i) {
+    print(i)
+    selColour <<- i
+    updateCharts()
+  }
+))
+```
+
+
+`on_mouseover` and `on_mouseout` specify, what happens when user moves mouse over and out an element. `on_mouseover` like 
+`on_click` gets an index of the point (line, cell, etc.), `on_mouseout` doesn't get anything. Here is example similar to
+the one above, but now, instead of clicking on a point, one can just move the mouse over it. When mouse moves out all points
+become black.
+
+```{r}
+colours <- c(RColorBrewer::brewer.pal(10, "Set3"), "black")
+selColour <- 1
+
+lc_scatter(dat(
+  x = 1:10,
+  y = 1:10,
+  colour = colours[selColour],
+  on_mouseover = function(i) {
+    selColour <<- i
+    updateCharts()
+  },
+  on_mouseout = function() {
+    selColour <<- 11
+    updateCharts()
+  }
+))
+```
+
+In any chart you can select elements by drawing a rectangle with the mouse or by clicking on the 
+element while holding the `Shift` key. Double mouse click with the `Shift` key pressed will deselect
+all the elements. Whenever any element is selected or deselected, function assigned to the `on_marked` property is 
+called. At any moment you can get indices of currently selected elements of any chart by calling `getMarked`.
+Let's make a brushing example.
+
+```{r}
+```
+
+## Axes Settings
+
+## Chart Settings
+
+## Heatmaps

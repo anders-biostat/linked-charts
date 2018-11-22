@@ -339,14 +339,15 @@ export function layerBase(id) {
     return true;
   }
 
-  layer.mark = function(marked) {
+  layer.mark = function(marked, pe) {
     if(get_mode() == "svg") {
       if(marked == "__clear__"){
         layer.g.selectAll(".data_element.marked")
           .classed("marked", false);
         layer.g.selectAll(".data_element")
           .attr("opacity", 1);
-        layer.chart.on_marked();
+        if(!pe)
+          layer.on_marked();
         layer.colourMarked();
 
         return layer.chart;
@@ -391,7 +392,8 @@ export function layerBase(id) {
       }
       layer.updateCanvas();      
     }
-    layer.on_marked();
+    if(!pe)
+      layer.on_marked();
   }
 
   layer.colourMarked = function() {

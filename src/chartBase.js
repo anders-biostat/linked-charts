@@ -168,14 +168,15 @@ export function chartBase() {
 	}
 
 	//toggle selection for a provided list of elements
-	chart.mark = function(marked) {
+	chart.mark = function(marked, pe) {
 		//deselect everything
 		if(marked == "__clear__"){
 			chart.svg.selectAll(".data_element.marked")
 				.classed("marked", false);
 			chart.svg.selectAll(".data_element")
 				.attr("opacity", 1);
-			chart.on_marked();
+			if(!pe)
+				chart.on_marked();
 			return chart;
 		}
 		
@@ -200,7 +201,8 @@ export function chartBase() {
 			chart.svg.selectAll(".data_element")
 				.attr("opacity", 1);
 
-		chart.on_marked();
+		if(!pe)
+			chart.on_marked();
 
 		return chart;
 	}
