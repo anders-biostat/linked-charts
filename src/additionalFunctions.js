@@ -228,8 +228,8 @@ export function add_click_listener(chart){
           }
 
           chart.container.selectAll(".inform")
-            .style("left", (p[0] + 10 + chart.margins().left) + "px")
-            .style("top", (p[1] + 10 + chart.margins().top) + "px")
+            .style("left", (p[0] + 10 + chart.paddings().left) + "px")
+            .style("top", (p[1] + 10 + chart.paddings().top) + "px")
             .select(".value")
               .html(function() {return chart.get_informText(elements[0][0], elements[0][1])});
         } else {

@@ -51,7 +51,7 @@ export function html() {
 
   chart.width(0)
     .height(0)
-    .margins({top: 5, left: 5, bottom: 5, right: 5})
+    .paddings({top: 5, left: 5, bottom: 5, right: 5})
     .showPanel(false);
 
   var inherited_put_static_content = chart.put_static_content;
@@ -66,10 +66,10 @@ export function html() {
     chart.container
       .style("width", chart.width() != 0 ? chart.width() : undefined)
       .style("height", chart.height() != 0 ? chart.height() : undefined)
-      .style("padding-top", chart.margins().top)
-      .style("padding-left", chart.margins().left)
-      .style("padding-right", chart.margins().right)
-      .style("padding-bottom", chart.margins().bottom);
+      .style("padding-top", chart.paddings().top)
+      .style("padding-left", chart.paddings().left)
+      .style("padding-right", chart.paddings().right)
+      .style("padding-bottom", chart.paddings().bottom);
 
     return chart;
   }

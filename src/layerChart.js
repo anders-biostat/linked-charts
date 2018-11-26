@@ -287,8 +287,8 @@ export function layerChart(){
 		inherited_updateSize();
 		for(var k in chart.layers)
 			chart.get_layer(k).canvas
-				.style("left", (+chart.margins().left + 3) + "px")
-				.style("top", (+chart.margins().top + 3) + "px")
+				.style("left", (+chart.paddings().left + 3) + "px")
+				.style("top", (+chart.paddings().top + 3) + "px")
 				.attr("width", chart.plotWidth())
 				.attr("height", chart.plotHeight());
 	}

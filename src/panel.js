@@ -6,7 +6,7 @@ export function panel(chart) {
 			return chart.width() - panel.buttonSize() - 5;
 		})
 		.add_property("y", function(){
-			return chart.margins().top * 0.05;
+			return chart.paddings().top * 0.05;
 		})
 		.add_property("orientation", "horizontal")
 		.add_property("height", function(){

@@ -13,21 +13,21 @@ export function axesChart() {
 		.add_property("axisTitleX", "")
 		.add_property("axisTitleY", "")
 		.add_property("ticksX", undefined)
+		.add_property("ticksY", undefined)
 		.add_property("ticksRotateX", 0, function(value) {
 			if(isNaN(value))
 				throw "Error in 'typeCheck' for property 'ticksRotateX': " +
 							"the value is not a number.";
 
-			return value % 90;
+			return value % 91;
 		})
 		.add_property("ticksRotateY", 0, function(value) {
 			if(isNaN(value))
 				throw "Error in 'typeCheck' for property 'ticksRotateY': " +
 							"the value is not a number.";
 
-			return value % 90;
+			return value % 91;
 		})
-		.add_property("ticksY", undefined)
 		.add_property("logScaleX", false)
 		.add_property("logScaleY", false);
 
@@ -262,8 +262,8 @@ export function axesChart() {
 			var t = d3.transition("size")
 				.duration(chart.transitionDuration());
 			chart.svg.selectAll(".axes_g").transition(t)
-				.attr("transform", "translate(" + chart.margins().left + 
-								", " + chart.margins().top + ")");
+				.attr("transform", "translate(" + chart.paddings().left + 
+								", " + chart.paddings().top + ")");
 			chart.axes.x_g.transition(t)
 				.attr( "transform", "translate(0," + chart.get_plotHeight() + ")" );
 			chart.axes.x_label.transition(t)
@@ -271,8 +271,8 @@ export function axesChart() {
 
 		}	else {
 			chart.svg.selectAll(".axes_g")
-				.attr("transform", "translate(" + chart.margins().left + 
-								", " + chart.margins().top + ")");
+				.attr("transform", "translate(" + chart.paddings().left + 
+								", " + chart.paddings().top + ")");
 			chart.axes.x_g
 				.attr( "transform", "translate(0," + chart.get_plotHeight() + ")" );
 			chart.axes.x_label

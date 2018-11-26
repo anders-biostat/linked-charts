@@ -507,7 +507,6 @@ This section describes the following properties:
 - `layerDomainX`/`layerDomainY`
 - `domainX`/`domainY`
 - `aspectRatio`
-- `contScaleX`/`contScaleY`
 - `axisTitleX`/`axisTitleY`
 - `ticksRotateX`/`ticksRotateY`
 - `ticksX`/`ticksY`
@@ -587,27 +586,69 @@ to its original scale. You can also use `+` and `-` buttons on the tools pannel 
 left upper corner) to zoom in or out.
 
 ```{r}
-lc_scal
+x1 <- runif(40, 0, 10)
+x2 <- runif(40, -5, 5)
+
+lc_scatter(dat(
+    x = x1,
+    y = x1 * 3 + rnorm(40),
+    layerDomainX = c(3, 9),
+    domainY = c(0, 20)),
+  id = "chart")
+
+lc_scatter(x = x2, y = -x2  + rnorm(40), 
+          colour = "red", 
+          id = "chart", 
+          addLayer = T) # new scatter plot will be added as a new layer
 ```
+When the first scatter plot is generated, it uses `c(3, 9)` as limits for x-axis and `c(0, 20)` - for y-axis. There is no difference between
+using `domainX` and `layerDomainX`, when chart has only one layer. Then we add another layer that has points outside the limits of both
+axes. And now x-axis changes to fit all the new (red) points, while y-axis remains the same. That is the difference between the two properties. 
+`domainY` specify limits of the y-axis for the entire chart, no matter what else will be there. `layerDomainX` on the other hand is combined with
+other layers' domains to define the final limits of the axis.
+
+And here is how domain works for categorical axes.
+
+```{r}
+lc_scatter(dat(
+  x = iris$Species,
+  y = iris$Sepal.Length,
+  jitterX = 0.2,
+  colourValue = iris$Petal.Length,
+  domainX = c("virginica", "something else", "setosa", "versicolor")
+))
+```
+`domainX = c("virginica", "something else", "setosa", "versicolor")` not only specifies order of ticks, but also tells the chart to 
+expect `"something else"` as one of the species, even thoug there is no points with this x-value.
 
 `aspectRatio` allows to control the aspect ratio of the axes. Note, that it's possible only if both axes are linear and
 continuous. In all other cases this property will be ignored.
 
 ```{r}
 lc_scatter(x = 1:10, y = 1:10,
-           height = 200, # the chart will be 
-           aspectRatio = 1
-           )
+           height = 200, # make the chart wide
+           aspectRatio = 1)
 ```
 
-## Chart Settings
+`axisTitleX` and `axisTitleY` set titles of the axes. `ticksRotateX` and `ticksRotateY` allow to rotate ticks. The angle of rotation must be
+set in degrees and lie between 0 and 90. Any values outside this range will be put into it. It is also possible to define what ticks to show
+and to replace their lables with something esle. To this end, `ticksX` and `ticksY` one should set to one or several columns of values. The
+first column is always where to put ticks. Next columns are optional and they allow to specify with what to replace tick values.
+
+```{r}
+```
+
+
+## Global chart Settings
 This section describes the following properties:
 - `width`
 - `height`
-- `margins`
+- `paddings`
 - `showLegend`
 - `showPanel`
 - `transitionDuration`
 - `mode`
+
+`width` and `height` specify size of the chart in pixels (default value for both is 500). `paddings` allows to set 
 
 ## Heatmaps

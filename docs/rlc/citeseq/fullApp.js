@@ -8,7 +8,7 @@ var tmp = lc.scatter()
 	.logScaleY(10)
 	.width(340)
 	.height(340)
-	.set_margins({left:30})
+	.set_paddings({left:30})
 	.size(2.5)
 	.on_click(function(i) {
 		selGeneFA = i;
@@ -26,7 +26,7 @@ var exprFA = lc.scatter()
 	.opacity(0.2)
 	.width(340)
 	.height(340)
-	.set_margins({left:25})
+	.set_paddings({left:25})
 	.place(d3.select("#fullApp").select("#expr"));
 
 var tsneFA = lc.scatter()
@@ -40,7 +40,7 @@ var tsneFA = lc.scatter()
 	.on_marked(makeTable)
 	.width(340)
 	.height(340)
-	.set_margins({left:20})
+	.set_paddings({left:20})
 	.place(d3.select("#fullApp").select("#tsne"));
 
 tsneFA.legend.width(60).update();

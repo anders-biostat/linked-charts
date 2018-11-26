@@ -105,7 +105,7 @@ export function dendogram(heatmap)
 		.add_property("width", 500)
 		.add_property("nelements") //nlabels
 		.add_property("elementIds", function(){return undefined}) //labIds
-		.add_property("margins", {left: 20, top: 20, bottom: 20, right: 20}) //padding
+		.add_property("paddings", {left: 20, top: 20, bottom: 20, right: 20}) //padding
 		.add_property("distance", function(a, b){
 			return lc.getEuclideanDistance(a, b);			
 		})
@@ -156,7 +156,7 @@ export function dendogram(heatmap)
 	{
 		var t = -1;
 		var rev_height = 0;
-		var padding = dendogram.margins();
+		var padding = dendogram.paddings();
 		var n_leaves = dendogram.elementIds().length;
 		var box_width = (dendogram.width() - padding.right - padding.left)/n_leaves;
 		var xScale = d3.scaleLinear()
@@ -403,17 +403,17 @@ export function dendogram(heatmap)
 		if(dendogram.orientation() == "vertical"){
 			if(dendogram.heatmap){
 				dendogram.width(dendogram.heatmap.height())
-					.height(dendogram.heatmap.margins().left)
-					.margins({
-						left: dendogram.heatmap.margins().top,
+					.height(dendogram.heatmap.paddings().left)
+					.paddings({
+						left: dendogram.heatmap.paddings().top,
 						top: 0,
 						bottom: 0,
-						right: dendogram.heatmap.margins().bottom
+						right: dendogram.heatmap.paddings().bottom
 					});
 				dendogram.svg.select(".row")
 					.attr("transform", "translate(" + 
-														(dendogram.heatmap.margins().left + +dendogram.heatmap.plotWidth() + 5) + 
-														", " + dendogram.heatmap.margins().top + ")")
+														(dendogram.heatmap.paddings().left + +dendogram.heatmap.plotWidth() + 5) + 
+														", " + dendogram.heatmap.paddings().top + ")")
 					.selectAll("text")
 						.style("text-anchor", "start");
 			}
@@ -426,18 +426,18 @@ export function dendogram(heatmap)
 		} else {
 			if(dendogram.heatmap) {
 				dendogram.width(dendogram.heatmap.width())
-					.height(dendogram.heatmap.margins().top)
-					.margins({
+					.height(dendogram.heatmap.paddings().top)
+					.paddings({
 						top: 0,
-						left: dendogram.heatmap.margins().left,
-						right: dendogram.heatmap.margins().right,
+						left: dendogram.heatmap.paddings().left,
+						right: dendogram.heatmap.paddings().right,
 						bottom: 0
 					});
 
 				dendogram.svg.select(".col")
 					.attr("transform", "translate(" + 
-														 + dendogram.margins().left + 
-														", " + (dendogram.heatmap.margins().top + +dendogram.heatmap.plotHeight() + 5) + ")")
+														 + dendogram.paddings().left + 
+														", " + (dendogram.heatmap.paddings().top + +dendogram.heatmap.plotHeight() + 5) + ")")
 					.selectAll("text")
 						.style("text-anchor", "end");
 				}
@@ -446,8 +446,8 @@ export function dendogram(heatmap)
 					.attr("width", dendogram.width())
 					.attr("height", dendogram.height());
 //			dendogram.g
-//				.attr("transform", "translate(" + dendogram.margins().left + 
-//																	", " + dendogram.margins().right + ")");
+//				.attr("transform", "translate(" + dendogram.paddings().left + 
+//																	", " + dendogram.paddings().right + ")");
 		}
 
 		var newTree = trimNodes();
@@ -599,8 +599,8 @@ export function dendogram(heatmap)
 				var t = d3.transition("remove")
 					.duration(chart.transitionDuration())
 				chart.svg.selectAll(".label_panel." + type.toLowerCase()).transition(t)
-						.attr("transform", "translate(" + chart.margins().left + ", " +
-									chart.margins().top + ")");
+						.attr("transform", "translate(" + chart.paddings().left + ", " +
+									chart.paddings().top + ")");
 				if(type == "Row")
 					chart.svg.select(".row").selectAll("text").transition(t)
 						.style("text-anchor", "end")
@@ -610,8 +610,8 @@ export function dendogram(heatmap)
 			}
 			else{ 			
 				chart.svg.selectAll(".label_panel." + type.toLowerCase())
-						.attr("transform", "translate(" + chart.margins().left + ", " +
-									chart.margins().top + ")");
+						.attr("transform", "translate(" + chart.paddings().left + ", " +
+									chart.paddings().top + ")");
 				if(type == "Row")
 					chart.svg.select(".row").selectAll("text")
 						.style("text-anchor", "end");

@@ -8,24 +8,24 @@ export function chartBase() {
 	var chart = base()
 		.add_property("width", 500, check("number_nonneg", "width"))
 		.add_property("height", 500, check("number_nonneg", "height"))
-		.add_property("margins", { top: 35, right: 10, bottom: 50, left: 50 }, 
+		.add_property("paddings", { top: 35, right: 10, bottom: 50, left: 50 }, 
 			function(value) {
 				if(typeof value === "function")
 					return value;
 				if(value.top === undefined)
-					throw "Error in 'typeCheck' for property 'margins': top-margin is not defined";
+					throw "Error in 'typeCheck' for property 'paddings': top-padding is not defined";
 				if(value.left === undefined)
-					throw "Error in 'typeCheck' for property 'margins': left-margin is not defined";
+					throw "Error in 'typeCheck' for property 'paddings': left-padding is not defined";
 				if(value.bottom === undefined)
-					throw "Error in 'typeCheck' for property 'margins': bottom-margin is not defined";
+					throw "Error in 'typeCheck' for property 'paddings': bottom-padding is not defined";
 				if(value.right === undefined)
-					throw "Error in 'typeCheck' for property 'margins': right-margin is not defined";
+					throw "Error in 'typeCheck' for property 'paddings': right-padding is not defined";
 				return value;
 			})
 		.add_property("title", "")
 		.add_property("titleX", function() {return chart.width() / 2;}, check("number_nonneg", "titleX"))
-		.add_property("titleY", function() {return d3.min([17, chart.margins().top * 0.9]);}, check("number_nonneg", "titleY"))
-		.add_property("titleSize", function() {return d3.min([15, chart.margins().top * 0.8]);}, check("number_nonneg", "titleSize"))
+		.add_property("titleY", function() {return d3.min([17, chart.paddings().top * 0.9]);}, check("number_nonneg", "titleY"))
+		.add_property("titleSize", function() {return d3.min([15, chart.paddings().top * 0.8]);}, check("number_nonneg", "titleSize"))
 		.add_property("transitionDuration", 1000, check("number_nonneg", "transitionDuration")) //may be set to zero
 		.add_property("on_marked", function() {})
 		.add_property("showPanel", true)
@@ -37,10 +37,10 @@ export function chartBase() {
 	chart.legend = legend(chart); 
 
 	var plotHeight_default = function() {
-			return chart.height() - (chart.margins().top + chart.margins().bottom);
+			return chart.height() - (chart.paddings().top + chart.paddings().bottom);
 		},
 		plotWidth_default = function() {
-			return chart.width() - (chart.margins().right + chart.margins().left);
+			return chart.width() - (chart.paddings().right + chart.paddings().left);
 		};
 
 	chart.plotWidth(plotWidth_default)
@@ -65,7 +65,7 @@ export function chartBase() {
 	chart.wrapSetter("plotWidth", function(plotWidth){
 		return function() {
 			chart.get_width = function() {
-				return plotWidth() + chart.margins().left + chart.margins().right;
+				return plotWidth() + chart.paddings().left + chart.paddings().right;
 			};
 			return plotWidth.apply(chart, arguments);
 		}
@@ -73,7 +73,7 @@ export function chartBase() {
 	chart.wrapSetter("plotHeight", function(plotHeight){
 		return function() {
 			chart.get_height = function() {
-				return plotHeight() + chart.margins().top + chart.margins().bottom;
+				return plotHeight() + chart.paddings().top + chart.paddings().bottom;
 			};
 			return plotHeight.apply(chart, arguments);
 		}
@@ -99,18 +99,18 @@ export function chartBase() {
 		return chart;
 	} 
 
-	//allows to change only some of the margins
-  chart.set_margins = function(margins){
-  	if(typeof margins.top === "undefined")
-  		margins.top = chart.margins().top;
-  	if(typeof margins.bottom === "undefined")
-  		margins.bottom = chart.margins().bottom;
-  	if(typeof margins.left === "undefined")
-  		margins.left = chart.margins().left;
-  	if(typeof margins.right === "undefined")
-  		margins.right = chart.margins().right;
+	//allows to change only some of the paddings
+  chart.set_paddings = function(paddings){
+  	if(typeof paddings.top === "undefined")
+  		paddings.top = chart.paddings().top;
+  	if(typeof paddings.bottom === "undefined")
+  		paddings.bottom = chart.paddings().bottom;
+  	if(typeof paddings.left === "undefined")
+  		paddings.left = chart.paddings().left;
+  	if(typeof paddings.right === "undefined")
+  		paddings.right = chart.paddings().right;
   	
-  	chart.margins(margins);
+  	chart.paddings(paddings);
   	return chart;
   }
 
@@ -241,8 +241,8 @@ export function chartBase() {
 				.attr("x", chart.titleX())
 				.attr("y", chart.titleY());
 			chart.svg.selectAll(".plotArea").transition(t)
-				.attr("x", chart.margins().left)
-				.attr("y", chart.margins().top)
+				.attr("x", chart.paddings().left)
+				.attr("y", chart.paddings().top)
 				.attr("width", chart.plotWidth())
 				.attr("height", chart.plotHeight());
 		} else {
@@ -254,8 +254,8 @@ export function chartBase() {
 				.attr("x", chart.titleX())
 				.attr("y", chart.titleY());
 			chart.svg.selectAll(".plotArea")
-				.attr("x", chart.margins().left)
-				.attr("y", chart.margins().top)
+				.attr("x", chart.paddings().left)
+				.attr("y", chart.paddings().top)
 				.attr("width", chart.plotWidth())
 				.attr("height", chart.plotHeight());
 		}
@@ -318,7 +318,7 @@ function saveAsPng(chart) {
   	img.onload = function(){
     	ctx.drawImage(this, 0,0);
     	if(chart.canvas && chart.canvas.classed("active"))
-    		ctx.drawImage(chart.canvas.node(), chart.margins().left, chart.margins().top);
+    		ctx.drawImage(chart.canvas.node(), chart.paddings().left, chart.paddings().top);
     	callback();
     }
   	img.src = 'data:image/svg+xml; charset=utf8, '+encodeURIComponent(svgInnerHTML);
@@ -339,7 +339,7 @@ function saveAsPng(chart) {
 			.filter(function() {return d3.select(this).classed("active")})
 				.nodes();
 	for(var i = 0; i < actCanv.length; i++) 
-		ctx.drawImage(actCanv[i], chart.margins().left, chart.margins().top);
+		ctx.drawImage(actCanv[i], chart.paddings().left, chart.paddings().top);
 
 	chart.svg.selectAll("text").attr("fill", "black");
 

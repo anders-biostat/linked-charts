@@ -8,7 +8,7 @@ lc.heatmap()
 	.colLabel(i => hData.sampleNames[i])
 	.width(340)
 	.height(340)
-	.margins({top: 30, left: 30, right: 5, bottom: 5})
+	.paddings({top: 30, left: 30, right: 5, bottom: 5})
 	.on_click(function(d) {
 		xSample = d[0];
 		ySample = d[1];

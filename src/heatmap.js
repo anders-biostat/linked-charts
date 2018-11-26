@@ -58,7 +58,7 @@ export function heatmap(id, chart){
 						"value = " + value;
 			});
 
-	chart.margins({top: 100, left: 100, right: 10, bottom: 40});
+	chart.paddings({top: 100, left: 100, right: 10, bottom: 40});
 
 	//setting a number of elements or their IDs should replace
 	//each other
@@ -405,44 +405,44 @@ export function heatmap(id, chart){
 			var t = d3.transition("size").duration(chart.transitionDuration());
 			if(!chart.showDendogram("Row"))
 				chart.svg.selectAll(".label_panel.row").transition(t)
-					.attr("transform", "translate(" + chart.margins().left + ", " +
-						chart.margins().top + ")");
+					.attr("transform", "translate(" + chart.paddings().left + ", " +
+						chart.paddings().top + ")");
 			if(!chart.showDendogram("Col"))
 				chart.svg.selectAll(".label_panel.col").transition(t)
-					.attr("transform", "translate(" + chart.margins().left + ", " +
-						chart.margins().top + ")");
+					.attr("transform", "translate(" + chart.paddings().left + ", " +
+						chart.paddings().top + ")");
 
 			chart.axes.x_label.transition(t)
-				.attr("font-size", d3.min([chart.margins().bottom - 2, 15]))
-				.attr("x", chart.plotWidth() + chart.margins().left)
+				.attr("font-size", d3.min([chart.paddings().bottom - 2, 15]))
+				.attr("x", chart.plotWidth() + chart.paddings().left)
 				.attr("y", chart.height());
 			chart.axes.y_label.transition(t)
-				.attr("font-size", d3.min([chart.margins().right - 2, 15]))
-				.attr("x", - chart.margins().top)
+				.attr("font-size", d3.min([chart.paddings().right - 2, 15]))
+				.attr("x", - chart.paddings().top)
 				.attr("y", chart.width());
 		} else {
 			if(!chart.showDendogram("Row"))
 				chart.svg.selectAll(".label_panel.row")
-					.attr("transform", "translate(" + chart.margins().left + ", " +
-						chart.margins().top + ")");
+					.attr("transform", "translate(" + chart.paddings().left + ", " +
+						chart.paddings().top + ")");
 			if(!chart.showDendogram("Col"))
 				chart.svg.selectAll(".label_panel.col")
-					.attr("transform", "translate(" + chart.margins().left + ", " +
-						chart.margins().top + ")");
+					.attr("transform", "translate(" + chart.paddings().left + ", " +
+						chart.paddings().top + ")");
 
 			chart.axes.x_label
-				.attr("font-size", d3.min([chart.margins().bottom - 2, 15]))
-				.attr("x", chart.get_plotWidth() + chart.margins().left)
+				.attr("font-size", d3.min([chart.paddings().bottom - 2, 15]))
+				.attr("x", chart.get_plotWidth() + chart.paddings().left)
 				.attr("y", chart.get_height());
 			chart.axes.y_label
-				.attr("font-size", d3.min([chart.margins().right - 2, 15]))
-				.attr("x", - chart.margins().top)
+				.attr("font-size", d3.min([chart.paddings().right - 2, 15]))
+				.attr("x", - chart.paddings().top)
 				.attr("y", chart.width());
 		}
 
 		chart.canvas
-			.style("left", (+chart.margins().left + 3) + "px")
-			.style("top", (+chart.margins().top + 3) + "px")
+			.style("left", (+chart.paddings().left + 3) + "px")
+			.style("top", (+chart.paddings().top + 3) + "px")
 			.attr("width", chart.plotWidth())
 			.attr("height", chart.plotHeight());		
 

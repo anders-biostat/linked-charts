@@ -8,7 +8,7 @@ lc.scatter()
 	.logScaleY(10)
 	.width(340)
 	.height(340)
-	.set_margins({left:30})
+	.set_paddings({left:30})
 	.size(2.5)
 	.on_click(function(i) {
 		selGeneHA = i;
@@ -25,5 +25,5 @@ var exprHA = lc.scatter()
 	.opacity(0.2)
 	.width(340)
 	.height(340)
-	.set_margins({left:25})
+	.set_paddings({left:25})
 	.place(d3.select("#halfApp").select("#expr"));
