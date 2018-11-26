@@ -532,9 +532,9 @@ export function axesChart() {
 	      ( chart.axes.y_g.transition(t) );	
     } else {
 	    d3.axisBottom()
+	    	.scale( chart.axes.scale_x )
 	      .tickValues(ticksX.tickValues)
 	      .tickFormat(ticksX.tickFormat)
-	      .scale( chart.axes.scale_x )
 	      ( chart.axes.x_g );
 
 	    d3.axisLeft()
@@ -556,7 +556,7 @@ export function axesChart() {
 
     var updateY = function() {
     	chart.axes.y_g.selectAll(".tick").selectAll("text")
-    		.html(ticksX.tickFormat)
+    		.html(ticksY.tickFormat)
     };
     if(ticksY.tickFormat)
     	if(chart.transitionDuration() > 0 && !chart.transitionOff)

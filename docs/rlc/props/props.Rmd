@@ -633,9 +633,32 @@ lc_scatter(x = 1:10, y = 1:10,
 `axisTitleX` and `axisTitleY` set titles of the axes. `ticksRotateX` and `ticksRotateY` allow to rotate ticks. The angle of rotation must be
 set in degrees and lie between 0 and 90. Any values outside this range will be put into it. It is also possible to define what ticks to show
 and to replace their lables with something esle. To this end, `ticksX` and `ticksY` one should set to one or several columns of values. The
-first column is always where to put ticks. Next columns are optional and they allow to specify with what to replace tick values.
+first column is always where to put ticks. Next columns are optional and they allow to specify with what to replace tick values (one tick
+can be replaced with several values simultaneously, as if you have several axes at the same time).
+
+Imagine now in the Iris dataset some values are missing. By default these points are moved to the left upper corner of the plot, but what if
+we want to show them as well? We can replace NAs with some numerc value that is smaller than all our real values and then change tick labels to
+indicate that.
 
 ```{r}
+values <- iris$Sepal.Length
+#add some NAs
+values[sample(length(values), 10)] <- NA 
+
+values[is.na(values)] <- 3
+openPage(F)
+lc_scatter(dat(
+  x = iris$Species,
+  y = values,
+  ticksY = cbind(3:8, c("NA", 4:8)),
+  ticksRotateX = 45,
+  axisTitleX = "species",
+  axisTitleY = "sepal length",
+  jitterX = 0.2,
+  size = 4,
+  colourValue = iris$Petal.Length
+))
+
 ```
 
 
@@ -649,6 +672,9 @@ This section describes the following properties:
 - `transitionDuration`
 - `mode`
 
-`width` and `height` specify size of the chart in pixels (default value for both is 500). `paddings` allows to set 
+`width` and `height` specify size of the chart in pixels (default value for both is 500). It is possible to change default `paddings` that are
+used for axes, titles, labels and dendograms (for heatmaps). `paddings` must be a list with at least one of the following four elements: 
+`"top", "right", "bottom"` and `"left"`.
+
 
 ## Heatmaps
