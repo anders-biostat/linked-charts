@@ -150,7 +150,7 @@ export function legend(chart) {
 				blocks[id].layer.legendBlocks.indexOf(id), 1
 			);
 		delete blocks[id];
-		legend.g.select("#" + id).remove();
+		legend.container().select("#" + id).remove();
 		updateGrid();
 
 		return legend.chart;
@@ -163,8 +163,8 @@ export function legend(chart) {
 			blocks[newId].layer.legendBlocks.splice(
 				blocks[newId].layer.legendBlocks.indexOf(oldId), 1, newId
 			);
-		if(legend.g){
-			legend.g.select("#" + oldId)
+		if(legend.container()){
+			legend.container().select("#" + oldId)
 				.attr("id", newId);
 			legend.updateBlock(newId);
 		}

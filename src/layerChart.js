@@ -87,10 +87,11 @@ export function layerChart(){
 		if( Object.keys(chart.layers).indexOf(id) == -1)
 			return -1;
 		//clean the legend
-		for(i in chart.layers[id].legendBlocks)
-			chart.legend.remove(i);
+		for(var i in chart.layers[id].legendBlocks)
+			chart.legend.removeBlock(chart.layers[id].legendBlocks[i]);
 		try {
 			chart.layers[id].g.remove();
+			chart.layers[id].canvas.remove();
 		} catch(exc) {};
 		delete chart.layers[id];
 

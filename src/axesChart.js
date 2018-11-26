@@ -506,7 +506,8 @@ export function axesChart() {
 
     chart.axes.scale_x.domain(checkDomain("X"));
     chart.axes.scale_y.domain(checkDomain("Y"));
-		if(chart.aspectRatio())
+		if(chart.aspectRatio() && !chart.axes.scale_x.base && !chart.axes.scale_y.base &&
+			chart.axes.scale_x.clamp && chart.axes.scale_y.clamp)
 			fix_aspect_ratio(chart.axes.scale_x, chart.axes.scale_y, chart.get_aspectRatio());
 
 		updateShiftScale("X");

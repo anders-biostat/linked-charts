@@ -353,10 +353,8 @@ This section describes the following properties:
 - `label`
 - `title`
 - `titleSize`
-- `titleX`
-- `titleY`
-- `axisTitleX`
-- `axisTitleY`
+- `titleX`/`titleY`
+- `axisTitleX`/`axisTitleY`
 - `colourLegendTitle`
 - `symbolLegendTitle`
 
@@ -470,13 +468,146 @@ In any chart you can select elements by drawing a rectangle with the mouse or by
 element while holding the `Shift` key. Double mouse click with the `Shift` key pressed will deselect
 all the elements. Whenever any element is selected or deselected, function assigned to the `on_marked` property is 
 called. At any moment you can get indices of currently selected elements of any chart by calling `getMarked`.
-Let's make a brushing example.
+Let's make a brushing example. When on_marked event is triggered for one of the charts, we get indices of selected
+points (`getMarked("A1")`) and select them on the other chart (`mark(getMarked("A1"), "A2")`). Note, that when 
+we use `mark` function `on_marked` is not called to prevent creating infinite stack of calls. You can change that
+by setting `preventEvent = FALSE`.
 
 ```{r}
+openPage(layout = "table1x2")
+
+lc_scatter(dat(
+    x = iris$Sepal.Length,
+    y = iris$Petal.Length,
+    colourValue = iris$Species,
+    on_marked = function() {
+      mark(getMarked("A1"), "A2")
+    }
+  ), "A1", width = 300, height = 300)
+
+lc_scatter(dat(
+    x = iris$Sepal.Width,
+    y = iris$Petal.Width,
+    colourValue = iris$Species,
+    on_marked = function() {
+      mark(getMarked("A2"), "A1")
+    }
+  ), "A2", width = 300, height = 300)
+
 ```
+Try it by selecting points on one of the charts (the `Shift` key must be pressed in order to select points).
+
+If you want to see more use cases of these properties, check [this](../citeseq/example_1.html) tutorial.
 
 ## Axes Settings
+This section describes the following properties:
+- `shiftX`/`shiftY`
+- `jitterX`/`jitterY`
+- `logScaleX`/`logScaleY`
+- `layerDomainX`/`layerDomainY`
+- `domainX`/`domainY`
+- `aspectRatio`
+- `contScaleX`/`contScaleY`
+- `axisTitleX`/`axisTitleY`
+- `ticksRotateX`/`ticksRotateY`
+- `ticksX`/`ticksY`
+
+When you want to put too many points on a scatter plot, overplotting can become an annoying issue. It means that several
+points have the same (or almost the same) coordinates and are plotted on top of each other. In this case it's impossible
+to say, how many points are there at some coordinates. What seems to be one point can be two, or ten, or hundred.
+One way to address this problem is to make points transperent (e.g. `opacity = 0.4`). Another is to add noise along one
+of the axes, which can be especially helpful when one of the axes is categorical or discrete and there are noticeable gaps
+between agglomeration of points.
+
+`shiftX`, `shiftY`, `jitterX`, `jitterY` can add this noise. `jitterX` and jitterY` are numbers that specify 
+amplitude of the random noise that will be added to each point along one of the axes. 0 stands for no noise, 1 is 
+distance between `x` and `x + 1` for linear scale, `x` and `b*x` for logarithmic scale (where `b` is a base of the 
+logarithm), and between neighbouring ticks for categorical scale. `shiftX` and `shiftY` specify shift for each 
+point separately. `jitterX = 0.3` is equivalent to `shiftX = runif(length(x), -0.3, 0.3)`.
+
+This example demonstrate how `jitterX` works and also shows how one can use `shiftX` to create a violine plot. 
+We generate 1500 points devided into three groups `"a", "b"` and `"c"`. Y-values are normaly distributed within 
+each group, but with different means.
+
+```{r}
+x <- rep(c("a", "b", "c"), each = 500)
+y <- c(rnorm(500), rnorm(500, 3), rnorm(500, 7))
+
+openPage(useViewer = F, layout = "table1x2")
+
+# scatterplot with jitter
+lc_scatter(dat(
+    x = x, 
+    y = y,
+    jitterX = 0.3,
+    size = 2.5
+  ), "A1")
+
+# simple function to scale a vector into unitary range
+rescale <- function(x, min = 0, max = 1) {
+  (x - min(x)) / (max(x) - min(x)) * (max - min) + min
+}
+
+# generate random noise that is proportional to ker
+shift <- unlist(tapply(y, x, function(points) { # for every group of points
+  d <- density(points) # calculate density distribution of y-values
+  runif(length(points), -0.3, 0.3) * # multiply random noise
+    rescale(approx(d$x, d$y, xout = points)$y) # by value from 0 to 1 proportional 
+                                    # to density at this point
+}))
+
+# use generated noise as shift along x-axis
+lc_scatter(dat(
+  x = x, 
+  y = y,
+  shiftX = shift,
+  size = 2.5
+), "A2")
+```
+
+You can make your x or y axis logarithmic by setting `logScaleX` and `logScaleY` respectively to the base of the
+desired logarithm.
+
+```{r}
+lc_scatter(dat(x = seq(1, 128, length.out = 20),
+               y = seq(1, 128, length.out = 20),
+               logScaleY = 2))
+```
+
+By default, limits of the axes are set so that to include all the user-provided values. One can change them simply by
+changing `domainX` or `domainY`. If an axis is continuous, correspoinding domain should be a vector with minimal and
+maximal value to display. Domain for a logarithmic scale must contain only positive values. Domain for a categorical 
+axis is a vector of all possible values to display. One can also specify domain not for the entire chart, but only 
+for a given layer using `layerDomainX` and `layerDomainY`. The resulting domain then will be something that includes
+domains of all the layers.
+
+No matter how you set the axes limits, they define only the initial state of the chart. Afterwards you can alway zoom in
+or out. Just draw a rectangle with your mouse and the chart will zoom in the selected area. Double click will return chart
+to its original scale. You can also use `+` and `-` buttons on the tools pannel (click on the grey triangle in the 
+left upper corner) to zoom in or out.
+
+```{r}
+lc_scal
+```
+
+`aspectRatio` allows to control the aspect ratio of the axes. Note, that it's possible only if both axes are linear and
+continuous. In all other cases this property will be ignored.
+
+```{r}
+lc_scatter(x = 1:10, y = 1:10,
+           height = 200, # the chart will be 
+           aspectRatio = 1
+           )
+```
 
 ## Chart Settings
+This section describes the following properties:
+- `width`
+- `height`
+- `margins`
+- `showLegend`
+- `showPanel`
+- `transitionDuration`
+- `mode`
 
 ## Heatmaps
