@@ -646,7 +646,7 @@ values <- iris$Sepal.Length
 values[sample(length(values), 10)] <- NA 
 
 values[is.na(values)] <- 3
-openPage(F)
+
 lc_scatter(dat(
   x = iris$Species,
   y = values,
@@ -674,7 +674,122 @@ This section describes the following properties:
 
 `width` and `height` specify size of the chart in pixels (default value for both is 500). It is possible to change default `paddings` that are
 used for axes, titles, labels and dendograms (for heatmaps). `paddings` must be a list with at least one of the following four elements: 
-`"top", "right", "bottom"` and `"left"`.
+`"top", "right", "bottom"` and `"left"`. `showLegend` is a boolean property, which specifies whether or not to show any legend at all. In similar 
+manner with `showPanel` one can show or hide instrument panel (grey triangle in the right upper corner).
 
+```{r}
+lc_scatter(dat(
+  x = iris$Sepal.Length,
+  y = iris$Petal.Length,
+  colourValue = iris$Sepal.Width,
+  symbolValue = iris$Species,
+  showLegend = F, 
+  showPanel = F,
+  width = 600,
+  height = 300,
+  paddings = list(left = 10)
+))
+
+```
+As you can see, this chart has no instrument panel or legend, it's wider than a default-sized one, and its left paddin is too small for
+the y-axis ticks.
+
+You could have noticed by now that when you update a chart, zoom in or zoom out, there is an animated transion between the states that allows you,
+for example, to track the movement of each point. The duration of this transition is defined by `transitionDuration` property (in ms). If it is 
+set to 0 there will be no transition effect, which can considerably save performance time in case of cumbersome calculations. It is also 
+useful to turn the transition off, if you plan to make rapid changes to the chart. For example, you can change colour of the points depending
+on which point the mouse is hovering right now.
+
+```{r}
+pca <- prcomp(iris[, 1:4]) #get principle components
+
+#fucntion that calculates a distance from a given pint to
+#all other points
+getDinstance <- function(p) {
+  sqrt(rowSums(t((t(iris[, 1:4]) - unlist(iris[p, 1:4])))^2))
+}
+
+selPoint <- 1
+
+lc_scatter(dat(
+  x = pca$x[, 1],
+  y = pca$x[, 2],
+  colourValue = getDinstance(selPoint),
+  transitionDuration = 0,
+  on_mouseover = function(i) {
+    selPoint <<- i
+    updateCharts(updateOnly = "ElementStyle")
+  }
+))
+
+```
+This example allows to check how well a dimentionality reduction approach (in this case, PCA) preserves the original distance. As it usually 
+happens we plot the first two principal components. The points are coloured by the distance from the selected one (`selPoint`). When user 
+moves the mouse over one of the points a mouseover event fires. When it happens, we change the selected point (`selPoint <<- i`) and call the 
+`updateCharts` function. `updateOnly = "ElementStyle"` tells is to change only style of the points and nothing else. In case of many points this
+may save some performance.
+
+Scatters, beeswarms and heatmaps can also work in either "svg", or "canvas" mode. In "svg" mode each point or cell is a separate element whick allows
+you to be more effective, when you want to change only some of them or only a specific aspect of a chart (e.g. change colour of the points 
+without changing their location). Yet if you have too many points, rendering each of them as a separate element can require too much memory and 
+considerably slows down you browser or RStudio Viewer. An alternative to SVG is HTML-Canvas. In "canvas" mode all the points or cells are 
+parts of a single image. It makes rendering much faster, but any change of the plot, no matter how small, requires the image to be completely 
+redrawn. No transition effect is available for the "canvas" mode. It also can't be used in RStudio Viewer. If you want to use "canvas" mode,
+you need first to open a page in your browser (`openPage(useViewer = FALSE)`). There are three options available for the `mode` property:
+`"svg"` and `"canvas"` specifies the mode and `"default"` allows chart to select the mode automatically.
 
 ## Heatmaps
+This section describes the following properties:
+- `rowLabel`/`colLabel`
+- `clusterRows`/`clusterCols`
+- `showDendogramRow`/`showDendogramCol`
+- `heatmapRow`/`heatmapCol`
+- `on_labelClickRow`/`on_labelClickCol`
+- `rowTitle`/`colTitle`
+- `showValue`
+
+Each row and column of heatmap has labels that are shown next to the row or column and on the label that apears when mouse hovers onel of the cells.
+This labels can be automatically picked from column and row names of the `value` matrix, or you can specify them using `colLabel` and `rowLabel`. 
+When neither is available, numbers are used instead. `clusterRows` and `clusterCols` specify, whether rows and columns should be clustered when the
+heatmap is generated. Even if these two are set to `FALSE`, you can always cluster rows and columns later, using the instrument panel (click on the
+grey triangle in the upper-left corner to open/hide the instrument panel). Note, that hierarchical clustering is slow and it may cause 
+the page to go down. When rows or columns are clustered, an interective dendogram appears on the top or to the left from the heatmap. You can 
+click on a branch of the, for example, row dendogram to cluster columns, using only rows of the selected branch as features.
+
+```{r}
+openPage(useViewer = F)
+
+lc_heatmap(dat(
+  value = as.matrix(dist((iris[1:4]))),
+  rowLabel = iris$Species, # labels do not have to be unique
+  colLabel = iris$Species,
+  clusterRows = T, # we cluster rows and columns
+  clusterCols = T,
+  showDendogramRow = F # but hide row dendogram
+))
+```
+
+By default, rows and columns are ordered as they are given. If `clusterRows` or `clusterCols` is `TRUE`, then rows or columns are ordered 
+according to the hierarchical clustering. It is also possible to set row and column order by setting `heatmapRow` and `heatmapCol` properties.
+You may have noticed by now, that clicking on a row label causes columns to rearange themselves so that cells in the clicked row are sorted 
+by their values. The same goes for column lables Now, we are going to replace that with a different kind of behaviour. When a row label is clicked,
+it will be placed on top of the heatmap and all other rows will be ordered by correlation with the selected one.
+
+```{r}
+openPage(useViewer = F)
+ord <- 1:nrow(iris)
+
+lc_heatmap(dat(
+  value = iris[, 1:4],
+  rowLabel = iris$Species,
+  colLabel = colnames(iris),
+  height = 1000,
+  orderRows = ord,
+  on_labelClickRow = function(i) {
+    ord <- order(cor(iris[i, 1:4], iris[, 1:4]), decreasing = T)
+    updateChart()
+  }
+))
+```
+
+

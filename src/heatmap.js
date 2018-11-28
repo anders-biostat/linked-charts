@@ -46,6 +46,8 @@ export function heatmap(id, chart){
 		.add_property("colTitle", "")
 		.add_property("on_mouseover")
 		.add_property("on_mouseout")
+		.add_property("on_labelClickRow")
+		.add_property("on_labelClickCol")
 		.add_property("clusterRows", false)
 		.add_property("clusterCols", false)
 		.add_property("informText", function(rowId, colId) {
@@ -276,10 +278,10 @@ export function heatmap(id, chart){
 	}
 
 	//set default hovering behaviour
-	function on_mouseoverLabel() {
+	function on_labelMouseover() {
 		d3.select(this).classed("hover", true);
 	};
-	function on_mouseoutLabel() {
+	function on_labelMouseout() {
 		d3.select(this).classed("hover", false);
 	};
 
@@ -514,8 +516,8 @@ export function heatmap(id, chart){
 				.attr("dx", 2)
 				.merge(colLabel)
 					.attr("id", function(d) {return d.toString().replace(/[ .]/g,"_")})
-					.on("mouseover", on_mouseoverLabel)
-					.on("mouseout", on_mouseoutLabel)
+					.on("mouseover", on_labelMouseover)
+					.on("mouseout", on_labelMouseout)
 					.on("click", labelClick);
 		rowLabel.enter()
 			.append("text")
@@ -524,8 +526,8 @@ export function heatmap(id, chart){
 				.attr("dx", -2)
 				.merge(rowLabel)
 					.attr("id", function(d) {return d.toString().replace(/[ .]/g,"_")})
-					.on("mouseover", on_mouseoverLabel)
-					.on("mouseout", on_mouseoutLabel)
+					.on("mouseover", on_labelMouseover)
+					.on("mouseout", on_labelMouseout)
 					.on("click", labelClick);
 
 		chart.updateCells();
@@ -662,6 +664,21 @@ export function heatmap(id, chart){
 		chart.get_on_mouseout(d[0], d[1]);		
 	};
 	
+	chart.on_labelClickCol(function(d) {
+		chart.reorder("Row", function(a, b){
+			return chart.get_value(b, d) - chart.get_value(a, d);
+		});
+		if(chart.dendogramRow)
+			chart.dendogramRow.remove();		
+	})
+	chart.on_labelClickRow(function(d) {
+		chart.reorder("Col", function(a, b){
+			return chart.get_value(d, b) - chart.get_value(d, a);
+		});
+		if(chart.dendogramCol)
+			chart.dendogramCol.remove();
+	})
+
 	//set default clicking behaviour for labels (ordering)
 	function labelClick(d){
 		//check whether row or col label has been clicked
@@ -672,23 +689,17 @@ export function heatmap(id, chart){
 			type == "col" ? chart.reorder("Row", "flip") : chart.reorder("Col", "flip");
 		} else {
 			//select new label and chage ordering
-			if(type == "col"){
-				chart.reorder("Row", function(a, b){
-					return chart.get_value(b, d) - chart.get_value(a, d);
-				});
-				if(chart.dendogramRow)
-					chart.dendogramRow.remove();
-			} else {
-				chart.reorder("Col", function(a, b){
-					return chart.get_value(d, b) - chart.get_value(d, a);
-				});
-				if(chart.dendogramCol)
-					chart.dendogramCol.remove();
-			}
+			if(type == "col")
+				chart.get_on_labelClickCol(d)
+			else
+				chart.get_on_labelClickRow(d);
+
 			chart.updateLabelPosition();
 		}
-		
-		d3.select(this).classed("sorted", true)
+		d3.select(this.parentNode)
+			.selectAll(".label")
+				.classed("selected", false);
+		d3.select(this)
 			.classed("selected", true);
 	};
 	
