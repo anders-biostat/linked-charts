@@ -163,9 +163,10 @@ export function scatter(id, chart) {
       .domain(range)
       .range(symbols);
 
-    layer.symbol(function(id) {
-      return layer.symbolScale(layer.get_symbolValue(id));
-    })
+    if(range[0])
+      layer.symbol(function(id) {
+        return layer.symbolScale(layer.get_symbolValue(id));
+      });
 
     if(layer.chart.showLegend()) {
       layer.addLegendBlock(layer.symbolScale, "symbol", layer.id + "_symbol");

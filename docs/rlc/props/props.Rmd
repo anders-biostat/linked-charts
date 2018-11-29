@@ -40,7 +40,7 @@ The simplest way to colour elements of a chart is to use the `colourValue` prope
 It takes numbers or strings for each point (line, bar, etc.) and based on that generates
 a continuous or categorical colour scale.
 
-```{r}
+```{r message=FALSE}
 openPage(layout = "table1x2")
 
 # a scatter plot with a categorical colour scale
@@ -57,6 +57,12 @@ lc_scatter(dat(x = iris$Sepal.Length,
            width = 300, height = 300,
            place = "A2")
 ```
+<script src = "iris.js"></script>
+<script src = "examples.js"></script>
+<div id="example1">
+  <table><tr><td id = "A1"></td><td id = "A2"></td></tr></table>
+</div>
+
 To further specify colours one can use `palette` and `colourDomain` properties. 
 
 In case of categorical colour scale `colourDomain` is a set of all possible colour values.
@@ -68,7 +74,7 @@ outside this range will produce colours that correspond to maximal or to minimal
 
 To illustrate all this, let's add `colourDomain` to our example.
 
-```{r}
+```{r message=FALSE}
 openPage(layout = "table1x2")
 
 # a scatter plot with a categorical colour scale
@@ -76,7 +82,7 @@ lc_scatter(dat(x = iris$Sepal.Length,
                y = iris$Petal.Length,
                colourValue = iris$Species,
                colourDomain = c("setosa", "something else", "virginica")),
-           width = 300, height = 300, #change width and height of the chart to 300px
+           width = 300, height = 300,
            place = "A1")
 
 # a scatter plot with a continuous colour scale
@@ -87,6 +93,9 @@ lc_scatter(dat(x = iris$Sepal.Length,
            width = 300, height = 300,
            place = "A2")
 ```
+<div id="example2">
+  <table><tr><td id = "A1"></td><td id = "A2"></td></tr></table>
+</div>
 
 On the left plot, all the "versicolor" points are now black, since this value is no longer present in
 `colourDomain`. At the same time, orange colour is reserved for "something else". On the plot to the right,
@@ -99,7 +108,7 @@ Finally, `palette` defines what colours are used. It is always a vector of colou
 "reference points" for the colour scale. By default, they are spread evenly withing `colourDomain`, but one can
 also specify intermediate points.
 
-```{r}
+```{r message=FALSE}
 openPage(layout = "table1x2")
 
 # a scatter plot with a categorical colour scale
@@ -108,7 +117,7 @@ lc_scatter(dat(x = iris$Sepal.Length,
                colourValue = iris$Species,
                colourDomain = c("setosa", "something else", "virginica", "versicolor")),
                palette = c("gold", "hotpink", "dodgerblue"),
-           width = 300, height = 300, #change width and height of the chart to 300px
+           width = 300, height = 300,
            place = "A1")
 
 # a scatter plot with a continuous colour scale
@@ -120,6 +129,10 @@ lc_scatter(dat(x = iris$Sepal.Length,
            width = 300, height = 300,
            place = "A2")
 ```
+<div id="example3">
+  <table><tr><td id = "A1"></td><td id = "A2"></td></tr></table>
+</div>
+
 Now chart to the left has more elements in `colourDomain` than colours in `palette` and therefore colours are repeated, 
 starting from the first element in `palette`. For the chart to the right we've provided `palette` with three colours
 and also we've added an intermediate point in `colourDomain`. This tells R/LinkedCharts to interpolate colours from red to grey
@@ -139,17 +152,19 @@ lc_scatter(dat(x = 1:5,  # x-coordinates of the points are 1, 2, 3, 4, 5
                colour = c("red", "#123456", rgb(0.4, 0.8, 0.1), "#aaa", "some_strange_colour"))
           )
 ```
+<div id = "example4"></div>
 
 Besides that you can also change stroke colour (`stroke`) in scatters, bar charts and ribbons and `fill` lines (`lc_line`, 
 `lc_abLine`, etc.) with some colour. These two properties work the same way as `colour`.
 
-```{r}
+```{r message=FALSE}
 openPage(layout = "table1x2")
 
 # some filled lines
 points <- seq(0, 6.5, 0.1)
 x <- cos(points)
 y <- sin(points)
+
 lc_path(dat(x = sapply(0:2, function(i) x + i), # coordinates for three circles
             y = sapply(0:2, function(i) y + i),
             lineWidth = 5, # make lines thicker
@@ -170,6 +185,9 @@ lc_scatter(dat(x = 0:2, y = 0:2, size = 55, # three huge points instead of circl
            width = 300, height = 300,
            place = "A2")
 ```
+<div id="example5">
+  <table><tr><td id = "A1"></td><td id = "A2"></td></tr></table>
+</div>
 
 `colourLegendTitle` allows to give a meaningfull name to your legend.
 `globalColourScale` can be useful, when your chart has several layers with coloured elements. If `globalColourScale` is 
@@ -183,7 +201,7 @@ This artificial example can help us illustrate the meaning of having a global co
 with three layers: one with points of type "a" and "b", another for lines along which type "b" and "c" samples are scattered, 
 and one more to highlight the area of most likely location for type "c" samples.
 
-```{r}
+```{r message=FALSE}
 # generate 20 randomly distributed points, and 20 that
 # are scattered along y = 3 * x line
 pointsX <- runif(40)
@@ -248,6 +266,10 @@ lc_abLine(dat(
   place = "A2", addLayer = T)
   
 ```
+<div id="example6">
+  <table><tr><td id = "A1"></td><td id = "A2"></td></tr></table>
+</div>
+
 Note, how on the cahrt to the left all three layers use exactly the same colour for the three data types.
 On the left one, where we didn't use global colour scale (`globalColourScale = F`), each layer has its own
 `colourDomain` and the same default `palette`. `lc_ribbon` has only one element and its type is "c", so it
@@ -265,7 +287,7 @@ So far we didn't mention heatmaps (`lc_heatmap`), but their colouring is defined
 `colourDomain` properties the same way it happens for all other charts. It can also be interesting to use an interactive
 `lc_colourSlider` instead of static colour scale.
 
-```{r}
+```{r message=FALSE}
 # if you want to plot 150x150 correlation matrix, it's better to 
 # use your browser instead of RStudio Viewer.
 openPage(useViewer = F)
@@ -280,6 +302,7 @@ lc_heatmap(dat(
 
 lc_colourSlider(chart = "Chart1")
 ```
+<div id="example7"></div>
 
 ## Shape
 
@@ -300,7 +323,7 @@ to one of the symbols. `symbol` property directly assigns symbol types to each e
 Possible symble types are `"Circle", "Cross", "Diamond", "Square", "Star", "Triangle", "Wye"`.
 `symbolLegendTitle` adds a title to the symbol legend.
 
-```{r}
+```{r message=FALSE}
 openPage(layout = "table1x2")
 
 lc_scatter(dat(x = iris$Sepal.Length,
@@ -316,6 +339,10 @@ lc_scatter(dat(x = iris$Sepal.Length,
            width = 300, height = 300,
            place = "A2")
 ```
+<div id="example8">
+  <table><tr><td id = "A1"></td><td id = "A2"></td></tr></table>
+</div>
+
 On the left chart R/LinkedCharts automatically puts a symbol for each of the present species
 `symbolValue = iris$Species`. On the chart to the right we do it manualy 
 `symbol = ifelse(iris$Species == "setosa", "Star", "Cross")` (for the sake of simplicity, we only distinguish
@@ -743,7 +770,7 @@ This section describes the following properties:
 - `rowLabel`/`colLabel`
 - `clusterRows`/`clusterCols`
 - `showDendogramRow`/`showDendogramCol`
-- `heatmapRow`/`heatmapCol`
+- `rankRows`/`rankCols`
 - `on_labelClickRow`/`on_labelClickCol`
 - `rowTitle`/`colTitle`
 - `showValue`
@@ -769,27 +796,33 @@ lc_heatmap(dat(
 ))
 ```
 
+
+If `showValue` is true, then when user moves the mouse over a cell, instead of a label with column and row IDs and the corresponding value,
+only the value will be shown directly inside the cell. This may be useful for small heatmaps with large cells. `rowTitle` and `colTitle` work like
+axes title, but for heatmaps.
+
 By default, rows and columns are ordered as they are given. If `clusterRows` or `clusterCols` is `TRUE`, then rows or columns are ordered 
-according to the hierarchical clustering. It is also possible to set row and column order by setting `heatmapRow` and `heatmapCol` properties.
+according to the hierarchical clustering. It is also possible to set row and column order by setting `rankRows` and `rankCols` properties.
 You may have noticed by now, that clicking on a row label causes columns to rearange themselves so that cells in the clicked row are sorted 
 by their values. The same goes for column lables Now, we are going to replace that with a different kind of behaviour. When a row label is clicked,
 it will be placed on top of the heatmap and all other rows will be ordered by correlation with the selected one.
 
 ```{r}
 openPage(useViewer = F)
-ord <- 1:nrow(iris)
+rnk <- 1:nrow(iris) # initial rank of rows
 
 lc_heatmap(dat(
   value = iris[, 1:4],
   rowLabel = iris$Species,
   colLabel = colnames(iris),
   height = 1000,
-  orderRows = ord,
+  rankRows = rnk,
+  showValue = T,
+  rowTitle = "Samples",
+  colTitle = "Measurements",
   on_labelClickRow = function(i) {
-    ord <- order(cor(iris[i, 1:4], iris[, 1:4]), decreasing = T)
-    updateChart()
+    rnk <<- rank(-cor(unlist(iris[i, 1:4]), t(iris[, 1:4])))
+    updateCharts()
   }
 ))
 ```
-
-
