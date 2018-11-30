@@ -163,18 +163,18 @@ export function scatter(id, chart) {
       .domain(range)
       .range(symbols);
 
-    if(range[0])
-      layer.symbol(function(id) {
-        return layer.symbolScale(layer.get_symbolValue(id));
-      });
+    if(range[0]) {
+        layer.symbol(function(id) {
+          return layer.symbolScale(layer.get_symbolValue(id));
+        });
 
-    if(layer.chart.showLegend()) {
-      layer.addLegendBlock(layer.symbolScale, "symbol", layer.id + "_symbol");
-      var tObj = {};
-      tObj[layer.id + "_symbol"] = layer.symbolLegendTitle();
-      layer.chart.legend.set_title(tObj);
+      if(layer.chart.showLegend()) {
+        layer.addLegendBlock(layer.symbolScale, "symbol", layer.id + "_symbol");
+        var tObj = {};
+        tObj[layer.id + "_symbol"] = layer.symbolLegendTitle();
+        layer.chart.legend.set_title(tObj);
+      }
     }
-
   }
 
   var get_mode = function() {
