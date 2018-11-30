@@ -2,7 +2,7 @@
 //example 1//
 /////////////
 
-lc.scatter()
+var a1 = lc.scatter()
 	.x(iris.Sepal_Length)
 	.y(iris.Petal_Length)
 	.colourValue(iris.Species)
@@ -10,7 +10,7 @@ lc.scatter()
 	.height(300)
 	.place(d3.select("#example1").select("#A1"));
 
-lc.scatter()
+var a2 = lc.scatter()
 	.x(iris.Sepal_Length)
 	.y(iris.Petal_Length)
 	.colourValue(iris.Petal_Width)
@@ -74,18 +74,18 @@ lc.scatter()
 	.size(15)
 	.width(350)
 	.height(200)
-	.colour(["red", "#123456", rgb(102, 204, 25), "#aaa", "some_strange_colour"])
+	.colour(["red", "#123456", "rgb(102, 204, 25)", "#aaa", "some_strange_colour"])
 	.place("#example4");
 
 /////////////
 //example 5//
 /////////////
 
-lc.pointLine()
+lc.parametricCurve()
 	.nelements(3)
 	.paramRange([0, 6.5])
-	.x((t, d) => Math.cos(t) + d)
-	.y((t, d) => Math.sin(t) + d)
+	.xFunction((t, d) => Math.cos(t) + d)
+	.yFunction((t, d) => Math.sin(t) + d)
 	.lineWidth(5)
 	.fill(["blue", "red", "black"])
 	.colour(["cornflowerblue", "coral", "grey"])
@@ -113,7 +113,7 @@ lc.scatter()
 var ex6 = {};
 ex6.x = d3.range(21).map(e => e/20);
 ex6.pointsX = d3.range(40).map(e => Math.random());
-ex6.pointsY = d3.range(40).map(e => e > 20 ? e*3 + Math.random()/5 : Math.random() * 3);
+ex6.pointsY = d3.range(40).map(e => e > 20 ? ex6.x[e - 20]*3 : Math.random() * 3);
 
 ex6.A1 = lc.pointRibbon()
 	.x(ex6.x)
@@ -124,11 +124,11 @@ ex6.A1 = lc.pointRibbon()
 	.height(300);
 
 lc.scatter("points", ex6.A1)
-	.x(pointsX)
-	.y(pointsY)
+	.x(ex6.pointsX)
+	.y(ex6.pointsY)
 	.colourValue(d3.range(40).map(e => e > 20 ? "b" : "a"));
 
-lc.xLine("line", ex6.A2)
+lc.xLine("line", ex6.A1)
 	.nelements(2)
 	.lineFun((t, d) => d == 0 ? t*3 : t*2)
 	.colourValue(["b", "c"])
@@ -137,21 +137,21 @@ lc.xLine("line", ex6.A2)
 
 ex6.A2 = lc.pointRibbon()
 	.x(ex6.x)
-	.ymax(ex6.x.map(e => e * 2 + Math.abs(e - 0.5)))
-	.ymin(ex6.x.map(e => e * 2 + Math.abs(e - 0.5)))
+	.ymax(ex6.x.map(e => ex6.x[e] * 2 + Math.abs(ex6.x[e] - 0.5)))
+	.ymin(ex6.x.map(e => ex6.x[e] * 2 + Math.abs(ex6.x[e] - 0.5)))
 	.globalColourScale(false)
 	.colourLegendTitle("ribbon")
 	.colourValue("c")
 	.width(300)
 	.height(300);
 
-lc.scatter("points", ex6.A1)
-	.x(pointsX)
-	.y(pointsY)
+lc.scatter("points", ex6.A2)
+	.x(ex6.pointsX)
+	.y(ex6.pointsY)
 	.colourLegendTitle("scatter")
 	.colourValue(d3.range(40).map(e => e > 20 ? "b" : "a"));
 
-lc.xLine()
+lc.xLine("line", ex6.A2)
 	.nelements(2)
 	.lineFun((t, d) => d == 0 ? t*3 : t*2)
 	.colourValue(["b", "c"])
@@ -327,23 +327,160 @@ ex15.A2 = lc.scatter()
 //////////////
 
 lc.scatter()
-	.x(iris.Sepal_Length)
-	.y(iris.Petal_Length)
-	.colourValue(iris.Species)
+	.x(random.x)
+	.y(random.y)
+	.size(2.5)
+	.shiftX(d3.range(1500).map(e => Math.random() * 0.6 - 0.3))
 	.width(300)
 	.height(300)
-	.on_marked(function() {
-		ex15.A2.mark(ex15.A1.get_marked());
-	})
-	.place(d3.select("#example15").select("#A1"));
+	.place(d3.select("#example16").select("#A1"));
 
 lc.scatter()
-	.x(iris.Sepal_Width)
-	.y(iris.Petal_Width)
-	.colourValue(iris.Species)
+	.x(random.x)
+	.y(random.y)
+	.size(2.5)
+	.shiftX(random.shift)
 	.width(300)
 	.height(300)
-	.on_marked(function() {
-		ex15.A1.mark(ex15.A2.get_marked());
+	.place(d3.select("#example16").select("#A2"));
+
+//////////////
+//example 17//
+//////////////
+
+lc.scatter()
+	.x(d3.range(20).map(e => (e + 1) * 128/19))
+	.y(d3.range(20).map(e => (e + 1) * 128/19))
+	.logScaleY(2)
+	.place("#example17");
+
+//////////////
+//example 18//
+//////////////
+
+var ex18 = {};
+ex18.x1 = d3.range(40).map(e => Math.random() * 10);
+ex18.x2 = d3.range(40).map(e => Math.random() * 10 - 5);
+
+ex18.chart = lc.scatter()
+	.x(ex18.x1)
+	.y(ex18.x1.map(e => e * 3 + Math.random()/5))
+	.layerDomainX([3, 9])
+	.domainY([0, 20]);
+
+lc.scatter("red", ex18.chart)
+	.x(ex18.x2)
+	.y(ex18.x2.map(e => -e + Math.random()/5))
+	.colour("red")
+	.place("#example18");
+
+//////////////
+//example 19//
+//////////////
+
+lc.scatter()
+	.x(iris.Species)
+	.y(iris.Sepal_Length)
+	.shiftX(d3.range(150).map(e => Math.random * 0.4 - 0.2))
+	.colourValue(iris.Petal_Length)
+	.domainX(["virginica", "something else", "setosa", "versicolor"])
+	.place("#example19");
+
+//////////////
+//example 20//
+//////////////
+
+lc.scatter()
+	.x(d3.range(10).map(e => e + 1))
+	.y(d3.range(10).map(e => e + 1))
+	.height(200)
+	.aspectRatio(1)
+	.place("#example20");
+
+//////////////
+//example 21//
+//////////////
+
+var ex21 = {};
+
+ex21.values = iris.Sepal_Length.slice();
+
+for(var i = 0; i < 10; i++)
+	ex21.values[Math.floor(Math.random() * 150)] = 3;
+
+lc.scatter()
+	.x(iris.Species)
+	.y(ex21.values)
+	.ticksY([[3, 4, 5, 6, 7, 8], ["NA", 4, 5, 6, 7, 8]])
+	.ticksRotateX(45)
+	.axisTitleX("species")
+	.axisTitleY("sepal length")
+	.shiftX(d3.range(150).map(e => Math.random() * 0.4 - 0.2))
+	.size(4)
+	.colourValue(iris.Petal_Length)
+	.place("#example21");
+
+//////////////
+//example 22//
+//////////////
+
+lc.scatter()
+	.x(iris.Sepal_Length)
+	.y(iris.Petal_Length)
+	.colourValue(iris.Sepal_Width)
+	.symbolValue(iris.Species)
+	.showLegend(false)
+	.showPanel(false)
+	.width(600)
+	.height(300)
+	.set_paddings({left: 10})
+	.place("#example22");
+
+//////////////
+//example 23//
+//////////////
+
+var ex23 = {};
+ex23.selPoint = 0;
+
+ex23.chart = lc.scatter()
+	.x(pcaIris[0])
+	.y(pcaIris[1])
+	.colourValue(i => distIris[selPoint][i])
+	.transitionDuration(0)
+	.on_mouseover(function(i) {
+		ex23.selPoint = i;
+		ex23.chart.updateElementStyle();
 	})
-	.place(d3.select("#example15").select("#A2"));
+	.place("#example23");
+
+//////////////
+//example 24//
+//////////////
+
+lc.heatmap()
+	.value(distIris)
+	.rowLabel(iris.Species)
+	.colLabel(iris.Species)
+	.clusterRows(true)
+	.clusterCols(true)
+	.showDendogramRow(false)
+	.place("#example24");
+
+//////////////
+//example 25//
+//////////////
+var ex25 = {};
+
+ex25.chart = lc.heatmap()
+	.value((row, col) => iris[col][row])
+	.rowLabel(iris.Species)
+	.colLabel(["Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"])
+	.height(1000)
+	.showValue(true)
+	.rowTitle("Samples")
+	.colTitle("Measurements")
+	.on_labelClickRow(function(i) {
+		ex25.reorder("Row", (a, b) => corIris[i][a] - corIris[i][b])
+	})
+	.place("#example25");

@@ -10,16 +10,28 @@ The main goal of this tutorial is to give overview of the adjuststable apects in
 such ss [Iris](https://en.wikipedia.org/wiki/Iris_flower_data_set) flower data set or randomly 
 generated data. 
 
-```{r}
+
+```r
 data("iris") #load Iris data set
 head(iris)
+```
+
+```
+##   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 1          5.1         3.5          1.4         0.2  setosa
+## 2          4.9         3.0          1.4         0.2  setosa
+## 3          4.7         3.2          1.3         0.2  setosa
+## 4          4.6         3.1          1.5         0.2  setosa
+## 5          5.0         3.6          1.4         0.2  setosa
+## 6          5.4         3.9          1.7         0.4  setosa
 ```
 
 We assume that you are already familiar with R/LinkedCharts and its main ideas and principles
 and want to explore more possibilities of the library. Otherwise, it can be better first to 
 go through [this](../oscc/oscc.html) tutorial.
 
-```{r message=FALSE}
+
+```r
 library(rlc) #load the library
 ```
 
@@ -40,7 +52,8 @@ The simplest way to colour elements of a chart is to use the `colourValue` prope
 It takes numbers or strings for each point (line, bar, etc.) and based on that generates
 a continuous or categorical colour scale.
 
-```{r message=FALSE}
+
+```r
 openPage(layout = "table1x2")
 
 # a scatter plot with a categorical colour scale
@@ -73,7 +86,8 @@ outside this range will produce colours that correspond to maximal or to minimal
 
 To illustrate all this, let's add `colourDomain` to our example.
 
-```{r message=FALSE}
+
+```r
 openPage(layout = "table1x2")
 
 # a scatter plot with a categorical colour scale
@@ -107,7 +121,8 @@ Finally, `palette` defines what colours are used. It is always a vector of colou
 "reference points" for the colour scale. By default, they are spread evenly withing `colourDomain`, but one can
 also specify intermediate points.
 
-```{r message=FALSE}
+
+```r
 openPage(layout = "table1x2")
 
 # a scatter plot with a categorical colour scale
@@ -142,7 +157,8 @@ but it assigns colours without generating a colour scale. Here is an example. No
 since `some_strange_colour` doesn't correspond to any colour.
 
 
-```{r message=FALSE}
+
+```r
 lc_scatter(dat(x = 1:5,  # x-coordinates of the points are 1, 2, 3, 4, 5
                y = rep(1, 5), # all 5 points has 1 as their y-coordinates
                size = 15, # Let's have big points! (Default point size is 6)
@@ -151,12 +167,21 @@ lc_scatter(dat(x = 1:5,  # x-coordinates of the points are 1, 2, 3, 4, 5
                colour = c("red", "#123456", rgb(0.4, 0.8, 0.1), "#aaa", "some_strange_colour"))
           )
 ```
+
+```
+## Chart 'Chart3' added.
+```
+
+```
+## Layer 'Layer1' is added to chart 'Chart3'.
+```
 <div id = "example4"></div>
 
 Besides that you can also change stroke colour (`stroke`) in scatters, bar charts and ribbons and `fill` lines (`lc_line`, 
 `lc_abLine`, etc.) with some colour. These two properties work the same way as `colour`.
 
-```{r message=FALSE}
+
+```r
 openPage(layout = "table1x2")
 
 # some filled lines
@@ -200,7 +225,8 @@ This artificial example can help us illustrate the meaning of having a global co
 with three layers: one with points of type "a" and "b", another for lines along which type "b" and "c" samples are scattered, 
 and one more to highlight the area of most likely location for type "c" samples.
 
-```{r message=FALSE}
+
+```r
 # generate 20 randomly distributed points, and 20 that
 # are scattered along y = 3 * x line
 pointsX <- runif(40)
@@ -263,7 +289,6 @@ lc_abLine(dat(
     colourLegendTitle = "lines",
     colourValue = c("b", "c")),
   place = "A2", addLayer = T)
-  
 ```
 <div id="example6">
   <table><tr><td id = "A1"></td><td id = "A2"></td></tr></table>
@@ -286,7 +311,8 @@ So far we didn't mention heatmaps (`lc_heatmap`), but their colouring is defined
 `colourDomain` properties the same way it happens for all other charts. It can also be interesting to use an interactive
 `lc_colourSlider` instead of static colour scale.
 
-```{r message=FALSE}
+
+```r
 # if you want to plot 150x150 correlation matrix, it's better to 
 # use your browser instead of RStudio Viewer.
 openPage(useViewer = F)
@@ -322,7 +348,8 @@ to one of the symbols. `symbol` property directly assigns symbol types to each e
 Possible symble types are `"Circle", "Cross", "Diamond", "Square", "Star", "Triangle", "Wye"`.
 `symbolLegendTitle` adds a title to the symbol legend.
 
-```{r message=FALSE}
+
+```r
 openPage(layout = "table1x2")
 
 lc_scatter(dat(x = iris$Sepal.Length,
@@ -350,7 +377,8 @@ On the left chart R/LinkedCharts automatically puts a symbol for each of the pre
 We can also change `size` of the points (default is 6), `opacity` (value from 0 to 1), or `strokeWidth` (by default, 
 `0.1 * size`).
 
-```{r message=FALSE}
+
+```r
 lc_scatter(dat(x = iris$Sepal.Length,
                y = iris$Petal.Length,
                size = iris$Sepal.Width * 2,
@@ -366,7 +394,8 @@ the same way as CSS [stroke-dasharray](https://developer.mozilla.org/en-US/docs/
 attribute. It is a list of numbers that specify legnth of alternating dashes and gaps. First number is length
 of the first dash, second - of the first gap, third - of the second dash, and so on, and so forth.
 
-```{r message=FALSE}
+
+```r
 lc_hLine(dat(
   h = 1:5,
   lineWidth = 1:5 * 2,
@@ -393,7 +422,8 @@ position of title midpoint, while `titleY` is vertical position of its bottom.
 `axisTitleX` and `axisTitleY` set title to x and y axes respectively. `colourLegendTitle` and `symbolLegendTitle` have 
 already been mentioned in the sections above - they specify titles for colour and symbol legends.
 
-```{r message=FALSE}
+
+```r
 lc_scatter(dat(
   x = iris$Sepal.Length,
   y = iris$Petal.Length,
@@ -430,7 +460,8 @@ Properties, defined inside this function (e.g. `dat(x = somePoints$x, y = somePo
 any moment by calling the `updateCharts()` function and the chart will be changed accordingly. For example, if
 `somePoints` is changed, then `updateCharts()` will make the points move to new positions.
 
-```{r message=FALSE}
+
+```r
 lc_scatter(dat(x = rnorm(10)), 
            y = rnorm(10))
 updateCharts()
@@ -454,7 +485,8 @@ It gets index of the clicked point and prints it (`print(i)`). It also changes `
 inside this function we use global assignment operator `<<-` instead of usual `<-`. `<-` will just create a local variable 
 `selColour` inside the function.
 
-```{r message=FALSE}
+
+```r
 colours <- RColorBrewer::brewer.pal(10, "Set3")
 selColour <- 1
 
@@ -476,7 +508,8 @@ lc_scatter(dat(
 the one above, but now, instead of clicking on a point, one can just move the mouse over it. When mouse moves out all points
 become black.
 
-```{r message=FALSE}
+
+```r
 colours <- c(RColorBrewer::brewer.pal(10, "Set3"), "black")
 selColour <- 1
 
@@ -505,7 +538,8 @@ points (`getMarked("A1")`) and select them on the other chart (`mark(getMarked("
 we use `mark` function `on_marked` is not called to prevent creating infinite stack of calls. You can change that
 by setting `preventEvent = FALSE`.
 
-```{r message=FALSE}
+
+```r
 openPage(layout = "table1x2")
 
 lc_scatter(dat(
@@ -525,7 +559,6 @@ lc_scatter(dat(
       mark(getMarked("A2"), "A1")
     }
   ), "A2", width = 300, height = 300)
-
 ```
 <div id="example15">
   <table><tr><td id = "A1"></td><td id = "A2"></td></tr></table>
@@ -563,7 +596,8 @@ This example demonstrate how `jitterX` works and also shows how one can use `shi
 We generate 1500 points devided into three groups `"a", "b"` and `"c"`. Y-values are normaly distributed within 
 each group, but with different means.
 
-```{r message=FALSE}
+
+```r
 x <- rep(c("a", "b", "c"), each = 500)
 y <- c(rnorm(500), rnorm(500, 3), rnorm(500, 7))
 
@@ -605,7 +639,8 @@ lc_scatter(dat(
 You can make your x or y axis logarithmic by setting `logScaleX` and `logScaleY` respectively to the base of the
 desired logarithm.
 
-```{r message=FALSE}
+
+```r
 lc_scatter(dat(x = seq(1, 128, length.out = 20),
                y = seq(1, 128, length.out = 20),
                logScaleY = 2))
@@ -624,7 +659,8 @@ or out. Just draw a rectangle with your mouse and the chart will zoom in the sel
 to its original scale. You can also use `+` and `-` buttons on the tools pannel (click on the grey triangle in the 
 left upper corner) to zoom in or out.
 
-```{r message=FALSE}
+
+```r
 x1 <- runif(40, 0, 10)
 x2 <- runif(40, -5, 5)
 
@@ -650,7 +686,8 @@ other layers' domains to define the final limits of the axis.
 
 And here is how domain works for categorical axes.
 
-```{r message=FALSE}
+
+```r
 lc_scatter(dat(
   x = iris$Species,
   y = iris$Sepal.Length,
@@ -667,7 +704,8 @@ expect `"something else"` as one of the species, even thoug there is no points w
 `aspectRatio` allows to control the aspect ratio of the axes. Note, that it's possible only if both axes are linear and
 continuous. In all other cases this property will be ignored.
 
-```{r message=FALSE}
+
+```r
 lc_scatter(x = 1:10, y = 1:10,
            height = 200, # make the chart wide
            aspectRatio = 1)
@@ -684,7 +722,8 @@ Imagine now in the Iris dataset some values are missing. By default these points
 we want to show them as well? We can replace NAs with some numerc value that is smaller than all our real values and then change tick labels to
 indicate that.
 
-```{r message=FALSE}
+
+```r
 values <- iris$Sepal.Length
 #add some NAs
 values[sample(length(values), 10)] <- NA 
@@ -702,7 +741,6 @@ lc_scatter(dat(
   size = 4,
   colourValue = iris$Petal.Length
 ))
-
 ```
 <div id="example21"></div>
 
@@ -722,7 +760,8 @@ used for axes, titles, labels and dendograms (for heatmaps). `paddings` must be 
 `"top", "right", "bottom"` and `"left"`. `showLegend` is a boolean property, which specifies whether or not to show any legend at all. In similar 
 manner with `showPanel` one can show or hide instrument panel (grey triangle in the right upper corner).
 
-```{r message=FALSE}
+
+```r
 lc_scatter(dat(
   x = iris$Sepal.Length,
   y = iris$Petal.Length,
@@ -734,7 +773,6 @@ lc_scatter(dat(
   height = 300,
   paddings = list(left = 10)
 ))
-
 ```
 <div id="example22"></div>
 As you can see, this chart has no instrument panel or legend, it's wider than a default-sized one, and its left paddin is too small for
@@ -746,7 +784,8 @@ set to 0 there will be no transition effect, which can considerably save perform
 useful to turn the transition off, if you plan to make rapid changes to the chart. For example, you can change colour of the points depending
 on which point the mouse is hovering right now.
 
-```{r message=FALSE}
+
+```r
 pca <- prcomp(iris[, 1:4]) #get principle components
 
 #fucntion that calculates a distance from a given pint to
@@ -767,7 +806,6 @@ lc_scatter(dat(
     updateCharts(updateOnly = "ElementStyle")
   }
 ))
-
 ```
 <div id="example23"></div>
 
@@ -804,7 +842,8 @@ grey triangle in the upper-left corner to open/hide the instrument panel). Note,
 the page to go down. When rows or columns are clustered, an interective dendogram appears on the top or to the left from the heatmap. You can 
 click on a branch of the, for example, row dendogram to cluster columns, using only rows of the selected branch as features.
 
-```{r message=FALSE}
+
+```r
 openPage(useViewer = F)
 
 lc_heatmap(dat(
@@ -828,7 +867,8 @@ You may have noticed by now, that clicking on a row label causes columns to rear
 by their values. The same goes for column lables Now, we are going to replace that with a different kind of behaviour. When a row label is clicked,
 it will be placed on top of the heatmap and all other rows will be ordered by correlation with the selected one.
 
-```{r message=FALSE}
+
+```r
 openPage(useViewer = F)
 rnk <- 1:nrow(iris) # initial rank of rows
 
