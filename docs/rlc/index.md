@@ -29,6 +29,9 @@ devtools::install_github( "anders-biostat/rlc" )
 
 [**This tutorial**](citeseq/example_2.html) continues from the previous one and demonstrated how you can leverage standard HTML5 and JavaScript techniques and make them interact smoothly with R/LinkedCharts functions.
 
+#### Customise your cahrt
+[**Here**](props/props.html) you can find use cases of all the adjustable parameters in R/LinkedCharts. This tutorial demonstrates how to youse colours, change shape of elements, add titles, use all built-in parameters to
+control interactivity, etc.
 
 ## Questions
 

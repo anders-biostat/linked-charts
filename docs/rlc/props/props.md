@@ -4,10 +4,10 @@
 ## R/LinkedCharts Tutorial
 # Customising your chart
 
-Here we will show how one can use various built-in properties to customise charts.
+Here, we show how one can use various built-in properties to customise charts.
 The main goal of this tutorial is to give overview of the adjuststable apects in R/LinkedCharts, 
 (colours, axes, labels, etc.). Therefore we are going to use well known example data sets
-such ss [Iris](https://en.wikipedia.org/wiki/Iris_flower_data_set) flower data set or randomly 
+such as [Iris](https://en.wikipedia.org/wiki/Iris_flower_data_set) flower data set or randomly 
 generated data. 
 
 
@@ -27,12 +27,12 @@ head(iris)
 ```
 
 We assume that you are already familiar with R/LinkedCharts and its main ideas and principles
-and want to explore more possibilities of the library. Otherwise, it can be better first to 
+and you want to explore more possibilities of the library. Otherwise, we recommend first to 
 go through [this](../oscc/oscc.html) tutorial.
 
 
 ```r
-library(rlc) #load the library
+library(rlc) # load the library
 ```
 
 ## Colour
@@ -60,7 +60,7 @@ openPage(layout = "table1x2")
 lc_scatter(dat(x = iris$Sepal.Length,
                y = iris$Petal.Length,
                colourValue = iris$Species),
-           width = 300, height = 300, #change width and height of the chart to 300px
+           width = 300, height = 300, # change width and height of the chart to 300px
            place = "A1")
 
 # a scatter plot with a continuous colour scale
@@ -308,7 +308,13 @@ So far we didn't mention heatmaps (`lc_heatmap`), but their colouring is defined
 # if you want to plot 150x150 correlation matrix, it's better to 
 # use your browser instead of RStudio Viewer.
 openPage(useViewer = F)
+```
 
+```
+## Warning in func(req): File '/favicon.ico' is not found
+```
+
+```r
 lc_heatmap(dat(
   values = cor(t(iris[, 1:4])),
   colourDomain = c(-1, 1),
@@ -578,7 +584,7 @@ One way to address this problem is to make points transperent (e.g. `opacity = 0
 of the axes, which can be especially helpful when one of the axes is categorical or discrete and there are noticeable gaps
 between agglomeration of points.
 
-`shiftX`, `shiftY`, `jitterX`, `jitterY` can add this noise. `jitterX` and `jitterY` are numbers that specify 
+`shiftX`, `shiftY`, `jitterX`, `jitterY` can add this noise. `jitterX` and jitterY` are numbers that specify 
 amplitude of the random noise that will be added to each point along one of the axes. 0 stands for no noise, 1 is 
 distance between `x` and `x + 1` for linear scale, `x` and `b*x` for logarithmic scale (where `b` is a base of the 
 logarithm), and between neighbouring ticks for categorical scale. `shiftX` and `shiftY` specify shift for each 
