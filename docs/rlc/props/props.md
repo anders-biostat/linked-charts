@@ -167,14 +167,6 @@ lc_scatter(dat(x = 1:5,  # x-coordinates of the points are 1, 2, 3, 4, 5
                colour = c("red", "#123456", rgb(0.4, 0.8, 0.1), "#aaa", "some_strange_colour"))
           )
 ```
-
-```
-## Chart 'Chart3' added.
-```
-
-```
-## Layer 'Layer1' is added to chart 'Chart3'.
-```
 <div id = "example4"></div>
 
 Besides that you can also change stroke colour (`stroke`) in scatters, bar charts and ribbons and `fill` lines (`lc_line`, 
@@ -467,7 +459,7 @@ lc_scatter(dat(x = rnorm(10)),
 updateCharts()
 ```
 <div id="example12"></div>
-<input type = "button" onclick = "ex12.chart.update();">updateCharts();</input>
+<input type = "button" onclick = "ex12.chart.update();" value = "updateCharts();">
 
 Note, how each time you call `updateCharts()`, points are moved along the x-axis to some new randomly 
 generated locations. At the same time y-coordinates of each point remain unchanged.
@@ -586,7 +578,7 @@ One way to address this problem is to make points transperent (e.g. `opacity = 0
 of the axes, which can be especially helpful when one of the axes is categorical or discrete and there are noticeable gaps
 between agglomeration of points.
 
-`shiftX`, `shiftY`, `jitterX`, `jitterY` can add this noise. `jitterX` and jitterY` are numbers that specify 
+`shiftX`, `shiftY`, `jitterX`, `jitterY` can add this noise. `jitterX` and `jitterY` are numbers that specify 
 amplitude of the random noise that will be added to each point along one of the axes. 0 stands for no noise, 1 is 
 distance between `x` and `x + 1` for linear scale, `x` and `b*x` for logarithmic scale (where `b` is a base of the 
 logarithm), and between neighbouring ticks for categorical scale. `shiftX` and `shiftY` specify shift for each 

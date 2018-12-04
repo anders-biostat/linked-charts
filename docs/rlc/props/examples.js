@@ -113,12 +113,13 @@ lc.scatter()
 var ex6 = {};
 ex6.x = d3.range(21).map(e => e/20);
 ex6.pointsX = d3.range(40).map(e => Math.random());
-ex6.pointsY = d3.range(40).map(e => e > 20 ? ex6.x[e - 20]*3 : Math.random() * 3);
+ex6.pointsY = d3.range(40).map(e => e > 19 ? ex6.pointsX[e]*3  + Math.random() - 0.5:  Math.random() * 3);
 
 ex6.A1 = lc.pointRibbon()
 	.x(ex6.x)
 	.ymax(ex6.x.map(e => e * 2 + Math.abs(e - 0.5)))
-	.ymin(ex6.x.map(e => e * 2 + Math.abs(e - 0.5)))
+	.ymin(ex6.x.map(e => e * 2 - Math.abs(e - 0.5)))
+	.nsteps(ex6.x.length)
 	.colourValue("c")
 	.width(300)
 	.height(300);
@@ -126,7 +127,7 @@ ex6.A1 = lc.pointRibbon()
 lc.scatter("points", ex6.A1)
 	.x(ex6.pointsX)
 	.y(ex6.pointsY)
-	.colourValue(d3.range(40).map(e => e > 20 ? "b" : "a"));
+	.colourValue(d3.range(40).map(e => e > 19 ? "b" : "a"));
 
 lc.xLine("line", ex6.A1)
 	.nelements(2)
@@ -137,8 +138,9 @@ lc.xLine("line", ex6.A1)
 
 ex6.A2 = lc.pointRibbon()
 	.x(ex6.x)
-	.ymax(ex6.x.map(e => ex6.x[e] * 2 + Math.abs(ex6.x[e] - 0.5)))
-	.ymin(ex6.x.map(e => ex6.x[e] * 2 + Math.abs(ex6.x[e] - 0.5)))
+	.ymax(ex6.x.map(e => e* 2 + Math.abs(e - 0.5)))
+	.ymin(ex6.x.map(e => e * 2 - Math.abs(e - 0.5)))
+	.nsteps(ex6.x.length)
 	.globalColourScale(false)
 	.colourLegendTitle("ribbon")
 	.colourValue("c")
@@ -149,14 +151,16 @@ lc.scatter("points", ex6.A2)
 	.x(ex6.pointsX)
 	.y(ex6.pointsY)
 	.colourLegendTitle("scatter")
-	.colourValue(d3.range(40).map(e => e > 20 ? "b" : "a"));
+	.colourValue(d3.range(40).map(e => e > 19 ? "b" : "a"));
 
 lc.xLine("line", ex6.A2)
 	.nelements(2)
 	.lineFun((t, d) => d == 0 ? t*3 : t*2)
 	.colourValue(["b", "c"])
 	.colourLegendTitle("lines")
-	.place(d3.select("#example6").select("#A1"));
+	.place(d3.select("#example6").select("#A2"));
+
+ex6.A1.legend.width(80).update();
 
 /////////////
 //example 7//
@@ -250,8 +254,10 @@ lc.scatter()
 var ex12 = {};
 
 ex12.chart = lc.scatter()
+	.nelements(10)
 	.x(i => Math.random())
 	.y(d3.range(10).map(e => Math.random()))
+	.domainX([0, 1])
 	.place("#example12");
 
 //////////////
@@ -262,7 +268,7 @@ var ex13 = {};
 ex13.colours = ["#8DD3C7", "#FFFFB3", "#BEBADA", "#FB8072", "#80B1D3", "#FDB462", "#B3DE69", "#FCCDE5", "#D9D9D9", "#BC80BD"];
 ex13.selCol = 0;
 
-lc.scatter()
+ex13.chart = lc.scatter()
 	.x(d3.range(10))
 	.y(d3.range(10))
 	.colour(i => ex13.colours[ex13.selCol])
@@ -280,17 +286,17 @@ var ex14 = {};
 ex14.colours = ["#8DD3C7", "#FFFFB3", "#BEBADA", "#FB8072", "#80B1D3", "#FDB462", "#B3DE69", "#FCCDE5", "#D9D9D9", "#BC80BD", "black"];
 ex14.selCol = 0;
 
-lc.scatter()
+ex14.chart = lc.scatter()
 	.x(d3.range(10))
 	.y(d3.range(10))
 	.colour(i => ex14.colours[ex14.selCol])
 	.on_mouseover(function(i) {
-		ex13.selCol = i;
-		ex13.chart.update();
+		ex14.selCol = i;
+		ex14.chart.update();
 	})
 	.on_mouseout(function(i) {
-		ex13.selCol = 10;
-		ex13.chart.update();
+		ex14.selCol = 10;
+		ex14.chart.update();
 	})
 	.place("#example14");
 
@@ -307,7 +313,8 @@ ex15.A1 = lc.scatter()
 	.width(300)
 	.height(300)
 	.on_marked(function() {
-		ex15.A2.mark(ex15.A1.get_marked());
+		ex15.A2.mark("__clear__", true);
+		ex15.A2.mark(ex15.A1.get_marked(), true);
 	})
 	.place(d3.select("#example15").select("#A1"));
 
@@ -318,7 +325,8 @@ ex15.A2 = lc.scatter()
 	.width(300)
 	.height(300)
 	.on_marked(function() {
-		ex15.A1.mark(ex15.A2.get_marked());
+		ex15.A1.mark("__clear__", true);
+		ex15.A1.mark(ex15.A2.get_marked(), true);
 	})
 	.place(d3.select("#example15").select("#A2"));
 
@@ -329,7 +337,7 @@ ex15.A2 = lc.scatter()
 lc.scatter()
 	.x(random.x)
 	.y(random.y)
-	.size(2.5)
+	.size(1)
 	.shiftX(d3.range(1500).map(e => Math.random() * 0.6 - 0.3))
 	.width(300)
 	.height(300)
@@ -338,7 +346,7 @@ lc.scatter()
 lc.scatter()
 	.x(random.x)
 	.y(random.y)
-	.size(2.5)
+	.size(1)
 	.shiftX(random.shift)
 	.width(300)
 	.height(300)
@@ -364,13 +372,13 @@ ex18.x2 = d3.range(40).map(e => Math.random() * 10 - 5);
 
 ex18.chart = lc.scatter()
 	.x(ex18.x1)
-	.y(ex18.x1.map(e => e * 3 + Math.random()/5))
+	.y(ex18.x1.map(e => e * 3 + Math.random() * 5 - 2.5))
 	.layerDomainX([3, 9])
 	.domainY([0, 20]);
 
 lc.scatter("red", ex18.chart)
 	.x(ex18.x2)
-	.y(ex18.x2.map(e => -e + Math.random()/5))
+	.y(ex18.x2.map(e => -e + Math.random() * 5 - 2.5))
 	.colour("red")
 	.place("#example18");
 
@@ -381,7 +389,7 @@ lc.scatter("red", ex18.chart)
 lc.scatter()
 	.x(iris.Species)
 	.y(iris.Sepal_Length)
-	.shiftX(d3.range(150).map(e => Math.random * 0.4 - 0.2))
+	.shiftX(d3.range(150).map(e => Math.random() * 0.4 - 0.2))
 	.colourValue(iris.Petal_Length)
 	.domainX(["virginica", "something else", "setosa", "versicolor"])
 	.place("#example19");
@@ -446,7 +454,7 @@ ex23.selPoint = 0;
 ex23.chart = lc.scatter()
 	.x(pcaIris[0])
 	.y(pcaIris[1])
-	.colourValue(i => distIris[selPoint][i])
+	.colourValue(i => distIris[ex23.selPoint][i])
 	.transitionDuration(0)
 	.on_mouseover(function(i) {
 		ex23.selPoint = i;
@@ -460,6 +468,8 @@ ex23.chart = lc.scatter()
 
 lc.heatmap()
 	.value(distIris)
+	.nrows(150)
+	.ncols(150)
 	.rowLabel(iris.Species)
 	.colLabel(iris.Species)
 	.clusterRows(true)
@@ -473,14 +483,15 @@ lc.heatmap()
 var ex25 = {};
 
 ex25.chart = lc.heatmap()
+	.nrows(150)
+	.colIds(Object.keys(iris).filter(e => e != "Species"))
 	.value((row, col) => iris[col][row])
 	.rowLabel(iris.Species)
-	.colLabel(["Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"])
 	.height(1000)
 	.showValue(true)
 	.rowTitle("Samples")
 	.colTitle("Measurements")
 	.on_labelClickRow(function(i) {
-		ex25.reorder("Row", (a, b) => corIris[i][a] - corIris[i][b])
+		ex25.chart.reorder("Row", (a, b) => corIris[i][b] - corIris[i][a])
 	})
 	.place("#example25");

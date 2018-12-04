@@ -436,7 +436,7 @@ lc_scatter(dat(x = rnorm(10)),
 updateCharts()
 ```
 <div id="example12"></div>
-<input type = "button" onclick = "ex12.chart.update();">updateCharts();</input>
+<input type = "button" onclick = "ex12.chart.update();" value = "updateCharts();">
 
 Note, how each time you call `updateCharts()`, points are moved along the x-axis to some new randomly 
 generated locations. At the same time y-coordinates of each point remain unchanged.
