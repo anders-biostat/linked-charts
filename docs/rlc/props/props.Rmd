@@ -11,7 +11,7 @@ such as [Iris](https://en.wikipedia.org/wiki/Iris_flower_data_set) flower data s
 generated data. 
 
 ```{r}
-data("iris") #load Iris data set
+data("iris") # load Iris data set
 head(iris)
 ```
 
