@@ -32,7 +32,7 @@ var pages = {
 		index: "Linked Charts",
 		api: "API",
 		tutorials: {
-			ocss: "Understanding RNA-Seq data",
+			oscc: "Understanding RNA-Seq data",
 			citeseq1: "Exploring single-cell data",
 			citeseq2: "Multicoloured t-SNE plot",
 			props: "Customising your chart"
@@ -90,7 +90,7 @@ menuCells.append("div")
 		})
 			.enter().append("a")
 				.attr("href", function(d){
-					return "../"+ d[0] + "/" + d[1] + ".html";
+					return document.location.origin + "/" + lang + "/"+ d[0] + "/" + d[1] + ".html";
 				})
 				.text(function(d){
 					return pages[lang][d[0]][d[1]];
