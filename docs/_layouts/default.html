@@ -19,7 +19,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="{{ 'src/style.css' | relative_url }}">
     <link rel="stylesheet" href="{{ 'src/tocbot.css' | relative_url}}">
-    {% if page.lang != "rlc" %}
+    {% if page.lang == "js" %}
       <link rel="stylesheet" href="{{ 'src/tiy.css' | relative_url}}">
       <link rel="stylesheet" href="{{ 'src/codeMirror/codemirror.css' | relative_url}}"> 
       <link rel="stylesheet" href="{{ 'src/codeMirror/mdn-like.css' | relative_url}}">
@@ -40,7 +40,7 @@
       </section>
     </div>
 
-    {% if page.lang != "rlc" %}
+    {% if page.lang == "js" %}
       <script src="{{'src/codeMirror/codemirror.js' | relative_url}}"></script>
       <script src="{{'src/codeMirror/javascript.js' | relative_url}}"></script>
       <script src="{{'src/tiy.js' | relative_url}}"></script>

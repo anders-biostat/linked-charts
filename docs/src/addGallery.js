@@ -1,15 +1,19 @@
 //put here short description for each example
 var descrEx = [
-"example1", "example2", "example3", "example4", "example5", "example6"
-];
+		"example1", "example2", "example3", "example4", "example5", "example6"
+	],
+	//links to the corresponding tutorial pages
+	linkEx = [
+		"", "", "", "", "", ""
+	];
 var lastEx = descrEx.length, currentEx = 1,
 	showEx = d3.range(6).map(e => e + 1);
 
 d3.select(".gallery")
-	.style("position", "relative")
 	.append("div")
 		.attr("class", "aspect-ratio")
-			.append("iframe");
+			.append("iframe")
+				.attr("frameBorder", 0);
 
 d3.select(".gallery")
 	.append("div")
@@ -84,3 +88,30 @@ function changeThumb() {
 
 changeSlides();
 changeThumb();
+
+d3.select(".gallery")
+	.append("div")
+		.style("overflow", "hidden")
+		.selectAll(".button")
+			.data([0, 1, 2])
+			.enter()
+				.append("div")
+					.attr("class", "button")
+					.text(function (d) {
+						if(d == 0)
+							return "Get R code";
+						if(d == 1)
+							return "Get JS code";
+						if(d == 2)
+							return "Go to the tutorial";
+					})
+					.on("click", function(d) {
+						if(d == 0)
+							window.open(document.location.origin + "/gallery/ex" + currentEx + "/code_R.html", 
+								"R code for the example", "width=600,height=600");
+						if(d == 1)
+							window.open(document.location.origin + "/gallery/ex" + currentEx + "/code_JS.html", 
+								"JavaScript code for the example", "width=600,height=600");
+						if(d == 2)
+							window.open(document.location.origin + "/" + linkEx[currentEx - 1]);
+					})

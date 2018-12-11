@@ -1,0 +1,28 @@
+<link rel="stylesheet" type="text/css" href="../../src/prism.css">
+<script type="text/javascript" src="../../src/prism.js"></script>
+
+<pre class="language-r line-numbers"><code>
+openPage(useViewer = FALSE, layout = "table1x2")
+
+lc_heatmap(dat(
+      value = corrMat,
+      showLegend = FALSE,
+      on_click = function(k) {  #  \ 
+         sampleX <<- k[1]       #  |  Linking the
+         sampleY <<- k[2]       #  |  charts
+         updateCharts( "A2" )   #  /
+      }),
+   place = "A1")
+
+sampleX <- "PG004-N"
+sampleY <- "PG004-D"
+
+lc_scatter(dat(
+         x = log10( 1 + countMatrix[,sampleX] ),
+         y = log10( 1 + countMatrix[,sampleY] ),
+         size = .7,
+         opacity = .7),
+   place = "A2")
+
+lc_colourSlider(chart = "A1", place = "A1", id="cs")
+</code></pre>
