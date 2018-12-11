@@ -46,7 +46,7 @@
       <script src="{{'src/tiy.js' | relative_url}}"></script>
       <script>tiy.make_boxes();</script>
     {% endif %} 
-
+    {% if page.hideTOC != "true" %}
     <script type="text/javascript" src="{{'src/tocbot.min.js' | relative_url}}"></script>
     <script type="text/javascript">
       tocbot.init({
@@ -54,7 +54,17 @@
         contentSelector: '#content',
         headingSelector: 'h1, h2, h3, h4',
       });
-      tocbot.refresh();      
+      tocbot.refresh();
     </script>
+    {% endif %}
+    <script type="text/javascript">
+      d3.select("head")
+        .select("title")
+        .text("{{ page.title }}" || "LinkedCharts")
+    </script>
+
+    {% if page.showGallery %}
+    <script type="text/javascript" src="{{'src/addGallery.js' | relative_url}}"></script>
+    {% endif %}
   </body>
 </html>
