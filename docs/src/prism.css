@@ -126,7 +126,7 @@ pre[class*="language-"]:after {
 .token.constant,
 .token.symbol,
 .token.deleted {
-	color: #646;
+	color: #5404e6;
 }
 
 .token.string {

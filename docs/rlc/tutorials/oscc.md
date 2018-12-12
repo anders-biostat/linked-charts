@@ -1,5 +1,10 @@
-<script src = "../../src/linked-charts.min.js"></script>
-<link rel="stylesheet" type="text/css" href="../../src/linked-charts.css">
+---
+title: "R/LinkedCharts Tutorial"
+usePrism: true
+useLC: true
+---
+
+<!-- Knit it into the parent directory (output = ../filename.md) -->
 
 ## R/LinkedCharts Tutorial
 # Augmenting and checking a standard RNA-Seq analysis
@@ -25,10 +30,10 @@ Fortunately, we do not have to redo the whole analysis, as the [Recount2 project
 gives us a headstart by providing a count table for this and other data sets.
 
 Nevertheless, a bit of data wrangling is necessary, and in order to keep this tutorial short,
-we describe these preparatory steps in an [appendix](data_prep.md). 
+we describe these preparatory steps in an [appendix](oscc/data_prep.md). 
 
 We hence start by loading the data file resulting from the preparations, which is 
-available here: [oscc.rda](oscc.rda)
+available here: [oscc.rda](oscc/oscc.rda)
 
 
 ```r
@@ -152,7 +157,7 @@ pheatmap::pheatmap( corrMat,
    annotation_col = sampleTable[,c("patient","tissue")] )
 ```
 
-![plot of chunk heatmap](figure/heatmap-1.png)
+![plot of chunk heatmap_oscc](figure/heatmap_oscc-1.png)
 
 We can see that most samples pairs correlate well with each other, with correlation coefficients
 above ~0.85, in the yellow-orange colour range. Same samples, however, show consistently poorer
@@ -170,7 +175,7 @@ plot(
    asp=1, col=adjustcolor("black",0.2), pch=20, cex=.5 )
 ```
 
-![plot of chunk scatter](figure/scatter-1.png)
+![plot of chunk scatter_oscc](figure/scatter_oscc-1.png)
 
 We have plotted here logarithms of the count values, log<sub>10</sub>(*k*+1) (with one pseudocount added to avoid zeroes, 
 which could otherwise not be shown in a log-log plot, because log 0 = -∞).
@@ -216,7 +221,7 @@ the [overview page](..).
 
 Once you run the code, you should see, in your web browser, charts like these. (Give the scatter plot a few seconds to appear; it has nearly 60,000 points.) Note how sample names and gene names are displayed when you hover your mouse over a cell in the heatmap or a point in the scatter plot. You can also zoom in (draw a rectangle with the mouse) or zoom out (double-click) or use other functions in the tool menu (click on the arrow button).
 
-<script src = "heatmapData.js"></script>
+<script src = "oscc/heatmapData.js"></script>
 <div id = "heatmap-scatter">
 <table>
    <tr>
@@ -225,7 +230,7 @@ Once you run the code, you should see, in your web browser, charts like these. (
    </tr>
 </table>
 </div>
-<script src = "heatmap.js"></script>
+<script src = "oscc/heatmap.js"></script>
 
 We go through this code now and explain line for line:
 
@@ -319,7 +324,7 @@ If you use the app, you can now easily see which samples are bad and how bad the
 
 ## Exploring the differentially expressed genes
 
-In the [appendix](data_prep.md), which shows the data preparation, we have also performed a differential expression analysis using limma-voom. For details, see there. In brief, we have looked for genes whose expression differs between the three tissue types. The result table was also in the
+In the [appendix](oscc/data_prep.md), which shows the data preparation, we have also performed a differential expression analysis using limma-voom. For details, see there. In brief, we have looked for genes whose expression differs between the three tissue types. The result table was also in the
 data file `oscc.rda` that we have loaded in the beginning:
 
 
@@ -383,7 +388,7 @@ lc_scatter(
 
 Here is the app that this code creates:
 
-<script type="text/javascript" src = "maData.js"></script>
+<script type="text/javascript" src = "oscc/maData.js"></script>
 <div id = "ma-expr">
 <table>
    <tr>
@@ -392,7 +397,7 @@ Here is the app that this code creates:
    </tr>
 </table>
 </div>	
-<script type="text/javascript" src="maPlot.js"></script>
+<script type="text/javascript" src="oscc/maPlot.js"></script>
 
 The left plot is an MA plot: Each point is one gene in the result table, the x axis is the average expression of the gene (column `AveExpr` in `voomResult`), the y axis is the log fold change between tumour and normal tissue (column `tissuetumour`). The colour of the points is red or black, indicating whether the gene is significant at 10% false discovery rate (`voomResult$adj.P.Val < 0.1`). If one hovers the mouse over a point, the gene name is shown, which is taken from the rownames of the result table (`label = rownames(voomResult)`).
 

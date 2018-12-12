@@ -1,9 +1,12 @@
 ---
 usePrism: true
 title: "R/LinkedCharts"
+showGallery: "true"
 ---
 
 # R/LinkedCharts
+
+<div class="gallery"></div>
 
 R/LinkedCharts is a powerful novel way to perform exploratory data analysis in R. With only very few lines of code, you can create interactive data visualization apps that allow you to simuyltaneously get an overview of your data and dive deeply into details.
 

@@ -1,10 +1,20 @@
 //put here short description for each example
 var descrEx = [
-		"example1", "example2", "example3", "example4", "example5", "example6"
+		"Correlation heatmap, 57 RNA-Seq samples, 8000 genes", 
+		"MA plot, tumor vs. normal tissue comparison. 57 RNA-Seq samples, ~60000 genes (loading data may take a while)", 
+		"example3", 
+		"example4", 
+		"example5", 
+		"example6"
 	],
 	//links to the corresponding tutorial pages
 	linkEx = [
-		"", "", "", "", "", ""
+		"rlc/tutorials/oscc.html", 
+		"rlc/tutorials/oscc.html", 
+		"", 
+		"", 
+		"", 
+		""
 	];
 var lastEx = descrEx.length, currentEx = 1,
 	showEx = d3.range(6).map(e => e + 1);
@@ -78,7 +88,9 @@ function changeThumb() {
 								.on("click", function(d) {
 									currentEx = d;
 									changeSlides();
-								});
+								})
+								.filter(d => d == 1)
+									.classed("active", true);
 
 	d3.select(".gallery")
 		.select(".row")
