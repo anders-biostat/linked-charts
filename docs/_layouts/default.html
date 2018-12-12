@@ -23,7 +23,14 @@
       <link rel="stylesheet" href="{{ 'src/tiy.css' | relative_url}}">
       <link rel="stylesheet" href="{{ 'src/codeMirror/codemirror.css' | relative_url}}"> 
       <link rel="stylesheet" href="{{ 'src/codeMirror/mdn-like.css' | relative_url}}">
-    {% endif %}    
+    {% endif %}
+    {% if page.usePrism %}
+      <link rel="stylesheet" href="{{ 'src/prism.css' | relative_url}}">
+    {% endif %}
+    {% if page.useLC %}
+      <script type="text/javascript" src = "{{ 'src/linked-charts.min.js' | relative_url}}"></script>
+      <link rel="stylesheet" type="text/css" href="{{ 'src/linked-charts.css' | relative_url}}">
+    {% endif %}
     <script src="https://d3js.org/d3.v4.min.js"></script>
   </head>
   <body>
@@ -65,7 +72,11 @@
     </script>
 
     {% if page.showGallery %}
-    <script type="text/javascript" src="{{'src/addGallery.js' | relative_url}}"></script>
+      <script type="text/javascript" src="{{'src/addGallery.js' | relative_url}}"></script>
+    {% endif %}
+
+    {% if page.usePrism %}
+      <script type="text/javascript" src="{{'src/prism.js' | relative_url}}"></script>
     {% endif %}
   </body>
 </html>

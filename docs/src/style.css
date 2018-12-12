@@ -53,7 +53,7 @@ div.dropdown-content a {
     padding-bottom: 5px !important;
 }
 
-div.dropdown-content a:hover {background-color: #c1c1d1}
+div.dropdown-content a:hover {background-color: #ADA8BE}
 
 .caret {
   display: inline-block;
@@ -99,10 +99,10 @@ pre.fullCode code {
 
 .contentContainer a {
   text-decoration: none;
-  color: #e22;
+  color: #E9190F;
 }
 
-code, pre {
+ code, pre {
   padding: 0 3px 2px;
   font-family: Menlo, Monaco, Consolas,"Courier New", monospace;
   font-size: 12px;
@@ -112,7 +112,7 @@ code, pre {
 }
 code {
   padding: 2px 4px;
-  color: #d14; background-color: #f7f7f9;
+  color: #E9190F; background-color: #f7f7f9;
   border: 1px solid #e1e1e8;
 }
 pre {
@@ -161,7 +161,7 @@ pre code {
 }
 
 .lang-button:hover {
-  background-color: #c1c1d1;
+  background-color: #ADA8BE;
 }
 
 .lang-button.active {
@@ -186,7 +186,7 @@ pre code {
   border-color: #446;
 }
 .github-button:hover {
-  background-color: #c1c1d1;
+  background-color: #ADA8BE;
 }
 
 .gallery {

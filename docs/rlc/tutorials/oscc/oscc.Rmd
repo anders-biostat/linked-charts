@@ -1,3 +1,11 @@
+<!-- Knit it into the parent directory (output = ../filename.md) -->
+---
+title: "R/LinkedCharts Tutorial"
+usePrism: true
+useLC: true
+---
+
+
 <script src = "../../src/linked-charts.min.js"></script>
 <link rel="stylesheet" type="text/css" href="../../src/linked-charts.css">
 
