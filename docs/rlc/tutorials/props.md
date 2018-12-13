@@ -1,5 +1,11 @@
-<script src = "../../src/linked-charts.min.js"></script>
-<link rel="stylesheet" type="text/css" href="../../src/linked-charts.css">
+---
+title: "R/LinkedCharts Tutorial"
+usePrism: true
+useLC: true
+---
+
+<!-- From the parent directory only! -->
+<!-- knitr::knit("props/props.Rmd", "props.md") -->
 
 ## R/LinkedCharts Tutorial
 # Customising your chart
@@ -12,7 +18,7 @@ generated data.
 
 
 ```r
-data("iris") #load Iris data set
+data("iris") # load Iris data set
 head(iris)
 ```
 
@@ -28,7 +34,7 @@ head(iris)
 
 We assume that you are already familiar with R/LinkedCharts and its main ideas and principles
 and you want to explore more possibilities of the library. Otherwise, we recommend first to 
-go through [this](../oscc/oscc.html) tutorial.
+go through [this](oscc.html) tutorial.
 
 
 ```r
@@ -70,7 +76,7 @@ lc_scatter(dat(x = iris$Sepal.Length,
            width = 300, height = 300,
            place = "A2")
 ```
-<script src="iris.js"></script>
+<script src="props/iris.js"></script>
 <div id="example1">
   <table><tr><td id ="A1"></td><td id="A2"></td></tr></table>
 </div>
@@ -308,13 +314,7 @@ So far we didn't mention heatmaps (`lc_heatmap`), but their colouring is defined
 # if you want to plot 150x150 correlation matrix, it's better to 
 # use your browser instead of RStudio Viewer.
 openPage(useViewer = F)
-```
 
-```
-## Warning in func(req): File '/favicon.ico' is not found
-```
-
-```r
 lc_heatmap(dat(
   values = cor(t(iris[, 1:4])),
   colourDomain = c(-1, 1),
@@ -448,7 +448,7 @@ This section describes the following properties:
 - `on_marked`
 
 R/LinkedCharts is designed as an easy-to-use framework to create sets of interactive linked charts. 
-From [this](../oscc/oscc.html) tutorial you can already get a pretty good idea of how it 
+From [this](oscc.html) tutorial you can already get a pretty good idea of how it 
 works, but let's quickly go through it again here.
 
 All the interactivity in R/LinkedCharts is based on the two main ideas. 
@@ -563,7 +563,7 @@ lc_scatter(dat(
 </div>
 Try it by selecting points on one of the charts (the `Shift` key must be pressed in order to select points).
 
-If you want to see more use cases of these properties, check [this](../citeseq/example_1.html) tutorial.
+If you want to see more use cases of these properties, check [this](citeseq1.html) tutorial.
 
 ## Axes Settings
 This section describes the following properties:
@@ -885,5 +885,10 @@ lc_heatmap(dat(
   }
 ))
 ```
+
+```
+## Warning in setProperties(c(data, nonEv), id, layerId): In chart 'Chart1':
+## Property 'rankRows' doesn't exist.
+```
 <div id="example25"></div>
-<script src="examples.js"></script>
+<script src="props/examples.js"></script>
