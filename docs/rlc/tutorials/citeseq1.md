@@ -1,5 +1,11 @@
-<script src = "../../src/linked-charts.min.js"></script>
-<link rel="stylesheet" type="text/css" href="../../src/linked-charts.css">
+---
+title: "R/LinkedCharts Tutorial"
+usePrism: true
+useLC: true
+---
+
+<!-- From the parent directory only! -->
+<!-- knitr::knit("citeseq/example_1.Rmd", "citeseq1.md") -->
 
 ## R/LinkedCharts Tutorial: 
 # Exploring single-cell data with R/LinkedCharts
@@ -8,7 +14,7 @@ This tutorial demonstrates how our R/LinkedCharts package can be used to created
 
 We will develop an interactive app that produces, from less than a page of R code, this here:
 
-<script type="text/javascript" src = "citeSeqData.js"></script>
+<script type="text/javascript" src = "citeseq/citeSeqData.js"></script>
 <div id = "fullApp">
 <table>
    <tr>
@@ -21,13 +27,13 @@ We will develop an interactive app that produces, from less than a page of R cod
    </tr>
 </table>
 </div>	
-<script type="text/javascript" src="fullApp.js"></script>
+<script type="text/javascript" src="citeseq/fullApp.js"></script>
 
 The app above is provided for demonstration purposes. Functionally, it is identical to what you get after running the code in R, but uses subsampled data so that not to load too big data files.
 
-Readers in a hurry can download the final script [here](example_1_complete.R), and run it as is in R. Of course, you will have to read on to see what the different charts are supposed to show.
+Readers in a hurry can download the final script [here](citeseq/example_1_complete.R), and run it as is in R. Of course, you will have to read on to see what the different charts are supposed to show.
 
-You can also download the file that produced this document: [example_1.Rmd](example_1.Rmd)
+You can also download the file that produced this document: [example_1.Rmd](citeseq/example_1.Rmd)
 
 ## Example data
 
@@ -44,7 +50,7 @@ The file contains a table with one row per gene and one column per cell, giving 
 We first perform some very simple data preparation, using only base R commands. If you have worked with expression
 data before, this will look completely familiar.
 
-Some of these steps take time, but you can skip over them and then later just read in the R data file [citeseq_data.rda](citeseq_data.rda).
+Some of these steps take time, but you can skip over them and then later just read in the R data file [citeseq_data.rda](citeseq/citeseq_data.rda).
 
 First, we load the data matrix
 
@@ -134,7 +140,7 @@ means <- apply( countMatrix, 1, function(x) mean( x / sf ) )
 vars <- apply( countMatrix, 1, function(x) var( x / sf ) )
 ```
 
-If you want to skip over preceding steps, you can also just load this R data file from here: [citeseq_data.rda](citeseq_data.rda).
+If you want to skip over preceding steps, you can also just load this R data file from here: [citeseq_data.rda](citeseq/citeseq_data.rda).
 
 ## Analysis the old-fashioned way
 
@@ -194,7 +200,7 @@ Here we can click on a point in the left chart, to change what is displayed in t
    </tr>
 </table>
 </div>	
-<script type="text/javascript" src="halfApp.js"></script>
+<script type="text/javascript" src="citeseq/halfApp.js"></script>
 
 Now, we show how to create such linked charts with R/LinkedCharts.
 
@@ -222,6 +228,10 @@ openPage( useViewer = FALSE, layout = "table2x2" )
 
 ```
 ## WebSocket opened
+```
+
+```
+## Warning in func(req): File '/favicon.ico' is not found
 ```
 
 ```r
@@ -402,7 +412,7 @@ So far, our app demonstrated well the principle of using R/LinkedChart, but prac
 
 In single-cell RNA-Seq, one often employs dimension reduction methods, such as [t-SNE](https://lvdmaaten.github.io/tsne/). These produce a plot with points representing the cells such that cells with similar transcriptome are closeby.
 
-Let's use the `Rtsne` package to calculate a t-SNE plot for our expression data. (The t-SNE calculation takes a few minutes. If you don't like to wait, just load the [`citeseq_data.rda`](citeseq_data.rda) file, which contains the result.)
+Let's use the `Rtsne` package to calculate a t-SNE plot for our expression data. (The t-SNE calculation takes a few minutes. If you don't like to wait, just load the [`citeseq_data.rda`](citeseq/citeseq_data.rda) file, which contains the result.)
 
 
 ```r
@@ -429,29 +439,29 @@ tsne <- Rtsne( t( expr[varGenes, ] ), verbose = TRUE )
 ## Normalizing input...
 ## Building tree...
 ##  - point 0 of 8005
-## Done in 3.04 seconds (sparsity = 0.017480)!
+## Done in 4.93 seconds (sparsity = 0.017480)!
 ## Learning embedding...
-## Iteration 50: error is 92.687248 (50 iterations in 6.02 seconds)
-## Iteration 100: error is 81.410034 (50 iterations in 6.36 seconds)
-## Iteration 150: error is 79.892466 (50 iterations in 5.48 seconds)
-## Iteration 200: error is 79.467873 (50 iterations in 5.74 seconds)
-## Iteration 250: error is 79.215171 (50 iterations in 5.63 seconds)
-## Iteration 300: error is 3.094673 (50 iterations in 4.89 seconds)
-## Iteration 350: error is 2.842026 (50 iterations in 4.74 seconds)
-## Iteration 400: error is 2.698681 (50 iterations in 4.68 seconds)
-## Iteration 450: error is 2.609065 (50 iterations in 4.79 seconds)
-## Iteration 500: error is 2.547338 (50 iterations in 4.68 seconds)
-## Iteration 550: error is 2.502403 (50 iterations in 4.63 seconds)
-## Iteration 600: error is 2.470435 (50 iterations in 4.67 seconds)
-## Iteration 650: error is 2.447999 (50 iterations in 4.61 seconds)
-## Iteration 700: error is 2.432011 (50 iterations in 4.73 seconds)
-## Iteration 750: error is 2.419994 (50 iterations in 4.71 seconds)
-## Iteration 800: error is 2.411963 (50 iterations in 4.70 seconds)
-## Iteration 850: error is 2.405731 (50 iterations in 4.73 seconds)
-## Iteration 900: error is 2.401174 (50 iterations in 4.78 seconds)
-## Iteration 950: error is 2.397651 (50 iterations in 4.74 seconds)
-## Iteration 1000: error is 2.394201 (50 iterations in 4.73 seconds)
-## Fitting performed in 100.05 seconds.
+## Iteration 50: error is 92.686969 (50 iterations in 7.17 seconds)
+## Iteration 100: error is 81.219347 (50 iterations in 7.08 seconds)
+## Iteration 150: error is 79.775908 (50 iterations in 5.88 seconds)
+## Iteration 200: error is 79.352368 (50 iterations in 6.13 seconds)
+## Iteration 250: error is 79.133499 (50 iterations in 6.18 seconds)
+## Iteration 300: error is 3.078601 (50 iterations in 5.42 seconds)
+## Iteration 350: error is 2.835565 (50 iterations in 5.18 seconds)
+## Iteration 400: error is 2.697402 (50 iterations in 5.22 seconds)
+## Iteration 450: error is 2.610087 (50 iterations in 5.28 seconds)
+## Iteration 500: error is 2.548989 (50 iterations in 5.32 seconds)
+## Iteration 550: error is 2.503785 (50 iterations in 5.37 seconds)
+## Iteration 600: error is 2.469433 (50 iterations in 5.38 seconds)
+## Iteration 650: error is 2.444204 (50 iterations in 5.38 seconds)
+## Iteration 700: error is 2.426130 (50 iterations in 5.38 seconds)
+## Iteration 750: error is 2.412917 (50 iterations in 5.46 seconds)
+## Iteration 800: error is 2.403509 (50 iterations in 5.45 seconds)
+## Iteration 850: error is 2.395312 (50 iterations in 5.48 seconds)
+## Iteration 900: error is 2.388515 (50 iterations in 5.42 seconds)
+## Iteration 950: error is 2.383506 (50 iterations in 5.39 seconds)
+## Iteration 1000: error is 2.379420 (50 iterations in 5.37 seconds)
+## Fitting performed in 112.94 seconds.
 ```
 
 ```r
@@ -728,7 +738,7 @@ getHighGenes <- function(){
 
 ## Everything put together
 
-In case you got lost with the individual pieces of code, [here](example_1_complete.R) is everything put together.
+In case you got lost with the individual pieces of code, [here](citeseq/example_1_complete.R) is everything put together.
 
 
 

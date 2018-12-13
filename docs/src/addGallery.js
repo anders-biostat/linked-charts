@@ -1,8 +1,8 @@
 //put here short description for each example
 var descrEx = [
 		"Correlation heatmap, 57 RNA-Seq samples, 8000 genes", 
-		"MA plot, tumor vs. normal tissue comparison. 57 RNA-Seq samples, ~60000 genes (loading data may take a while)", 
-		"example3", 
+		"MA plot, tumor vs. normal tissue comparison. 57 RNA-Seq samples, ~60000 genes (datafile size is ~20MB, loading may take a while)", 
+		"Single cell RNA-Seq, cord blood. 2000 cells, ~6000 genes (datafile size is ~20MB, loading may take a while)", 
 		"example4", 
 		"example5", 
 		"example6"
@@ -11,7 +11,7 @@ var descrEx = [
 	linkEx = [
 		"rlc/tutorials/oscc.html", 
 		"rlc/tutorials/oscc.html", 
-		"", 
+		"rlc/tutorials/citeseq1.html", 
 		"", 
 		"", 
 		""

@@ -87,13 +87,15 @@ function topGenes() {
 
 		sdm /= (selCells.length - 1);
 		sdu /= ((data.cellNames.length - selCells.length) - 1);
+		sdm = Math.sqrt(sdm);
+		sdu = Math.sqrt(sdu);
 		stats.sdMarked.push(sdm.toFixed(2));
 		stats.sdUnmarked.push(sdu.toFixed(2));
 		stats.sepScore.push(((mm - mu)/d3.max([sdu + sdm, 0.002])).toFixed(2));
 	}
 
 	var topStats = {geneName: [], meanMarked: [], sdMarked: [], meanUnmarked: [], sdUnmarked: [], sepScore: []},
-		order = d3.range(data.geneNames.length).sort((a, b) => stats.sepScore[b] - stats.sepScore[a]);
+		order = d3.range(data.geneNames.length).sort((a, b) => Math.abs(stats.sepScore[b]) - Math.abs(stats.sepScore[a]));
 
 	for(var col in topStats){
 		topStats[col].push(col);

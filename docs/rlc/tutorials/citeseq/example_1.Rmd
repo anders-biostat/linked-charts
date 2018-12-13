@@ -1,5 +1,11 @@
-<script src = "../../src/linked-charts.min.js"></script>
-<link rel="stylesheet" type="text/css" href="../../src/linked-charts.css">
+---
+title: "R/LinkedCharts Tutorial"
+usePrism: true
+useLC: true
+---
+
+<!-- From the parent directory only! -->
+<!-- knitr::knit("citeseq/example_1.Rmd", "citeseq1.md") -->
 
 ## R/LinkedCharts Tutorial: 
 # Exploring single-cell data with R/LinkedCharts
@@ -8,7 +14,7 @@ This tutorial demonstrates how our R/LinkedCharts package can be used to created
 
 We will develop an interactive app that produces, from less than a page of R code, this here:
 
-<script type="text/javascript" src = "citeSeqData.js"></script>
+<script type="text/javascript" src = "citeseq/citeSeqData.js"></script>
 <div id = "fullApp">
 <table>
    <tr>
@@ -21,13 +27,13 @@ We will develop an interactive app that produces, from less than a page of R cod
    </tr>
 </table>
 </div>	
-<script type="text/javascript" src="fullApp.js"></script>
+<script type="text/javascript" src="citeseq/fullApp.js"></script>
 
 The app above is provided for demonstration purposes. Functionally, it is identical to what you get after running the code in R, but uses subsampled data so that not to load too big data files.
 
-Readers in a hurry can download the final script [here](example_1_complete.R), and run it as is in R. Of course, you will have to read on to see what the different charts are supposed to show.
+Readers in a hurry can download the final script [here](citeseq/example_1_complete.R), and run it as is in R. Of course, you will have to read on to see what the different charts are supposed to show.
 
-You can also download the file that produced this document: [example_1.Rmd](example_1.Rmd)
+You can also download the file that produced this document: [example_1.Rmd](citeseq/example_1.Rmd)
 
 ## Example data
 
@@ -44,7 +50,7 @@ The file contains a table with one row per gene and one column per cell, giving 
 We first perform some very simple data preparation, using only base R commands. If you have worked with expression
 data before, this will look completely familiar.
 
-Some of these steps take time, but you can skip over them and then later just read in the R data file [citeseq_data.rda](citeseq_data.rda).
+Some of these steps take time, but you can skip over them and then later just read in the R data file [citeseq_data.rda](citeseq/citeseq_data.rda).
 
 First, we load the data matrix
 
@@ -108,7 +114,7 @@ means <- apply( countMatrix, 1, function(x) mean( x / sf ) )
 vars <- apply( countMatrix, 1, function(x) var( x / sf ) )
 ```
 
-If you want to skip over preceding steps, you can also just load this R data file from here: [citeseq_data.rda](citeseq_data.rda).
+If you want to skip over preceding steps, you can also just load this R data file from here: [citeseq_data.rda](citeseq/citeseq_data.rda).
 
 ## Analysis the old-fashioned way
 
@@ -155,7 +161,7 @@ Here we can click on a point in the left chart, to change what is displayed in t
    </tr>
 </table>
 </div>	
-<script type="text/javascript" src="halfApp.js"></script>
+<script type="text/javascript" src="citeseq/halfApp.js"></script>
 
 Now, we show how to create such linked charts with R/LinkedCharts.
 
@@ -307,7 +313,7 @@ So far, our app demonstrated well the principle of using R/LinkedChart, but prac
 
 In single-cell RNA-Seq, one often employs dimension reduction methods, such as [t-SNE](https://lvdmaaten.github.io/tsne/). These produce a plot with points representing the cells such that cells with similar transcriptome are closeby.
 
-Let's use the `Rtsne` package to calculate a t-SNE plot for our expression data. (The t-SNE calculation takes a few minutes. If you don't like to wait, just load the [`citeseq_data.rda`](citeseq_data.rda) file, which contains the result.)
+Let's use the `Rtsne` package to calculate a t-SNE plot for our expression data. (The t-SNE calculation takes a few minutes. If you don't like to wait, just load the [`citeseq_data.rda`](citeseq/citeseq_data.rda) file, which contains the result.)
 
 ```{r tsne}
 # install.packages( "Rtsne" )   # uncomment if needed
@@ -551,7 +557,7 @@ getHighGenes <- function(){
 
 ## Everything put together
 
-In case you got lost with the individual pieces of code, [here](example_1_complete.R) is everything put together.
+In case you got lost with the individual pieces of code, [here](citeseq/example_1_complete.R) is everything put together.
 
 ```{r include=FALSE}
 # Check that the file works
