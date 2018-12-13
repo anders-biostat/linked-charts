@@ -1,14 +1,20 @@
-<script src = "../../src/linked-charts.min.js"></script>
-<link rel="stylesheet" type="text/css" href="../../src/linked-charts.css">
+---
+title: "R/LinkedCharts Tutorial"
+usePrism: true
+useLC: true
+---
+
+<!-- From the parent directory only! -->
+<!-- knitr::knit("citeseq/example_2.Rmd", "citeseq2.md") -->
 
 ## R/LinkedCharts Tutorial: 
 # A multi-coloured t-SNE plot
 
-In this example, we continue our exploration of the CiteSeq cord blood single-cell dataset by Stoecklin et al. ([Nature Methods, 2017](https://doi.org/10.1038/nmeth.4380)). If you haven't read the [first part](example_1.md) yet, please go there first.
+In this example, we continue our exploration of the CiteSeq cord blood single-cell dataset by Stoecklin et al. ([Nature Methods, 2017](https://doi.org/10.1038/nmeth.4380)). If you haven't read the [first part](citeseq1.html) yet, please go there first.
 
 This is what we are aiming for:
 
-<script type="text/javascript" src = "buttonData.js"></script>
+<script type="text/javascript" src = "citeseq/buttonData.js"></script>
 <div id = "top">
 <table>
    <tr>
@@ -17,9 +23,9 @@ This is what we are aiming for:
    </tr>
 </table>
 </div>	
-<script type="text/javascript" src="buttons.js"></script>
+<script type="text/javascript" src="citeseq/buttons.js"></script>
 
-In this app, you can assign a colour channel to each antibody, and so explore the identities of the cells in a colourful manner. If you want to try this out first before reading the details, [here is the complete code](example_2_complete.R). It's less than a page of R.
+In this app, you can assign a colour channel to each antibody, and so explore the identities of the cells in a colourful manner. If you want to try this out first before reading the details, [here is the complete code](citeseq/example_2_complete.R). It's less than a page of R.
 
 ## Loading the data
 
@@ -124,6 +130,17 @@ We can use the R package `hwriter` to conviniently produce HTML code.
 
 ```r
 library( hwriter )
+```
+
+```
+## 
+## Attaching package: 'hwriter'
+```
+
+```
+## The following objects are masked from 'package:rlc':
+## 
+##     closePage, openPage
 ```
 
 For example, to make a radio button, we can use hwriter's `hmakeTag` function:
@@ -281,7 +298,7 @@ rlc::openPage( startPage="test.html" )
 
 You should see this in your browser or viewer pane:
 
-<table border="1"><tr><td class="tabletitle" style="padding: 2px;"></td><td class="tabletitle" style="padding: 2px;">red</td><td class="tabletitle" style="padding: 2px;">green</td><td class="tabletitle" style="padding: 2px;">blue</td></tr><tr><td class="tabletitle" style="padding: 2px;">off</td><td style="padding: 2px;"><input type="radio" name="red" value="off" checked="true"></td><td style="padding: 2px;"><input type="radio" name="green" value="off" checked="true"></td><td style="padding: 2px;"><input type="radio" name="blue" value="off" checked="true"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD3</td><td style="padding: 2px;"><input type="radio" name="red" value="CD3"></td><td style="padding: 2px;"><input type="radio" name="green" value="CD3"></td><td style="padding: 2px;"><input type="radio" name="blue" value="CD3"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD4</td><td style="padding: 2px;"><input type="radio" name="red" value="CD4"></td><td style="padding: 2px;"><input type="radio" name="green" value="CD4"></td><td style="padding: 2px;"><input type="radio" name="blue" value="CD4"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD8</td><td style="padding: 2px;"><input type="radio" name="red" value="CD8"></td><td style="padding: 2px;"><input type="radio" name="green" value="CD8"></td><td style="padding: 2px;"><input type="radio" name="blue" value="CD8"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD45RA</td><td style="padding: 2px;"><input type="radio" name="red" value="CD45RA"></td><td style="padding: 2px;"><input type="radio" name="green" value="CD45RA"></td><td style="padding: 2px;"><input type="radio" name="blue" value="CD45RA"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD56</td><td style="padding: 2px;"><input type="radio" name="red" value="CD56"></td><td style="padding: 2px;"><input type="radio" name="green" value="CD56"></td><td style="padding: 2px;"><input type="radio" name="blue" value="CD56"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD16</td><td style="padding: 2px;"><input type="radio" name="red" value="CD16"></td><td style="padding: 2px;"><input type="radio" name="green" value="CD16"></td><td style="padding: 2px;"><input type="radio" name="blue" value="CD16"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD10</td><td style="padding: 2px;"><input type="radio" name="red" value="CD10"></td><td style="padding: 2px;"><input type="radio" name="green" value="CD10"></td><td style="padding: 2px;"><input type="radio" name="blue" value="CD10"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD11c</td><td style="padding: 2px;"><input type="radio" name="red" value="CD11c"></td><td style="padding: 2px;"><input type="radio" name="green" value="CD11c"></td><td style="padding: 2px;"><input type="radio" name="blue" value="CD11c"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD14</td><td style="padding: 2px;"><input type="radio" name="red" value="CD14"></td><td style="padding: 2px;"><input type="radio" name="green" value="CD14"></td><td style="padding: 2px;"><input type="radio" name="blue" value="CD14"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD19</td><td style="padding: 2px;"><input type="radio" name="red" value="CD19"></td><td style="padding: 2px;"><input type="radio" name="green" value="CD19"></td><td style="padding: 2px;"><input type="radio" name="blue" value="CD19"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD34</td><td style="padding: 2px;"><input type="radio" name="red" value="CD34"></td><td style="padding: 2px;"><input type="radio" name="green" value="CD34"></td><td style="padding: 2px;"><input type="radio" name="blue" value="CD34"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CCR5</td><td style="padding: 2px;"><input type="radio" name="red" value="CCR5"></td><td style="padding: 2px;"><input type="radio" name="green" value="CCR5"></td><td style="padding: 2px;"><input type="radio" name="blue" value="CCR5"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CCR7</td><td style="padding: 2px;"><input type="radio" name="red" value="CCR7"></td><td style="padding: 2px;"><input type="radio" name="green" value="CCR7"></td><td style="padding: 2px;"><input type="radio" name="blue" value="CCR7"></td></tr></table>
+<table border="1"><tr><td class="tabletitle" style="padding: 2px;"></td><td class="tabletitle" style="padding: 2px;">red</td><td class="tabletitle" style="padding: 2px;">green</td><td class="tabletitle" style="padding: 2px;">blue</td></tr><tr><td class="tabletitle" style="padding: 2px;">off</td><td style="padding: 2px;"><input type="radio" name="red_test" value="off" checked="true"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="off" checked="true"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="off" checked="true"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD3</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CD3"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CD3"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CD3"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD4</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CD4"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CD4"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CD4"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD8</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CD8"></td><td style="padding: 2px;"><input type="radio" name="green" value="CD8"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CD8"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD45RA</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CD45RA"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CD45RA"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CD45RA"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD56</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CD56"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CD56"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CD56"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD16</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CD16"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CD16"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CD16"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD10</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CD10"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CD10"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CD10"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD11c</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CD11c"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CD11c"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CD11c"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD14</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CD14"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CD14"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CD14"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD19</td><td style="padding: 2px;"><input type="radio" name="red" value="CD19"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CD19"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CD19"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD34</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CD34"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CD34"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CD34"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CCR5</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CCR5"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CCR5"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CCR5"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CCR7</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CCR7"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CCR7"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CCR7"></td></tr></table>
 
 Note the `onchange` attribute. We change an R variable with the names `red`, `green` or `blue`, then we call `updateCharts`. The latter will not do anything, but give a warning, as we haven't added any charts yet, but you can already check whether the variables appear once you check a radiobutton.
 
@@ -363,6 +380,6 @@ lc_scatter(
 
 Now, we get our app:
 
-![](example_2_screenshot.png)
+![](figure/example_2_screenshot.png)
 
 It's simple and functional, though maybe not as beautiful as it could be. However, if you know a bit about web design, it is easy to edit the HTML file, `rgbTSNE.html`, and add decorations, or attach a suitable CSS style sheet. In this manner, one can first make a simple app with few lines, and then polish it later.

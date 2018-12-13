@@ -3,7 +3,7 @@ var descrEx = [
 		"Correlation heatmap, 57 RNA-Seq samples, 8000 genes", 
 		"MA plot, tumor vs. normal tissue comparison. 57 RNA-Seq samples, ~60000 genes (datafile size is ~20MB, loading may take a while)", 
 		"Single cell RNA-Seq, cord blood. 2000 cells, ~6000 genes (datafile size is ~20MB, loading may take a while)", 
-		"example4", 
+		"Single cell RNA-Seq, cord blood. ~8000 cells with abundance of 13 protein markers.", 
 		"example5", 
 		"example6"
 	],
@@ -12,7 +12,7 @@ var descrEx = [
 		"rlc/tutorials/oscc.html", 
 		"rlc/tutorials/oscc.html", 
 		"rlc/tutorials/citeseq1.html", 
-		"", 
+		"rlc/tutorials/citeseq2.html", 
 		"", 
 		""
 	];
@@ -61,7 +61,7 @@ function changeSlides(shift) {
 			.text(currentEx + "/" + lastEx);
 	d3.select(".gallery")
 		.select("#caption")
-			.text(descrEx[currentEx - 1]);
+			.html(descrEx[currentEx - 1]);
 
 	if(showEx.indexOf(currentEx) == -1) {
 		showEx = showEx.map(e => (e + shift) % lastEx).map(e => e == 0 ? lastEx : e);

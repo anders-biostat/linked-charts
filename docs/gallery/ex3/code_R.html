@@ -38,6 +38,9 @@ lc_scatter(dat(
     logScaleX=10, 
     logScaleY=10, 
     size=2.5,
+    title="Variable genes",
+    axisTitleX="Expression",
+    axisTitleY="Variability",
     on_click = function(i) {
       gene <<- names(means)[i]
       updateCharts( c( "A2", "B1" ) )
@@ -49,7 +52,7 @@ lc_scatter(dat(
     x = sf, 
     y = countMatrix[ gene, ], 
     logScaleX = 10, 
-    title = gene,
+    title = paste0("Expression of ", gene),
     opacity = 0.2 ),
   "A2")
 
