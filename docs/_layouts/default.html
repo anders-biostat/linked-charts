@@ -70,13 +70,14 @@
         .select("title")
         .text("{{ page.title }}" || "LinkedCharts")
     </script>
-
+    {% if page.usePrism %}
+      <script type="text/javascript" src="{{'src/prism.js' | relative_url}}"></script>
+    {% endif %}
     {% if page.showGallery %}
       <script type="text/javascript" src="{{'src/addGallery.js' | relative_url}}"></script>
     {% endif %}
-
-    {% if page.usePrism %}
-      <script type="text/javascript" src="{{'src/prism.js' | relative_url}}"></script>
+    {% if page.api %}
+      <script type="text/javascript" src="{{'src/api_' | append: page.api | append: '.js' | relative_url}}"></script>
     {% endif %}
   </body>
 </html>

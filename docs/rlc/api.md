@@ -1,6 +1,8 @@
 ---
 usePrism: true
-title: 'rlc API'
+title: 'R/LinkedCharts API'
+hideTOC: 'true'
+api: "rlc"
 ---
 # Add a default layout to the opened web page
 
