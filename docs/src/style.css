@@ -296,3 +296,25 @@ pre code {
 .gallery .button:hover {
   background-color: #e9e9f9;  
 }
+
+.contentContainer h1 {
+  width: 100%;
+  background-color: #52527a;
+  color: white;
+  padding: 15px 10px 15px 10px;
+  font-weight: normal;
+  text-align: center;
+}
+
+.contentContainer h1 code {
+  font-weight: bold;
+  background-color: inherit;
+  color: #c8c5d3;
+  font-size: inherit;
+  border: none;
+  text-shadow: -1px 0 #29293d, 0 1px #29293d, 1px 0 #29293d, 0 -1px #29293d;
+}
+
+.contentContainer h2 {
+  color: #4d334d;
+}
