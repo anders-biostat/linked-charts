@@ -5,6 +5,7 @@ body {
 .navigationTop {
 		top: 0px;
 		width: 100%;
+    display: inline-block;
     list-style-type: none;
     margin: 0;
     padding: 0;
