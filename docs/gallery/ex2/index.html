@@ -1,0 +1,46 @@
+<head>
+	<script type="text/javascript" src = "data.js"></script>
+	<script type="text/javascript" src = "../../src/linked-charts.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="../../src/linked-charts.css">
+</head>
+<body>
+<div id = "ma-expr">
+<table>
+   <tr>
+      <td id = "ma"></td>
+      <td id = "expr"></td>
+   </tr>
+</table>
+</div>	
+	<script type="text/javascript">
+
+var selGene = 0;
+
+lc.scatter()
+	.x(i => maData.pvals[i].AveExpr)
+	.y(i => maData.pvals[i].tissuetumour)
+	.colour(i => maData.pvals[i]["adj.P.Val"] < 0.1 ? "red" : "black")
+	.label(i => maData.geneNames[i])
+	.size(1.3)
+	.on_click(i => {selGene = i; exprPlot.update();})
+	.width(window.innerWidth * 0.4)
+	.height(window.innerWidth * 0.4)
+	.set_paddings({left: 15})
+	.place(d3.select("#ma-expr").select("#ma"));
+
+var exprPlot = lc.scatter()
+	.x(i => maData.patients[i])
+	.y(i => maData.countMatrix[selGene][i]/maData.countSums[i] * 1e6 + .1)
+	.logScaleY(10)
+	.colourValue(i => maData.tissue[i])
+	.title(function() {return maData.geneNames[selGene]})
+	.axisTitleY("counts per million (CPM)")
+	.ticksRotateX(45)
+	.width(window.innerWidth * 0.4)
+	.height(window.innerWidth * 0.4)
+	.place(d3.select("#ma-expr").select("#expr"));
+
+exprPlot.legend.width(110).update();
+
+	</script>
+</body>

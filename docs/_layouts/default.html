@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: "en-US" }}">
+  <head>
+
+    {% if site.google_analytics %}
+      <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.google_analytics }}"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ site.google_analytics }}');
+      </script>
+    {% endif %}
+    <meta charset="UTF-8">
+
+{% seo %}
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#157878">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="{{ 'src/style.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ 'src/tocbot.css' | relative_url}}">
+    {% if page.lang == "js" %}
+      <link rel="stylesheet" href="{{ 'src/tiy.css' | relative_url}}">
+      <link rel="stylesheet" href="{{ 'src/codeMirror/codemirror.css' | relative_url}}"> 
+      <link rel="stylesheet" href="{{ 'src/codeMirror/mdn-like.css' | relative_url}}">
+    {% endif %}
+    {% if page.usePrism %}
+      <link rel="stylesheet" href="{{ 'src/prism.css' | relative_url}}">
+    {% endif %}
+    {% if page.useLC %}
+      <script type="text/javascript" src = "{{ 'src/linked-charts.min.js' | relative_url}}"></script>
+      <link rel="stylesheet" type="text/css" href="{{ 'src/linked-charts.css' | relative_url}}">
+    {% endif %}
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+      var lang = "{{page.lang}}" || localStorage.getItem("lang") || "rlc";
+    </script>
+    <div class="page-header"></div>
+    <script type="text/javascript" src="{{ 'src/navTop.js' | relative_url }}"></script>
+
+    <div class="contentContainer">
+      <nav class="tocContainer" id="toc"></nav>
+      <section id="content">
+        {{ content }}      
+      </section>
+    </div>
+
+    {% if page.lang == "js" %}
+      <script src="{{'src/codeMirror/codemirror.js' | relative_url}}"></script>
+      <script src="{{'src/codeMirror/javascript.js' | relative_url}}"></script>
+      <script src="{{'src/tiy.js' | relative_url}}"></script>
+      <script>tiy.make_boxes();</script>
+    {% endif %} 
+    {% if page.hideTOC != "true" %}
+    <script type="text/javascript" src="{{'src/tocbot.min.js' | relative_url}}"></script>
+    <script type="text/javascript">
+      tocbot.init({
+        tocSelector: '#toc',
+        contentSelector: '#content',
+        headingSelector: 'h1, h2, h3, h4',
+        positionFixedSelector: ".tocContainer"
+      });
+      tocbot.refresh();
+    </script>
+    {% endif %}
+    <script type="text/javascript">
+      d3.select("head")
+        .select("title")
+        .text("{{ page.title }}" || "LinkedCharts")
+    </script>
+    {% if page.usePrism %}
+      <script type="text/javascript" src="{{'src/prism.js' | relative_url}}"></script>
+    {% endif %}
+    {% if page.showGallery %}
+      <script type="text/javascript" src="{{'src/addGallery.js' | relative_url}}"></script>
+    {% endif %}
+    {% if page.api %}
+      <script type="text/javascript" src="{{'src/api_' | append: page.api | append: '.js' | relative_url}}"></script>
+    {% endif %}
+  </body>
+</html>

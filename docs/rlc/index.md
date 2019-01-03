@@ -1,4 +1,12 @@
+---
+usePrism: true
+title: "R/LinkedCharts"
+showGallery: "true"
+---
+
 # R/LinkedCharts
+
+<div class="gallery"></div>
 
 R/LinkedCharts is a powerful novel way to perform exploratory data analysis in R. With only very few lines of code, you can create interactive data visualization apps that allow you to simuyltaneously get an overview of your data and dive deeply into details.
 
@@ -19,18 +27,19 @@ devtools::install_github( "anders-biostat/rlc" )
 
 #### Understanding RNA-Seq data
 
-[**This simple tutorial**](oscc/oscc.html) shows how R/LinkedCharts can help you with a standard bioinformatics task: analysing an RNA-Seq data set, here of tissue samples from patients with oral cancer. The tutorial shows how scatter plots and heatmaps can easily be interactively combined. This is a good start into R/LinkedCharts
+[**This simple tutorial**](tutorials/oscc.html) shows how R/LinkedCharts can help you with a standard bioinformatics task: analysing an RNA-Seq data set, here of tissue samples from patients with oral cancer. The tutorial shows how scatter plots and heatmaps can easily be interactively combined. This is a good start into R/LinkedCharts
 
 #### Exploring single-cell data
 
-[**This tutorial**](citeseq/example_1.html) uses the "CiteSeq" data set by Stoecklin et al. to demonstrate how LinkedCharts can help you to understand your single-cell transcriptomics data. It introduces `lc_scatter`, the workhorse of R/LinkedCharts, which produces interactively linked scatter plots. Like the previous one, this tutorial is a good way to get started and get a quick idea what you can do with R/LinkedCharts.
+[**This tutorial**](tutorials/citeseq1.html) uses the "CiteSeq" data set by Stoecklin et al. to demonstrate how LinkedCharts can help you to understand your single-cell transcriptomics data. It introduces `lc_scatter`, the workhorse of R/LinkedCharts, which produces interactively linked scatter plots. Like the previous one, this tutorial is a good way to get started and get a quick idea what you can do with R/LinkedCharts.
 
 #### A multicolored t-SNE plot
 
-[**This tutorial**](citeseq/example_2.html) continues from the previous one and demonstrated how you can leverage standard HTML5 and JavaScript techniques and make them interact smoothly with R/LinkedCharts functions.
+[**This tutorial**](tutorials/citeseq2.html) continues from the previous one and demonstrated how you can leverage standard HTML5 and JavaScript techniques and make them interact smoothly with R/LinkedCharts functions.
 
 #### Customise your cahrt
-[**Here**](props/props.html) you can find use cases of all the adjustable parameters in R/LinkedCharts. This tutorial demonstrates how to youse colours, change shape of elements, add titles, use all built-in parameters to
+
+[**Here**](tutorials/props.html) you can find use cases of all the adjustable parameters in R/LinkedCharts. This tutorial demonstrates how to youse colours, change shape of elements, add titles, use all built-in parameters to
 control interactivity, etc.
 
 ## Questions

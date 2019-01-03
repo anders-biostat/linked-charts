@@ -1,0 +1,29 @@
+<link rel="stylesheet" type="text/css" href="../../src/prism.css">
+<script type="text/javascript" src="../../src/prism.js"></script>
+
+<pre class="language-r line-numbers"><code>
+openPage( useViewer=FALSE, layout="table1x2" )
+
+gene <- 1
+
+lc_scatter(dat(
+      x = voomResult$AveExpr,
+      y = voomResult$tissuetumour,
+      color = ifelse( voomResult$adj.P.Val < 0.1, "red", "black" ),
+      label = rownames(voomResult),
+      size = 1.3,
+      on_click = function(k) { gene <<- k; updateCharts("A2") } ),
+   "A1")
+
+countsums <- colSums(countMatrix)
+
+lc_scatter(dat(
+      x = sampleTable$patient,
+      y = countMatrix[gene,] / countsums * 1e6 + .1,
+      logScaleY = 10,
+      colorValue = sampleTable$tissue,
+      title = rownames(countMatrix)[gene],
+      axisTitleY = "counts per million (CPM)",
+      ticksRotateX = 45),
+   "A2")
+</code></pre>

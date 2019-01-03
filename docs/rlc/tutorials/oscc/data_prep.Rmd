@@ -1,0 +1,201 @@
+---
+title: "R/LinkedCharts Tutorial"
+usePrism: true
+---
+
+## R/LinkedCharts Tutorial
+# Augmenting and checking a standard RNA-Seq analysis
+## Appendix
+
+This document describes a standard analysis of the RNA-Seq dataset used in [this tutorial](../oscc.md).
+
+We are working with data from this paper:
+
+| C. Conway et al.: *Elucidating drivers of oral epithelial dysplasia formation and malignant transformation to cancer using RNAseq*. Oncotarget, 6:40186-40201 (2015), [doi:10.18632/oncotarget.5529](https://doi.org/10.18632/oncotarget.5529)
+
+Conweay et al. have collected tissue samples from 19 patients with oral squamous
+cell carcinoma (OSCC). From each patient, they took 3 samples, one of normal oral mucosa 
+("N"), one of epithelial dysplasia (i.e., abnormal but not yet malignant tissue, 
+"D"), and one sample of the tumour ("T"). They prepared RNA-Seq libraries from
+the samples and sequenced them. They deposited their raw data at the European
+Read Archive (ERA) under accession [PRJEB7455](https://www.ebi.ac.uk/ena/data/view/PRJEB7455) 
+(secondary accession: ERP007185). 
+
+The Recount2 project (Collado Torres et al., Nature Biotechnology, 2017, 
+[doi:10.1038/nbt.3838](https://doi.org/10.1038/nbt.3838)) has downloaded this
+data set (and thousands other RNA-Seq data sets), ran it through a standardized
+preprocessing pipeline and provides a gene count table for download from the
+[Recount2 web site](https://jhubiostatistics.shinyapps.io/recount/).
+
+### Getting data and metadata
+
+We download this count matrix from Recount2 (available via the secondary accession
+ERP007185) and read it into R
+
+```{r}
+download.file("http://duffel.rail.bio/recount/v2/ERP007185/counts_gene.tsv.gz", 
+  "ERP007185_counts_gene.tsv.gz" )
+
+countMatrix <- as.matrix( read.table( 
+  gzfile("ERP007185_counts_gene.tsv.gz"), header=TRUE, row.names="gene_id" ) )
+```
+
+The upper-left corner of the matrix looks like this
+
+```{r}
+countMatrix[1:5,1:5]
+```
+
+The column names are ERA run accessions, whcih we first need to map to useful sample 
+names. Unfortuantely, the sample table available from Recount2 does not contain a
+column that would actually describe the samples, the more complete sample table 
+available from ERA, however, does (though it took us a bit to find this).
+
+We went to the [ERA page for the project](https://www.ebi.ac.uk/ena/data/view/PRJEB7455).
+There, we clicked on "Select column" and selected the columns "Run accession" and 
+"Submitter's sample name", then downloaded this table. A copy of this table is available
+from the present site: [PRJEB7455.txt](PRJEB7455.txt).
+
+We will use [tidyverse](https://www.tidyverse.org/) functionality to process the table
+
+```{r}
+library( tidyverse )
+```
+
+We read in the table
+
+```{r}
+sampleTable <- read_tsv( "PRJEB7455.txt" )
+
+sampleTable
+```
+
+We split the sample name into its two parts, the patient ID (before the dash) and 
+the tissue type (after the dash), then change the tissue type to more descriptive labels,
+impose an ordering of the levels by severity ( normal < dysplasia < tumour ), and finally
+sort the table.
+
+```{r}
+sampleTable %>%
+   rename( sample_name = sample_alias ) %>%
+   separate( sample_name, c( "patient", "tissue" ), "-", remove=FALSE ) %>%
+   mutate( tissue = fct_recode( tissue, "normal"="N", "dysplasia"="D", "tumour"="T" ) ) %>%
+   mutate( tissue = fct_relevel( tissue, "normal", "dysplasia", "tumour" ) ) %>%
+   arrange( patient, tissue ) ->
+      sampleTable
+```
+
+This is now our final sample table
+
+```{r}
+sampleTable
+```
+
+Now, we bring the count matrix columns into the same order as in the sample table
+and replace the run accessions in the column names by the more readable sample names
+
+```{r}
+countMatrix <- countMatrix[ , sampleTable$run_accession ]
+colnames(countMatrix) <- sampleTable$sample_name
+```
+
+Next, we replace the rownames, currently Ensembl gene IDs, with gene names. To this, we first download
+from Ensembl Biomart a table mapping all Ensembl human gene IDs to gene symbols
+
+```{r}
+bmtbl <- biomaRt::getBM( 
+   c( "ensembl_gene_id", "external_gene_name" ), 
+   mart = biomaRt::useEnsembl( "ensembl", "hsapiens_gene_ensembl" ) )
+
+head(bmtbl)
+```
+
+We replace the rownames with the gene symbols, unless the gene symbol is missing or duplicated.
+As usual in R, such simple operations look most complicated:
+
+```{r}
+tibble( rowname = rownames(countMatrix) ) %>% 
+   mutate( ensembl_gene_id = str_extract( rowname, "ENSG\\d*" ) ) %>%
+   left_join( bmtbl, by = "ensembl_gene_id" ) %>%
+   mutate( new_rowname = 
+      ifelse( ! is.na(external_gene_name) & 
+            ! external_gene_name %in% external_gene_name[duplicated(external_gene_name)], 
+         external_gene_name, 
+         rowname ) ) %>%
+   pull( new_rowname ) ->
+     rownames(countMatrix)
+```
+
+Now, we have this
+
+```{r}
+countMatrix[ 1:5, 1:5 ]
+```
+
+### Running limma-voom
+
+With everything in place, we now run a standard differential expression analysis using
+limma-voom (Law et al., Genome Biology, 2014, [doi:10.1186/gb-2014-15-2-r29](https://doi.org/10.1186/gb-2014-15-2-r29)).
+
+```{r}
+library( limma )
+```
+
+We aim to find any genes which differ significantly between any of the three tissue types,
+accounting for the patient as a blocking factor.
+
+This is our model matrix
+
+```{r}
+mm <- model.matrix( ~ patient + tissue, sampleTable )
+colnames(mm)
+```
+
+The model matrix columns concerning the tissue type are the last two
+
+```{r}
+mm_tissue_columns <- which( attr( mm, "assign" ) == 2 )
+mm_tissue_columns
+```
+
+Now, we run the standard workflow of voom and limma
+
+```{r}
+vm <- voom( countMatrix, mm )
+fit <- lmFit( vm, mm )
+fit <- eBayes( fit, robust=TRUE )
+```
+
+Last, we extract the results for an F test comparing the full model with the one missing the
+last two columns, to see which genes differ significantly between tissues.
+
+```{r}
+voomResult <- topTable( fit, coef = mm_tissue_columns, number=Inf, sort.by="none" )
+
+head(voomResult)
+```
+
+Let's make an MA plot of these, showing the log fold change tumour/normal versus the average expression and
+highlighting genes significant at 10% FDR in the F test.
+
+```{r maplot}
+plot( voomResult$AveExpr, voomResult$tissuetumour, 
+   col = ifelse( voomResult$adj.P.Val < .1, "red", "black" ), pch=20, cex=.3 )
+```
+
+### Save the results
+
+We save the result 
+
+```{r}
+save( countMatrix, sampleTable, voomResult, file="oscc.rda" )
+```
+
+This file is available here: [oscc.rda](oscc.rda)
+
+
+### Session info
+
+```{r}
+sessionInfo()
+```
