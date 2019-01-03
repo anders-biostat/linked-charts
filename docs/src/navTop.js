@@ -65,7 +65,7 @@ menuCells.append("a")
 		if(typeof pages[lang][d] !== "string")
 			return "javascript:void(0)";
 
-		return document.location.origin + "/" + lang + "/" + d + ".html";
+		return document.location.origin + "/linked-charts/" + lang + "/" + d + ".html";
 	})
 	.text(function(d){
 		if(typeof pages[lang][d] === "string")
@@ -90,7 +90,7 @@ menuCells.append("div")
 		})
 			.enter().append("a")
 				.attr("href", function(d){
-					return document.location.origin + "/" + lang + "/"+ d[0] + "/" + d[1] + ".html";
+					return document.location.origin + "/linked-charts/" + lang + "/"+ d[0] + "/" + d[1] + ".html";
 				})
 				.text(function(d){
 					return pages[lang][d[0]][d[1]];
@@ -130,7 +130,7 @@ d3.select(".page-header")
 					.text(d => d == "rlc" ? "R" : "JavaScript")
 					.on("click", function(d) {
 						localStorage.setItem("lang", d);
-						window.open(document.location.origin + "/" + d, "_self")
+						window.open(document.location.origin + "/linked-charts/" + d, "_self")
 					});
 
 d3.select(".page-header")

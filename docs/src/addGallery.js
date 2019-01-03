@@ -55,7 +55,7 @@ d3.select(".gallery")
 function changeSlides(shift) {
 	d3.select(".gallery")
 		.select("iframe")
-			.attr("src", document.location.origin + "/gallery/ex" + currentEx + "/index.html");
+			.attr("src", document.location.origin + "/linked-charts/gallery/ex" + currentEx + "/index.html");
 	d3.select(".gallery")
 		.select(".numbertext")
 			.text(currentEx + "/" + lastEx);
@@ -95,7 +95,7 @@ function changeThumb() {
 	d3.select(".gallery")
 		.select(".row")
 			.selectAll("img")
-				.attr("src", d => document.location.origin + "/gallery/ex" + d + "/image.png");
+				.attr("src", d => document.location.origin + "/linked-charts/gallery/ex" + d + "/image.png");
 }
 
 changeSlides();
@@ -119,11 +119,11 @@ d3.select(".gallery")
 					})
 					.on("click", function(d) {
 						if(d == 0)
-							window.open(document.location.origin + "/gallery/ex" + currentEx + "/code_R.html", 
+							window.open(document.location.origin + "/linked-charts/gallery/ex" + currentEx + "/code_R.html", 
 								"R code for the example", "width=600,height=600");
 						if(d == 1)
-							window.open(document.location.origin + "/gallery/ex" + currentEx + "/code_JS.html", 
+							window.open(document.location.origin + "/linked-charts/gallery/ex" + currentEx + "/code_JS.html", 
 								"JavaScript code for the example", "width=600,height=600");
 						if(d == 2)
-							window.open(document.location.origin + "/" + linkEx[currentEx - 1]);
+							window.open(document.location.origin + "/linked-charts/" + linkEx[currentEx - 1]);
 					})
