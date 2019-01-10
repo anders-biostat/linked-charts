@@ -353,7 +353,7 @@ export function add_click_listener(chart){
     if(canvases.length > 0) 
       if(Array.isArray(clicked)) {
           //this is a heatmap in a canvas mode
-          chart.get_on_click(clicked[0], clicked[1])
+          chart.get_on_click(clicked[0][0], clicked[0][1])
           return;
         } else {
           //one of the layers is in canvas mode
