@@ -143,10 +143,20 @@ export function add_click_listener(chart){
     chart.container.selectAll(".hint")
       .remove();
 
+    var p = d3.mouse(this);
+
+    //Firefox ignores CSS properties when reporting the mouse position 
+    //relative to an element (probably will be fixed in v.68)
+    //until then check if the browser is Firefox
+    if(navigator.userAgent.toLowerCase().indexOf('firefox') > -1 && 
+        navigator.userAgent.match(/Firefox\/([0-9]+)\./)[1] < 68){
+      p[0] -= chart.paddings().left;
+      p[1] -= chart.paddings().top;
+    }
+
     down = d3.mouse(document.body);
-    downThis = d3.mouse(this)
+    downThis = p.slice();
     wait_click = window.setTimeout(function() {wait_click = null;}, 1000);
-    var p = d3.mouse(this);  //Mouse position on the heatmap
     if(!chart.pan("mode"))
       chart.svg.selectAll(".plotArea").append("rect")
         .attr("class", "selection")
@@ -171,7 +181,7 @@ export function add_click_listener(chart){
     var s = chart.svg.select(".selection"),
       rect = chart.svg.select(".clickPanel").node().getBoundingClientRect(),
       p = [d3.max([d3.min([e.clientX - rect.left, chart.plotWidth()]), 0]), 
-            d3.max([d3.min([e.clientY - rect.top, chart.plotHeight()]), 0])]; 
+            d3.max([d3.min([e.clientY - rect.top, chart.plotHeight()]), 0])];
         
     if(panStarted){
       if(!wait){
