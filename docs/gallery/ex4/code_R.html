@@ -33,7 +33,7 @@ red   <- "off"
 green <- "off"
 blue  <- "off"
 
-JsRCom::sendCommand(
+jrc::sendCommand(
   'd3.selectAll("input[type=radio][value=off]").attr( "checked", "yes" )' )
 
 lc_scatter(dat(

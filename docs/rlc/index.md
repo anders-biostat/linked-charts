@@ -18,7 +18,6 @@ To install R/LinkedCharts, start R and type
 
 ```r
 install.packages( "devtools" )
-devtools::install_github( "anders-biostat/JsRCom" )
 devtools::install_github( "anders-biostat/rlc" )
 ```
 

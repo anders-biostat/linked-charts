@@ -1,7 +1,6 @@
 # Complete code for R/LinkChart usage example 1
 # See tutorial page for explanations
 
-devtools::install_github( "anders-biostat/JsRCom" )
 devtools::install_github( "anders-biostat/rlc" )
 
 library( rlc )

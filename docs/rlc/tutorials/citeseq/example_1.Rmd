@@ -169,7 +169,6 @@ Now, we show how to create such linked charts with R/LinkedCharts.
 
 If you haven't done so yet, install the R/LinkedChart package with
 ```{r message=FALSE}
-devtools::install_github( "anders-biostat/JsRCom" ) # required for rlc
 devtools::install_github( "anders-biostat/rlc" )
 ```
 
@@ -611,6 +610,6 @@ describe how each chart should look like and how it finds its data in the model.
 - In the traditional MVC pattern, the **controller** is the code that handles user interactions. We have not made it a separate part but rather folded it into each chart, specifically, into its event handler parameters such as the `on_click` function above. To keep things simple, we suggest that these controller codes directly manipulate some subsets of the global variables (the model) and then take care of telling the appropriate charts to update themselves. For complex GUIs, this might seem messy, but for the quick-and-not-too-dirty programming style that one wants to use during exploratory data analysis, it is suitable -- and very straight-forward.
 
 
-### LinkedCharts and JsRCom
+### LinkedCharts and jrc
 
-The work horse under the hood of R/LinkedCharts is our LinkedCharts library, which is written in JavaScript, not in R. It can also used directly, in order to write stand-alone client-side data exploration apps, and offers all the functionality of R/LinkedCharts and some more. R/LinkedCharts uses our JsRCom library [documentation/tutorial to be written] to establish a bidirectional [WebSocket](https://en.wikipedia.org/wiki/WebSocket) communication between the R session on one end and the web browser session with its JavaScript interpreter on the other end. The WebSocket link is used to send data and commands (e.g., to add charts to the page) from R to JavaScript and to send event notifications about user actions (such as a mouse click) from JavaScript to R. 
+The work horse under the hood of R/LinkedCharts is our LinkedCharts library, which is written in JavaScript, not in R. It can also used directly, in order to write stand-alone client-side data exploration apps, and offers all the functionality of R/LinkedCharts and some more. R/LinkedCharts uses our jrc library [documentation/tutorial to be written] to establish a bidirectional [WebSocket](https://en.wikipedia.org/wiki/WebSocket) communication between the R session on one end and the web browser session with its JavaScript interpreter on the other end. The WebSocket link is used to send data and commands (e.g., to add charts to the page) from R to JavaScript and to send event notifications about user actions (such as a mouse click) from JavaScript to R. 

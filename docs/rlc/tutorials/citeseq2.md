@@ -190,7 +190,7 @@ You should see something like this:
 
 If you run this and try it out you will see that the buttons are not yet connected: you can click multiple ones, because your browser does not know that they are supposed to form a group. To achieve this, we have to give them the same `name` attribute. Also, nothing happens if you click them. 
 
-As we serve the page with R/LinkedCharts, we can use a functionality of the `JsRCom` package that it uses: We can ask the browser to send back data to the R session using a JavaScript function called `jrc.sendData`, which is among the function that JsRCom "spikes" into any web page it serves.
+As we serve the page with R/LinkedCharts, we can use a functionality of the `jrc` package that it uses: We can ask the browser to send back data to the R session using a JavaScript function called `jrc.sendData`, which is among the function that `jrc` "spikes" into any web page it serves.
 
 This may sound complicated but is very simple. We first build our radio buttons as before:
 
@@ -242,11 +242,11 @@ The try changing the `onchange` line above to
 
 to cause R to execute the R command `print(radio)` and thus print the value on your R console the moment you press the button.
 
-Besides sending R commands from the browser to R, JsRCom can also send JavaScript command from R to the web browser. Type this here in R to cause your browser to greet you. (`alert` is a JavaScript function directing the browser to display a message in a dialog box.)
+Besides sending R commands from the browser to R, `jrc` can also send JavaScript command from R to the web browser. Type this here in R to cause your browser to greet you. (`alert` is a JavaScript function directing the browser to display a message in a dialog box.)
 
 
 ```r
-JsRCom::sendCommand(
+jrc::sendCommand(
   'alert( "Hello from R" )' )
 ```
 
@@ -313,7 +313,7 @@ One minor inconvenience is that, so far, none of the radio buttons are initially
 
 
 ```r
-JsRCom::sendCommand(
+jrc::sendCommand(
   'd3.selectAll("input[type=radio][value=off]").attr( "checked", "yes" )' )
 ```
 
@@ -354,7 +354,7 @@ red   <- "off"
 green <- "off"
 blue  <- "off"
 
-JsRCom::sendCommand(
+jrc::sendCommand(
   'd3.selectAll("input[type=radio][value=off]").attr( "checked", "yes" )' )
 
 lc_scatter( 

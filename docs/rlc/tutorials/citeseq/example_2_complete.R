@@ -1,5 +1,5 @@
 # Install the packages, if you haven't yet:
-devtools::install_github( "anders-biostat/JsRCom" )
+
 devtools::install_github( "anders-biostat/rlc" )
 
 # Download the example data. Skip this, too, if you have done this already.
@@ -55,7 +55,7 @@ red   <- "off"
 green <- "off"
 blue  <- "off"
 
-JsRCom::sendCommand(
+jrc::sendCommand(
   'd3.selectAll("input[type=radio][value=off]").attr( "checked", "yes" )' )
 
 lc_scatter( 

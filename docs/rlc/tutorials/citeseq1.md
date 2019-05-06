@@ -209,7 +209,6 @@ Now, we show how to create such linked charts with R/LinkedCharts.
 If you haven't done so yet, install the R/LinkedChart package with
 
 ```r
-devtools::install_github( "anders-biostat/JsRCom" ) # required for rlc
 devtools::install_github( "anders-biostat/rlc" )
 ```
 
@@ -228,10 +227,6 @@ openPage( useViewer = FALSE, layout = "table2x2" )
 
 ```
 ## WebSocket opened
-```
-
-```
-## Warning in func(req): File '/favicon.ico' is not found
 ```
 
 ```r
@@ -433,35 +428,35 @@ tsne <- Rtsne( t( expr[varGenes, ] ), verbose = TRUE )
 ```
 
 ```
+## Performing PCA
 ## Read the 8005 x 50 data matrix successfully!
+## OpenMP is working. 1 threads.
 ## Using no_dims = 2, perplexity = 30.000000, and theta = 0.500000
 ## Computing input similarities...
-## Normalizing input...
 ## Building tree...
-##  - point 0 of 8005
-## Done in 4.93 seconds (sparsity = 0.017480)!
+## Done in 3.03 seconds (sparsity = 0.017480)!
 ## Learning embedding...
-## Iteration 50: error is 92.686969 (50 iterations in 7.17 seconds)
-## Iteration 100: error is 81.219347 (50 iterations in 7.08 seconds)
-## Iteration 150: error is 79.775908 (50 iterations in 5.88 seconds)
-## Iteration 200: error is 79.352368 (50 iterations in 6.13 seconds)
-## Iteration 250: error is 79.133499 (50 iterations in 6.18 seconds)
-## Iteration 300: error is 3.078601 (50 iterations in 5.42 seconds)
-## Iteration 350: error is 2.835565 (50 iterations in 5.18 seconds)
-## Iteration 400: error is 2.697402 (50 iterations in 5.22 seconds)
-## Iteration 450: error is 2.610087 (50 iterations in 5.28 seconds)
-## Iteration 500: error is 2.548989 (50 iterations in 5.32 seconds)
-## Iteration 550: error is 2.503785 (50 iterations in 5.37 seconds)
-## Iteration 600: error is 2.469433 (50 iterations in 5.38 seconds)
-## Iteration 650: error is 2.444204 (50 iterations in 5.38 seconds)
-## Iteration 700: error is 2.426130 (50 iterations in 5.38 seconds)
-## Iteration 750: error is 2.412917 (50 iterations in 5.46 seconds)
-## Iteration 800: error is 2.403509 (50 iterations in 5.45 seconds)
-## Iteration 850: error is 2.395312 (50 iterations in 5.48 seconds)
-## Iteration 900: error is 2.388515 (50 iterations in 5.42 seconds)
-## Iteration 950: error is 2.383506 (50 iterations in 5.39 seconds)
-## Iteration 1000: error is 2.379420 (50 iterations in 5.37 seconds)
-## Fitting performed in 112.94 seconds.
+## Iteration 50: error is 92.687413 (50 iterations in 1.89 seconds)
+## Iteration 100: error is 81.436077 (50 iterations in 1.77 seconds)
+## Iteration 150: error is 79.811144 (50 iterations in 1.51 seconds)
+## Iteration 200: error is 79.370756 (50 iterations in 1.52 seconds)
+## Iteration 250: error is 79.145878 (50 iterations in 1.49 seconds)
+## Iteration 300: error is 3.120874 (50 iterations in 1.32 seconds)
+## Iteration 350: error is 2.865478 (50 iterations in 1.27 seconds)
+## Iteration 400: error is 2.721587 (50 iterations in 1.22 seconds)
+## Iteration 450: error is 2.631423 (50 iterations in 1.19 seconds)
+## Iteration 500: error is 2.568666 (50 iterations in 1.19 seconds)
+## Iteration 550: error is 2.523436 (50 iterations in 1.21 seconds)
+## Iteration 600: error is 2.489009 (50 iterations in 1.20 seconds)
+## Iteration 650: error is 2.463170 (50 iterations in 1.19 seconds)
+## Iteration 700: error is 2.443486 (50 iterations in 1.19 seconds)
+## Iteration 750: error is 2.429011 (50 iterations in 1.21 seconds)
+## Iteration 800: error is 2.418269 (50 iterations in 1.25 seconds)
+## Iteration 850: error is 2.411005 (50 iterations in 1.25 seconds)
+## Iteration 900: error is 2.405193 (50 iterations in 1.25 seconds)
+## Iteration 950: error is 2.400266 (50 iterations in 1.23 seconds)
+## Iteration 1000: error is 2.395971 (50 iterations in 1.26 seconds)
+## Fitting performed in 26.61 seconds.
 ```
 
 ```r
@@ -789,6 +784,6 @@ describe how each chart should look like and how it finds its data in the model.
 - In the traditional MVC pattern, the **controller** is the code that handles user interactions. We have not made it a separate part but rather folded it into each chart, specifically, into its event handler parameters such as the `on_click` function above. To keep things simple, we suggest that these controller codes directly manipulate some subsets of the global variables (the model) and then take care of telling the appropriate charts to update themselves. For complex GUIs, this might seem messy, but for the quick-and-not-too-dirty programming style that one wants to use during exploratory data analysis, it is suitable -- and very straight-forward.
 
 
-### LinkedCharts and JsRCom
+### LinkedCharts and jrc
 
-The work horse under the hood of R/LinkedCharts is our LinkedCharts library, which is written in JavaScript, not in R. It can also used directly, in order to write stand-alone client-side data exploration apps, and offers all the functionality of R/LinkedCharts and some more. R/LinkedCharts uses our JsRCom library [documentation/tutorial to be written] to establish a bidirectional [WebSocket](https://en.wikipedia.org/wiki/WebSocket) communication between the R session on one end and the web browser session with its JavaScript interpreter on the other end. The WebSocket link is used to send data and commands (e.g., to add charts to the page) from R to JavaScript and to send event notifications about user actions (such as a mouse click) from JavaScript to R. 
+The work horse under the hood of R/LinkedCharts is our LinkedCharts library, which is written in JavaScript, not in R. It can also used directly, in order to write stand-alone client-side data exploration apps, and offers all the functionality of R/LinkedCharts and some more. R/LinkedCharts uses our jrc library [documentation/tutorial to be written] to establish a bidirectional [WebSocket](https://en.wikipedia.org/wiki/WebSocket) communication between the R session on one end and the web browser session with its JavaScript interpreter on the other end. The WebSocket link is used to send data and commands (e.g., to add charts to the page) from R to JavaScript and to send event notifications about user actions (such as a mouse click) from JavaScript to R. 
