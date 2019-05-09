@@ -1,3 +1,7 @@
+---
+lang: "js"
+---
+
 Linked Charts
 =============
 
@@ -26,7 +30,7 @@ Linked Charts
     .height(300)
     .axisTitleX("Gene Expression")
     .axisTitleY("Drug Score")
-    .elementLabel(function(k){return "sample " + k})
+    .label(function(k){return "sample " + k})
     .size(3)
     .colour("CornflowerBlue")
     .x( function( k ) { return geneExprs[selGene][k] } )
@@ -39,7 +43,7 @@ Linked Charts
   var heatmap = lc.heatmap()
     .ncols( geneNames.length )
     .nrows( drugNames.length )
-    .margins({top: 50, left: 50, right: 60, bottom: 160})
+    .paddings({top: 50, left: 50, right: 60, bottom: 160})
     .height( 350 )
     .width( 600 )
     .colourDomain( [-1, 1] )

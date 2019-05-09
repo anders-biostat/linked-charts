@@ -217,17 +217,17 @@ tiy.insert_box = function( pre ) {
             .on("mouseover", function(d){
               d3.select(this)
                 .attr("src", function(d){
-                  return "../src/img/" + d + "_hover.svg"
+                  return document.location.origin + "/linked-charts/src/img/" + d + "_hover.svg"
                 });
             })
             .on("mouseout", function(d){
               d3.select(this)
                 .attr("src", function(d){
-                  return "../src/img/" + d + ".svg"
+                  return document.location.origin + "/linked-charts/src/img/" + d + ".svg"
                 });            
             })
             .attr("src", function(d){
-              return "../src/img/" + d + ".svg";
+              return document.location.origin + "/linked-charts/src/img/" + d + ".svg";
             })
             .attr("title", function(d){
               return d == "run" ? "Run code" : "Reset code";
