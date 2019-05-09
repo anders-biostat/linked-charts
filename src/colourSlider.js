@@ -60,10 +60,10 @@ export function colourSlider() {
        obj.midpoint( min );
     if( obj.get_midpoint() > max )
        obj.midpoint( max );
-    if( obj.slopeWidth() > (max-min) )
-       obj.slopeWidth( max-min );
-    if( obj.slopeWidth() < (min-max) )
-       obj.slopeWidth( min-max );
+    if( obj.midpoint() - min < obj.slopeWidth()/2 ) 
+       obj.slopeWidth( (obj.midpoint() - min) * 2 );
+    if( max - obj.midpoint() < obj.slopeWidth()/2 )
+       obj.slopeWidth( (max - obj.midpoint()) * 2 );
   }
 	
   var inherited_put_static_content = obj.put_static_content;
@@ -140,7 +140,7 @@ export function colourSlider() {
       .attr( "y", 30 )
       .call( d3.drag()
         .on( "drag", function() {
-          obj.slopeWidth( obj.pos_scale.invert( obj.pos_scale( obj.slopeWidth() ) + d3.event.dx ) );
+          obj.slopeWidth( obj.pos_scale.invert( obj.pos_scale( obj.slopeWidth() ) + d3.event.dx * 2 ) );
           clamp_markers();
           obj.update();        
           obj.get_on_drag();
@@ -155,7 +155,7 @@ export function colourSlider() {
       .attr( "y", 30 )
       .call( d3.drag()
         .on( "drag", function() {
-          obj.slopeWidth( obj.pos_scale.invert( obj.pos_scale( obj.slopeWidth() ) - d3.event.dx ) );
+          obj.slopeWidth( obj.pos_scale.invert( obj.pos_scale( obj.slopeWidth() ) - d3.event.dx * 2 ) );
           clamp_markers();
           obj.update();        
           obj.get_on_drag();
@@ -202,7 +202,7 @@ export function colourSlider() {
       obj.midpoint( percent_scale( 50 ) );
 
     if( obj.get_slopeWidth() == undefined )
-      obj.slopeWidth( Math.abs(percent_scale( 15 )) );
+      obj.slopeWidth( Math.abs(percent_scale( 70 ) - percent_scale(0)) );
 
     obj.pos_scale = d3.scaleLinear()
       .range( posScDomain )
@@ -241,9 +241,9 @@ export function colourSlider() {
     obj.mainMarker
       .attr( "x", obj.pos_scale( obj.get_midpoint() ) );
     obj.rightMarker
-      .attr( "x", obj.pos_scale( obj.get_midpoint() + obj.slopeWidth() ) )
+      .attr( "x", obj.pos_scale( obj.get_midpoint() + obj.slopeWidth()/2 ) )
     obj.leftMarker
-      .attr( "x", obj.pos_scale( obj.get_midpoint() - obj.slopeWidth() ) )
+      .attr( "x", obj.pos_scale( obj.get_midpoint() - obj.slopeWidth()/2 ) )
 
 		//obj.get_on_change();
 
