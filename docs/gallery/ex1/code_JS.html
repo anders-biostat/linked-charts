@@ -11,9 +11,9 @@ var hm = lc.heatmap()
    .rowLabel(i => hData.sampleNames[i])
    .colLabel(i => hData.sampleNames[i])
    .showLegend(false)
-   .on_click(function(d) {
-      xSample = d[0];
-      ySample = d[1];
+   .on_click(function(row, col) {
+      xSample = row;
+      ySample = col;
       sch.update();
    })
    .place("#heatmap");
