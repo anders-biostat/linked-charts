@@ -9,9 +9,9 @@ lc.heatmap()
 	.width(340)
 	.height(340)
 	.paddings({top: 30, left: 30, right: 5, bottom: 5})
-	.on_click(function(d) {
-		xSample = d[0];
-		ySample = d[1];
+	.on_click(function(row, col) {
+		xSample = row;
+		ySample = col;
 		sch.update();
 	})
 	.place(d3.select("#heatmap-scatter").select("#heatmap"));
