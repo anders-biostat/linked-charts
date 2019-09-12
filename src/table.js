@@ -1,4 +1,6 @@
 import { chartBase } from "./chartBase";
+import { check } from "./additionalFunctions";
+
 
 export function table() {
 
@@ -83,4 +85,88 @@ export function html() {
   };
 
   return chart;
+}
+
+export function input() {
+  var chart = html()
+    .add_property("type", "text")
+    .add_property("label", d => d)
+    .add_property("elementIds", [""], check("array", "elementIds"))
+    .add_property("value", d => chart.type() == "text" ? "" : d, check("array_fun", "value"))
+//    .add_property("orientation", "vertical") may be later...
+    .add_property("on_change", function() {});
+  
+  chart.name = "n" + Math.random().toString(36).substring(5);
+  chart.width(200);
+
+  var inherited_put_static_content = chart.put_static_content;
+  chart.put_static_content = function( element ) {
+    inherited_put_static_content(element);
+    chart.container
+      .style("display", "grid")
+      .style("grid-template-columns", "fit-content(500px) 1fr");
+  }
+
+  var get_value = function(element) {
+    if(chart.type() == "button" || chart.type() == "radio")
+      return element.value;
+
+    if(chart.type() == "checkbox")
+      return d3.select(element.parentNode)
+        .selectAll("input")
+          .nodes()
+            .map(node => node.checked);
+
+    var state = {};
+    if(chart.type() == "range" || chart.type() == "text")
+      d3.select(element.parentNode)
+        .selectAll("input")
+          .nodes()
+            .forEach(function(node) {state[node.id] = node.value});
+    return state;
+  }
+
+  var inherited_update = chart.update;
+  chart.update = function( ) {
+    inherited_update();
+    var inputs = chart.container
+      .selectAll("input")
+        .data(chart.elementIds());
+    var labels = chart.container
+      .selectAll("label")
+        .data(chart.elementIds());
+
+    inputs.enter()
+      .append("input")
+        .attr("type", chart.type())
+        .attr("name", chart.name)
+        .style("grid-row", (d, i) => i + 1)
+        .style("grid-column", (chart.type() == "text" || chart.type() ==  "range") ? 2 : 1)
+        .attr("id", d => d)
+        .attr("value", d => chart.get_value(d))
+        .style("width", chart.type() == "text" ? "100%" : undefined)
+        .on(chart.type() == "button" ? "click" : "change", function() {
+          chart.get_on_change(get_value(this));
+        });
+
+    inputs.exit()
+      .remove();
+    if(chart.type() != "button") {
+      labels.enter()
+        .append("label")
+          .attr("for", d => d)
+          .text(d => chart.get_label(d))
+          .style("grid-row", (d, i) => i + 1)
+          .style("grid-column", (chart.type() == "text" || chart.type() ==  "range") ? 1 : 2);
+      labels.exit()
+        .remove();      
+    }
+
+    return chart;
+  };
+
+
+
+ return chart;
+
 }
