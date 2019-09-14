@@ -31,7 +31,9 @@ Fortunately, we do not have to redo the whole analysis, as the [Recount2 project
 gives us a headstart by providing a count table for this and other data sets.
 
 Nevertheless, a bit of data wrangling is necessary, and in order to keep this tutorial short,
-we describe these preparatory steps in an [appendix](oscc/data_prep.md). 
+we describe these preparatory steps in an [appendix](oscc/data_prep.md).
+
+You can download the file that produced this document from here: [oscc.Rmd](oscc/oscc.Rmd).
 
 We hence start by loading the data file resulting from the preparations, which is 
 available here: [oscc.rda](oscc/oscc.rda)
