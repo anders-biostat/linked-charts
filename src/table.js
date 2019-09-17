@@ -92,10 +92,11 @@ export function input() {
     .add_property("type", "text")
     .add_property("label", d => d)
     .add_property("elementIds", [""], check("array", "elementIds"))
-    .add_property("value", d => this.type() == "text" ? "" : d, check("array_fun", "value"))
+    .add_property("value", function() {}, check("array_fun", "value"))
 //    .add_property("orientation", "vertical") may be later...
     .add_property("on_change", function() {});
   
+  chart.value(d => chart.type() == "text" ? "" : d);
   chart.name = "n" + Math.random().toString(36).substring(5);
   chart.width(200);
 

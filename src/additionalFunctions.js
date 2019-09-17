@@ -149,7 +149,7 @@ export function add_click_listener(chart){
     //relative to an element (probably will be fixed in v.68)
     //until then check if the browser is Firefox
     if(navigator.userAgent.toLowerCase().indexOf('firefox') > -1 && 
-        navigator.userAgent.match(/Firefox\/([0-9]+)\./)[1] < 68){
+        navigator.userAgent.match(/Firefox\/([0-9]+)\./)[1] < 70){
       p[0] -= chart.paddings().left;
       p[1] -= chart.paddings().top;
     }
@@ -338,9 +338,11 @@ export function add_click_listener(chart){
     mark ? chart.mark("__clear__") : chart.resetDomain();
   }
   var on_panelClick = function(p, mark){
+
+    d3.event.stopPropagation();
     //if this function wasn't called throug timers and 
     //therefore didn't get position as arguement, ignore
-    if(typeof p === "undefined")
+    if(p === undefined)
       return;
 
     //find all the points that intersect with the cursor position
