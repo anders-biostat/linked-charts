@@ -1,0 +1,11 @@
+Create Gemfile with
+	source 'https://rubygems.org'
+	gem 'github-pages', group: :jekyll_plugins
+
+sudo gem install bundler
+sudo apt-get install ruby`ruby -e 'puts RUBY_VERSION[/\d+\.\d+/]'`-dev
+sudo gem install commonmarker -v '0.17.13' --source 'https://rubygems.org/'
+sudo bundle install
+
+Run with
+	bundle exec jekyll serve --baseURL /linked-charts

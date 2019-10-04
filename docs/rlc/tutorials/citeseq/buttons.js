@@ -26,5 +26,5 @@ for(var i in colours)
 			.elementIds(data.markerNames)
 			.on_change(value => {window[colour] = value; tsne.updateElementStyle()})
 			.value("off")
-			.place("#buttons_" + colour)
+			.place(d3.select("#top").select("#buttons_" + colour));
 	})(colours[i]);
