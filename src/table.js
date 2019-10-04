@@ -89,8 +89,14 @@ export function html() {
 
 export function input() {
   var chart = html()
-    .add_property("type", "text")
-    .add_property("label", d => d)
+    .add_property("type", "text", function(value) {
+      if(["text", "radio", "checkbox", "button", "range"].indexOf(value) == -1)
+        throw "Error in 'typeCheck' for property 'type'"+ 
+        ": the supported types are 'text', 'radio', 'checkbox', 'button', 'range'."
+        
+      return value;        
+    })
+    .add_property("label", d => d, check("array_fun", "label"))
     .add_property("elementIds", [""], check("array", "elementIds"))
     .add_property("value", function() {}, check("array_fun", "value"))
 //    .add_property("orientation", "vertical") may be later...
