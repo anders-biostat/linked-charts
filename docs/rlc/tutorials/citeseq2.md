@@ -19,10 +19,12 @@ This is what we are aiming for:
 <table>
    <tr>
       <td id = "plot"></td>
-      <td id = "buttons"><table border="1"></table></td>
+      <td id = "buttons_red"><table></table></td>
+      <td id = "buttons_green"><table></table></td>
+      <td id = "buttons_blue"><table></table></td>
    </tr>
 </table>
-</div>	
+</div>		
 <script type="text/javascript" src="citeseq/buttons.js"></script>
 
 In this app, you can assign a colour channel to each antibody, and so explore the identities of the cells in a colourful manner. If you want to try this out first before reading the details, [here is the complete code](citeseq/example_2_complete.R). It's less than a page of R.
@@ -33,7 +35,7 @@ The CiteSeq method presented by Stoecklin et al. in their paper is a way to simu
 
 We have already explored the transcriptome data in the first part of this tutorial. Now, we will use the epitome data to learn more about the cells' identities. 
 
-We start by loading again the `rlc` library and the CiteSeq data file that we have prepared in the first part, and which you can download [here](https://github.com/anders-biostat/rlc_tutorial/blob/master/citeseq_example/citeseq_data.rda?raw=true).
+We start by loading again the `rlc` library and the CiteSeq data file that we have prepared in the first part, and which you can download [here](https://anders-biostat.github.io/linked-charts/rlc/tutorials/citeseq/citeseq_data.rda).
 
 
 ```r
@@ -98,7 +100,7 @@ plot( tsne$Y,
    asp = 1, pch=20, cex=.5 )
 ```
 
-![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png)
+![plot of chunk unnamed-chunk-19](figure/unnamed-chunk-19-1.png)
 
 Here, we have defined a function `unitrange`, which simply takes a vector of numbers (here, the logarithmized expression of the CD3 epitope) and scales them such that the smallest number becomes 0 and the largest 1. This is what the `rgb` function wants: three numbers, all between 0 and 1, which is uses to mix a colour with the specified amount of red (R), green (G) and blue (B). (If you are unfamiliar with the RGB color model, look it up, e.g., [on Wikipedia](https://en.wikipedia.org/wiki/RGB_color_model).)
 
@@ -115,238 +117,15 @@ plot( tsne$Y,
    asp = 1, pch=20, cex=.5 )
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png)
+![plot of chunk unnamed-chunk-20](figure/unnamed-chunk-20-1.png)
 
 Is the big cluster on top, with the brownish red-green mix now a B or a T cell, or something else. It would be nice to be able to quickly explore all the markers by attaching to them red, green or blue "virtual flourophores" on the click of a button. This is what the app on the top of the page allows us to do.
 
-## The browser talks back to R
+## Interactive input
 
-To build it, we need to construct the matrix of radio buttons, put it to the right of a LinkedCharts scatter plot (`lc_scatter`) of the t-SNE, and link the two components.
+Those, who already have had a look at one of the [previous](oscc.html) tutorials, may guess, how to make such a scatter plot in 
+`linked-charts` with `lc_scatter` function. Here, we'll just show the result. 
 
-First, on terminology, for readers unfamiliar with web or GUI development: A radio button is a button, which is part of a group, such that only one button can be checked at a time. If several buttons of the same groups can be checked simultaneously, we call them "checkboxes". Usually, radiobuttons are circles and check boxes are squares. In HTML coding, both are created with the `<input>` tag.
-
-We can use the R package `hwriter` to conviniently produce HTML code.
-
-
-```r
-library( hwriter )
-```
-
-```
-## 
-## Attaching package: 'hwriter'
-```
-
-```
-## The following objects are masked from 'package:rlc':
-## 
-##     closePage, openPage
-```
-
-For example, to make a radio button, we can use hwriter's `hmakeTag` function:
-
-
-```r
-hmakeTag( "input", "a radio button", type="radio" )
-```
-
-```
-## [1] "<input type=\"radio\">a radio button</input>"
-```
-
-We can make a vector of three such buttons and hand them to `hwrite` to form a nice html table.
-
-
-```r
-s <- hwrite( hmakeTag( "input", paste( "Button", 1:3), type="radio" ) )
-
-s
-```
-
-```
-## [1] "<table border=\"1\">\n<tr>\n<td><input type=\"radio\">Button 1</input></td><td><input type=\"radio\">Button 2</input></td><td><input type=\"radio\">Button 3</input></td></tr>\n</table>\n"
-```
-
-How does this HTML text looks like in a web browser? Let's quickly save it and display it, using R/LinkedCharts's `openPage` function:
-
-
-```r
-writeLines( s, "test.html" )
-rlc::openPage( startPage = "test.html" )
-```
-
-```
-## WebSocket opened
-```
-
-You should see something like this:
-
-<table border="1">
-<tr>
-<td><input type="radio">Button 1</td><td><input type="radio">Button 2</td><td><input type="radio">Button 3</td></tr>
-</table>
-
-(Two notes: (i) We have to write `rlc::` in front of `openPage` because, unfortunately, the `hwriter` package also has an `openPage` function, and R might take the wrong one. (ii) We could also simply have used standard R's `browseURL` function instead of `rlc::openPage`, but `rlc` offers extra functionality, which we will use further down.)
-
-If you run this and try it out you will see that the buttons are not yet connected: you can click multiple ones, because your browser does not know that they are supposed to form a group. To achieve this, we have to give them the same `name` attribute. Also, nothing happens if you click them. 
-
-As we serve the page with R/LinkedCharts, we can use a functionality of the `jrc` package that it uses: We can ask the browser to send back data to the R session using a JavaScript function called `jrc.sendData`, which is among the function that `jrc` "spikes" into any web page it serves.
-
-This may sound complicated but is very simple. We first build our radio buttons as before:
-
-
-```r
-radiobuttons <-
-  hmakeTag( "input", 
-    paste( "Button", 1:3 ), 
-    type = "radio", 
-    name = "mygroup", 
-    value = paste0( "B", 1:3 ),
-    onchange = "jrc.sendData( 'radio', this.value )" )
-
-radiobuttons
-```
-
-```
-## [1] "<input type=\"radio\" name=\"mygroup\" value=\"B1\" onchange=\"jrc.sendData( 'radio', this.value )\">Button 1</input>"
-## [2] "<input type=\"radio\" name=\"mygroup\" value=\"B2\" onchange=\"jrc.sendData( 'radio', this.value )\">Button 2</input>"
-## [3] "<input type=\"radio\" name=\"mygroup\" value=\"B3\" onchange=\"jrc.sendData( 'radio', this.value )\">Button 3</input>"
-```
-
-We have now just added a few more attributes. `input` refers to the HTML `<input>` tag. The next argument is the label, `Button i`. Then, `type="radio"` to make it a radio button, `name="mygroup"` to make all three buttons part of the same group (so that only one of them can be checked), a "value", which is `B1`, `B2`, or `B3`, and, finally, the `onchange` attribute, which contains the JavaScript code that the browser should execute whenever the radio buttons change, e.g., due to a user click. You don't need to know JavaScript to use this, because we simple send the data stright back to R: `jrc.sendData( 'radio', this.value )` means: send the content of the `value` tag (i.e., `B1`, `B2`, or `B3`) to R, where it should appear in a global variable called `radio`.
-
-Try it out: Write the tags to a file, serve it with `rlc`, click the buttons and then, after the click, switch back to the window with your R session and observe how a variable called `radio` has appeared whose content magically changes whenever you press one of the radio buttons.
-
-
-```r
-writeLines( radiobuttons, "test.html" )
-rlc::openPage( startPage = "test.html" )
-```
-
-```
-## WebSocket opened
-```
-
-Click a button, then try
-
-
-```r
-radio
-```
-
-The try changing the `onchange` line above to 
-
-```
-   onchange = "jrc.sendData( 'radio', this.value ); jrc.sendCommand( 'print(radio)' )"
-``` 
-
-to cause R to execute the R command `print(radio)` and thus print the value on your R console the moment you press the button.
-
-Besides sending R commands from the browser to R, `jrc` can also send JavaScript command from R to the web browser. Type this here in R to cause your browser to greet you. (`alert` is a JavaScript function directing the browser to display a message in a dialog box.)
-
-
-```r
-jrc::sendCommand(
-  'alert( "Hello from R" )' )
-```
-
-## Making a matrix of buttons
-
-With these ingredients, we can now make our matrix of buttons
-
-
-```r
-buttonRows <- c( "off", rownames(countMatrixADT) )
-buttonCols <- c( "red", "green", "blue" )
-
-buttonMatrix <- outer( buttonRows, buttonCols, function( row, col ) 
-   hmakeTag( "input",   
-      type = "radio",       # it's radio buttons again
-      name = col,           # each column (red, green or blue) is one group
-      value = row,          # the rowname (an antibody, or "off") is the value
-      onchange = "jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )" ) ) 
-
-rownames(buttonMatrix) <- buttonRows
-colnames(buttonMatrix) <- buttonCols
-```
-
-In case you haven't seen the base R function `outer` yet: It creates a matrix with the specified rows and columns, and fills each matrix element with the value returned by the specified function when given one element from the row and one from the columns vector. We hence get a 14x3 matrix of strings, each of the HTML code to describe a button
-
-
-```r
-str( buttonMatrix )
-```
-
-```
-##  chr [1:14, 1:3] "<input type=\"radio\" name=\"red\" value=\"off\" onchange=\"jrc.sendData( this.name, this.value ); jrc.sendComm"| __truncated__ ...
-##  - attr(*, "dimnames")=List of 2
-##   ..$ : chr [1:14] "off" "CD3" "CD4" "CD8" ...
-##   ..$ : chr [1:3] "red" "green" "blue"
-```
-
-If we give this code to `hwrite`, it will make a nice HTML table out of it, which we can display:
-
-
-```r
-hwrite( buttonMatrix, page="test.html" )
-rlc::openPage( startPage="test.html" )
-```
-
-```
-## WebSocket opened
-```
-
-You should see this in your browser or viewer pane:
-
-<table border="1"><tr><td class="tabletitle" style="padding: 2px;"></td><td class="tabletitle" style="padding: 2px;">red</td><td class="tabletitle" style="padding: 2px;">green</td><td class="tabletitle" style="padding: 2px;">blue</td></tr><tr><td class="tabletitle" style="padding: 2px;">off</td><td style="padding: 2px;"><input type="radio" name="red_test" value="off" checked="true"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="off" checked="true"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="off" checked="true"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD3</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CD3"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CD3"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CD3"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD4</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CD4"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CD4"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CD4"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD8</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CD8"></td><td style="padding: 2px;"><input type="radio" name="green" value="CD8"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CD8"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD45RA</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CD45RA"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CD45RA"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CD45RA"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD56</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CD56"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CD56"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CD56"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD16</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CD16"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CD16"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CD16"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD10</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CD10"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CD10"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CD10"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD11c</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CD11c"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CD11c"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CD11c"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD14</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CD14"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CD14"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CD14"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD19</td><td style="padding: 2px;"><input type="radio" name="red" value="CD19"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CD19"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CD19"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CD34</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CD34"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CD34"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CD34"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CCR5</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CCR5"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CCR5"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CCR5"></td></tr><tr><td class="tabletitle" style="padding: 2px;">CCR7</td><td style="padding: 2px;"><input type="radio" name="red_test" value="CCR7"></td><td style="padding: 2px;"><input type="radio" name="green_test" value="CCR7"></td><td style="padding: 2px;"><input type="radio" name="blue_test" value="CCR7"></td></tr></table>
-
-Note the `onchange` attribute. We change an R variable with the names `red`, `green` or `blue`, then we call `updateCharts`. The latter will not do anything, but give a warning, as we haven't added any charts yet, but you can already check whether the variables appear once you check a radiobutton.
-
-
-```r
-red
-green
-blue
-```
-
-One minor inconvenience is that, so far, none of the radio buttons are initially checked. We could set the `checked` attribute for the buttons in the first row (those with `value="off"`) in the code above that constructs the button matrix. Another possibility is to send a JavaScript command to do so:
-
-
-```r
-jrc::sendCommand(
-  'd3.selectAll("input[type=radio][value=off]").attr( "checked", "yes" )' )
-```
-
-Maybe, the R way of changing the `buttonMatrix` code above is easy to understand for developers without JavaScript knowledge. For those with JavaScript experience, the following explanations will be helpful: LinkedCharts builds on top of [D3](https://d3js.org/); therefore, we can use D3 commands, such as `d3.selectAll`. We specify a [CSS selector](https://www.w3schools.com/cssref/css_selectors.asp) to select all `<input>` tags with attribute `type=radio` (i.e., all radio buttons) and attribute `value=off` (i.e., those in the first row, which is labelled "off"). For these, we create a new attribute, `checked`, and set it to some arbitrary value. 
-
-As the changes the radiobutton, the `onchange` event is triggered, and our `onchange` code is run, causing the R variables `red`, `green`, and `blue` to be put to the correct value, `"off"`.
-
-## Adding the scatter chart
-
-Where should our chart go? Before or to the left of the scatter plot. Let's put an empty `<div>` tag there, to mark the place, by setting the div tag's `id` attribute to some arbitrary label. Then we put the button matrix next. 
-
-
-```r
-writeLines(
-   hwrite( c(
-      hmakeTag( "div", id="tsneChart" ),
-      hwrite( buttonMatrix ) ) ), 
-   "rgbTSNE.html" )
-```
-
-Then, we make R/LinkedCharts serve the HTML file that we have just created and ask it to place a scatter plot next to it.
-
-
-
-```r
-rlc::openPage( FALSE, startPage="rgbTSNE.html" )
-```
-
-```
-## WebSocket opened
-```
-
-Note that now we set the first argument of the `openPage` function (`useViewer`) to `FALSE`, which means that the web page will be opened in your default web browser instead of the RStudio Viewer. If you have previously created radio buttons in the Viewer, you still will be able to see and click them, but as the new page is opened, the previous one is no longer connected to the R session. It means, that clicking on the buttons there will have no effect on the R variables.
 
 
 ```r
@@ -354,32 +133,150 @@ red   <- "off"
 green <- "off"
 blue  <- "off"
 
-jrc::sendCommand(
-  'd3.selectAll("input[type=radio][value=off]").attr( "checked", "yes" )' )
-
 lc_scatter( 
    dat(
       x = tsne$Y[,1],
       y = tsne$Y[,2],
       colour = rgb( 
-          if( red=="off" )   0 else unitrange(log( countMatrixADT[red,] )), 
-          if( green=="off" ) 0 else unitrange(log( countMatrixADT[green,] )), 
-          if( blue=="off" )  0 else unitrange(log( countMatrixADT[blue,] )) ),
-      size = 1 ),
-   place = "tsneChart" )
+          if( red == "off" )   0 else unitrange(log( countMatrixADT[red, ] )), 
+          if( green == "off" ) 0 else unitrange(log( countMatrixADT[green, ] )), 
+          if( blue == "off" )  0 else unitrange(log( countMatrixADT[blue, ] )) ),
+      size = 1 ))
 ```
 
 ```
-## Chart 'tsneChart' added.
+## Chart 'Chart5' added.
 ```
 
 ```
-## Layer 'Layer1' is added to chart 'tsneChart'.
+## Layer 'Layer1' is added to chart 'Chart5'.
 ```
 
+<div id = "black"></div>		
 
-Now, we get our app:
+We created three variables `red`, `green` and `blue` to store the markers for each colour channel. Initially they all are `off` and all the points on 
+the scatter plot are black. Now, one can manually change them and run `updateCharts()` like this.
 
-![](figure/example_2_screenshot.png)
 
-It's simple and functional, though maybe not as beautiful as it could be. However, if you know a bit about web design, it is easy to edit the HTML file, `rgbTSNE.html`, and add decorations, or attach a suitable CSS style sheet. In this manner, one can first make a simple app with few lines, and then polish it later.
+```r
+red <- "CD3"
+green <- "CD19"
+updateCharts()
+```
+
+<div id = "notBlack"></div>		
+<script type="text/javascript" src="citeseq/buttons_scatter.js"></script>
+
+Yet, what would be really great to do the same in an interactive manner, simply by clicking. This can be done with the help of `lc_input` function 
+that allows to add HTML `[input](https://www.w3schools.com/tags/tag_input.asp)` tags on the page and handle their responses. `linked-charts` supports
+five types of input: `"text"`, `"radio"`, `"range"`, `"checkbox"` and `"button"`. For this example we would need three sets of radio buttons - one for each
+colour channel. Let's put it side by side next to the scatter plot.
+
+
+```r
+openPage(FALSE, layout = "table1x4")
+
+red   <- "off"
+green <- "off"
+blue  <- "off"
+
+lc_scatter( 
+  dat(
+    x = tsne$Y[,1],
+    y = tsne$Y[,2],
+    colour = rgb( 
+      if( red=="off" )   0 else unitrange(log( countMatrixADT[red,] )), 
+      if( green=="off" ) 0 else unitrange(log( countMatrixADT[green,] )), 
+      if( blue=="off" )  0 else unitrange(log( countMatrixADT[blue,] )) ),
+    size = 1 ),
+  place = "A1" )
+```
+
+```
+## Chart 'A1' added.
+```
+
+```
+## Layer 'Layer1' is added to chart 'A1'.
+```
+
+```r
+lc_input(type = "radio", 
+         labels = c("off", rownames(countMatrixADT)), 
+         title = "Red", 
+         value = red, 
+         width = 100, 
+         on_click = function(value) {
+            red <<- value
+            updateCharts("A1")
+         }, 
+         place = "A2")
+```
+
+```
+## Chart 'A2' added.
+```
+
+```r
+lc_input(type = "radio", 
+         labels = c("off", rownames(countMatrixADT)), 
+         title = "Green", 
+         value = green, 
+         width = 100, 
+         on_click = function(value) {
+            green <<- value
+            updateCharts("A1")
+         }, 
+         place = "A3")
+```
+
+```
+## Chart 'A3' added.
+```
+
+```r
+lc_input(type = "radio", 
+         labels = c("off", rownames(countMatrixADT)), 
+         title = "Blue", 
+         value = blue, 
+         width = 100, 
+         on_click = function(value) {
+            blue <<- value
+            updateCharts("A1")
+         }, 
+         place = "A4")
+```
+
+```
+## Chart 'A4' added.
+```
+
+Here, we create `1x4` table and put our scatter plot in the leftmost cell. Three other cells are occupied by the sets of radio buttons. For each of them
+we set a required property `type`, which must be one of `c("text", "radio", "range", "checkbox", "button")`, to `"radio"`. Then we need to specify an 
+array of `labels` to be printed next to out radio buttons. In this example we use all available markers and `off` value.
+
+
+```r
+c("off", rownames(countMatrixADT))
+```
+
+```
+##  [1] "off"    "CD3"    "CD4"    "CD8"    "CD45RA" "CD56"   "CD16"  
+##  [8] "CD10"   "CD11c"  "CD14"   "CD19"   "CD34"   "CCR5"   "CCR7"
+```
+
+Note, that each input element has a label and an ID. The first one defines what text will be shown next to the element on the web page, while the second one
+is used to identify it internally. The two are completely independent, but if you don't specify any IDs (using `elementIds` property), labels will be used
+also as IDs.
+
+`value` sets current value for an input element. For a set of radio buttons, it's an ID of the checked button. Here, we use this property to set the
+initial value, but in other applications you can also use this property to control the state of your inputs from the R session.
+
+The `on_click` property works the same way as it does in all other charts in the `rlc` library. Whenever user clicks on one of the buttons, this function
+is called. As an arguments it gets current value of the input block (for radio buttons it's an ID of the checked button). So we assign this value to 
+the variable of the corresponding colour channel and update the `A1` chart (the scatter plot). If you know how to use HTML `input` tags, you may know
+that generally they use the `onchange` attribute instead of `onclick`, which means that the event is fired not when user clicks on the element, but 
+only when its value is changed. Internally `rlc` does the same, however to make it less confusing, we decided to keep the same property name. You can
+also use `on_change` instead of `on_click` if you find this more intuitive. For `lc_input` the two are complete synonims.
+
+Finally, we give a `title` to each button set and change its `width` to 100 pixels to make them less spread (the default width is 200 pixels).

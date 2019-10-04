@@ -1,37 +1,14 @@
-<table border="1">
-<tr>
-<td><div id="tsneChart"></div></td><td><table border="1">
-<tr>
-<td></td><td>red</td><td>green</td><td>blue</td></tr>
-<tr>
-<td>off</td><td><input type="radio" name="red" value="off" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="green" value="off" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="blue" value="off" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td></tr>
-<tr>
-<td>CD3</td><td><input type="radio" name="red" value="CD3" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="green" value="CD3" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="blue" value="CD3" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td></tr>
-<tr>
-<td>CD4</td><td><input type="radio" name="red" value="CD4" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="green" value="CD4" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="blue" value="CD4" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td></tr>
-<tr>
-<td>CD8</td><td><input type="radio" name="red" value="CD8" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="green" value="CD8" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="blue" value="CD8" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td></tr>
-<tr>
-<td>CD45RA</td><td><input type="radio" name="red" value="CD45RA" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="green" value="CD45RA" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="blue" value="CD45RA" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td></tr>
-<tr>
-<td>CD56</td><td><input type="radio" name="red" value="CD56" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="green" value="CD56" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="blue" value="CD56" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td></tr>
-<tr>
-<td>CD16</td><td><input type="radio" name="red" value="CD16" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="green" value="CD16" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="blue" value="CD16" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td></tr>
-<tr>
-<td>CD10</td><td><input type="radio" name="red" value="CD10" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="green" value="CD10" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="blue" value="CD10" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td></tr>
-<tr>
-<td>CD11c</td><td><input type="radio" name="red" value="CD11c" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="green" value="CD11c" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="blue" value="CD11c" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td></tr>
-<tr>
-<td>CD14</td><td><input type="radio" name="red" value="CD14" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="green" value="CD14" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="blue" value="CD14" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td></tr>
-<tr>
-<td>CD19</td><td><input type="radio" name="red" value="CD19" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="green" value="CD19" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="blue" value="CD19" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td></tr>
-<tr>
-<td>CD34</td><td><input type="radio" name="red" value="CD34" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="green" value="CD34" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="blue" value="CD34" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td></tr>
-<tr>
-<td>CCR5</td><td><input type="radio" name="red" value="CCR5" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="green" value="CCR5" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="blue" value="CCR5" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td></tr>
-<tr>
-<td>CCR7</td><td><input type="radio" name="red" value="CCR7" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="green" value="CCR7" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td><td><input type="radio" name="blue" value="CCR7" onchange="jrc.sendData( this.name, this.value ); jrc.sendCommand( 'updateCharts()' )"></input></td></tr>
+<script type="text/javascript" src = "../../../src/linked-charts.min.js"></script>
+<link rel="stylesheet" type="text/css" href="../../../src/linked-charts.css">
+<script type="text/javascript" src = "buttonData.js"></script>
+<div id = "top">
+<table>
+   <tr>
+      <td id = "plot"></td>
+      <td id = "buttons_red"><table></table></td>
+      <td id = "buttons_green"><table></table></td>
+      <td id = "buttons_blue"><table></table></td>
+   </tr>
 </table>
-</td></tr>
-</table>
-
+</div>	
+<script type="text/javascript" src="buttons.js"></script>

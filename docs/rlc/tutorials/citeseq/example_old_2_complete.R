@@ -3,7 +3,7 @@
 devtools::install_github( "anders-biostat/rlc" )
 
 # Download the example data. Skip this, too, if you have done this already.
-download.file( "https://github.com/anders-biostat/rlc_tutorial/blob/master/citeseq_example/citeseq_data.rda?raw=true", 
+download.file( "https://anders-biostat.github.io/linked-charts/rlc/tutorials/citeseq/citeseq_data.rda", 
    "citeseq_data.rda" )
 download.file( "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE100nnn/GSE100866/suppl/GSE100866_CBMC_8K_13AB_10X-ADT_umi.csv.gz",
    "GSE100866_CBMC_8K_13AB_10X-ADT_umi.csv.gz" )
@@ -51,14 +51,12 @@ unitrange <- function( x )
 
 rlc::openPage( FALSE, startPage="rgbTSNE.html" )
 
-rlc::openPage(FALSE, layout = "table1x4")
-
 red   <- "off"
 green <- "off"
 blue  <- "off"
 
-#jrc::sendCommand(
-#  'd3.selectAll("input[type=radio][value=off]").attr( "checked", "yes" )' )
+jrc::sendCommand(
+  'd3.selectAll("input[type=radio][value=off]").attr( "checked", "yes" )' )
 
 lc_scatter( 
   dat(
@@ -69,9 +67,5 @@ lc_scatter(
       if( green=="off" ) 0 else unitrange(log( countMatrixADT[green,] )), 
       if( blue=="off" )  0 else unitrange(log( countMatrixADT[blue,] )) ),
     size = 1 ),
-  place = "A1" )
-
-lc_input(type = "radio", elementIds = buttonRows, title = "Red", on_click = function(value) {red <<- value; updateCharts("A1")}, value = "off", width = 50, place = "A2")
-lc_input(type = "radio", elementIds = buttonRows, title = "Green", on_click = function(value) {green <<- value; updateCharts("A1")}, value = "off", width = 50, place = "A3")
-lc_input(type = "radio", elementIds = buttonRows, title = "Blue", on_click = function(value) {blue <<- value; updateCharts("A1")}, value = "off", width = 50, place = "A4")
+  place = "tsneChart" )
 
