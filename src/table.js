@@ -80,7 +80,13 @@ export function html() {
   var inherited_update = chart.update;
   chart.update = function( ) {
     inherited_update();
-    chart.container.node().innerHTML = chart.content();
+    chart.container
+      .select("table")
+        .remove();
+    chart.container
+      .select("div")
+        .remove();
+
     return chart;
   };
 
@@ -111,7 +117,23 @@ export function input() {
     inherited_put_static_content(element);
     chart.container
       .style("display", "grid")
-      .style("grid-template-columns", "fit-content(500px) 1fr");
+      .style("grid-template-columns", "fit-content(500px) 1fr")
+      .append("p")
+        .style("grid-row", 1)
+        .style("grid-column", 1/3)
+        .style("text-align", "center")
+        .style("font-weight", "bold")
+        .attr("id", "title");
+
+    return chart;
+  }
+
+  chart.updateTitle = function() {
+    chart.container
+      .select("#title")
+      .text(chart.title());
+
+    return chart;
   }
 
   var get_value = function(element) {
@@ -133,22 +155,7 @@ export function input() {
     return state;
   }
 
-  var inherited_update = chart.update;
-  chart.update = function( ) {
-    inherited_update();
-
-    chart.container
-      .selectAll("p")
-      .data([chart.title()])
-      .enter()
-        .append("p")
-          .style("grid-row", 1)
-          .style("grid-column", 1/3)
-          .style("text-align", "center")
-          .style("font-weight", "bold");;
-
-    chart.container.selectAll("p")
-      .text(d => d);
+  chart.updateElements = function() {
     var inputs = chart.container
       .selectAll("input")
         .data(chart.elementIds());
@@ -163,17 +170,11 @@ export function input() {
         .style("grid-row", (d, i) => i + 2)
         .style("grid-column", (chart.type() == "text" || chart.type() ==  "range") ? 2 : 1)
         .attr("id", d => d)
-        .attr("value", d => chart.type() == "radio" ? d : chart.get_value(d))
+//        .attr("value", d => chart.type() == "radio" ? d : chart.get_value(d))
         .style("width", chart.type() == "text" ? "100%" : undefined)
         .on(chart.type() == "button" ? "click" : "change", function() {
           chart.get_on_change(get_value(this));
         });
-    if(chart.type() == "radio") 
-      chart.container
-        .selectAll("input")
-          .filter(function() {return this.id == chart.value()})
-            .attr("checked", true);
-
     inputs.exit()
       .remove();
     if(chart.type() != "button") {
@@ -184,13 +185,41 @@ export function input() {
           .style("grid-row", (d, i) => i + 2)
           .style("grid-column", (chart.type() == "text" || chart.type() ==  "range") ? 1 : 2);
       labels.exit()
-        .remove();      
+        .remove();
     }
 
     return chart;
+  }
+
+  chart.updateState = function() {
+    if(chart.type() == "radio") 
+      chart.container
+        .selectAll("input")
+          .filter(function() {return this.id == chart.value()})
+            .attr("checked", true);
+
+    if(chart.type() == "checkbox")
+      chart.container
+        .selectAll("input")
+          .attr("checked", d => chart.get_value(d) ? "true" : undefined);
+
+    if(chart.type() == "text" || chart.type() == "range" || chart.type() == "button")
+      chart.container
+        .selectAll("input")
+          .attr("value", d => chart.get_value(d));
+
+    return chart;
+  }
+
+  var inherited_update = chart.update;
+  chart.update = function( ) {
+    inherited_update();
+
+    chart.updateElements();
+    chart.updateState();
+      
+    return chart;
   };
-
-
 
  return chart;
 
