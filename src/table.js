@@ -118,9 +118,10 @@ export function input() {
     chart.container
       .style("display", "grid")
       .style("grid-template-columns", "fit-content(500px) 1fr")
+      .style("column-gap", "9px")
       .append("p")
         .style("grid-row", 1)
-        .style("grid-column", 1/3)
+        .style("grid-column", "1/3")
         .style("text-align", "center")
         .style("font-weight", "bold")
         .attr("id", "title");
