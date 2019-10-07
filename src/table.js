@@ -252,8 +252,11 @@ export function input() {
           .attr("value", d => chart.get_value(d));
 
     if(chart.type() == "range") 
-      var inputs = chart.container
+      chart.container
         .selectAll("input")
+          .attr("max", d => chart.get_max(d))
+          .attr("min", d => chart.get_min(d))
+          .attr("step", d => chart.get_step(d))
           .nodes()
             .forEach((el, i) => {el.value = chart.get_value(chart.elementIds()[i])});
 

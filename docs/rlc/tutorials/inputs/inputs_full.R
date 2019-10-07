@@ -20,10 +20,16 @@ X <- X[, cells]
 um <- umap(pca[, 1:15])
 useClusters <- levels(clusters)
 
+selGene <- "ADC"
+
 openPage(useViewer = FALSE, layout = "table1x2")
 
-lc_scatter(dat(opacity = ifelse(clusters %in% useClusters, 1, 0.05)),
-           x = um[, 1], y = um[, 2], size = 1, place = "A1")
+lc_scatter(dat(opacity = ifelse(clusters %in% useClusters, 1, 0.05),
+               colourLegendTitle = selGene,
+               colourValue = X[selGene, ]),
+           x = um[, 1], y = um[, 2], size = 1, 
+           palette = RColorBrewer::brewer.pal( 9, "YlOrRd" ), 
+           place = "A1")
 
 lc_input(type = "checkbox", 
          labels = levels(clusters), 
@@ -39,7 +45,22 @@ lc_input(type = "text",
          label = "Show gene: ",
          place = "A2",
          id = "geneBox",
+         value = selGene,
          on_change = function(value) {
-           print(value)
+           if(value %in% rownames(X)) {
+             jrc::sendCommand("charts.warning.container.select('p').style('display', 'none')")
+             selGene <<- value
+             updateCharts("A1", updateOnly = "ElementStyle")
+           } else {
+             jrc::sendCommand("charts.warning.container.select('p').style('display', undefined)")
+           }
+           
          }
 )
+
+lc_html(content = "<p style='color: red; display: none'>There is no such gene</p>", place = "A2", id = "warning")
+
+lc_input(type = "range",
+         label = c("Number of PCs", "Spread", "Negative rate"),
+         value = c(15, 1, 5),
+         on_change = function(value) print(value))
