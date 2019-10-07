@@ -202,10 +202,10 @@ export function layerBase(id) {
     layer.colourScale.domain = layer.colourValueScale.domain;
     
     if(layer.chart.showLegend() && layer.addColourScaleToLegend()){
-      layer.addLegendBlock(layer.colourScale, "colour", layer.id + "_colour");
       var tObj = {};
       tObj[layer.id + "_colour"] = layer.colourLegendTitle();
       layer.chart.legend.set_title(tObj);
+      layer.addLegendBlock(layer.colourScale, "colour", layer.id + "_colour");
     }
   }
 
