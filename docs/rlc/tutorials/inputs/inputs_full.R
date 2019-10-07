@@ -8,7 +8,7 @@ clusters <- cbmc@active.ident
 pca <- cbmc@reductions$pca@cell.embeddings
 X <- cbmc@assays$RNA@data
 
-rm(cbmc)
+#rm(cbmc)
 
 #subset
 cells <- sample(length(clusters), 2500)
@@ -63,4 +63,7 @@ lc_html(content = "<p style='color: red; display: none'>There is no such gene</p
 lc_input(type = "range",
          label = c("Number of PCs", "Spread", "Negative rate"),
          value = c(15, 1, 5),
+         min = c(2, 0.01, 0.5),
+         max = c(50, 5, 20),
+         step = c(1, 0.01, 0.5),
          on_change = function(value) print(value))

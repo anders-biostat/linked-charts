@@ -155,11 +155,11 @@ export function input() {
     inherited_put_static_content(element);
     chart.container
       .style("display", "grid")
-      .style("grid-template-columns", "fit-content(500px) 1fr")
+      .style("grid-template-columns", "fit-content(500px) 1fr fit-content(20px)")
       .style("column-gap", "9px")
       .append("p")
         .style("grid-row", 1)
-        .style("grid-column", "1/3")
+        .style("grid-column", "1/4")
         .style("text-align", "center")
         .style("font-weight", "bold")
         .attr("id", "title");
@@ -208,7 +208,7 @@ export function input() {
         .attr("name", chart.name)
         .style("grid-row", (d, i) => i + 2)
         .style("grid-column", (chart.type() == "text" || chart.type() ==  "range") ? 2 : 1)
-        .attr("id", d => d)
+        .attr("id", d => "in_" + d)
         .attr("value", d => chart.type() == "radio" ? d : undefined)
         .style("width", chart.type() == "text" ? "100%" : undefined)
         .on(chart.type() == "button" ? "click" : "change", function() {
@@ -216,6 +216,7 @@ export function input() {
         });
     inputs.exit()
       .remove();
+    
     if(chart.type() != "button") {
       labels.enter()
         .append("label")
@@ -229,6 +230,33 @@ export function input() {
       chart.container
         .selectAll("input")
           .attr("value", d => chart.get_label(d))
+    }
+    
+    if(chart.type() == "range") {
+      var cvs = chart.container
+        .selectAll(".currentValue")
+          .data(chart.elementIds());
+      cvs.enter()
+        .append("p")
+          .attr("class", "currentValue")
+          .attr("id", d => "in_" + d)
+          .style("grid-row", (d, i) => i + 2)
+          .style("grid-column", 3)
+          .style("margin-top", 0)
+          .style("margin-bottom", 0);
+      cvs.exit()
+        .remove();
+      chart.container
+        .selectAll("input")
+          .on("input", function(d) {
+            chart.container
+              .select(".currentValue#" + this.id)
+                .text(this.value);
+          })
+    } else {
+      chart.container
+        .selectAll(".currentValue")
+          .remove();
     }
 
     return chart;
@@ -251,7 +279,7 @@ export function input() {
         .selectAll("input")
           .attr("value", d => chart.get_value(d));
 
-    if(chart.type() == "range") 
+    if(chart.type() == "range") {
       chart.container
         .selectAll("input")
           .attr("max", d => chart.get_max(d))
@@ -259,6 +287,10 @@ export function input() {
           .attr("step", d => chart.get_step(d))
           .nodes()
             .forEach((el, i) => {el.value = chart.get_value(chart.elementIds()[i])});
+      chart.container
+        .selectAll(".currentValue")
+          .text(d => chart.get_value(d));      
+    } 
 
     return chart;
   }
