@@ -4,7 +4,7 @@ import { getEuclideanDistance, check } from "./additionalFunctions";
 export function layerBase(id) {
 	
 	var layer = base()
-    .add_property("nelements", undefined, check("number_nonneg", "width"))
+    .add_property("nelements", undefined, check("number_nonneg", "nelements"))
     .add_property("elementIds", undefined, check("array", "elementIds"))
     .add_property("label", function(i) {return i;}, check("array_fun", "label"))
 		.add_property("on_mouseover", function() {})

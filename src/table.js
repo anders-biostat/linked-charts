@@ -62,6 +62,13 @@ export function html() {
     chart.svg.remove();
     chart.container
       .style("overflow", "auto");
+
+    chart.container
+      .select("table")
+        .remove();
+    chart.container
+      .select("div")
+        .remove();
   }
 
   chart.updateSize = function(){
@@ -77,15 +84,11 @@ export function html() {
   }
 
    
-  var inherited_update = chart.update;
+  chart.inherited_update = chart.update;
   chart.update = function( ) {
-    inherited_update();
-    chart.container
-      .select("table")
-        .remove();
-    chart.container
-      .select("div")
-        .remove();
+    chart.inherited_update();
+
+    chart.container.node().innerHTML = chart.content();
 
     return chart;
   };
@@ -103,12 +106,47 @@ export function input() {
       return value;        
     })
     .add_property("label", d => d, check("array_fun", "label"))
-    .add_property("elementIds", [""], check("array", "elementIds"))
+    .add_property("nelements", 1, check("number_nonneg", "nelements"))
+    .add_property("elementIds", undefined, check("array", "elementIds"))
     .add_property("value", function() {}, check("array_fun", "value"))
+    .add_property("min", 0, check("array_fun", "min")) //all this stuff is for ranges
+    .add_property("max", 100, check("array_fun", "max"))
+    .add_property("step", 1, check("array_fun", "step"))
 //    .add_property("orientation", "vertical") may be later...
     .add_property("on_change", function() {});
   
-  chart.value(d => chart.type() == "text" ? "" : d);
+  //if number of elements is set, define their IDs
+  chart.wrapSetter("nelements", function(oldSetter){
+    return function() {
+      chart.get_elementIds = function(){
+        return d3.range(oldSetter());
+      };
+      return oldSetter.apply(chart, arguments);
+    }
+  });
+  //if element IDs are set, define their number
+  chart.wrapSetter("elementIds", function(oldSetter){
+    return function() {
+      chart.get_nelements = function(){
+        return oldSetter().length;
+      };
+      return oldSetter.apply(chart, arguments);
+    }
+  });
+
+  chart.value(d => {switch(chart.type()) {
+      case "text":
+        return "";
+      case "button":
+        return d;
+      case "range":
+        return undefined;
+      case "radio":
+        return undefined;
+      case "checkbox":
+        return false;
+    }
+  });
   chart.name = "n" + Math.random().toString(36).substring(5);
   chart.width(200);
 
@@ -152,7 +190,7 @@ export function input() {
       d3.select(element.parentNode)
         .selectAll("input")
           .nodes()
-            .forEach(function(node) {state[node.id] = node.value});
+            .forEach(function(node) {state[node.id] = (+node.value ? +node.value : node.value)});
     return state;
   }
 
@@ -171,7 +209,7 @@ export function input() {
         .style("grid-row", (d, i) => i + 2)
         .style("grid-column", (chart.type() == "text" || chart.type() ==  "range") ? 2 : 1)
         .attr("id", d => d)
-//        .attr("value", d => chart.type() == "radio" ? d : chart.get_value(d))
+        .attr("value", d => chart.type() == "radio" ? d : undefined)
         .style("width", chart.type() == "text" ? "100%" : undefined)
         .on(chart.type() == "button" ? "click" : "change", function() {
           chart.get_on_change(get_value(this));
@@ -187,6 +225,10 @@ export function input() {
           .style("grid-column", (chart.type() == "text" || chart.type() ==  "range") ? 1 : 2);
       labels.exit()
         .remove();
+    } else {
+      chart.container
+        .selectAll("input")
+          .attr("value", d => chart.get_label(d))
     }
 
     return chart;
@@ -204,17 +246,22 @@ export function input() {
         .selectAll("input")
           .attr("checked", d => chart.get_value(d) ? "true" : undefined);
 
-    if(chart.type() == "text" || chart.type() == "range" || chart.type() == "button")
+    if(chart.type() == "text")
       chart.container
         .selectAll("input")
           .attr("value", d => chart.get_value(d));
 
+    if(chart.type() == "range") 
+      var inputs = chart.container
+        .selectAll("input")
+          .nodes()
+            .forEach((el, i) => {el.value = chart.get_value(chart.elementIds()[i])});
+
     return chart;
   }
 
-  var inherited_update = chart.update;
   chart.update = function( ) {
-    inherited_update();
+    chart.inherited_update();
 
     chart.updateElements();
     chart.updateState();
