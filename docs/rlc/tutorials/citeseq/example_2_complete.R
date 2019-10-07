@@ -49,24 +49,24 @@ lc_input(type = "radio",
          labels = buttonRows, 
          title = "Red", 
          on_change = function(value) {
-           red <<- value
+           red <<- buttonRows[value]
            updateCharts("A1")
          }, 
-         value = "off",  width = 100, place = "A2")
+         value = 1,  width = 100, place = "A2")
 lc_input(type = "radio", 
          labels = buttonRows, 
          title = "Green", 
          on_click = function(value) {
-           green <<- value
+           green <<- buttonRows[value]
            updateCharts("A1")
          }, 
-         value = "off", width = 100, place = "A3")
+         value = 1, width = 100, place = "A3")
 lc_input(type = "radio",
          labels = buttonRows, 
          title = "Blue", 
          on_click = function(value) {
-           blue <<- value 
+           blue <<- buttonRows[value]
            updateCharts("A1")
            }, 
-         value = "off", width = 100, place = "A4")
+         value = 1, width = 100, place = "A4")
 

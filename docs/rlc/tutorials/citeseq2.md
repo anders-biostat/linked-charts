@@ -100,7 +100,7 @@ plot( tsne$Y,
    asp = 1, pch=20, cex=.5 )
 ```
 
-![plot of chunk unnamed-chunk-19](figure/unnamed-chunk-19-1.png)
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png)
 
 Here, we have defined a function `unitrange`, which simply takes a vector of numbers (here, the logarithmized expression of the CD3 epitope) and scales them such that the smallest number becomes 0 and the largest 1. This is what the `rgb` function wants: three numbers, all between 0 and 1, which is uses to mix a colour with the specified amount of red (R), green (G) and blue (B). (If you are unfamiliar with the RGB color model, look it up, e.g., [on Wikipedia](https://en.wikipedia.org/wiki/RGB_color_model).)
 
@@ -117,7 +117,7 @@ plot( tsne$Y,
    asp = 1, pch=20, cex=.5 )
 ```
 
-![plot of chunk unnamed-chunk-20](figure/unnamed-chunk-20-1.png)
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png)
 
 Is the big cluster on top, with the brownish red-green mix now a B or a T cell, or something else. It would be nice to be able to quickly explore all the markers by attaching to them red, green or blue "virtual flourophores" on the click of a button. This is what the app on the top of the page allows us to do.
 
@@ -201,13 +201,15 @@ lc_scatter(
 ```
 
 ```r
+buttonRows <- c("off", rownames(countMatrixADT))
+
 lc_input(type = "radio", 
-         labels = c("off", rownames(countMatrixADT)), 
+         labels = buttonRows, 
          title = "Red", 
-         value = red, 
+         value = 1, 
          width = 100, 
          on_click = function(value) {
-            red <<- value
+            red <<- buttonRows[value]
             updateCharts("A1")
          }, 
          place = "A2")
@@ -219,12 +221,12 @@ lc_input(type = "radio",
 
 ```r
 lc_input(type = "radio", 
-         labels = c("off", rownames(countMatrixADT)), 
+         labels = buttonRows, 
          title = "Green", 
-         value = green, 
+         value = 1, 
          width = 100, 
          on_click = function(value) {
-            green <<- value
+            green <<- buttonRows[value]
             updateCharts("A1")
          }, 
          place = "A3")
@@ -236,12 +238,12 @@ lc_input(type = "radio",
 
 ```r
 lc_input(type = "radio", 
-         labels = c("off", rownames(countMatrixADT)), 
+         labels = buttonRows, 
          title = "Blue", 
-         value = blue, 
+         value = 1, 
          width = 100, 
          on_click = function(value) {
-            blue <<- value
+            blue <<- buttonRows[value]
             updateCharts("A1")
          }, 
          place = "A4")
@@ -253,11 +255,12 @@ lc_input(type = "radio",
 
 Here, we create `1x4` table and put our scatter plot in the leftmost cell. Three other cells are occupied by the sets of radio buttons. For each of them
 we set a required property `type`, which must be one of `c("text", "radio", "range", "checkbox", "button")`, to `"radio"`. Then we need to specify an 
-array of `labels` to be printed next to out radio buttons. In this example we use all available markers and `off` value.
+array of `labels` to be printed next to our radio buttons. In this example, we use all available markers and `off` value, which is stored in the
+`buttonRows` variable.
 
 
 ```r
-c("off", rownames(countMatrixADT))
+buttonRows
 ```
 
 ```
@@ -265,15 +268,15 @@ c("off", rownames(countMatrixADT))
 ##  [8] "CD10"   "CD11c"  "CD14"   "CD19"   "CD34"   "CCR5"   "CCR7"
 ```
 
-Note, that each input element has a label and an ID. The first one defines what text will be shown next to the element on the web page, while the second one
-is used to identify it internally. The two are completely independent, but if you don't specify any IDs (using `elementIds` property), labels will be used
-also as IDs.
+`lc_input` uses `labels` to define the number of required elements, which is 1 by default. So even if you don't want to any text next to your
+radiobuttons or checkboxes, you are still requeired to pass an array of empty strings to this property.
 
-`value` sets current value for an input element. For a set of radio buttons, it's an ID of the checked button. Here, we use this property to set the
+`value` sets current value for an input element. For a set of radio buttons, it's a number of the checked button. Here, we use this property to set the
 initial value, but in other applications you can also use this property to control the state of your inputs from the R session.
 
 The `on_click` property works the same way as it does in all other charts in the `rlc` library. Whenever user clicks on one of the buttons, this function
-is called. As an arguments it gets current value of the input block (for radio buttons it's an ID of the checked button). So we assign this value to 
+is called. As an arguments it gets current value of the input block (for radio buttons it's a number of the checked button). So we assign 
+corresponding value to 
 the variable of the corresponding colour channel and update the `A1` chart (the scatter plot). If you know how to use HTML `input` tags, you may know
 that generally they use the `onchange` attribute instead of `onclick`, which means that the event is fired not when user clicks on the element, but 
 only when its value is changed. Internally `rlc` does the same, however to make it less confusing, we decided to keep the same property name. You can
