@@ -54,21 +54,23 @@ lc_input(type = "text",
          value = selGene,
          on_change = function(value) {
            if(value %in% rownames(X)) {
-             jrc::sendCommand("charts.warning.container.select('p').style('display', 'none')")
+             display <<- "none"
              selGene <<- value
              updateCharts("A1", updateOnly = "ElementStyle")
            } else {
-             jrc::sendCommand("charts.warning.container.select('p').style('display', undefined)")
+             display <<- "undefined"
            }
-           
+           updateCharts("warning")
          }
 )
 
-lc_html(content = "<p style='color: red; display: none'>There is no such gene</p>", place = "A2", id = "warning")
+display <- "none"
+lc_html(dat(content = paste0("<p style='color: red; display: ", display, "'>There is no such gene</p>")), 
+        place = "A2", id = "warning")
 
 lc_input(type = "range",
          label = c("Number of PCs", "Spread", "Negative rate"),
-         width = 250,
+         width = 300,
          value = c(15, 1, 5),
          min = c(2, 0.01, 0.5),
          max = c(50, 5, 20),

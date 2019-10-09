@@ -35,6 +35,7 @@ var pages = {
 			oscc: "Understanding RNA-Seq data",
 			citeseq1: "Exploring single-cell data",
 			citeseq2: "Multicoloured t-SNE plot",
+			inputs: "Getting input from the web page",
 			props: "Customising your chart"
 		}
 	}
