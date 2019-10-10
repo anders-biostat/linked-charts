@@ -2,10 +2,10 @@
 <script type="text/javascript" src="../../src/prism.js"></script>
 
 <pre class="language-javascript line-numbers"><code>
-var marker = 0,
-   red = "off",
-   green = "off",
-   blue = "off";
+var marker = 0;
+red = "off";
+green = "off";
+blue = "off";
 
 //save marker counts as an object instead of matrix
 var cm = {};
@@ -17,50 +17,21 @@ var tsne = lc.scatter()
    .y(i => data.tsne[i][1])
    .size(1)
    .colour(i => "rgb(" + cm[red][i] + ", " +
-                         cm[green][i] + ", " +
-                         cm[blue][i] + ")")
-   .place("#plot");
+                                    cm[green][i] + ", " +
+                                    cm[blue][i] + ")")
+   .place(d3.select("#top").select("#plot"));
 
-//reserve a row for headers in the table
-data.markerNames.unshift("names");
-
-//create a table row for each marker
-d3.select("#top").select("#buttons").select("table")
-   .selectAll("tr").data(data.markerNames)
-      .enter()
-         .append("tr");
-
-//add table cells for each colour channel and marker names
-var cells = d3.select("#top").select("#buttons").select("table")
-   .selectAll("tr").selectAll("td")
-      .data(d => ["names", "red", "green", "blue"].map(el => [d, el]))
-         .enter()
-            .append("td")
-            //cells with names (not buttons) will be of class "tabletitle"
-            .attr("class", d => d[0] == "names" || d[1] == "names" ? "tabletitle" : undefined)
-            .style("padding", "2px 2px 2px 2px");
-
-//add buttons to each cell
-cells
-   .append("input")
-      .attr("type", "radio")
-      .attr("name", d => d[1])
-      .attr("value", d => d[0])
-      //off-buttons will be checked by default
-      .attr("checked", d => d[0] == "off" & d[1] != "names" ? true : undefined)
-      .on("change", function() {
-         window[this.name] = this.value;
-         tsne.updateElementStyle()
-      });
-
-//replace buttons in the header column and row with text
-d3.selectAll(".tabletitle")
-   .text(function(d) {
-      if(d[0] == "names" & d[1] == "names")
-         return "";
-      if(d[0] == "names")
-         return d[1];
-      if(d[1] == "names")
-         return d[0];
-   })
+//add a set a radio buttons for each colour channel
+var colours = ["red", "green", "blue"];
+for(var i in colours)
+   (function(colour) {
+      lc.input()
+         .type("radio")
+         .width(100)
+         .title(colour)
+         .elementIds(data.markerNames)
+         .on_change(value => {window[colour] = value; tsne.updateElementStyle()})
+         .value("off")
+         .place(d3.select("#top").select("#buttons_" + colour));
+   })(colours[i]);
 </code></pre>
