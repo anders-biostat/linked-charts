@@ -28,9 +28,9 @@ export function barchart(id, chart){
 				var groups = Object.keys(value);
 				if(typeof value[groups[0]] === "object") {
 					var bars = Object.keys(value[groups[0]]);
-					if(typeof value[groups[0]][bars] === "object") {
-						var stacks = Object.keys(value[groups[0]][bars]);
-						if(typeof value[groups[0]][bars][stacks] === "object")
+					if(typeof value[groups[0]][bars[0]] === "object") {
+						var stacks = Object.keys(value[groups[0]][bars[0]]);
+						if(typeof value[groups[0]][bars[0]][stacks[0]] === "object")
 							return function(groupId, barId, stackId) {
 								if(inds) groupId = inds.indexOf(groupId) + 1;
 								return value[groupId][barId][stackId][0];
