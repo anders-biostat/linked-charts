@@ -24,9 +24,13 @@ export function beeswarm(id, chart) {
   layer.updateElementPosition = function(){
     var orientation = (layer.valueAxis() == "y" ? "vertical" : "horizontal");
     var swarm = d3.beeswarm()
-      .data(layer.elementIds().sort(function(a, b){
-        return layer["get_" + layer.valueAxis()](a) - layer["get_" + layer.valueAxis()](b); 
-      }))
+      .data(layer.elementIds().filter(function(el) {
+        var axis = layer.valueAxis() == "x" ? "y" : "x";
+        return layer.chart.axes["scale_" + axis](layer["get_" + axis](el)) !== undefined
+      })
+        .sort(function(a, b){
+          return layer["get_" + layer.valueAxis()](a) - layer["get_" + layer.valueAxis()](b); 
+        }))
       .distributeOn(function(d){
         return layer.chart.axes["scale_" + layer.valueAxis()](layer["get_" + layer.valueAxis()](d));
       })
@@ -45,11 +49,11 @@ export function beeswarm(id, chart) {
 
     if(layer.valueAxis() == "y")
       layer.get_scaledShiftX = function(id) {
-        return swarm.res[id].axis - swarm.res[id].y
+        return swarm.res[id] ? swarm.res[id].axis - swarm.res[id].y : -10;
       }
     else
       layer.get_scaledShiftY = function(id) {
-        return swarm.res[id].axis - swarm.res[id].y
+        return swarm.res[id] ?swarm.res[id].axis - swarm.res[id].y : -10;
       };
 
     return inherited_updateElementPosition();

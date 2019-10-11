@@ -191,7 +191,7 @@ export function scatter(id, chart) {
       var placeElement = function(d) {
         var x = layer.chart.axes.scale_x( layer.get_x(d) ) + layer.get_scaledShiftX(d),
           y = layer.chart.axes.scale_y( layer.get_y(d) ) + layer.get_scaledShiftY(d);
-        return (x == undefined || y == undefined) ? "translate(-100, 0)" :
+        return (x == undefined || y == undefined || Number.isNaN(x) || Number.isNaN(y)) ? "translate(-100, 0)" :
           "translate(" + x + ", " + y + ")";
       }
 
