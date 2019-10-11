@@ -25,7 +25,7 @@ um <- umap(pca[, 1:npca], negative_sample_rate = negRate, spread = spread)
 useClusters <- levels(clusters)
 inclCells <- rep(T, ncol(X))
 
-selGene <- "ADC"
+selGene <- "CD3E"
 
 openPage(useViewer = FALSE, layout = "table1x2")
 
