@@ -362,16 +362,36 @@ export function scatter(id, chart) {
 
       x = layer.chart.axes.scale_x( layer.get_x(ids[i]) ) + layer.get_scaledShiftX(ids[i]),
       y = layer.chart.axes.scale_y( layer.get_y(ids[i]) ) + + layer.get_scaledShiftY(ids[i]);
-      if (x == undefined || y == undefined) {
-        x = -100;
-        y = 0
-      }
+
+      if(x >= 0 && x <= layer.chart.plotWidth() && y >= 0 && y <= layer.chart.plotHeight()) {
+        p = d3.symbol()
+                    .type(d3["symbol" + layer.get_symbol(ids[i])])
+                    .size(get_symbolSize(layer.get_symbol(ids[i]), layer.get_size(ids[i])))();
+      } else {
+        p = "M 0 0 L ";
+        if(x < 0) {
+          x = 0;
+          p += "15 ";
+        } else if(x > layer.chart.plotWidth()) {
+          x =  layer.chart.plotWidth();
+          p += "-15 ";
+        } else {
+          p += "0 ";
+        }
+
+        if(y < 0) {
+          y = 0;
+          p += "15";
+        } else if(y > layer.chart.plotHeight()) {
+          y =  layer.chart.plotHeight();
+          p += "-15";
+        } else {
+          p += "0";
+        }    
+      } 
       ctx.translate(x, y);
 
-      p = new Path2D(d3.symbol()
-                  .type(d3["symbol" + layer.get_symbol(ids[i])])
-                  .size(get_symbolSize(layer.get_symbol(ids[i]), layer.get_size(ids[i])))());
-      
+      p = new Path2D(p);
 
       ctx.stroke(p);
       ctx.fill(p);
