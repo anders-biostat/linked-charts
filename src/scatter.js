@@ -351,8 +351,6 @@ export function scatter(id, chart) {
 
     var p, x, y;
     for(var i = 0; i < ids.length; i++) {
-      ctx.strokeStyle = layer.get_stroke(ids[i]);
-      ctx.lineWidth = layer.get_strokeWidth(ids[i]);
       if(layer.marked.length != 0 && layer.marked.indexOf(ids[i]) == -1)
         ctx.fillStyle = "#aaa"
       else       
@@ -364,10 +362,14 @@ export function scatter(id, chart) {
       y = layer.chart.axes.scale_y( layer.get_y(ids[i]) ) + + layer.get_scaledShiftY(ids[i]);
 
       if(x >= 0 && x <= layer.chart.plotWidth() && y >= 0 && y <= layer.chart.plotHeight()) {
+        ctx.strokeStyle = layer.get_stroke(ids[i]);
+        ctx.lineWidth = layer.get_strokeWidth(ids[i]);
         p = d3.symbol()
                     .type(d3["symbol" + layer.get_symbol(ids[i])])
                     .size(get_symbolSize(layer.get_symbol(ids[i]), layer.get_size(ids[i])))();
       } else {
+        ctx.strokeStyle = layer.get_colour(ids[i]);
+        ctx.lineWidth = layer.get_strokeWidth(ids[i]) * 2;
         p = "M 0 0 L ";
         if(x < 0) {
           x = 0;

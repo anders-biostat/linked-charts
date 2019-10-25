@@ -18,7 +18,8 @@
 }
 
 .linked-charts text.label{
-	fill: #aaa;
+	fill: #555;
+	font-size: 11pt;
 }
 
 .linked-charts text.hover{
