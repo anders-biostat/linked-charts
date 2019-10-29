@@ -135,6 +135,20 @@ export function dendogram(heatmap)
 
 	dendogram.heatmap = heatmap;
 	dendogram.clusters = undefined;
+
+   dendogram.set_paddings = function(paddings){
+  	   if(typeof paddings.top === "undefined")
+  			paddings.top = dendogram.paddings().top;
+  		if(typeof paddings.bottom === "undefined")
+  			paddings.bottom = dendogram.paddings().bottom;
+  		if(typeof paddings.left === "undefined")
+  			paddings.left = dendogram.paddings().left;
+  		if(typeof paddings.right === "undefined")
+  			paddings.right = dendogram.paddings().right;
+  	
+  		dendogram.paddings(paddings);
+  		return dendogram;
+  	}
 		
 	var n_count = 0;		 
 	var set_x = function(node)

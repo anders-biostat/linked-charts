@@ -460,13 +460,22 @@ function panMode(chart, button){
 
 function fitSelected(chart){
 	var marked = chart.get_marked();
+	if(chart.layers) 
+		marked = Object.keys(chart.layers).map(layerId => marked[layerId].map(el => [layerId, el])).flat();
+
 	if(marked.length == 0)
-		return;
+		if(chart.layers)
+			marked = Object.keys(chart.layers).map(layerId => chart.get_layer(layerId).elementIds().map(el => [layerId, el])).flat()
+		else
+			marked = chart.elementIds();
+	
 	var pos = {x: [], y: []};
 	marked.map(function(e) {
-		var elementPos = chart.get_position(e); 
-		pos.x.push(elementPos[0]);
-		pos.y.push(elementPos[1]);
+		var elementPos = chart.get_position(e);
+		if(elementPos){
+			pos.x.push(elementPos[0]);
+			pos.y.push(elementPos[1]);
+		} 
 	});
 	var x_range = d3.extent(pos.x),
 		y_range = d3.extent(pos.y);
