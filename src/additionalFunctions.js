@@ -147,9 +147,10 @@ export function add_click_listener(chart){
 
     //Firefox ignores CSS properties when reporting the mouse position 
     //relative to an element (probably will be fixed in v.68)
+    //upd. v.70 - still no changes
     //until then check if the browser is Firefox
     if(navigator.userAgent.toLowerCase().indexOf('firefox') > -1 && 
-        navigator.userAgent.match(/Firefox\/([0-9]+)\./)[1] < 70){
+        navigator.userAgent.match(/Firefox\/([0-9]+)\./)[1] < 72){
       p[0] -= chart.paddings().left;
       p[1] -= chart.paddings().top;
     }
@@ -264,7 +265,6 @@ export function add_click_listener(chart){
   }
 
   var on_mouseup = function(e) {
- 
     var rect = chart.svg.select(".clickPanel").node().getBoundingClientRect(),
       pos = [d3.max([d3.min([e.clientX - rect.left, chart.plotWidth()]), 0]), 
             d3.max([d3.min([e.clientY - rect.top, chart.plotHeight()]), 0])];
@@ -296,7 +296,7 @@ export function add_click_listener(chart){
       ){
         window.clearTimeout(wait_dblClick);
         wait_dblClick = null;
-        elements.on("dblclick").apply(elements, [mark]);
+        elements.on("dbl_click").apply(elements, [mark]);
       } else {
         wait_dblClick = window.setTimeout((function(e) {
           return function() {
@@ -410,7 +410,7 @@ export function add_click_listener(chart){
     .on("mousedown", on_mousedown, true)
     //.on("mousemove", on_mousemove, true)
     //.on("mouseup", on_mouseup, true)
-    .on("dblclick", on_dblclick, true)
+    .on("dbl_click", on_dblclick, true)
     .on("click", on_panelClick, true);
   
   chart.container.node().addEventListener("mousemove", on_mousemove, false);
