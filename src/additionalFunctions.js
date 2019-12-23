@@ -439,6 +439,8 @@ export function pearsonCorr( v1, v2 ) {
 } 
 
 function wrapText(text, width, height, minSize, maxSize, fontRatio){
+  if(!text && text != "") text = "NA";
+
   var splitBy = function(text, symbol){
     var spl = text.split(symbol);
     if(spl[spl.length - 1] == "")
@@ -684,7 +686,7 @@ export function check(type, property) {
 //interpretes NAs from R as NaNs and other cases that we don't want to use,
 //when defining domains
 export function isNaN(value) {
-  return (value == "NA" || value == "NaN" || value == "NAN" || value == "na" || value == "Infinity" || value == "Inf") 
+  return (value == null || value == "NA" || value == "NaN" || value == "NAN" || value == "na" || value == "Infinity" || value == "Inf") 
 }
 
 //from http://indiegamr.com/generate-repeatable-random-numbers-in-js/

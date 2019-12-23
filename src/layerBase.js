@@ -116,7 +116,7 @@ export function layerBase(id) {
     //categorical or continuous
     var allNum = true;
     for(var i = 0; i < range.length; i++)
-      allNum = allNum && typeof range[i] === "number" && !lc.isNaN(range[i]);
+      allNum = allNum && (typeof range[i] === "number" || lc.isNaN(range[i]));
     if(allNum)
       range.sort(function(a, b) {return a - b});
     var palette = layer.palette();    
@@ -132,7 +132,7 @@ export function layerBase(id) {
           palette = ["red", "yellow", "green", "blue"];
       //if palette is an array of colors, make a linear colour scale using all
       //values of the palette as intermideate points
-      if(palette.splice){
+      if(Array.isArray(palette)){
         if(palette.length != range.length)
           range = [d3.min(range), d3.max(range)];
         if(palette.length == 1)
@@ -163,7 +163,8 @@ export function layerBase(id) {
           .domain(range)
           .range(pDomain);
         layer.colourScale = function(val) {
-          return palette(layer.colourValueScale(val));
+          return val === null || val === undefined ? "#999" :
+                  palette(layer.colourValueScale(val));
         }
       }
     } else {
@@ -194,7 +195,8 @@ export function layerBase(id) {
           .domain(range)
           .range(pDomain);        
         layer.colourScale = function(val) {
-          return palette(layer.colourValueScale(val));
+          return val === null || val === undefined ? "#999" :
+                  palette(layer.colourValueScale(val));
         }
       } 
     }

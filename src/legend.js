@@ -135,6 +135,16 @@ export function legend(chart) {
 			if(scale.steps)
 				newScale.steps = scale.steps
 			else {
+				var allNum = true;
+				i = 0;
+
+				while(allNum && i < domain.length) {
+					allNum = allNum && typeof domain[i] === "number";
+					i++;
+				}
+				if(allNum)
+					domain = d3.extent(domain);
+
 				domain.length == 2 && typeof domain[0] === "number" ? newScale.steps = 9 : newScale.steps = domain.length;
 			} 
 		}
@@ -245,8 +255,9 @@ var updateGrid = function() {
 			sampleValues = blocks[id].domain;
 		else
 			sampleValues = d3.range(steps).map(function(e) {
-				return (blocks[id].domain[0] + e * 
-								(blocks[id].domain[1] - blocks[id].domain[0]) / 
+				var l = blocks[id].domain.length - 1;
+				return (blocks[id].domain[l] - e * 
+								(blocks[id].domain[l] - blocks[id].domain[0]) / 
 								(steps - 1));
 			})
 		var sampleData = [],n;
