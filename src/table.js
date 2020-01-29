@@ -107,7 +107,7 @@ export function input() {
     })
     .add_property("label", d => d, check("array_fun", "label"))
     .add_property("nelements", 1, check("number_nonneg", "nelements"))
-    .add_property("elementIds", undefined, check("array", "elementIds"))
+    .add_property("elementIds", [0], check("array", "elementIds"))
     .add_property("value", function() {}, check("array_fun", "value"))
     .add_property("min", 0, check("array_fun", "min")) //all this stuff is for ranges
     .add_property("max", 100, check("array_fun", "max"))
