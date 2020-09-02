@@ -50,17 +50,38 @@ function line(id, chart){
 	});
 
 	layer.findElements = function(lu, rb) {
-		var r = 5;
+		var r = d3.max([5, 0]);
+		if((lu[0] - rb[0] < r) && (lu[1] - rb[1] < r)){
+			lu = [lu[0] + r/2, lu[1] + r/2]
+			rb = [rb[0] - r/2, rb[1] - r/2]
+		}
 		return layer.g.selectAll("path")
 			.filter(function(){
 				var line = d3.select(this).attr("d").substr(1)
 					.split("L")
 						.map(function(e){return e.split(",")});
+				
 				var inside = false, i = 0;
-				while(!inside && i < line.length){
-					if((line[i][0] - r <= rb[0]) && (line[i][1] - r <= rb[1]) && 
-          (line[i][0] + r >= lu[0]) && (line[i][1] + r >= lu[1]))
-						inside = true;
+				var y, x, a, b, c;
+				while(!inside && i < line.length - 1){
+					a = (line[i + 1][0] - line[i][0]);
+					b = (line[i][1] - line[i + 1][1]);
+					c = (line[i + 1][1] * line[i][0] - line[i][1] * line[i + 1][0]);
+					
+					if((line[i][0] - lu[0]) * (line[i + 1][0] - lu[0]) < 0) {
+						y = - (lu[0] * b + c)/a;
+						inside = (lu[1] - y) * (rb[1] - y) < 0;
+					} else if((line[i][0] - rb[0]) * (line[i + 1][0] - rb[0]) < 0) {
+						y = - (rb[0] * b + c)/a;
+						inside = (lu[1] - y) * (rb[1] - y) < 0;
+					} else if((line[i][1] - lu[1]) * (line[i + 1][1] - lu[1]) < 0) {
+						x = - (lu[1] * a + c)/b;
+						inside = (lu[0] - x) * (rb[0] - x) < 0;
+					} else if((line[i][1] - rb[1]) * (line[i + 1][1] - rb[1]) < 0) {
+						x = - (rb[1] * a + c)/b;
+						inside = (lu[0] - x) * (rb[0] - x) < 0;
+					}					
+
 					i++;
 				}
 				return inside;
@@ -102,9 +123,11 @@ function line(id, chart){
       .classed("hidden", false);
   });
   layer.on_mouseout(function(d){
+    var mark = layer.get_marked().length > 0;
     d3.select(this)
       .attr("stroke", function(d) {
-        return layer.get_colour(d);
+          return mark ^ d3.select(this).classed("marked") ?
+                  "#aaa": layer.get_colour(d);
       })
       .classed("hover", false);
     layer.chart.container.selectAll(".inform")

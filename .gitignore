@@ -27,3 +27,5 @@ docs/rlc/citeseq/rgbTSNE\.html
 docs/rlc/citeseq/test\.html
 
 docs/rlc/props/\.Rhistory
+/package-lock.json
+/node_modules/

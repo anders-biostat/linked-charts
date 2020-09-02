@@ -7,26 +7,19 @@
     "d3-module"
   ],
   "license": "tbd",
-  "main": "build/d3-linked-charts.js",
-  "jsnext:main": "index",
-  "homepage": "https://github.com/simon-anders/d3-linked-charts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/simon-anders/d3-linked-charts.git"
+    "url": "https://github.com/anders-biostat/linked-charts"
   },
   "scripts": {
-    "rollup": "rm -rf build && mkdir build && rollup -f umd -n lc -o build/linked-charts.js index.js",
-    "minify": "uglifyjs build/linked-charts.js -c -m -o build/linked-charts.min.js",
-    "zip": "zip -j build/linked-charts.zip -- LICENSE README.md build/linked-charts.js build/linked-charts.min.js",
-    "pretest": "npm run rollup",
-    "test": "tape 'test/**/*-test.js'",
-    "prepublish": "npm run test && npm run minify",
-    "postpublish": "npm run zip"
+    "rollup": "rollup -w -f umd -n lc -o build/linked-charts.js index.js",
+    "minify": "uglifyjs build/linked-charts.js -c -m -o build/linked-charts.min.js"
   },
   "devDependencies": {
-    "rollup": "0.27",
+    "rollup": "^0.27",
     "rollup-watch": "^3.2.2",
-    "tape": "4",
-    "uglify-js": "2"
+    "tape": "^4",
+    "uglify-js": "^2.8.29",
+    "uglify-es": "^3.3.9"
   }
 }
