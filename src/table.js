@@ -278,7 +278,7 @@ export function input() {
       chart.container
         .selectAll("input")
           .attr("value", d => chart.get_value(d));
-
+ 
     if(chart.type() == "range") {
       chart.container
         .selectAll("input")
@@ -306,4 +306,54 @@ export function input() {
 
  return chart;
 
+}
+
+export function image() {
+  var chart = chartBase()
+    .add_property("src", undefined, function(value) {
+      if(value !== undefined && typeof value !== "string") {
+        throw "Error in 'typeCheck' for property 'src'"+ 
+        ": must be a string or undefined."        
+      }
+      return value;
+    })
+    .showPanel(false)
+    .showLegend(false)
+    .paddings({ top: 35, right: 10, bottom: 10, left: 10 });
+
+    var inherited_put_static_content = chart.put_static_content;
+    chart.put_static_content = function(element) {
+      inherited_put_static_content(element);
+      chart.svg.select(".plotArea")
+        .append("image");
+    };
+
+    chart.updateElements = function() {
+      chart.svg.select("image")
+        .attr("href", chart.src());
+
+      return chart;
+    };
+
+    var inherited_updateSize = chart.updateSize;
+    chart.updateSize = function() {
+      inherited_updateSize();
+
+      chart.svg.select("image")
+        .attr("width", chart.plotWidth())
+        .attr("height", chart.plotHeight());
+
+      return chart;
+    };
+
+  var inherited_update = chart.update;
+  chart.update = function( ) {
+    inherited_update();
+
+    chart.updateElements();
+      
+    return chart;
+  };    
+
+  return chart;
 }
