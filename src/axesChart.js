@@ -60,7 +60,8 @@ export function axesChart() {
          return value % 91;
       })
       .add_property("logScaleX", false)
-      .add_property("logScaleY", false);
+      .add_property("logScaleY", false)
+      .add_property("on_clickPosition", function(x, y) {});
 
    chart.axes = {};
    
@@ -665,6 +666,29 @@ export function axesChart() {
 
       for(var k in chart.layers)
          chart.get_layer(k).updateElementPosition();
+
+      return chart;
+   }
+
+   chart.clickPosition = function(p) {
+      var x, y;
+      var invert_ordinal = function(scale, value) {
+         return scale.domain()[Math.round((value - scale.padding() * scale.step())/scale.step())];
+      };
+
+      if(chart.axes.scale_x.invert) {
+         x = chart.axes.scale_x.invert(p[0]);
+      } else {
+         x = invert_ordinal(chart.axes.scale_x, p[0]);
+      }
+      
+      if(chart.axes.scale_y.invert) {
+         y = chart.axes.scale_y.invert(p[1]);
+      } else {
+         y = invert_ordinal(chart.axes.scale_y, chart.axes.scale_y.range()[0] - p[1]);
+      }
+
+      chart.get_on_clickPosition(x, y);
 
       return chart;
    }

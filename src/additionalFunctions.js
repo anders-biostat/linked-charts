@@ -345,6 +345,8 @@ export function add_click_listener(chart){
       return;
 
     //find all the points that intersect with the cursor position
+    if(chart.clickPosition)
+      chart.clickPosition(p);
     var clicked = chart.findElements(p, p);
     if(clicked.length == 0)
       return;
