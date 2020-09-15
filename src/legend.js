@@ -27,6 +27,10 @@ export function legend(chart) {
 		return Object.keys(blocks).length;
 	}
 
+	legend.get_blockIds = function() {
+		return Object.keys(blocks);
+	}
+
 	legend.add_block = function(scale, type, id, layer){
 		//scale can be an array or d3 scale. If scale is an array,
 		//we need to turn it into a scale

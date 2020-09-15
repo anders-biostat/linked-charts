@@ -215,7 +215,8 @@ export function layerBase(id) {
 
   layer.addLegendBlock = function(scale, type, id){
     layer.chart.legend.add_block(scale, type, id, layer);
-    layer.legendBlocks.push(id);
+    if(layer.legendBlocks.indexOf(id) == -1)
+      layer.legendBlocks.push(id);
 
     return layer; 
   }
