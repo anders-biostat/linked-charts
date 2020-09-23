@@ -258,11 +258,11 @@ export function heatmap(id, chart){
 						chart.axes.scale_y(chart.get_heatmapRow(id[0])) + chart.cellSize.height/2]
 	}	
 	//returns maximum and minimum values of the data
-	chart.dataRange = function(){
+	chart.dataRange = function() {
 		var i = 0, range, newRange,
 			rowIds = chart.get_rowIds(),
 			colIds = chart.get_colIds();
-		do{
+		do {
 			newRange = d3.extent(colIds, 
 				function(col) {return chart.get_value(rowIds[i], col);});
 			if(typeof range === "undefined")
@@ -272,7 +272,7 @@ export function heatmap(id, chart){
 			if(newRange[1] > range[1])
 				range[1] = newRange[1];
 			i++;
-		}while (i < chart.get_nrows())
+		} while (i < chart.get_nrows())
 			
 		return range;
 	}
@@ -603,6 +603,8 @@ export function heatmap(id, chart){
 				.domain(range);
 			if(chart.get_palette().splice)
 				chart.colourScale.range(chart.get_palette())
+			else if(typeof chart.get_palette.range === "function")
+				chart.colourScale.range(chart.get_palette.range())
 			else
 				chart.colourScale.range(d3.schemeSet1);
 		}
