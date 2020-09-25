@@ -115,14 +115,17 @@ export function layerBase(id) {
     //first of all, let's check if the colour scale supposed to be
     //categorical or continuous
     var allNum = true;
+    range = range.filter(el => !lc.isNaN(el));
     for(var i = 0; i < range.length; i++)
-      allNum = allNum && (typeof range[i] === "number" || lc.isNaN(range[i]));
-    if(allNum)
+      allNum = allNum && typeof range[i] === "number";
+    if(allNum) {
       range.sort(function(a, b) {return a - b});
+    }
     var palette = layer.palette();    
     
     if(allNum){
       range = range.filter(function(el) {return el != "Infinity"});
+      console.log(range)
       //the scale is continuous
       //Now look at the palette
       if(palette == undefined)
