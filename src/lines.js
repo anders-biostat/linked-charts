@@ -50,7 +50,7 @@ function line(id, chart){
 	});
 
 	layer.findElements = function(lu, rb) {
-		var r = d3.max([5, 0]);
+		var r = d3.max([10, layer.lineWidth() * 2]);
 		if((lu[0] - rb[0] < r) && (lu[1] - rb[1] < r)){
 			lu = [lu[0] + r/2, lu[1] + r/2]
 			rb = [rb[0] - r/2, rb[1] - r/2]

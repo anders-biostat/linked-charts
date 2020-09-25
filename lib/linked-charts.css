@@ -13,12 +13,12 @@
 }
 
 .linked-charts text.plainText{
-	fill: #555;
-	font-family: Consolas, courier;
+	fill: #333;
+	font-family: Helvetica, Arial, sans-serif;
 }
 
 .linked-charts text.label{
-	fill: #555;
+	fill: #333;
 	font-size: 11pt;
 }
 

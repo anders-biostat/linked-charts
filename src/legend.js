@@ -1,4 +1,3 @@
-import { fillTextBlock } from "./additionalFunctions";
 import { get_symbolSize } from "./additionalFunctions";
 
 export function legend(chart) {
@@ -247,11 +246,30 @@ var updateGrid = function() {
 			.attr("height", cellHeight);
 	
 		var title = blockSvg.select(".title");
-		if(title.empty())
+		if(title.empty()) {
 			title = blockSvg.append("g")
 				.attr("class", "title");
-		var titleWidth = d3.min([20, cellWidth * 0.2]);
-		fillTextBlock(title, cellHeight, titleWidth, (legend.titles()[id] == "") ? "" : (legend.titles()[id] || id));
+			title
+				.append("text")
+					.attr("class", "plainText")
+					.attr("text-anchor", "left")
+		}
+		var titleWidth = d3.min([25, cellWidth * 0.2]);
+		
+		var titleHeight = title
+			.select("text")
+			.attr("font-size", titleWidth - 3)
+			.attr("y", titleWidth)
+			.text((legend.titles()[id] == "") ? "" : (legend.titles()[id] || id))
+			.node()
+				.getBoundingClientRect().width;
+
+		if(titleHeight > cellHeight) {
+			title
+				.select("text")
+				.attr("font-size", d3.max([10, (titleWidth - 3) * cellHeight/titleHeight]))
+		}
+		
 		title.attr("transform", "rotate(-90)translate(-" + cellHeight + ", 0)");
 
 		var sampleValues;
@@ -333,14 +351,32 @@ var updateGrid = function() {
 		var sampleText = blockSvg.selectAll(".sample").selectAll("g").data(function(d){
 			return (typeof d[0] === "number") ? [d[0].toString()] : d;
 		});
-		sampleText.enter().append("g")
-			.merge(sampleText)
-				.attr("transform", "translate(" + (titleWidth + 5) + ", 0)");
-		blockSvg.selectAll(".sample").selectAll("g").each(function(d) {
-			fillTextBlock(d3.select(this), cellWidth - 2 * titleWidth - 5, 
-											legend.sampleHeight(), d
-										);
-		});		
+		sampleText.enter()
+			.append("g")
+				.append("text")
+					.attr("class", "plainText")
+					.attr("text-anchor", "left")
+					.attr("dominant-baseline", "middle");
+		blockSvg.selectAll(".sample").selectAll("g")
+			.attr("transform", "translate(" + (titleWidth + 5) + ", 0)");
+		
+		var texts = blockSvg.selectAll(".sample").selectAll("g").selectAll("text")
+			.attr("font-size", legend.sampleHeight() - 5)
+			.attr("y", legend.sampleHeight()/2)
+			.text(d => d);
+
+		var textWidth = [0],
+			mult;
+		texts
+			.each(function() {
+				if(textWidth[0] < this.getBoundingClientRect().width)
+					textWidth[0] = this.getBoundingClientRect().width;
+			});
+		if(textWidth[0] > cellWidth - 2 * titleWidth - 5) {
+			mult = (cellWidth - 2 * titleWidth - 5)/textWidth[0];
+			texts
+				.attr("font-size", d3.max([(legend.sampleHeight() - 5) * mult, 10]));
+		}
 	}
 	legend.update = function() {
 		updateGrid();
