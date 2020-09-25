@@ -148,8 +148,9 @@ export function add_click_listener(chart){
     //Firefox ignores CSS properties when reporting the mouse position 
     //relative to an element (probably will be fixed in v.68)
     //upd. v.72 - still no changes
-    if(navigator.userAgent.toLowerCase().indexOf('firefox') > -1 && 
-        navigator.userAgent.match(/Firefox\/([0-9]+)\./)[1] < 82){
+    //upd. it seems like they not going to fix it. Ever.
+    if(navigator.userAgent.toLowerCase().indexOf('firefox') > -1) { 
+        //navigator.userAgent.match(/Firefox\/([0-9]+)\./)[1] < 90){
       p[0] -= chart.paddings().left;
       p[1] -= chart.paddings().top;
     }
