@@ -289,8 +289,8 @@ var updateGrid = function() {
 					sampleValues[i] = sampleValues[i].toFixed(2)
 				else {
 					n = 1 - Math.floor(Math.log(Math.abs(sampleValues[i]))/Math.log(10));
-					if(n > 5)
-						sampleValues[i] =  sampleValues[i].toExponential()
+					if(n > 3)
+						sampleValues[i] =  sampleValues[i].toExponential(2)
 					else	
 						sampleValues[i] =  sampleValues[i].toFixed(n);
 				}	
