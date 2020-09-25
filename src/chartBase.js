@@ -24,8 +24,8 @@ export function chartBase() {
 			})
 		.add_property("title", "")
 		.add_property("titleX", function() {return chart.width() / 2;}, check("number_nonneg", "titleX"))
-		.add_property("titleY", function() {return d3.min([17, chart.paddings().top * 0.9]);}, check("number_nonneg", "titleY"))
-		.add_property("titleSize", function() {return d3.min([15, chart.paddings().top * 0.8]);}, check("number_nonneg", "titleSize"))
+		.add_property("titleY", function() {return d3.min([22, chart.paddings().top * 0.9]);}, check("number_nonneg", "titleY"))
+		.add_property("titleSize", function() {return d3.min([20, chart.paddings().top * 0.8]);}, check("number_nonneg", "titleSize"))
 		.add_property("transitionDuration", 1000, check("number_nonneg", "transitionDuration")) //may be set to zero
 		.add_property("on_marked", function() {})
 		.add_property("showPanel", true)

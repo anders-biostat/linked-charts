@@ -169,10 +169,10 @@ export function scatter(id, chart) {
         });
 
       if(layer.chart.showLegend()) {
-        layer.addLegendBlock(layer.symbolScale, "symbol", layer.id + "_symbol");
         var tObj = {};
         tObj[layer.id + "_symbol"] = layer.symbolLegendTitle();
         layer.chart.legend.set_title(tObj);
+        layer.addLegendBlock(layer.symbolScale, "symbol", layer.id + "_symbol");
       }
     }
   }

@@ -254,12 +254,12 @@ var updateGrid = function() {
 					.attr("class", "plainText")
 					.attr("text-anchor", "left")
 		}
-		var titleWidth = d3.min([25, cellWidth * 0.2]);
+		var titleWidth = d3.min([20, cellWidth * 0.2]);
 		
 		var titleHeight = title
 			.select("text")
 			.attr("font-size", titleWidth - 3)
-			.attr("y", titleWidth)
+			.attr("y", titleWidth - 5)
 			.text((legend.titles()[id] == "") ? "" : (legend.titles()[id] || id))
 			.node()
 				.getBoundingClientRect().width;
