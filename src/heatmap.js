@@ -473,19 +473,23 @@ export function heatmap(id, chart){
 		if(chart.transitionDuration() > 0 && !chart.transitionOff){
 			var t = d3.transition("labelPosition").duration(chart.transitionDuration());
 			chart.svg.select(".col").selectAll(".label").transition(t)
-				.attr("font-size", d3.min([chart.cellSize.width, 12]))
-				.attr("y", function(d) {return chart.axes.scale_x(chart.get_heatmapCol(d) + 1);});
+				.attr("font-size", d3.min([chart.cellSize.width - 2, 14]))
+				.attr("y", function(d) {return chart.axes.scale_x(chart.get_heatmapCol(d) + 1);})
+				.attr("dy", -2);
 			chart.svg.select(".row").selectAll(".label").transition(t)
-				.attr("font-size", d3.min([chart.cellSize.height, 12]))
-				.attr("y", function(d) {return chart.axes.scale_y(chart.get_heatmapRow(d) + 1);});
+				.attr("font-size", d3.min([chart.cellSize.height - 2, 14]))
+				.attr("y", function(d) {return chart.axes.scale_y(chart.get_heatmapRow(d) + 1);})
+				.attr("dy", -2);				
 		
 		} else {
 			chart.svg.select(".col").selectAll(".label")
-				.attr("font-size", d3.min([chart.cellSize.width, 12]))
-				.attr("y", function(d) {return chart.axes.scale_x(chart.get_heatmapCol(d) + 1);});
+				.attr("font-size", d3.min([chart.cellSize.width - 2, 14]))
+				.attr("y", function(d) {return chart.axes.scale_x(chart.get_heatmapCol(d) + 1);})
+				.attr("dy", -2);
 			chart.svg.select(".row").selectAll(".label")
-				.attr("font-size", d3.min([chart.cellSize.height, 12]))
-				.attr("y", function(d) {return chart.axes.scale_y(chart.get_heatmapRow(d) + 1);});
+				.attr("font-size", d3.min([chart.cellSize.height - 2, 14]))
+				.attr("y", function(d) {return chart.axes.scale_y(chart.get_heatmapRow(d) + 1);})
+				.attr("dy", -2);
 		}
 		chart.updateCellPosition();
 		
