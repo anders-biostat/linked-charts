@@ -4,12 +4,7 @@ title: 'R/LinkedCharts API'
 hideTOC: 'true'
 api: 'rlc'
 ---
-# `chartEvent`
-
-Trigger an event
-
-
-## Alias
+# Trigger an event
 
 `chartEvent`
 
@@ -52,12 +47,7 @@ chartEvent(51, "Chart1", "Layer1", "click")
 ```
 
 
-# `closePage`
-
-Stop server
-
-
-## Alias
+# Stop server
 
 `closePage`
 
@@ -83,12 +73,7 @@ closePage()
 ```
 
 
-# `dat`
-
-Link data to the chart
-
-
-## Alias
+# Link data to the chart
 
 `dat`
 
@@ -124,12 +109,7 @@ updateCharts()
 ```
 
 
-# `getMarked`
-
-Get currently marked elements
-
-
-## Alias
+# Get currently marked elements
 
 `getMarked`
 
@@ -177,12 +157,7 @@ getMarked("Chart1")
 ```
 
 
-# `getPage`
-
-Get the currently running app
-
-
-## Alias
+# Get the currently running app
 
 `getPage`
 
@@ -220,12 +195,7 @@ Note that `rlc` package is based on `jrc` library. Both packages are organized i
 Object of class [`LCApp`](#lcapp) or `NULL` if there is no active app.
 
 
-# `lc_bars`
-
-Create a barplot
-
-
-## Alias
+# Create a barplot
 
 `lc_bars`
 
@@ -398,12 +368,7 @@ lc_bars(dat(value = newData$ncases,
 ```
 
 
-# `lc_colourSlider`
-
-Add a colour slider
-
-
-## Alias
+# Add a colour slider
 
 `lc_colourSlider`
 
@@ -482,12 +447,7 @@ lc_colourSlider(chart = "scatter")
 ```
 
 
-# `lc_heatmap`
-
-Create a heatmap
-
-
-## Alias
+# Create a heatmap
 
 `lc_heatmap`
 
@@ -622,12 +582,7 @@ lc_heatmap(dat(value = cor(test),
 ```
 
 
-# `lc_hist`
-
-Histograms and density plots
-
-
-## Alias
+# Histograms and density plots
 
 `lc_hist`, `lc_dens`
 
@@ -705,12 +660,7 @@ lc_dens(dat(value = rnorm(1000), height = 300))
 ```
 
 
-# `lc_html`
-
-Add HTML code to the page
-
-
-## Alias
+# Add HTML code to the page
 
 `lc_html`
 
@@ -768,12 +718,7 @@ lc_html(content = iris, height = 200)
 ```
 
 
-# `lc_image`
-
-Add static plot or custom image to the page
-
-
-## Alias
+# Add static plot or custom image to the page
 
 `lc_image`
 
@@ -838,12 +783,7 @@ lc_image(dat(img = pl,
 ```
 
 
-# `lc_input`
-
-Add input forms to the page
-
-
-## Alias
+# Add input forms to the page
 
 `lc_input`
 
@@ -920,12 +860,7 @@ lc_input(type = "button", labels = paste0("el", 1:5), on_click = function(value)
 ```
 
 
-# `lc_line`
-
-Lines and ribbons
-
-
-## Alias
+# Lines and ribbons
 
 `lc_line`, `lc_path`, `lc_ribbon`, `lc_abLine`, `lc_hLine`, `lc_vLine`
 
@@ -1172,12 +1107,7 @@ lc_vLine(dat(v = seq(1, 9, 1)), chartId = "grid", addLayer = TRUE)
 ```
 
 
-# `lc_scatter`
-
-Visualize a set of points
-
-
-## Alias
+# Visualize a set of points
 
 `lc_scatter`, `lc_beeswarm`
 
@@ -1368,12 +1298,7 @@ lc_beeswarm(dat(x = iris$Species,
 ```
 
 
-# `LCApp`
-
-LCApp class
-
-
-## Alias
+# LCApp class
 
 `LCApp`
 
@@ -1460,12 +1385,7 @@ Object of this class represents the entire linked-charts app. It stores all char
 - Creates new instance of class `LCApp` . Most of its arguments are inherited from method `new` of class [`App`](#app) from the `jrc` package. There are only three arguments specific for the `LCApp` class. `layout` sets a default layout for each new webpage (currently only tables of arbitrary size are supported). `beforeLoad` and `afterLoad` replace `onStart` from the [`App`](#app)  class. For more information, please, check [`openPage`](#openpage) .
 
 
-# `listCharts`
-
-List all existing charts and layers
-
-
-## Alias
+# List all existing charts and layers
 
 `listCharts`
 
@@ -1500,12 +1420,7 @@ listCharts()
 ```
 
 
-# `mark`
-
-Mark elements of a chart
-
-
-## Alias
+# Mark elements of a chart
 
 `mark`
 
@@ -1573,12 +1488,7 @@ lc_scatter(dat(
 ```
 
 
-# `openPage`
-
-Open a new empty page
-
-
-## Alias
+# Open a new empty page
 
 `openPage`
 
@@ -1648,12 +1558,7 @@ openPage(useViewer = FALSE, layout = "table2x3")
 ```
 
 
-# `removeChart`
-
-Remove chart from the page
-
-
-## Alias
+# Remove chart from the page
 
 `removeChart`
 
@@ -1687,12 +1592,7 @@ removeChart("scatter")
 ```
 
 
-# `removeLayer`
-
-Remove a layer from a chart
-
-
-## Alias
+# Remove a layer from a chart
 
 `removeLayer`
 
@@ -1728,12 +1628,7 @@ removeLayer("scatter", "Layer1")
 ```
 
 
-# `setProperties`
-
-Set properties of the chart
-
-
-## Alias
+# Set properties of the chart
 
 `setProperties`
 
@@ -1777,12 +1672,7 @@ updateCharts("irisScatter")
 ```
 
 
-# `updateCharts`
-
-Update a chart
-
-
-## Alias
+# Update a chart
 
 `updateCharts`
 
