@@ -34,7 +34,7 @@ export function layerBase(id) {
     .add_property("palette", undefined, check("array", "palette"))
     .add_property("colourDomain", check("array", "colourDomain"))
     .add_property("colourValue", undefined, check("array_fun", "colourValue"))
-    .add_property("colourLegendTitle", function(){return "colour_" + layer.id})
+    .add_property("colourLegendTitle", "")
     .add_property("opacity", 1, check("array_fun", "opacity"))
 		.add_property("dresser", function() {})
     .add_property("on_marked", function() {layer.chart.on_marked();})

@@ -20,7 +20,7 @@ export function scatter(id, chart) {
     }, check("array_fun", "strokeWidth"))
     .add_property("symbol", "Circle", check("array_fun", "symbol"))
     .add_property("symbolValue", undefined, check("array_fun", "symbolValue"))
-    .add_property("symbolLegendTitle", function(){return "symbol_" + layer.id})
+    .add_property("symbolLegendTitle", "")
     .add_property("shiftX", 0, check("array_fun", "shiftX"))
     .add_property("shiftY", 0, check("array_fun", "shiftY"));
 		//.add_property("groupName", function(i){return i;})
