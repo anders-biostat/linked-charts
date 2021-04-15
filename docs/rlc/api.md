@@ -300,7 +300,7 @@ You can read more about different properties
 
 * `on_click`- function, to be called, when one of the bars is clicked. Gets anindex of the clicked bar as an argument.
 
-* `on_positionClick`- function, to be called, when any point of the chart is clicked. Unlike`on_click`which is called only when an element of the chart (point, line, etc.) is clicked, thisfunction reacts to any click on the chart. As an argument it receives a vector of x and y coordinates ofthe click (based on the current axes scales). If one of the axes is categorical, then the function willget the closest tick to the clicked position.
+* `on_clickPosition`- function, to be called, when any point of the chart is clicked. Unlike`on_click`which is called only when an element of the chart (point, line, etc.) is clicked, thisfunction reacts to any click on the chart. As an argument it receives a vector of x and y coordinates ofthe click (based on the current axes scales). If one of the axes is categorical, then the function willget the closest tick to the clicked position.
 
 * `on_mouseover`- function, to be called, when mouse hovers over one of the bars.Gets an index of the clicked bar as an argument.
 
@@ -1039,7 +1039,7 @@ You can read more about different properties
 
 * `on_click`- function, to be called, when one of the lines is clicked. Gets anindex of the clicked line as an argument.
 
-* `on_positionClick`- function, to be called, when any point of the chart is clicked. Unlike`on_click`which is called only when an element of the chart (point, line, etc.) is clicked, thisfunction reacts to any click on the chart. As an argument it receives a vector of x and y coordinates ofthe click (based on the current axes scales). If one of the axes is categorical, then the function willget the closest tick to the clicked position.
+* `on_clickPosition`- function, to be called, when any point of the chart is clicked. Unlike`on_click`which is called only when an element of the chart (point, line, etc.) is clicked, thisfunction reacts to any click on the chart. As an argument it receives a vector of x and y coordinates ofthe click (based on the current axes scales). If one of the axes is categorical, then the function willget the closest tick to the clicked position.
 
 * `on_mouseover`- function, to be called, when mouse hovers over one of the lines.Gets an index of the clicked line as an argument.
 
@@ -1239,7 +1239,7 @@ You can read more about different properties
 
 * `on_click`- function, to be called, when one of the points is clicked. Gets anindex of the clicked point as an argument.
 
-* `on_positionClick`- function, to be called, when any point of the chart is clicked. Unlike`on_click`which is called only when an element of the chart (point, line, etc.) is clicked, thisfunction reacts to any click on the chart. As an argument it receives a vector of x and y coordinates ofthe click (based on the current axes scales). If one of the axes is categorical, then the function willget the closest tick to the clicked position.
+* `on_clickPosition`- function, to be called, when any point of the chart is clicked. Unlike`on_click`which is called only when an element of the chart (point, line, etc.) is clicked, thisfunction reacts to any click on the chart. As an argument it receives a vector of x and y coordinates ofthe click (based on the current axes scales). If one of the axes is categorical, then the function willget the closest tick to the clicked position.
 
 * `on_mouseover`- function, to be called, when mouse hovers over one of the points.Gets an index of the clicked point as an argument.
 
