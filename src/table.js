@@ -209,7 +209,7 @@ export function input() {
         .style("grid-row", (d, i) => i + 2)
         .style("grid-column", (chart.type() == "text" || chart.type() ==  "range") ? 2 : 1)
         .attr("id", d => "in_" + d)
-        .attr("value", d => chart.type() == "radio" ? d : undefined)
+        .property("value", d => chart.type() == "radio" ? d : undefined)
         .style("width", chart.type() == "text" ? "100%" : undefined)
         .on(chart.type() == "button" ? "click" : "change", function() {
           chart.get_on_change(get_value(this));
@@ -229,7 +229,7 @@ export function input() {
     } else {
       chart.container
         .selectAll("input")
-          .attr("value", d => chart.get_label(d))
+          .property("value", d => chart.get_label(d))
     }
     
     if(chart.type() == "range") {
@@ -277,7 +277,7 @@ export function input() {
     if(chart.type() == "text")
       chart.container
         .selectAll("input")
-          .attr("value", d => chart.get_value(d));
+          .property("value", d => chart.get_value(d));
  
     if(chart.type() == "range") {
       chart.container
