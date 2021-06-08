@@ -20,7 +20,7 @@ export function heatmap(id, chart){
 		.add_property("value", undefined, check("matrix_fun", "value"))
 		.add_property("mode", "default")
 		.add_property("colour")
-		.add_property("palette", d3.interpolateOrRd, function(value) {
+		.add_property("palette", val => d3.interpolateRdYlBu(1 - val), function(value) {
 			if(typeof value === "string") {
 				if(!d3[value])
 		      throw "Error in 'typeCheck' for 'palette': invalid palette name, " +

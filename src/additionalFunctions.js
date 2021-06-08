@@ -544,7 +544,7 @@ export function check(type, property) {
 
   if(type == "array_fun") {
     return function(value) {
-      if(typeof value === "object")
+      if(value && typeof value === "object")
         return function(i) {return value[i]}
 
       return value;
@@ -555,7 +555,7 @@ export function check(type, property) {
     return function(value) {
       if(typeof value === "function")
         return value;
-      if(typeof value === "object"){
+      if(value && typeof value === "object"){
         var keys = Object.keys(value);
         if(typeof value[keys[0]] === "object")
           return function(i, j) {return value[i][j]}
