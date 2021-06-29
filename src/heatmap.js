@@ -43,6 +43,7 @@ export function heatmap(id, chart){
 		.add_property("on_click", function() {})
 		.add_property("rowTitle", "")
 		.add_property("showValue", false)
+		.add_property("showInform", true)
 		.add_property("colTitle", "")
 		.add_property("on_mouseover")
 		.add_property("on_mouseout")
@@ -102,6 +103,15 @@ export function heatmap(id, chart){
 		}
 	});	
 
+	chart.wrapSetter("showValue", function(oldSetter) {
+		return function() {
+			chart.get_showInform = function() {
+				return !oldSetter();
+			}
+			return oldSetter.apply(chart, arguments);
+		}
+	});
+
 	chart.colour(function(val) {return chart.colourScale(val);});
 
 	chart.axes = {};
@@ -139,11 +149,13 @@ export function heatmap(id, chart){
 			.attr("class", "text_g");
 		chart.axes.x_label = chart.svg.append("text")
 			.attr("class", "axisLabel")
-			.attr("text-anchor", "end");
+			.attr("text-anchor", "end")
+			.attr("dy", -5);
 		chart.axes.y_label = chart.svg.append("text")
 			.attr("class", "axisLabel")
 			.attr("text-anchor", "end")
-			.attr("transform", "rotate(-90)");
+			.attr("transform", "rotate(-90)")
+			.attr("dy", -5);
 
 		(get_mode() == "svg") ? chart.g.classed("active", true) : 
 														chart.canvas.classed("active", true);
@@ -415,11 +427,11 @@ export function heatmap(id, chart){
 						chart.paddings().top + ")");
 
 			chart.axes.x_label.transition(t)
-				.attr("font-size", d3.min([chart.paddings().bottom - 2, 15]))
+				.attr("font-size", d3.max([d3.min([chart.paddings().bottom - 4, 15]), 3]))
 				.attr("x", chart.plotWidth() + chart.paddings().left)
 				.attr("y", chart.height());
 			chart.axes.y_label.transition(t)
-				.attr("font-size", d3.min([chart.paddings().right - 2, 15]))
+				.attr("font-size", d3.max([d3.min([chart.paddings().right - 4, 15]), 3]))
 				.attr("x", - chart.paddings().top)
 				.attr("y", chart.width());
 		} else {
@@ -433,11 +445,11 @@ export function heatmap(id, chart){
 						chart.paddings().top + ")");
 
 			chart.axes.x_label
-				.attr("font-size", d3.min([chart.paddings().bottom - 2, 15]))
+				.attr("font-size", d3.max([d3.min([chart.paddings().bottom - 4, 15]), 3]))
 				.attr("x", chart.get_plotWidth() + chart.paddings().left)
 				.attr("y", chart.get_height());
 			chart.axes.y_label
-				.attr("font-size", d3.min([chart.paddings().right - 2, 15]))
+				.attr("font-size", d3.max([d3.min([chart.paddings().right - 4, 15]), 3]))
 				.attr("x", - chart.paddings().top)
 				.attr("y", chart.width());
 		}
@@ -635,7 +647,7 @@ export function heatmap(id, chart){
 			.filter(function(dl) {return dl == d[0];})
 				.classed("hover", true);
 		//show label
-		if(chart.get_showValue()){
+		if(!chart.get_showInform()){
 			chart.g.selectAll(".tval").filter(function(fd){
 				return fd[0] == d[0] && fd[1] == d[1];
 			})
@@ -973,7 +985,21 @@ export function heatmap(id, chart){
 			.remove();
 		text.enter()
 			.append("text")
-				.attr("class", "tval hidden");
+				.attr("class", "tval hidden")
+				.attr("text-anchor", "middle")
+				.on("click", function(d) {
+					var cell = chart.svg.selectAll("#p" + (d[0] + "_-sep-_" + d[1]).replace(/[ .]/g,"_")).node();
+					chart.get_on_click.apply(cell, [d[0], d[1]]);
+				})
+				.on("mouseover", function(d) {
+					var cell = chart.svg.selectAll("#p" + (d[0] + "_-sep-_" + d[1]).replace(/[ .]/g,"_")).node();
+					on_mouseover.apply(cell, [d]);
+				})
+				.on("mouseout", function(d) {
+					var cell = chart.svg.selectAll("#p" + (d[0] + "_-sep-_" + d[1]).replace(/[ .]/g,"_")).node();
+					on_mouseout.apply(cell, [d]);
+				});
+
 		return chart;		
 	}
 	chart.updateTextPosition = function(){
@@ -981,18 +1007,18 @@ export function heatmap(id, chart){
 			chart.g.selectAll(".tval").transition("textPosition")
 				.duration(chart.transitionDuration())
 				.attr("x", function(d){
-					return chart.axes.scale_x(chart.get_heatmapCol(d[1]));
+					return chart.axes.scale_x(chart.get_heatmapCol(d[1])) + chart.cellSize.width/2;
 				})
-				.attr("font-size", chart.cellSize.height * 0.5)								
+				.attr("font-size", chart.cellSize.height * 0.4)								
 				.attr("y", function(d) {
 					return chart.axes.scale_y(chart.get_heatmapRow(d[0]) ) + chart.cellSize.height * 0.75
 				})
 		else
 			chart.g.selectAll(".tval")
 				.attr("x", function(d){
-					return chart.axes.scale_x(chart.get_heatmapCol(d[1]));
+					return chart.axes.scale_x(chart.get_heatmapCol(d[1])) + chart.cellSize.width/2;
 				})
-				.attr("font-size", chart.cellSize.height * 0.5)								
+				.attr("font-size", chart.cellSize.height * 0.4)								
 				.attr("y", function(d) {
 					return chart.axes.scale_y(chart.get_heatmapRow(d[0])) + chart.cellSize.height * 0.75;
 				})
