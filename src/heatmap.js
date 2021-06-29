@@ -149,13 +149,11 @@ export function heatmap(id, chart){
 			.attr("class", "text_g");
 		chart.axes.x_label = chart.svg.append("text")
 			.attr("class", "axisLabel")
-			.attr("text-anchor", "end")
-			.attr("dy", -5);
+			.attr("text-anchor", "end");
 		chart.axes.y_label = chart.svg.append("text")
 			.attr("class", "axisLabel")
 			.attr("text-anchor", "end")
-			.attr("transform", "rotate(-90)")
-			.attr("dy", -5);
+			.attr("transform", "rotate(-90)");
 
 		(get_mode() == "svg") ? chart.g.classed("active", true) : 
 														chart.canvas.classed("active", true);
@@ -415,6 +413,11 @@ export function heatmap(id, chart){
 	var inherited_updateSize = chart.updateSize;
 	chart.updateSize = function(){
 		inherited_updateSize();
+		var x_label_size = d3.max([d3.min([chart.paddings().bottom - 4, 15]), 3]),
+			y_label_size = d3.max([d3.min([chart.paddings().right - 4, 15]), 3]),
+			x_label_y = d3.min([chart.height(), chart.plotHeight() + x_label_size + chart.paddings().top]),
+			y_label_y = d3.min([chart.width(), chart.plotWidth() + y_label_size + chart.paddings().left]);
+
 		if(chart.transitionDuration() > 0 && !chart.transitionOff){
 			var t = d3.transition("size").duration(chart.transitionDuration());
 			if(!chart.showDendogram("Row"))
@@ -427,13 +430,13 @@ export function heatmap(id, chart){
 						chart.paddings().top + ")");
 
 			chart.axes.x_label.transition(t)
-				.attr("font-size", d3.max([d3.min([chart.paddings().bottom - 4, 15]), 3]))
+				.attr("font-size", x_label_size)
 				.attr("x", chart.plotWidth() + chart.paddings().left)
-				.attr("y", chart.height());
+				.attr("y", x_label_y);
 			chart.axes.y_label.transition(t)
-				.attr("font-size", d3.max([d3.min([chart.paddings().right - 4, 15]), 3]))
+				.attr("font-size", y_label_size)
 				.attr("x", - chart.paddings().top)
-				.attr("y", chart.width());
+				.attr("y", y_label_y);
 		} else {
 			if(!chart.showDendogram("Row"))
 				chart.svg.selectAll(".label_panel.row")
@@ -445,13 +448,13 @@ export function heatmap(id, chart){
 						chart.paddings().top + ")");
 
 			chart.axes.x_label
-				.attr("font-size", d3.max([d3.min([chart.paddings().bottom - 4, 15]), 3]))
+				.attr("font-size", x_label_size)
 				.attr("x", chart.get_plotWidth() + chart.paddings().left)
-				.attr("y", chart.get_height());
+				.attr("y", x_label_y);
 			chart.axes.y_label
-				.attr("font-size", d3.max([d3.min([chart.paddings().right - 4, 15]), 3]))
+				.attr("font-size", y_label_size)
 				.attr("x", - chart.paddings().top)
-				.attr("y", chart.width());
+				.attr("y", y_label_y);
 		}
 
 		chart.canvas
