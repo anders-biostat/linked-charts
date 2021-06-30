@@ -1032,12 +1032,14 @@ export function heatmap(id, chart){
 			chart.g.selectAll(".tval").transition("textValues")
 				.duration(chart.transitionDuration())
 				.text(function(d) {
-					return chart.get_value(d[0], d[1]).toFixed(1);
+					var val = chart.get_value(d[0], d[1]);
+					return val.toFixed ? val.toFixed(1) : "NA";
 			})
 		else
 			chart.g.selectAll(".tval")
 				.text(function(d) {
-					return chart.get_value(d[0], d[1]).toFixed(1);
+					var val = chart.get_value(d[0], d[1]);
+					return val.toFixed ? val.toFixed(1) : "NA";
 			});
 		return chart;
 	}
