@@ -108,6 +108,7 @@ export function layerBase(id) {
         if(layerId != layer.id && !l.globalScaleUpdate){
           l.globalScaleUpdate = true;
           l.updateElementStyle();
+          l.globalScaleUpdate = false;
         }
       }
     }
