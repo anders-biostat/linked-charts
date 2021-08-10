@@ -148,8 +148,9 @@ export function chartBase() {
 						.append("svg");
 
 		//add a cell for the legend
-		chart.legend.container(chart.container.selectAll("tr")
-													.append("td").attr("id", "legend"));
+		if(chart.legend.container() === undefined)
+			chart.legend.container(chart.container.selectAll("tr")
+														.append("td").attr("id", "legend"));
 
 		//information label
 		chart.container.append("div")

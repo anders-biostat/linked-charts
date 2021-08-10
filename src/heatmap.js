@@ -62,6 +62,7 @@ export function heatmap(id, chart){
 			});
 
 	chart.paddings({top: 100, left: 100, right: 10, bottom: 40});
+	chart.legend.width(75);
 
 	//setting a number of elements or their IDs should replace
 	//each other
@@ -165,8 +166,6 @@ export function heatmap(id, chart){
 			.on("mouseout", function() {
 				chart.container.select(".inform").classed("hidden", true);
 			});
-
-		chart.legend.width(75);
 
 
 		if(chart.showPanel()){

@@ -285,7 +285,11 @@ var updateGrid = function() {
 		var sampleData = [],n;
 		for(var i = 0; i < sampleValues.length; i++){
 			if(typeof sampleValues[i] === "number")
-				if(Math.abs(sampleValues[i] >= 1 || sampleValues[i] == 0))
+				if(Math.abs(sampleValues[i]) >= 100) {
+					sampleValues[i] = sampleValues[i].toFixed(0);
+				} else if(Math.abs(sampleValues[i]) >= 10) {
+					sampleValues[i] = sampleValues[i].toFixed(1);
+				} else if(Math.abs(sampleValues[i] >= 1 || sampleValues[i] == 0))
 					sampleValues[i] = sampleValues[i].toFixed(2)
 				else {
 					n = 1 - Math.floor(Math.log(Math.abs(sampleValues[i]))/Math.log(10));
