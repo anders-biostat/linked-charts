@@ -173,7 +173,7 @@ export function legend(chart) {
 				blocks[id].layer.legendBlocks.indexOf(id), 1
 			);
 		delete blocks[id];
-		legend.container().select("#" + id).remove();
+		legend.legendTable.select("#" + id).remove();
 		updateGrid();
 
 		return legend.chart;
@@ -186,8 +186,8 @@ export function legend(chart) {
 			blocks[newId].layer.legendBlocks.splice(
 				blocks[newId].layer.legendBlocks.indexOf(oldId), 1, newId
 			);
-		if(legend.container()){
-			legend.container().select("#" + oldId)
+		if(legend.legendTable){
+			legend.legendTable.select("#" + oldId)
 				.attr("id", newId);
 			legend.updateBlock(newId);
 		}
@@ -215,12 +215,14 @@ var updateGrid = function() {
 			bestWidth = legend.ncol();
 			bestHeight = Math.ceil(n / bestWidth);
 		}
-		legend.container().select(".legendTable").remove();
-		legend.container().append("table")
-			.attr("class", "legendTable")
+		if(legend.legendTable)
+			legend.legendTable.remove();
+		legend.legendTable = legend.container().append("table")
+			.attr("class", "legendTable linked-charts");
+		legend.legendTable	
 			.selectAll("tr").data(d3.range(bestHeight))
 				.enter().append("tr");
-		legend.container().selectAll("tr").selectAll("td")
+		legend.legendTable.selectAll("tr").selectAll("td")
 			.data(function(d) {
 				return d3.range(bestWidth).map(function(e) {
 					return [d, e];
@@ -244,8 +246,8 @@ var updateGrid = function() {
 				" is not defined";
 
 		var scale = convertScale(id),
-			tableCell = legend.container().select("#" + id.replace(/[ .]/g, "_")),
-			cellWidth = legend.width() / legend.container().select("tr").selectAll("td").size(),
+			tableCell = legend.legendTable.select("#" + id.replace(/[ .]/g, "_")),
+			cellWidth = legend.width() / legend.legendTable.select("tr").selectAll("td").size(),
 			steps = scale.steps,
 			cellHeight = legend.sampleHeight() * steps;
 
