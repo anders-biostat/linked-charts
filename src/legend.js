@@ -7,7 +7,17 @@ export function legend(chart) {
 		.add_property("sampleHeight", 20)
 		.add_property("titles", {})
 		.add_property("ncol")
-		.add_property("container");
+		.add_property("container", undefined, function(value) {
+			if(typeof value === "string")
+				value = d3.select(value);
+			if(value.select === undefined)
+				throw "Error in 'typeCheck' for property 'container'" + 
+        	": a D3 selection or a valid selector is required.";
+      if(value.empty())
+      	value = d3.select("body");
+
+      return value;
+		});
 
 	var blocks = {};
 	legend.chart = chart;
