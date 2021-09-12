@@ -59,7 +59,7 @@ export function heatmap(id, chart){
 			return "Row: <b>" + chart.get_rowLabel(rowId) + "</b>;<br>" + 
 						"Col: <b>" + chart.get_colLabel(colId) + "</b>;<br>" + 
 						"value = " + value;
-			});
+			}, check("matrix_fun", "value"));
 
 	chart.paddings({top: 100, left: 100, right: 10, bottom: 40});
 	chart.legend.width(75);

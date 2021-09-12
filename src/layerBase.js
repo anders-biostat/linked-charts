@@ -40,7 +40,7 @@ export function layerBase(id) {
     .add_property("on_marked", function() {layer.chart.on_marked();})
     .add_property("informText", function(id) {
       return "<b>ID:</b> " + layer.get_label(id);
-    });
+    }, check("array_fun", "opacity"));
 
   layer.propList = layer.propList.concat(["updateElementStyle", "updateElements", "updateElementPosition"]);
 	layer.id = id;
