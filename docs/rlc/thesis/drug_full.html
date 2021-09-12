@@ -6,15 +6,34 @@
 	<script type="text/javascript" src = "../src/linked-charts.min.js"></script>
 	<script type="text/javascript" src = "scoreData.js"></script>
   <script type="text/javascript" src = "rawData.js"></script>
+  <style type="text/css">
+  	.container {
+  		margin: auto;
+  		width: 60%;
+  		min-width: 1200px;
+  	}
+  </style>
 </head>
 <body>
-<table>
-	<tr>
-		<td id="A1"></td>
-		<td id="A2"></td>
-		<td id="A3"></td>
-	</tr>	
-</table>
+<div class="container">
+	<h3>App to explore a drugscreening pipeline</h3>
+	<p>
+		This app is an interactive version of the thesis figure. It shows how the LinkedCharts library can be used to explore a typical high-throughput drug screening pipeline. The heatmap to the left shows correlation coefficients for a set of 50 tested drugs. A user can select a specific drug combination by clicking on a heatmap cell. Each correlation coefficient is based on drug sensitivity score values measured for 21 pancreatic cancer cell lines. The top scatter plot in the middle shows these scores for the two selected drugs. One can select a cell line by clicking on the point of this plot.
+		Each drug was tested against each cell line in five different concentrations, and the percentage of cells that remained metabolically active was measured. These values were then used to calculate the drug score, which is based on the area under the fitted sigmoid curve. These values and the fitted curves are shown in the bottom-centre plot for the selected drugs and cell line. To the right, there is a layout of the plates where the selected drugs and cell line were tested. These heatmaps show the raw fluorescence intensity, measured by the plate reader and used to calculated viability values.
+	</p>
+	<table>
+		<tr>
+			<td id="A1"></td>
+			<td id="A2"></td>
+			<td id="A3"></td>
+		</tr>	
+	</table>
+	<p>
+		To reproduce the app, please, download the data files and use the code provided below:<br>
+		<b>For R:</b>  <a href="https://github.com/kloivenn/kloivenn.github.io/raw/master/Bioconductor2018/src/js/iris.js">iris.js</a><br>
+		<b>For JS:</b> <a href="https://github.com/kloivenn/kloivenn.github.io/raw/master/Bioconductor2018/src/js/iris.js">iris.js</a>
+	</p>
+</div>
 
 <!-- <table>
 	<tr>

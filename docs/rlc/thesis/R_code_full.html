@@ -1,0 +1,140 @@
+<link rel="stylesheet" type="text/css" href="../../src/prism.css">
+<script type="text/javascript" src="../../src/prism.js"></script>
+
+<pre class="language-r line-numbers"><code>library(tidyverse)
+
+openPage(useViewer = FALSE, layout = "table1x3")
+
+selDrugs <- colnames(scoreMatrix)[1:2]
+selCellLine <- rownames(scoreMatrix)[1]
+
+#this function calculates the sigmoid curve for a give drug and
+#cell line based on the "curves" table
+getCurve <- function(drug, cellLine, x) {
+  row <- paste(cellLine, drug, sep = "_")
+  curves[row, "min"] + (curves[row, "max"] - curves[row, "min"])/
+    (1 + 10^(-(x - log10(curves[row, "IC50"]/curves[row, "minConc"])) * 
+    curves[row, "Slope"]))
+}
+
+lc_heatmap(value = cor(scoreMatrix),
+  paddings = list(left = 40, top = 40, right = 50),
+  clusterRows = TRUE,
+  clusterCols = TRUE,
+  showLegend = FALSE,
+  on_click = function(d) {
+    selDrugs <<-  colnames(scoreMatrix)[d]
+    updateCharts()
+  },
+  place = "A1")
+
+lc_scatter(dat(
+  x = scoreMatrix[, selDrugs[1]],
+  y = scoreMatrix[, selDrugs[2]],
+  colour = ifelse(rownames(scoreMatrix) == selCellLine, "black", "grey"),
+  axisTitleX = selDrugs[1],
+  axisTitleY = selDrugs[2]), 
+  width = 300,
+  height = 250,
+  title = "DSS value",
+  domainX = c(0, 45),
+  domainY = c(0, 45),
+  paddings = list(bottom = 20),
+  label = rownames(scoreMatrix),
+  on_click = function(d) {
+    selCellLine <<- rownames(scoreMatrix)[d]
+    updateCharts()
+  },
+# Note that to put several charts can be put into the same
+# container, but they have to get different IDs.
+# Chart with the same ID will either replace the existing one,
+# or will be added as a new layer.
+  place = "A2", chartId = "dssPlot"
+)
+
+lc_abLine(
+  a = 1, b = 0,
+# That is how a new layer can be added to a chart
+  chartId = "dssPlot",
+  addLayer = TRUE
+)
+
+lc_scatter(dat(
+  x = c(0:4, 0:4),
+  y = c(curves[paste(selCellLine, selDrugs[1], sep = "_"), paste0("D", 1:5)],
+        curves[paste(selCellLine, selDrugs[2], sep = "_"), paste0("D", 1:5)]),
+  title = selCellLine,
+  colourValue = rep(selDrugs, each = 5)),
+  width = 300,
+  height = 150,
+  axisTitleX = "Concentration order",
+  axisTitleY = "Cell viability, %",
+  paddings = list(bottom = 20),
+  place = "A2", chartId = "viability"
+)
+
+x <- seq(0, 4, length.out = 50)
+lc_line(dat(
+  x = x,
+  y = cbind(getCurve(selDrugs[1], selCellLine, x),
+            getCurve(selDrugs[2], selCellLine, x)),
+  colourValue = selDrugs),
+  addColourScaleToLegend = FALSE,
+  legend_container = "#A2",
+  legend_width = 300,
+  chartId = "viability", addLayer = TRUE
+)
+
+# This part is quite different from the JavaScript version.
+# In JavaScript, LinkedCharts query for each value separately
+# and thus one can use a function that returns the value based 
+# the ID of the element. In R, a full matrix (for heatmaps) or
+# vector has to be provided. The following two functions make such matrices,
+# based on the long tibble "plates". 
+
+getInfo <- function(drug) {
+  plates %>% 
+    filter(Barcode == barcodes[paste(selCellLine, drug, sep = "_")]) %>%
+    transmute(DRow, DCol, text = str_c(
+      "<b>", ProductName, "</b><br>",
+      "Concentration: ", str_replace_na(Concentration), "<br>",
+      "Value: ", rawIntensity
+    )) %>%
+    pivot_wider(names_from = DCol, values_from = text) %>%
+    select(-DRow) %>%
+    as.matrix()
+}
+
+getPlate <- function(drug) {
+  plates %>% 
+    filter(Barcode == barcodes[paste(selCellLine, drug, sep = "_")]) %>%
+    select(DRow, DCol, rawIntensity) %>%
+    pivot_wider(names_from = DCol, values_from = rawIntensity) %>%
+    select(-DRow) %>%
+    as.matrix()
+}
+
+placeHeatmap <- function(i) {
+  lc_heatmap(dat(
+  title = paste0("Plate ", 
+    barcodes[paste(selCellLine, selDrugs[ind], sep = "_")]),
+  value = getPlate(selDrugs[ind]),
+  informText = getInfo(selDrugs[ind])),
+  width = 300,
+  height = 225,
+  showPanel = FALSE,
+  titleSize = 15,
+  paddings = list(top = 40, left = 15, bottom = 5, right = 5),
+  rowLabel = LETTERS[1:16],
+  showLegend = FALSE,
+  place = "A3", chartId = paste0("plate", i),
+# Due do the usage of non-standard evaluation, "rlc" cannot access
+# the "i" argument from inside the "dat" function. However, one can
+# specify a list of variables for each give chart with the "with" argument
+  with = list(ind = i)
+  )
+}
+
+for(i in 1:2)
+  placeHeatmap(i)
+</code></pre>
