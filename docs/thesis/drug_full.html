@@ -2,21 +2,39 @@
 <html>
 <head>
 	<meta charset="utf-8">
+	<title>Drug screening pipeline app</title>
 	<link rel="stylesheet" type="text/css" href="../src/linked-charts.css">
 	<script type="text/javascript" src = "../src/linked-charts.min.js"></script>
 	<script type="text/javascript" src = "scoreData.js"></script>
   <script type="text/javascript" src = "rawData.js"></script>
   <style type="text/css">
+  	body {
+    	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  	}  
   	.container {
   		margin: auto;
   		width: 60%;
   		min-width: 1200px;
   	}
+  	.button {
+  		display: inline-block;
+  		width: 100px;
+  		padding: 15px;
+  		border: 1px solid black;
+  		text-align: center;
+  	}
+  	.button:hover {
+  		background-color: #bbb;
+  	}
+  	a {
+  		text-decoration: none;
+  		color: #E9190F;
+  	}
   </style>
 </head>
 <body>
 <div class="container">
-	<h3>App to explore a drugscreening pipeline</h3>
+	<h2>App to explore a drugscreening pipeline</h2>
 	<p>
 		This app is an interactive version of the thesis figure. It shows how the LinkedCharts library can be used to explore a typical high-throughput drug screening pipeline. The heatmap to the left shows correlation coefficients for a set of 50 tested drugs. A user can select a specific drug combination by clicking on a heatmap cell. Each correlation coefficient is based on drug sensitivity score values measured for 21 pancreatic cancer cell lines. The top scatter plot in the middle shows these scores for the two selected drugs. One can select a cell line by clicking on the point of this plot.
 		Each drug was tested against each cell line in five different concentrations, and the percentage of cells that remained metabolically active was measured. These values were then used to calculate the drug score, which is based on the area under the fitted sigmoid curve. These values and the fitted curves are shown in the bottom-centre plot for the selected drugs and cell line. To the right, there is a layout of the plates where the selected drugs and cell line were tested. These heatmaps show the raw fluorescence intensity, measured by the plate reader and used to calculated viability values.
@@ -30,9 +48,13 @@
 	</table>
 	<p>
 		To reproduce the app, please, download the data files and use the code provided below:<br>
-		<b>For R:</b>  <a href="https://github.com/kloivenn/kloivenn.github.io/raw/master/Bioconductor2018/src/js/iris.js">iris.js</a><br>
-		<b>For JS:</b> <a href="https://github.com/kloivenn/kloivenn.github.io/raw/master/Bioconductor2018/src/js/iris.js">iris.js</a>
+		<b>For R:</b>  <a href="drugScreen.RData">drugScreen.RData</a><br>
+		<b>For JS:</b> <a href="scoreData.js" target="_blank">scoreData.js</a>, <a href="rawData.js" target="_blank">rawData.js</a>
 	</p>
+	<div>
+		<div class="button" onclick="showCode('R');">R code</div>
+		<div class="button" onclick="showCode('JS');">JS code</div>
+	</div>
 </div>
 
 <!-- <table>
@@ -161,6 +183,11 @@ function get_curve ( drug, cellLine, x ){
  			.showLegend(false)
  			.place("#A3"); 		
  	}
+
+ 	function showCode(lang) {
+ 		window.open(lang + "_code_full.html", 
+ 			lang + " code for the example", "width=700,height=600");
+ 	} 	
 </script>
 </body>
 </html>
