@@ -1,6 +1,7 @@
 ---
 hideTOC: "true"
 showGallery: "true"
+lang: "none"
 ---
 
 # LinkedCharts

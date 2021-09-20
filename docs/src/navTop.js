@@ -38,6 +38,11 @@ var pages = {
 			inputs: "Getting input from the web page",
 			props: "Customising your chart"
 		}
+	},
+	none: {
+		index: "Linked Charts",
+		rlc: "R version",
+		js: "JavaScript version"
 	}
 }
 
@@ -54,7 +59,13 @@ var menuCells = d3.select(".page-header").append("ul")
 					//dropdown lists
 					if(typeof pages[lang][d] !== "string")
 						return "dropdown";
-				});
+				})
+				.on("click", function(d) {
+					if(d === "rlc" || d ==="js") {
+						localStorage.setItem("lang", d);
+						window.open(document.location.origin + "/linked-charts/" + d, "_self")
+					}
+				})
 
 //each list element contains a link
 menuCells.append("a")
@@ -63,10 +74,11 @@ menuCells.append("a")
 			return "drop";
 	})
 	.attr("href", function(d){
-		if(typeof pages[lang][d] !== "string")
+		if(typeof pages[lang][d] !== "string" || d === "js" || d === "rlc")
 			return "javascript:void(0)";
-
-		return document.location.origin + "/linked-charts/" + lang + "/" + d + ".html";
+		
+		return d === "index" ? document.location.origin + "/linked-charts/" + d + ".html" :
+			document.location.origin + "/linked-charts/" + lang + "/" + d + ".html";
 	})
 	.text(function(d){
 		if(typeof pages[lang][d] === "string")
@@ -97,7 +109,7 @@ menuCells.append("div")
 					return pages[lang][d[0]][d[1]];
 				})
 
-menuCells.on("click", function(){
+menuCells.on("click", function(d){
 	var hide = false;
 	if(d3.select(this).selectAll(".dropdown-content").style("display") != "none")
 		hide = true;
@@ -105,11 +117,11 @@ menuCells.on("click", function(){
 	d3.selectAll(".dropdown-content")
 		.style("display", "none");
 	d3.event.stopPropagation();	
-	
+		
 	if(!hide){
 		d3.select(this).selectAll(".dropdown-content")
 			.style("display", "block");
-		
+			
 		d3.select("body")
 			.on("click", function(){
 				d3.selectAll(".dropdown-content")
@@ -119,29 +131,21 @@ menuCells.on("click", function(){
 	}
 })
 
-d3.select(".page-header")
-	.append("div")
-		.attr("id", "buttons")
-		.style("margin-bottom", "15px")
-		.selectAll(".lang-button")
-			.data(["rlc", "js"])
-			.enter()
-				.append("div")
-					.attr("class", d => d == lang ? "lang-button active" : "lang-button")
-					.text(d => d == "rlc" ? "R" : "JavaScript")
-					.on("click", function(d) {
-						localStorage.setItem("lang", d);
-						window.open(document.location.origin + "/linked-charts/" + d, "_self")
-					});
+if(lang === "rlc" || lang === "js") {
+	var github = d3.select(".navigationTop")
+		.append("li")
+			.style("float", "right")
+			.append("a")
+				.attr("href", lang == "rlc" ? "https://github.com/anders-biostat/rlc" : "https://github.com/anders-biostat/linked-charts")
+				.attr("target", "_blank")
+				.style("padding-top", "0px")
+				.style("padding-bottom", "0px");
 
-d3.select(".page-header")
-	.select("#buttons")
-		.append("div")
-			.attr("class", "github-button")
-			.text("View on GitHub")
-			.on("click", function () {
-				window.open(lang == "rlc" ? "https://github.com/anders-biostat/rlc" : "https://github.com/anders-biostat/linked-charts")
-			})
+	github.append("img")
+		.style("vertical-align", "middle")
+		.attr("src", document.location.origin + "/linked-charts/src/img/github_icon.png")
+		.attr("width", "58px");
 
-
-	
+	github.append("span")
+		.text("Check us on GitHub");
+}

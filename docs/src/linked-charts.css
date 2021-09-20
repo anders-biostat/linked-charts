@@ -67,17 +67,18 @@
 .linked-charts .inform {
 	position: absolute;
 	width: auto;
+	min-width: 75px;
 	height: auto;
-	background-color: white;
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-	padding: 5px 5px 5px 5px;
-	-webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-	-moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-	box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+	background-color: #333;
+	border: 1px solid #eee;
+	color: #eee;
+	padding: 10px;
 	pointer-events: none;
-	opacity: 0.7;
+	font-family: Helvetica, Arial, sans-serif;
+}
+
+.linked-charts .inform p {
+	margin: 0px;
 }
 
 .linked-charts  .hint {
