@@ -4,7 +4,8 @@ showGallery: "true"
 lang: "none"
 ---
 
-# LinkedCharts
+## LinkedCharts
+
 ### Create interactive apps with just few lines of code!
 
 "LinkedCharts" is a framework for visual data exploration, built on top of [D3](http://d3js.org).
