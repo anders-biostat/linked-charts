@@ -2,7 +2,7 @@
 <script type="text/javascript" src="../../src/prism.js"></script>
 
 <pre class="language-javascript line-numbers"><code>
-var xSample = -1, ySample = -1;
+var xSample = 0, ySample = 1;
 
 var hm = lc.heatmap()
    .nrows(hData.sampleNames.length)
@@ -11,6 +11,8 @@ var hm = lc.heatmap()
    .rowLabel(i => hData.sampleNames[i])
    .colLabel(i => hData.sampleNames[i])
    .showLegend(false)
+   .clusterRows(true)
+   .clusterCols(true)
    .on_click(function(row, col) {
       xSample = row;
       ySample = col;

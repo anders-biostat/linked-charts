@@ -119,3 +119,11 @@
 .linked-charts line.selected {
 	stroke: red;
 }
+
+.linked-charts .mainTable td {
+	padding: 0px;
+}
+
+.linked-charts .mainTable {
+	border-spacing: 0px;	
+}

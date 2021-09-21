@@ -7,6 +7,8 @@ openPage(useViewer = FALSE, layout = "table1x2")
 lc_heatmap(dat(
       value = corrMat,
       showLegend = FALSE,
+      clusterRows = TRUE,
+      clusterCols = TRUE,
       on_click = function(k) {  #  \ 
          sampleX <<- k[1]       #  |  Linking the
          sampleY <<- k[2]       #  |  charts

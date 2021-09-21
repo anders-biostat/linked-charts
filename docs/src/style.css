@@ -79,6 +79,7 @@ div.contentContainer {
 
 section#content {
   text-align: justify;
+  max-width: 1000px;
 }
 
 nav.tocContainer {
@@ -200,7 +201,6 @@ pre code {
   position: relative;
   width: 100%;
   height: 0;
-  padding-bottom: 51%;
 }
 
 .gallery .aspect-ratio iframe {
@@ -244,13 +244,21 @@ pre code {
 }
 
 .gallery .caption-container {
-  text-align: center;
+  text-align: justify;
   background-color: #e9e9f9;
   padding: 2px 16px;
   color: #114;
   border-top: 1px;
   border-color: #224;
   border-top-style: solid;
+}
+
+.gallery #caption-title {
+  border-bottom: 1px dashed #224;
+  padding-bottom: 10px;
+  font-size: 110%;
+  color: black;
+  text-align: center;
 }
 
 .gallery .row:after {

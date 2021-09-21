@@ -901,7 +901,6 @@ export function heatmap(id, chart){
 	}
 
 	chart.cluster = function(type, features){
-		console.log(type);
 		if(type != "Row" && type != "Col")
 			throw "Error in 'cluster': type " + type + " cannot be recognised. " +
 					"Please, use either 'Row' or 'Col'";
