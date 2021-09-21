@@ -12,13 +12,14 @@
    </tr>
    <tr>
    		<td id = "tsne"></td>
-   		<td id = "table"><table border="1"></table></td>
+   		<td id = "table"><table style="border: 1px solid black;"></table></td>
    </tr>
 </table>
 </div>	
 <script type="text/javascript">
 
-var selGeneFA = 0;
+var selGeneFA = 0,
+	size = window.innerWidth;
 
 var tmp = lc.scatter()
 	.x(i => data.means[i])
@@ -26,11 +27,11 @@ var tmp = lc.scatter()
 	.label(i => data.geneNames[i])
 	.logScaleX(10)
 	.logScaleY(10)
-	.width(window.innerWidth * 0.4)
-	.height(window.innerWidth * 0.3)
-	.set_paddings({left:30})
+	.width(() => size * 0.4)
+	.height(() => size * 0.3)
 	.size(2.5)
 	.title("Variable genes")
+	.titleSize(() => d3.max([size * 0.02, 10]))
 	.axisTitleX("Expression")
 	.axisTitleY("Variability")
 	.on_click(function(i) {
@@ -46,28 +47,28 @@ var exprFA = lc.scatter()
 	.label(i => data.cellNames[i])
 	.logScaleX(10)
 	.title(() => "Expression of " + data.geneNames[selGeneFA])
+	.titleSize(() => d3.max([size * 0.02, 10]))
 	.opacity(0.2)
-	.width(window.innerWidth * 0.4)
-	.height(window.innerWidth * 0.3)
-	.set_paddings({left:25})
+	.width(() => size * 0.4)
+	.height(() => size * 0.3)
 	.place(d3.select("#fullApp").select("#expr"));
 
 var tsneFA = lc.scatter()
 	.x(i => data.tsne[i][0])
 	.y(i => data.tsne[i][1])
 	.title("tSNE, press Shift and select some cells")
+	.titleSize(() => d3.max([size * 0.02, 10]))
 	.label(i => data.cellNames[i])
 	.colourValue(i => Math.sqrt(data.countMatrix[selGeneFA][i]/data.sf[i]))
 	.palette(["#FFFFCC","#FFEDA0","#FED976","#FEB24C","#FD8D3C","#FC4E2A","#E31A1C","#BD0026","#800026"])
 	.size(3)
 	.colourLegendTitle(() => data.geneNames[selGeneFA])
 	.on_marked(makeTable)
-	.width(window.innerWidth * 0.4)
-	.height(window.innerWidth * 0.3)
-	.set_paddings({left:20})
+	.width(() => size * 0.4)
+	.height(() => size * 0.3)
+	.legend.width(() => d3.max([30, size * 0.06]))
+	.legend.sampleHeight(() => size * 0.02)
 	.place(d3.select("#fullApp").select("#tsne"));
-
-tsneFA.legend.width(60).update();
 
 var colOrder = ["geneName", "meanMarked", "sdMarked", "meanUnmarked", "sdUnmarked", "sepScore"],
 	nrow = 15, 
@@ -146,6 +147,7 @@ function makeTable() {
 	var cells = d3.select("#fullApp")
 		.select("#table")
 			.select("table")
+
 				.selectAll("tr")
 					.selectAll("td")
 						.data(d => colOrder.map(el => [d, el]));
@@ -159,6 +161,13 @@ function makeTable() {
 			.text(d => stats[d[1]][d[0]]);
 
 }
+
+window.addEventListener("resize", () => {
+	size = window.innerWidth;
+	tmp.update();
+	tsneFA.update();
+	exprFA.update();
+})
 
 	</script>
 </body>
