@@ -1,6 +1,7 @@
 .linked-charts {
 	line-height: 1;
 	color: #000;
+	font-family: Helvetica, Arial, sans-serif;
 }
 
 .linked-charts .mainTable td {
@@ -14,7 +15,6 @@
 
 .linked-charts text.plainText{
 	fill: #333;
-	font-family: Helvetica, Arial, sans-serif;
 }
 
 .linked-charts text.label{
@@ -74,7 +74,6 @@
 	color: #eee;
 	padding: 10px;
 	pointer-events: none;
-	font-family: Helvetica, Arial, sans-serif;
 }
 
 .linked-charts .inform p {

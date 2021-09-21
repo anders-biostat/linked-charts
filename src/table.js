@@ -112,6 +112,7 @@ export function input() {
     .add_property("min", 0, check("array_fun", "min")) //all this stuff is for ranges
     .add_property("max", 100, check("array_fun", "max"))
     .add_property("step", 1, check("array_fun", "step"))
+    .add_property("fontSize", 17, check("number_nonneg", "fontSize"))
 //    .add_property("orientation", "vertical") may be later...
     .add_property("on_change", function() {});
   
@@ -157,6 +158,7 @@ export function input() {
       .style("display", "grid")
       .style("grid-template-columns", "fit-content(500px) 1fr fit-content(20px)")
       .style("column-gap", "9px")
+      .style("align-items", "center")
       .append("p")
         .style("grid-row", 1)
         .style("grid-column", "1/4")
@@ -190,7 +192,7 @@ export function input() {
       d3.select(element.parentNode)
         .selectAll("input")
           .nodes()
-            .forEach(function(node) {state[node.id] = (+node.value ? +node.value : node.value)});
+            .forEach(function(node) {state[node.id.substring(chart.name.length + 1)] = (+node.value ? +node.value : node.value)});
     return state;
   }
 
@@ -208,7 +210,7 @@ export function input() {
         .attr("name", chart.name)
         .style("grid-row", (d, i) => i + 2)
         .style("grid-column", (chart.type() == "text" || chart.type() ==  "range") ? 2 : 1)
-        .attr("id", d => "in_" + d)
+        .attr("id", d => chart.name + "_in_" + d)
         .property("value", d => chart.type() == "radio" ? d : undefined)
         .style("width", chart.type() == "text" ? "100%" : undefined)
         .on(chart.type() == "button" ? "click" : "change", function() {
@@ -218,17 +220,20 @@ export function input() {
       .remove();
     
     if(chart.type() != "button") {
+      labels.exit()
+        .remove();      
       labels.enter()
         .append("label")
-          .attr("for", d => d)
-          .text(d => chart.get_label(d))
+          .attr("for", d => chart.name + "_in_" + d)
           .style("grid-row", (d, i) => i + 2)
-          .style("grid-column", (chart.type() == "text" || chart.type() ==  "range") ? 1 : 2);
-      labels.exit()
-        .remove();
+          .style("grid-column", (chart.type() == "text" || chart.type() ==  "range") ? 1 : 2)
+          .merge(labels)        
+            .text(d => chart.get_label(d))
+            .style("font-size", chart.fontSize())
     } else {
       chart.container
         .selectAll("input")
+          .style("font-size", chart.fontSize())
           .property("value", d => chart.get_label(d))
     }
     
@@ -239,7 +244,7 @@ export function input() {
       cvs.enter()
         .append("p")
           .attr("class", "currentValue")
-          .attr("id", d => "in_" + d)
+          .attr("id", d => chart.name + "_in_" + d)
           .style("grid-row", (d, i) => i + 2)
           .style("grid-column", 3)
           .style("margin-top", 0)
