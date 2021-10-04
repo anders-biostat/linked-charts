@@ -271,7 +271,7 @@ export function input() {
     if(chart.type() == "radio") 
       chart.container
         .selectAll("input")
-          .filter(function() {return this.id == chart.value()})
+          .filter(function() {return this.id == chart.name + "_in_" + chart.value()})
             .attr("checked", true);
 
     if(chart.type() == "checkbox")
