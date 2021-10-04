@@ -2,6 +2,14 @@
 	<script type="text/javascript" src = "data.js"></script>
 	<script type="text/javascript" src = "../../src/linked-charts.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="../../src/linked-charts.css">
+	<style type="text/css">
+		table {
+			border-spacing: 0px;
+		}
+		td {
+			padding: 0px;
+		}
+	</style>
 </head>
 <body>
 <div id = "top">
@@ -16,7 +24,8 @@
 </div>
 	<script type="text/javascript">
 
-var marker = 0;
+var marker = 0,
+	size = window.innerWidth - 10;
 red = "off";
 green = "off";
 blue = "off";
@@ -28,23 +37,34 @@ for(var i = 0; i < data.markerNames.length; i++)
 var tsne = lc.scatter()
 	.x(i => data.tsne[i][0])
 	.y(i => data.tsne[i][1])
+	.width(() => size * 0.48)
+	.height(() => size * 0.48)
 	.size(1)
 	.colour(i => "rgb(" + cm[red][i] + ", " +
 												cm[green][i] + ", " +
 												cm[blue][i] + ")")
 	.place(d3.select("#top").select("#plot"));
 
-var colours = ["red", "green", "blue"];
+var colours = ["red", "green", "blue"],
+	colour_inputs = [];
+
 for(var i in colours)
-	(function(colour) {
-		lc.input()
+	colour_inputs.push((function(colour) {
+		return lc.input()
 			.type("radio")
-			.width(100)
+			.width(() => size * 0.16)
+			.fontSize(() => d3.min([size * 0.03, 17]))
 			.title(colour)
 			.elementIds(data.markerNames)
 			.on_change(value => {window[colour] = value; tsne.updateElementStyle()})
 			.value("off")
 			.place(d3.select("#top").select("#buttons_" + colour));
-	})(colours[i]);
+	})(colours[i]));
+
+window.addEventListener("resize", () => {
+	size = window.innerWidth - 10;
+	tsne.update();
+	colour_inputs.forEach(el => {el.update()});
+})	
 	</script>
 </body>
