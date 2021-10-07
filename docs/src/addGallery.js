@@ -4,8 +4,8 @@ var titleEx = [
 		"MA plot, tumor vs. normal tissue comparison (datafile size is ~20MB, loading may take a while)", 
 		"Single cell RNA-Seq, cord blood (datafile size is ~20MB, loading may take a while)", 
 		"Single cell RNA-Seq, cord blood, exploring the abundance of 13 protein markers.", 
-		"disable", 
-		"disable"
+		"disabled", 
+		"disabled"
 	],
 	//links to the corresponding tutorial pages
 	linkEx = [

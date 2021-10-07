@@ -30,12 +30,12 @@ chartEvent(d, chartId, layerId = "main", event, sessionId = .id, app = .app)
 
 Argument      |Description
 ------------- |----------------
-`d`     |     Value that is used to identify interactive element or its state. A single numeric index for a point or a line, vector or row and column indices of a cell for a heatmap, value for an input block (please, check [`lc_input`](#lcinput)  for more details about input blocks and their values). Should be `NULL` for `mouseout` or `marked` events. N.B. This function is called from the web page and therefore all element indices start from zero as it is happens in JavaScript.
+`d`     |     Value that is used to identify an interactive element or its state. A single numeric index for a point or a line, vector or row and column indices of a cell for a heatmap, value for an input block (please, check [`lc_input`](#lcinput) for more details about input blocks and their values). It should be `NULL` for `mouseout` or `marked` events. NB: This function is called from the web page, and therefore all element indices start from zero as it happens in JavaScript.
 `chartId`     |     ID of the chart.
 `layerId`     |     ID of the layer. You can print IDs of all charts and their layers with [`listCharts`](#listcharts) .
-`event`     |     Type of event. Must be one of `"click"` , `"mouseover"` , `"mouseout"` , `"marked"` , `"labelClickRow"` , `"labelClickCol"` .
-`sessionId`     |     ID of the session (opened client page) that triggered the event. The default value uses a local session variable. This must be a single session ID. You can get a list of IDs of all currently active with the method `getSessionIds` inherited from class [`App`](#app) by [`LCApp`](#lcapp) . Possible errors in evaluation of this argument are ignored.
-`app`     |     Object of class [`LCApp`](#lcapp) for which the event was triggered. Note that this argument is here for internal use and its default value is a variable, stored in each session locally. If you are not using wrapper functions, it is preferred to call method `chartEvent` of an object of class [`LCApp`](#lcapp) .
+`event`     |     Type of event. Must be one of `"click"` , `"mouseover"` , `"mouseout"` , `"marked"` , `"labelClickRow"` , `"labelClickCol"` , `"clickPosition"` .
+`sessionId`     |     ID of the session (opened client page) that triggered the event. The default value uses a local session variable. This must be a single session ID. You can get a list of IDs of all currently active with the method `getSessionIds` inherited from class [`App`](#app) by [`LCApp`](#lcapp) . Possible errors in the evaluation of this argument are ignored.
+`app`     |     Object of class [`LCApp`](#lcapp) for which the event was triggered. Note that this argument is here for internal use, and its default value is a variable stored in each session locally. If you are not using wrapper functions, it is preferred to call method `chartEvent` of an object of class [`LCApp`](#lcapp) .
 
 
 ## Examples
@@ -55,7 +55,7 @@ chartEvent(51, "Chart1", "Layer1", "click")
 ## Description
 
 Stops the server and closes all currently opened pages (if any). This function is a
- wrapper of `stopServer` method inherited by the [`LCApp`](#lcapp) class from the [`App`](#app) class.
+ wrapper of the `stopServer` method inherited by the [`LCApp`](#lcapp) class from the [`App`](#app) class.
 
 
 ## Usage
@@ -80,10 +80,11 @@ closePage()
 
 ## Description
 
-`dat` allows to link variables from the current environment to chart's properties.
- On every [`updateCharts`](#updatecharts) call all the data provided via the `dat` function
- will be automatically reevaluated and the chart will be changed accordingly. One can also
- put properties outside of the `dat` function to prevent their reevaluation.
+`dat` allows linking variables from the current environment to chart's properties.
+ On every [`updateCharts`](#updatecharts) call, all the data provided via the `dat` function
+ will be automatically re-evaluated, and the chart will be changed accordingly. One can also
+ put properties outside of the `dat` function to prevent their re-evaluation. It
+ can also be used to ensure re-evaluation of the `with` argument of any plotting function.
 
 
 ## Usage
@@ -105,6 +106,13 @@ Argument      |Description
 ```r
 lc_scatter(dat(x = rnorm(30)), y = rnorm(30))
 #note that the Y values remain the same after each updateCharts call
+updateCharts()
+
+#This way the dataset is not strored inside the chart and will be re-evaluated
+data("iris")
+lc_scatter(dat(x = Sepal.Length, y = Petal.Length), with = dat(iris))
+
+iris <- iris[1:10, ]
 updateCharts()
 ```
 
@@ -133,14 +141,14 @@ getMarked(chartId = NULL, layerId = NULL, sessionId = NULL)
 
 Argument      |Description
 ------------- |----------------
-`chartId`     |     An ID of the chart. This argument is optional, if there is only one chart.
-`layerId`     |     An ID of the layer. This argument is optional, if there is only one chart. than one layer.
-`sessionId`     |     An ID of the session from which to get the marked elements. Can be `NULL`  if there is only one active session. Otherwise must be a valid session ID. Check [`Session`](#session)  for more information on client sessions. If a call to this function was triggered from an opened web page, ID of the corresponding session will be used automatically.
+`chartId`     |     An ID of the chart. This argument is optional if there is only one chart.
+`layerId`     |     An ID of the layer. This argument is optional if there is only one chart with a single layer.
+`sessionId`     |     An ID of the session from which to get the marked elements. It can be `NULL`  if there is only one active session. Otherwise must be a valid session ID. Check [`Session`](#session)  for more information on client sessions. If a call to this function was triggered from a web page, the ID of the corresponding session would be used automatically.
 
 
 ## Value
 
-a vector of indices or, in case of heatmaps, an n x 2 matrix were first and
+a vector of indices or, in the case of heatmaps, an n x 2 matrix where first and
  second columns contain row and column indices of the marked cells, respectively.
 
 
@@ -166,10 +174,10 @@ getMarked("Chart1")
 
 `rlc` offers two ways to control an interactive app. One is by using methods of class
  [`LCApp`](#lcapp) . This allows one to have any number of apps within one
- R session, but requires some understanding of object oriented programming. Another way is to use
+ R session but requires some understanding of object oriented-programming. Another way is to use
  provided wrapper functions that are exported by the package. These functions internally work with
- the [`LCApp`](#lcapp) object, which is stored in the package namespace upon initialization with
- [`openPage`](#openpage) function. `getPage` returns this object if any.
+ the [`LCApp`](#lcapp) object stored in the package namespace upon initialization with the
+ [`openPage`](#openpage) function. `getPage` returns this object, if any.
 
 
 ## Usage
@@ -181,18 +189,18 @@ getPage()
 
 ## Details
 
-Note that `rlc` package is based on `jrc` library. Both packages are organized in similar manner.
- Both have a central class that represents the entire app and can be fully managed with their methods ( [`LCApp`](#lcapp) 
- and [`App`](#app) , respectively). And both also provide a set of wrapper functions, that can be used instead of
- the methods. However, wrapper functions of the `jrc` package can't be use for `rlc` apps, while all the
- methods of class [`App`](#app) are inherited by [`LCApp`](#lcapp) . Therefore, if you want to get more low level
- control over your app, such as managing client sessions, local variables and memory usage, you should methods of
+Note that the `rlc` package is based on the `jrc` library. Both packages are similarly organized.
+ Both have a central class representing the entire app and can be fully managed with their methods ( [`LCApp`](#lcapp) 
+ and [`App`](#app) , respectively). And both also provide a set of wrapper functions that can be used instead of
+ the methods. However, wrapper functions of the `jrc` package can't be used for `rlc` apps, while [`LCApp`](#lcapp) 
+ inherits all the methods of class [`App`](#app) . Therefore, if you want to get more low-level
+ control over your app, such as managing client sessions, local variables and memory usage, you should use methods of the
  [`App`](#app) class.
 
 
 ## Value
 
-Object of class [`LCApp`](#lcapp) or `NULL` if there is no active app.
+An object of class [`LCApp`](#lcapp) or `NULL` if there is no active app.
 
 
 # Create a barplot
@@ -202,8 +210,8 @@ Object of class [`LCApp`](#lcapp) or `NULL` if there is no active app.
 
 ## Description
 
-`lc_bars` creates a new barplot and adds it to the app and to the all currently opened pages
- as a new chart or as a new layer of an existing chart.
+`lc_bars` creates a new barplot and adds it to the app and all currently opened pages
+ as a new chart or a new layer of an existing chart.
 
 
 ## Usage
@@ -225,13 +233,13 @@ lc_bars(
 
 Argument      |Description
 ------------- |----------------
-`data`     |     Name value pairs of properties, passed through the [`dat`](#dat) function. These properties will be reevaluated on each [`updateCharts`](#updatecharts) call.
-`place`     |     ID of a container, where to place new chart. Will be ignored if the chart already exists. If not defined, the chart will be appended to the body of the web pages.
+`data`     |     Name-value pairs of properties passed through the [`dat`](#dat) function. These properties will be re-evaluated on each [`updateCharts`](#updatecharts) call.
+`place`     |     An ID of the container, where to place new chart. It will be ignored if the chart already exists. If not defined, the chart will be appended to the web page's bodys.
 `...`     |     Name-value pairs of properties that will be evaluated only once and then will remain constant. These properties can still be changed later using the [`setProperties`](#setproperties) function.
-`chartId`     |     ID for the chart. All charts must have unique IDs. If a chart with the same ID already exists, it will be replaced unless `addLayer = TRUE` . If ID is not defined, it will be the same as value of the `place` argument. And if both are not defined, the ID will be set to `ChartN` , where `N - 1` is the number of existing charts.
-`layerId`     |     An ID for the new layer. All layers within one chart must have different IDs. If a layer with the same ID already exists, it will be replaced. If not defined, will be set to `LayerN` , where `N - 1`  is the number of currently existing layers in this chart.
-`with`     |     A data set from which other properties should be taken. If the data set doesn't have a column with the requested name, the variable will be searched for outside of the data set. Must be a data.frame or a list.
-`addLayer`     |     if there is already a chart with the same ID, this argument defines whether to replace it or to add a new layer to it. This argument is ignored if both `place` and `chartId` are `NULL` or if there is no chart with the given ID.
+`chartId`     |     An ID for the chart. All charts must have unique IDs. If a chart with the same ID already exists, it will be replaced unless `addLayer = TRUE` . If ID is not defined, it will be the same as the value of the `place` argument. And if both are not defined, the ID will be set to `ChartN` , where `N - 1` is the number of existing charts.
+`layerId`     |     An ID for the new layer. All layers within one chart must have different IDs. If a layer with the same ID already exists, it will be replaced. If not defined, it will be set to `LayerN` , where `N - 1`  is the current number of layers in this chart.
+`with`     |     A dataset or a list from which other properties should be taken. If the dataset doesn't have a column with the requested name, the variable will be searched for outside of the dataset. Must be a `data.frame` or a `list` .
+`addLayer`     |     If there is already a chart with the same ID, this argument defines whether to replace it or to add a new layer to it. This argument is ignored if both `place` and `chartId` are `NULL` or if there is no chart with the given ID.
 
 
 ## Available Properties
@@ -239,99 +247,112 @@ Argument      |Description
 You can read more about different properties
  [here](https://anders-biostat.github.io/linked-charts/rlc/tutorials/props.html) .
  
- 
+  
 
-* `value`- heights of bars/stacks.
+*   `values` - heights of bars/stacks. 
 
-* `stackIds`- IDs of all stacks (optional). Must be the same size as`values`.
+*   `stackIds` - IDs of all stacks ( optional ). Must be the same size as `values` . 
 
-* `barIds`- IDs of all bars (optional). Must be the same size as`values`.
+*   `barIds` - IDs of all bars ( optional ). Must be the same size as `values` . 
 
-* `groupIds`- IDs of all groups (optional). Must be the same size as`values`.
+*   `groupIds` - IDs of all groups ( optional ). Must be the same size as `values` . 
 
-* `groupWidth`- ratio of width of a group of bars to the space, available to the group. 
+*   `groupWidth` - a ratio of the width of a group of bars to the space available to the group. 
  
  Style settings
- 
+  
 
-* `opacity`- opacity of each bar|stack in the range from 0 to 1.
+*   `opacity` - a vector of opacity values for each bar or stack in the range from 0 to 1. 
 
-* `colour`- colour of each bar|stack. Must be a colour name or hexadecimal code.
+*   `colour` - a vector of colours for each bar or stack. Must be a colour name or a hexadecimal code. 
 
-* `colourValue`- grouping values for different colours. Can be numbers or characters.
+*   `colourValue` - grouping values for different colours. Can be numbers or characters. 
 
-* `colourDomain`- vector of all possible values for discrete colour scalesor range of all possible colour values for the continuous ones.
+*   `colourDomain` - a vector of all possible values for discrete colour scales or a range of all possible colour values for the continuous ones. 
 
-* `palette`- vector of colours to construct the colour scale.
+*   `palette` - a vector of colours to construct the colour scale. 
 
-* `colourLegendTitle`- title for the colour legend.
+*   `colourLegendTitle` - a title for the colour legend. 
 
-* `addColourScaleToLegend`- whether or not to show colour legend for the current layer.
+*   `addColourScaleToLegend` - whether or not to show the colour legend for the current layer. 
 
-* `globalColourScale`- whether or not to use one colour scale for all the layers.
+*   `globalColourScale` - whether or not to use one colour scale for all the layers. 
 
-* `stroke`-  stroke colour of each bar|stack. Must be a colour name or hexadecimal code.
+*   `stroke` - a vector of stroke colours for each bar or stack. Must be a colour name or a hexadecimal code. 
 
-* `strokeWidth`- width of the strokes of each bar|stack. 
+*   `strokeWidth` - a vector of stroke widths for each bar or stack. 
  
  Axes settings
- 
+  
 
-* `logScaleX, logScaleY`- a base of logarithm for logarithmic scale transformation.If 0 or`FALSE`no transformation will be performed.
+*   `logScaleX, logScaleY` - a base of logarithm for logarithmic scale transformation. If 0 or `FALSE` no transformation will be performed. 
 
-* `layerDomainX, layerDomainY`- default axes ranges for the given layer.
+*   `layerDomainX, layerDomainY` - default axes ranges for the given layer. 
 
-* `domainX, domainY`- default axes ranges for the entire chart. If not defined,is automatically set to include all layer domains.
+*   `domainX, domainY` - default axes ranges for the entire chart. If not defined, it is automatically set to include all layer domains. 
 
-* `contScaleX, contScaleY`- whether or not the axis should be continuous.
+*   `contScaleX, contScaleY` - whether or not the axis should be continuous. 
 
-* `aspectRatio`- aspect ratio.
+*   `aspectRatio` - an aspect ratio for the chart. 
 
-* `axisTitleX, axisTitleY`- axes titles.
+*   `axisTitleX, axisTitleY` - axis titles. 
 
-* `axisTitlePosX, axisTitlePosY`- position of axes titles. For each axis one can specify title positionacross or along the corresponding axis. Possible options are`"up"`(for title inside the plotting area)or`"down"`(outside the plotting area, under the axis), and`"start"`,`"middle"`,`"end"`. This property must be a string with one or two of the aforementioned options(e.g.`"middle down"`,`"start"`, etc.).
+*   `axisTitlePosX, axisTitlePosY` - positions of the axis titles. For each axis, one can specify a title position across or along the corresponding axis. Possible options are `"up"` (for title inside the plotting area) or `"down"` (outside the plotting area, under the axis), and `"start"` , `"middle"` , `"end"` . This property must be a string with one or two of the aforementioned options (e.g. `"middle down"` , `"start"` , etc.). 
 
-* `ticksRotateX, ticksRotateY`- angle by which to rotate ticks (in degrees). Must be between0 (horizontal ticks, default) and 90 (vertical ticks).
+*   `ticksRotateX, ticksRotateY` - angles by which to rotate ticks (in degrees). Must be between 0 (horizontal ticks, default) and 90 (vertical ticks). 
 
-* `ticksX, ticksY`- set of ticks for the axes. 
+*   `ticksX, ticksY` - sets of ticks for the axes. 
  
  Interactivity settings
+  
+
+*   `on_click` - a function, to be called when one of the bars is clicked. Gets an index of the clicked bar as an argument. 
+
+*   `on_clickPosition` - a function, to be called when any point of the chart is clicked. Unlike `on_click` , which is called only when an element of the chart (point, line, etc.) is clicked, this function reacts to any click on the chart. As an argument, it receives a vector of x and y coordinates of the click (based on the current axes scales). If one of the axes is categorical, the function will get the closest tick to the clicked position. 
+
+*   `on_mouseover` - a function, to be called when the mouse hovers over one of the bars. Gets an index of the clicked bar as an argument. 
+
+*   `on_mouseout` - a function, to be called when the mouse moves out of one of the bars. 
+
+*   `on_marked` - a function, to be called when any of the bars are selected (marked) or deselected. Use [`getMarked`](#getmarked) function to get the IDs of the currently marked bars. To mark bars, select them with your mouse while holding the Shift key. 
  
+ Legend settings
+  
 
-* `on_click`- function, to be called, when one of the bars is clicked. Gets anindex of the clicked bar as an argument.
+*   `legend_width` - width of the legend in pixels. The default value is 200. 
 
-* `on_clickPosition`- function, to be called, when any point of the chart is clicked. Unlike`on_click`which is called only when an element of the chart (point, line, etc.) is clicked, thisfunction reacts to any click on the chart. As an argument it receives a vector of x and y coordinates ofthe click (based on the current axes scales). If one of the axes is categorical, then the function willget the closest tick to the clicked position.
+*   `legend_height` - height of the legend in pixels. By default, it is equal to the height of the chart. 
 
-* `on_mouseover`- function, to be called, when mouse hovers over one of the bars.Gets an index of the clicked bar as an argument.
+*   `legend_sampleHeight` - height of a single key of the legend in pixels. The default value is 20. 
 
-* `on_mouseout`- function, to be called, when mouse moves out of one of the bars.
+*   `legend_ncol` - number of columns to order several legends. By default, this is defined from the number of legends to reach close to a square shape. 
 
-* `on_marked`- function, to be called, when any of the bars are selected (marked)or deselected. Use[`getMarked`](#getmarked)function to get the IDs of the currently marked bars. To mark bars,select them with your mouse while holding theShiftkey. 
+*   `legend_container` - a DOM element of the web page where to place the legend. By default, the legend is positioned to the right from the chart in a table cell specifically made for it. This should be a valid CSS selector. If the specified element does not exist, the legend will be added to the web page's body. 
  
  Global chart settings
- 
+  
 
-* `width`- width of the chart in pixels.
+*   `width` - width of the chart in pixels. 
 
-* `heigth`- height of the chart in pixels.
+*   `heigth` - height of the chart in pixels. 
 
-* `plotWidth`- width of the plotting area in pixels.
+*   `plotWidth` - width of the plotting area in pixels. 
 
-* `plotHeight`- height of the plotting area in pixels.
+*   `plotHeight` - height of the plotting area in pixels. 
 
-* `paddings`- padding sizes in pixels. Must be a list with all the following fields:`"top", "bottom", "left", "right"`.
+*   `paddings` - padding sizes in pixels. Must be a list with all the following fields: `"top", "bottom", "left", "right"` . 
 
-* `title`- title of the chart.
+*   `title` - a title of the chart. 
 
-* `titleX, titleY`- coordinates of the chart title.
+*   `titleX, titleY` - coordinates of the chart title. 
 
-* `titleSize`- font-size of the chart title.
+*   `titleSize` - font-size of the chart title. 
 
-* `showLegend`- whether or not to show the legend.
+*   `showLegend` - whether or not to show the legend. 
 
-* `showPanel`- whether of not to show the instrument panel (gray triangle in the upper-left corner of the chart).
+*   `showPanel` - whether of not to show the instrument panel (grey triangle in the upper-left corner of the chart). 
 
-* `transitionDuration`- duration of the transitions between any two states of the chart. If 0,no animated transition is shown. It can be useful to turn the transition off, when lots of frequentchanges happen to the chart.
+*   `transitionDuration` - duration of the transitions between any two states of the chart. If 0, no animated transition is shown. It can be useful to turn the transition off, when lots of frequent changes happen to the chart.
 
 
 ## Examples
@@ -392,11 +413,11 @@ lc_colourSlider(data = list(), place = NULL, ..., chartId = NULL, with = NULL)
 
 Argument      |Description
 ------------- |----------------
-`data`     |     Name value pairs of properties, passed through the [`dat`](#dat) function. These properties will be reevaluated on each [`updateCharts`](#updatecharts) call.
-`place`     |     ID of a container, where to place new chart. Will be ignored if the chart already exists. If not defined, the chart will be appended to the body of the web pages.
+`data`     |     Name-value pairs of properties passed through the [`dat`](#dat) function. These properties will be re-evaluated on each [`updateCharts`](#updatecharts) call.
+`place`     |     An ID of the container, where to place new chart. It will be ignored if the chart already exists. If not defined, the chart will be appended to the web page's bodys.
 `...`     |     Name-value pairs of properties that will be evaluated only once and then will remain constant. These properties can still be changed later using the [`setProperties`](#setproperties) function.
-`chartId`     |     ID for the chart. All charts must have unique IDs. If a chart with the same ID already exists, it will be replaced. If ID is not defined, it will be the same as value of the `place` argument. And if both are not defined, the ID will be set to `ChartN` , where `N - 1` is the number of existing charts.
-`with`     |     A data set from which other properties should be taken. If the data set doesn't have a column with the requested name, the variable will be searched for outside of the data set. Must be a data.frame or a list.
+`chartId`     |     An ID for the chart. All charts must have unique IDs. If a chart with the same ID already exists, it will be replaced. If ID is not defined, it will be the same as the value of the `place` argument. And if both are not defined, the ID will be set to `ChartN` , where `N - 1` is the number of existing charts.
+`with`     |     A dataset or a list from which other properties should be taken. If the dataset doesn't have a column with the requested name, the variable will be searched for outside of the dataset. Must be a `data.frame` or a `list` .
 
 
 ## Available Properties
@@ -404,26 +425,26 @@ Argument      |Description
 You can read more about different properties
  [here](https://anders-biostat.github.io/linked-charts/rlc/tutorials/props.html) .
  
- 
+  
 
-* `chart`- ID of the chart to which the colour slider should be linked.
+*   `chart` - ID of the chart to which the colour slider should be linked. 
 
-* `layer`- id of the layer to which the colour slider should be linked.If the chart has only one layer, this property is optional. 
+*   `layer` - id of the layer to which the colour slider should be linked. If the chart has only one layer, this property is optional. 
  
  Global chart settings
- 
+  
 
-* `width`- width of the chart in pixels.
+*   `width` - width of the chart in pixels. 
 
-* `heigth`- height of the chart in pixels.
+*   `heigth` - height of the chart in pixels. 
 
-* `paddings`- padding sizes in pixels. Must be a list with all the following fields:`"top", "bottom", "left", "right"`.
+*   `paddings` - padding sizes in pixels. Must be a list with all the following fields: `"top", "bottom", "left", "right"` . 
 
-* `title`- title of the chart.
+*   `title` - a title of the chart. 
 
-* `titleX, titleY`- coordinates of the chart title.
+*   `titleX, titleY` - coordinates of the chart title. 
 
-* `titleSize`- font-size of the chart title.
+*   `titleSize` - font-size of the chart title.
 
 
 ## Examples
@@ -476,12 +497,12 @@ lc_heatmap(
 
 Argument      |Description
 ------------- |----------------
-`data`     |     Name value pairs of properties, passed through the [`dat`](#dat) function. These properties will be reevaluated on each [`updateCharts`](#updatecharts) call.
-`place`     |     ID of a container, where to place new chart. Will be ignored if the chart already exists. If not defined, the chart will be appended to the body of the web pages.
+`data`     |     Name-value pairs of properties passed through the [`dat`](#dat) function. These properties will be re-evaluated on each [`updateCharts`](#updatecharts) call.
+`place`     |     An ID of the container, where to place new chart. It will be ignored if the chart already exists. If not defined, the chart will be appended to the web page's bodys.
 `...`     |     Name-value pairs of properties that will be evaluated only once and then will remain constant. These properties can still be changed later using the [`setProperties`](#setproperties) function.
-`chartId`     |     ID for the chart. All charts must have unique IDs. If a chart with the same ID already exists, it will be replaced. If ID is not defined, it will be the same as value of the `place` argument. And if both are not defined, the ID will be set to `ChartN` , where `N - 1` is the number of existing charts.
-`with`     |     A data set from which other properties should be taken. If the data set doesn't have a column with the requested name, the variable will be searched for outside of the data set. Must be a data.frame or a list.
-`pacerStep`     |     Time in ms between two consecutive calls of an `onmouseover` event. Prevents overqueuing in case of cumbersome computations. May be important when the chart works in canvas mode.
+`chartId`     |     An ID for the chart. All charts must have unique IDs. If a chart with the same ID already exists, it will be replaced. If ID is not defined, it will be the same as the value of the `place` argument. And if both are not defined, the ID will be set to `ChartN` , where `N - 1` is the number of existing charts.
+`with`     |     A dataset or a list from which other properties should be taken. If the dataset doesn't have a column with the requested name, the variable will be searched for outside of the dataset. Must be a `data.frame` or a `list` .
+`pacerStep`     |     Time in ms between two consecutive calls of an `onmouseover` event. Prevents over-queueing in case of cumbersome computations. May be important when the chart works in canvas mode.
 
 
 ## Available Properties
@@ -489,66 +510,81 @@ Argument      |Description
 You can read more about different properties
  [here](https://anders-biostat.github.io/linked-charts/rlc/tutorials/props.html) .
  
- 
+  
 
-* `value`- matrix of values that will be displayed as a heatmap.
+*   `value` - matrix of values that will be displayed as a heatmap. 
 
-* `rowLabel, colLabel`- vector of labels for all rows or columns.
+*   `rowLabel, colLabel` - vector of labels for all rows or columns. 
 
-* `showDendogramRow, showDendogramCol`- whether to show dendograms when rows or columns areclustered. Even if these properties are set to`FALSE`, rows and columns can still be clustered.
+*   `showDendogramRow, showDendogramCol` - whether to show dendrograms when rows or columns are clustered. Even if these properties are set to `FALSE` , rows and columns can still be clustered. 
 
-* `clusterRows, clusterCols`- whether rows or columns should be clustered. If theseproperties are set to`FALSE`, rows and columns can still be clustered later using the instrumentpanel.
+*   `clusterRows, clusterCols` - whether rows or columns should be clustered. If these properties are set to `FALSE` , rows and columns can still be clustered later using the instrument panel. 
 
-* `mode`- one of`"default", "svg", "canvas"`. Defines, whether to display heatmap asan SVG or Canvas object.`"default"`mode switches between the two, turning heatmap into Canvasimage, when there are too many cell, and into SVG object otherwise.
+*   `mode` - one of `"default", "svg", "canvas"` . Defines, whether to display heatmap as an SVG or Canvas object. `"default"` mode switches between the two, turning heatmap into Canvas image, when there are too many cell, and into SVG object otherwise. 
 
-* `heatmapRow, heatmapCol`- default order of rows and columns of the heatmap.
+*   `heatmapRow, heatmapCol` - default order of rows and columns of the heatmap. 
 
-* `showValue`- if`TRUE`, values will be shown as text in each cell. 
+*   `showValue` - if `TRUE` , values will be shown as text in each cell. 
+
+*   `informText` - text that appears when the mouse cursor moves over an element. Unlike `label` , completely overwrites the tooltip content with a custom HTML code. Must be a matrix of characters (HTML code for each cell). 
  
  Style settings
- 
+  
 
-* `rowTitle, colTilte`- titles for rows and columns (similar to axes titles).
+*   `rowTitle, colTilte` - titles for rows and columns (similar to axes titles). 
 
-* `palette`- vector of colours to construct a colour scale.
+*   `palette` - a vector of colours to construct a colour scale. 
 
-* `colourDomain`- domain of the colour scale. All values outside it willbe clamped to its edges. 
+*   `colourDomain` - domain of the colour scale. All values outside it will be clamped to its edges. 
  
  Interactivity settings
+  
+
+*   `on_click` - a function, to be called when one of the cells is clicked. Gets a vector of row and column indices of the clicked cell as its arguments. 
+
+*   `on_mouseover` - a function, to be called when the mouse hovers over one of the cells. Gets a vector of row and column indices of the clicked cell as its arguments. 
+
+*   `on_mouseout` - a function, to be called when the mouse moves away from one of the cells. 
+
+*   `on_marked` - a function, to be called when any of the cells are selected (marked) or deselected. Use [`getMarked`](#getmarked) function to get the IDs of the currently marked cells. To mark cells, select them with your mouse while holding the Shift key. 
  
+ Legend settings
+  
 
-* `on_click`- function, to be called, when one of the cells is clicked. Gets a vector of row and column indicesof the clicked cell as its arguments.
+*   `legend_width` - width of the legend in pixels. The default value is 200. 
 
-* `on_mouseover`- function, to be called, when mouse hovers over one of the cells.Gets a vector of row and column indices of the clicked cell as its arguments.
+*   `legend_height` - height of the legend in pixels. By default, it is equal to the height of the chart. 
 
-* `on_mouseout`- function, to be called, when mouse moves away from one of the cells.
+*   `legend_sampleHeight` - height of a single key of the legend in pixels. The default value is 20. 
 
-* `on_marked`- function, to be called, when any of the cells are selected (marked)or deselected. Use[`getMarked`](#getmarked)function to get the IDs of the currently marked cells. To mark cells,select them with your mouse while holding theShiftkey. 
+*   `legend_ncol` - number of columns to order several legends. By default, this is defined from the number of legends to reach close to a square shape. 
+
+*   `legend_container` - a DOM element of the web page where to place the legend. By default, the legend is positioned to the right from the chart in a table cell specifically made for it. This should be a valid CSS selector. If the specified element does not exist, the legend will be added to the web page's body. 
  
  Global chart settings
- 
+  
 
-* `width`- width of the chart in pixels.
+*   `width` - width of the chart in pixels. 
 
-* `heigth`- height of the chart in pixels.
+*   `heigth` - height of the chart in pixels. 
 
-* `plotWidth`- width of the plotting area in pixels.
+*   `plotWidth` - width of the plotting area in pixels. 
 
-* `plotHeight`- height of the plotting area in pixels.
+*   `plotHeight` - height of the plotting area in pixels. 
 
-* `paddings`- padding sizes in pixels. Must be a list with all the following fields:`"top", "bottom", "left", "right"`.
+*   `paddings` - padding sizes in pixels. Must be a list with all the following fields: `"top", "bottom", "left", "right"` . 
 
-* `title`- title of the chart.
+*   `title` - a title of the chart. 
 
-* `titleX, titleY`- coordinates of the chart title.
+*   `titleX, titleY` - coordinates of the chart title. 
 
-* `titleSize`- font-size of the chart title.
+*   `titleSize` - font-size of the chart title. 
 
-* `showLegend`- whether or not to show the legend.
+*   `showLegend` - whether or not to show the legend. 
 
-* `showPanel`- whether of not to show the instrument panel (gray triangle in the upper-left corner of the chart).
+*   `showPanel` - whether of not to show the instrument panel (grey triangle in the upper-left corner of the chart). 
 
-* `transitionDuration`- duration of the transitions between any two states of the chart. If 0,no animated transition is shown. It can be useful to turn the transition off, when lots of frequentchanges happen to the chart.
+*   `transitionDuration` - duration of the transitions between any two states of the chart. If 0, no animated transition is shown. It can be useful to turn the transition off, when lots of frequent changes happen to the chart.
 
 
 ## Examples
@@ -621,20 +657,20 @@ lc_dens(
 
 Argument      |Description
 ------------- |----------------
-`data`     |     Name value pairs of properties, passed through the [`dat`](#dat) function. These properties will be reevaluated on each [`updateCharts`](#updatecharts) call.
-`place`     |     ID of a container, where to place new chart. Will be ignored if the chart already exists. If not defined, the chart will be appended to the body of the web pages.
+`data`     |     Name-value pairs of properties passed through the [`dat`](#dat) function. These properties will be re-evaluated on each [`updateCharts`](#updatecharts) call.
+`place`     |     An ID of the container, where to place new chart. It will be ignored if the chart already exists. If not defined, the chart will be appended to the web page's bodys.
 `...`     |     Name-value pairs of properties that will be evaluated only once and then will remain constant. These properties can still be changed later using the [`setProperties`](#setproperties) function.
-`chartId`     |     ID for the chart. All charts must have unique IDs. If a chart with the same ID already exists, it will be replaced unless `addLayer = TRUE` . If ID is not defined, it will be the same as value of the `place` argument. And if both are not defined, the ID will be set to `ChartN` , where `N - 1` is the number of existing charts.
-`layerId`     |     An ID for the new layer. All layers within one chart must have different IDs. If a layer with the same ID already exists, it will be replaced. If not defined, will be set to `LayerN` , where `N - 1`  is the number of currently existing layers in this chart.
-`with`     |     A data set from which other properties should be taken. If the data set doesn't have a column with the requested name, the variable will be searched for outside of the data set. Must be a data.frame or a list.
-`addLayer`     |     if there is already a chart with the same ID, this argument defines whether to replace it or to add a new layer to it. This argument is ignored if both `place` and `chartId` are `NULL` or if there is no chart with the given ID.
+`chartId`     |     An ID for the chart. All charts must have unique IDs. If a chart with the same ID already exists, it will be replaced unless `addLayer = TRUE` . If ID is not defined, it will be the same as the value of the `place` argument. And if both are not defined, the ID will be set to `ChartN` , where `N - 1` is the number of existing charts.
+`layerId`     |     An ID for the new layer. All layers within one chart must have different IDs. If a layer with the same ID already exists, it will be replaced. If not defined, it will be set to `LayerN` , where `N - 1`  is the current number of layers in this chart.
+`with`     |     A dataset or a list from which other properties should be taken. If the dataset doesn't have a column with the requested name, the variable will be searched for outside of the dataset. It must be a `data.frame` or a `list` .
+`addLayer`     |     If there is already a chart with the same ID, this argument defines whether to replace it or to add a new layer to it. This argument is ignored if both `place` and `chartId` are `NULL` or if there is no chart with the given ID.
 
 
 ## Functions
 
-* `lc_hist`: makes a histogram. It is an extension of[`lc_bars`](#lcbars).
+*   `lc_hist` : makes a histogram. It is an extension of [`lc_bars`](#lcbars) .  
 
-* `lc_dens`: makes a density plot. Is an extension of[`lc_line`](#lcline).
+*   `lc_dens` : makes a density plot. Is an extension of [`lc_line`](#lcline) .
 
 
 ## Available Properties
@@ -642,11 +678,11 @@ Argument      |Description
 You can read more about different properties
  [here](https://anders-biostat.github.io/linked-charts/rlc/tutorials/props.html) .
  
- 
+  
 
-* `value`- vector of data values.
+*   `value` - vector of data values. 
 
-* `nbins`- (only for`lc_hist`) number of bins. 
+*   `nbins` - (only for `lc_hist` ) number of bins. 
  
  These functions are extensions of [`lc_line`](#lcline) ( `lc_dens` ) or [`lc_bars`](#lcbars) 
  ( `lc_hist` ) and therefore also accept all their properties.
@@ -682,11 +718,11 @@ lc_html(data = list(), place = NULL, ..., chartId = NULL, with = NULL)
 
 Argument      |Description
 ------------- |----------------
-`data`     |     Name value pairs of properties, passed through the [`dat`](#dat) function. These properties will be reevaluated on each [`updateCharts`](#updatecharts) call.
-`place`     |     ID of a container, where to place new chart. Will be ignored if the chart already exists. If not defined, the chart will be appended to the body of the web pages.
+`data`     |     Name-value pairs of properties passed through the [`dat`](#dat) function. These properties will be re-evaluated on each [`updateCharts`](#updatecharts) call.
+`place`     |     An ID of the container, where to place new chart. It will be ignored if the chart already exists. If not defined, the chart will be appended to the web page's bodys.
 `...`     |     Name-value pairs of properties that will be evaluated only once and then will remain constant. These properties can still be changed later using the [`setProperties`](#setproperties) function.
-`chartId`     |     ID for the chart. All charts must have unique IDs. If a chart with the same ID already exists, it will be replaced. If ID is not defined, it will be the same as value of the `place` argument. And if both are not defined, the ID will be set to `ChartN` , where `N - 1` is the number of existing charts.
-`with`     |     A data set from which other properties should be taken. If the data set doesn't have a column with the requested name, the variable will be searched for outside of the data set. Must be a data.frame or a list.
+`chartId`     |     An ID for the chart. All charts must have unique IDs. If a chart with the same ID already exists, it will be replaced. If ID is not defined, it will be the same as the value of the `place` argument. And if both are not defined, the ID will be set to `ChartN` , where `N - 1` is the number of existing charts.
+`with`     |     A dataset or a list from which other properties should be taken. If the dataset doesn't have a column with the requested name, the variable will be searched for outside of the dataset. Must be a `data.frame` or a `list` .
 
 
 ## Available Properties
@@ -694,18 +730,18 @@ Argument      |Description
 You can read more about different properties
  [here](https://anders-biostat.github.io/linked-charts/rlc/tutorials/props.html) .
  
- 
+  
 
-* `content`- HTML code to display on the page. Can also be a vector, data.frame orany other structure, that can be transformed to HTML by[`hwrite`](#hwrite). 
+*   `content` - HTML code to display on the page. Can also be a vector, `data.frame` or any other structure, that can be transformed to HTML by [`hwrite`](#hwrite) . 
  
  Global chart settings
- 
+  
 
-* `width`- width of the chart in pixels. By default, width will be set to fit the content.If width is defined and it's smaller than content's width, scrolling will be possible.
+*   `width` - width of the chart in pixels. By default, width will be set to fit the content. If width is defined and it's smaller than content's width, scrolling will be possible. 
 
-* `heigth`- height of the chart in pixels. By default, height will be set to fit the content.If height is defined and it's smaller than content's height, scrolling will be possible.
+*   `heigth` - height of the chart in pixels. By default, height will be set to fit the content. If height is defined and it's smaller than content's height, scrolling will be possible. 
 
-* `paddings`- padding sizes in pixels. Must be a list with all the following fields:`"top", "bottom", "left", "right"`.
+*   `paddings` - padding sizes in pixels. Must be a list with all the following fields: `"top", "bottom", "left", "right"` .
 
 
 ## Examples
@@ -726,7 +762,7 @@ lc_html(content = iris, height = 200)
 ## Description
 
 `lc_image` adds a graphical object to the page. It can be any graphical R object (for example,
- objects of class 'ggplot') or image that is stored locally. Note: currently works only on Linux and iOS.
+ objects of class `ggplot` ) or image that is stored locally. Note: currently works only on Linux and iOS.
 
 
 ## Usage
@@ -740,11 +776,11 @@ lc_image(data = list(), place = NULL, ..., chartId = NULL, with = NULL)
 
 Argument      |Description
 ------------- |----------------
-`data`     |     Name value pairs of properties, passed through the [`dat`](#dat) function. These properties will be reevaluated on each [`updateCharts`](#updatecharts) call.
-`place`     |     ID of a container, where to place new chart. Will be ignored if the chart already exists. If not defined, the chart will be appended to the body of the web pages.
+`data`     |     Name-value pairs of properties passed through the [`dat`](#dat) function. These properties will be re-evaluated on each [`updateCharts`](#updatecharts) call.
+`place`     |     An ID of the container, where to place new chart. It will be ignored if the chart already exists. If not defined, the chart will be appended to the web page's bodys.
 `...`     |     Name-value pairs of properties that will be evaluated only once and then will remain constant. These properties can still be changed later using the [`setProperties`](#setproperties) function.
-`chartId`     |     ID for the chart. All charts must have unique IDs. If a chart with the same ID already exists, it will be replaced. If ID is not defined, it will be the same as value of the `place` argument. And if both are not defined, the ID will be set to `ChartN` , where `N - 1` is the number of existing charts.
-`with`     |     A data set from which other properties should be taken. If the data set doesn't have a column with the requested name, the variable will be searched for outside of the data set. Must be a data.frame or a list.
+`chartId`     |     An ID for the chart. All charts must have unique IDs. If a chart with the same ID already exists, it will be replaced. If ID is not defined, it will be the same as the value of the `place` argument. And if both are not defined, the ID will be set to `ChartN` , where `N - 1` is the number of existing charts.
+`with`     |     A dataset or a list from which other properties should be taken. If the dataset doesn't have a column with the requested name, the variable will be searched for outside of the dataset. Must be a `data.frame` or a `list` .
 
 
 ## Available Properties
@@ -753,22 +789,22 @@ You can read more about different properties
  [here](https://anders-biostat.github.io/linked-charts/rlc/tutorials/props.html) .
  
  One of `img` and `src` properties is required.
- 
+  
 
-* `img`- static plot to display. Anything that can be saved as png can be used here. .png image fill be saved toa temporary directory (see[`tempdir`](#tempdir)).
+*   `img` - static plot to display. Anything that can be saved as png can be used here. .png image fill be saved to a temporary directory (see [`tempdir`](#tempdir) ). 
 
-* `src`- path to an already saved image. Can be an absolute path or a path relative to the current working directory.If`img`is defined, this property will be ignored. 
+*   `src` - path to an already saved image. Can be an absolute path or a path relative to the current working directory. If `img` is defined, this property will be ignored. 
  
  Global chart settings
- 
+  
 
-* `title`- title of the input block.
+*   `title` - title of the input block. 
 
-* `width`- width of the chart in pixels. By default, width will be set to fit the content.If width is defined and it's smaller than content's width, scrolling will be possible.
+*   `width` - width of the chart in pixels. By default, width will be set to fit the content. If width is defined and it's smaller than content's width, scrolling will be possible. 
 
-* `heigth`- height of the chart in pixels. By default, height will be set to fit the content.If height is defined and it's smaller than content's height, scrolling will be possible.
+*   `heigth` - height of the chart in pixels. By default, height will be set to fit the content. If height is defined and it's smaller than content's height, scrolling will be possible. 
 
-* `paddings`- padding sizes in pixels. Must be a list with all the following fields:`"top", "bottom", "left", "right"`.
+*   `paddings` - padding sizes in pixels. Must be a list with all the following fields: `"top", "bottom", "left", "right"` .
 
 
 ## Examples
@@ -806,11 +842,11 @@ lc_input(data = list(), place = NULL, ..., chartId = NULL, with = NULL)
 
 Argument      |Description
 ------------- |----------------
-`data`     |     Name value pairs of properties, passed through the [`dat`](#dat) function. These properties will be reevaluated on each [`updateCharts`](#updatecharts) call.
-`place`     |     ID of a container, where to place new chart. Will be ignored if the chart already exists. If not defined, the chart will be appended to the body of the web pages.
+`data`     |     Name-value pairs of properties passed through the [`dat`](#dat) function. These properties will be re-evaluated on each [`updateCharts`](#updatecharts) call.
+`place`     |     An ID of the container, where to place new chart. It will be ignored if the chart already exists. If not defined, the chart will be appended to the web page's bodys.
 `...`     |     Name-value pairs of properties that will be evaluated only once and then will remain constant. These properties can still be changed later using the [`setProperties`](#setproperties) function.
-`chartId`     |     ID for the chart. All charts must have unique IDs. If a chart with the same ID already exists, it will be replaced. If ID is not defined, it will be the same as value of the `place` argument. And if both are not defined, the ID will be set to `ChartN` , where `N - 1` is the number of existing charts.
-`with`     |     A data set from which other properties should be taken. If the data set doesn't have a column with the requested name, the variable will be searched for outside of the data set. Must be a data.frame or a list.
+`chartId`     |     An ID for the chart. All charts must have unique IDs. If a chart with the same ID already exists, it will be replaced. If ID is not defined, it will be the same as the value of the `place` argument. And if both are not defined, the ID will be set to `ChartN` , where `N - 1` is the number of existing charts.
+`with`     |     A dataset or a list from which other properties should be taken. If the dataset doesn't have a column with the requested name, the variable will be searched for outside of the dataset. Must be a `data.frame` or a `list` .
 
 
 ## Available Properties
@@ -818,31 +854,31 @@ Argument      |Description
 You can read more about different properties
  [here](https://anders-biostat.github.io/linked-charts/rlc/tutorials/props.html) .
  
- 
+  
 
-* `type`- type of input. Must be one of`"text"`,`"range"`,`"checkbox"`,`"radio"`or`"button"`.
+*   `type` - type of input. Must be one of `"text"` , `"range"` , `"checkbox"` , `"radio"` or `"button"` . 
 
-* `value`- current state of the input block. For radio buttons it is an index of the checkedbutton. For checkboxes - a vector of`TRUE`(for each checked box) and`FALSE`(for each unchecked ones),for ranges and text boxes - a vector of values for each text field or slider.
+*   `value` - current state of the input block. For radio buttons it is an index of the checked button. For checkboxes - a vector of `TRUE` (for each checked box) and `FALSE` (for each unchecked ones), for ranges and text boxes - a vector of values for each text field or slider. 
 
-* `step`(only for`type = "range"`) - stepping interval for values that can be selected with the slider.Must be a numeric vector with one value for each slider in the input block.
+*   `step` (only for `type = "range"` ) - stepping interval for values that can be selected with the slider. Must be a numeric vector with one value for each slider in the input block. 
 
-* `min, max`(only for`type = "range"`) - minimal and maximal values that can be selected with the slider.Must be a numeric vector with one value for each slider in the input block. 
+*   `min, max` (only for `type = "range"` ) - minimal and maximal values that can be selected with the slider. Must be a numeric vector with one value for each slider in the input block. 
  
  Interactivity settings
- 
+  
 
-* `on_click, on_change`- function, to be called, when user clicks on a button, enters text in a text fieldor moves a slider. The two properties are complete synonyms and can replace one another. 
+*   `on_click, on_change` - a function, to be called when user clicks on a button, enters text in a text field or moves a slider. The two properties are complete synonyms and can replace one another. 
  
  Global chart settings
- 
+  
 
-* `title`- title of the input block.
+*   `title` - title of the input block. 
 
-* `width`- width of the chart in pixels. By default, width will be set to fit the content.If width is defined and it's smaller than content's width, scrolling will be possible.
+*   `width` - width of the chart in pixels. By default, width will be set to fit the content. If width is defined and it's smaller than content's width, scrolling will be possible. 
 
-* `heigth`- height of the chart in pixels. By default, height will be set to fit the content.If height is defined and it's smaller than content's height, scrolling will be possible.
+*   `heigth` - height of the chart in pixels. By default, height will be set to fit the content. If height is defined and it's smaller than content's height, scrolling will be possible. 
 
-* `paddings`- padding sizes in pixels. Must be a list with all the following fields:`"top", "bottom", "left", "right"`.
+*   `paddings` - padding sizes in pixels. Must be a list with all the following fields: `"top", "bottom", "left", "right"` .
 
 
 ## Examples
@@ -940,29 +976,29 @@ lc_vLine(
 
 Argument      |Description
 ------------- |----------------
-`data`     |     Name value pairs of properties, passed through the [`dat`](#dat) function. These properties will be reevaluated on each [`updateCharts`](#updatecharts) call.
-`place`     |     ID of a container, where to place new chart. Will be ignored if the chart already exists. If not defined, the chart will be appended to the body of the web pages.
+`data`     |     Name-value pairs of properties passed through the [`dat`](#dat) function. These properties will be re-evaluated on each [`updateCharts`](#updatecharts) call.
+`place`     |     An ID of the container, where to place new chart. It will be ignored if the chart already exists. If not defined, the chart will be appended to the web page's bodys.
 `...`     |     Name-value pairs of properties that will be evaluated only once and then will remain constant. These properties can still be changed later using the [`setProperties`](#setproperties) function.
-`chartId`     |     ID for the chart. All charts must have unique IDs. If a chart with the same ID already exists, it will be replaced unless `addLayer = TRUE` . If ID is not defined, it will be the same as value of the `place` argument. And if both are not defined, the ID will be set to `ChartN` , where `N - 1` is the number of existing charts.
-`layerId`     |     An ID for the new layer. All layers within one chart must have different IDs. If a layer with the same ID already exists, it will be replaced. If not defined, will be set to `LayerN` , where `N - 1`  is the number of currently existing layers in this chart.
-`with`     |     A data set from which other properties should be taken. If the data set doesn't have a column with the requested name, the variable will be searched for outside of the data set. Must be a data.frame or a list.
-`addLayer`     |     if there is already a chart with the same ID, this argument defines whether to replace it or to add a new layer to it. This argument is ignored if both `place` and `chartId` are `NULL` or if there is no chart with the given ID.
-`pacerStep`     |     Time in ms between two consecutive calls of an `on_mouseover` event. Prevents overqueuing in case of cumbersome computations. May be important when the chart works in canvas mode.
+`chartId`     |     An ID for the chart. All charts must have unique IDs. If a chart with the same ID already exists, it will be replaced unless `addLayer = TRUE` . If ID is not defined, it will be the same as the value of the `place` argument. And if both are not defined, the ID will be set to `ChartN` , where `N - 1` is the number of existing charts.
+`layerId`     |     An ID for the new layer. All layers within one chart must have different IDs. If a layer with the same ID already exists, it will be replaced. If not defined, it will be set to `LayerN` , where `N - 1`  is the current number of layers in this chart.
+`with`     |     A dataset or a list from which other properties should be taken. If the dataset doesn't have a column with the requested name, the variable will be searched for outside of the dataset. Must be a `data.frame` or a `list` .
+`addLayer`     |     If there is already a chart with the same ID, this argument defines whether to replace it or to add a new layer to it. This argument is ignored if both `place` and `chartId` are `NULL` or if there is no chart with the given ID.
+`pacerStep`     |     Time in ms between two consecutive calls of an `on_mouseover` event. Prevents over-queueing in case of cumbersome computations. May be important when the chart works in canvas mode.
 
 
 ## Functions
 
-* `lc_line`: connects points in the order of variables on the x axis.
+*   `lc_line` : connects points in the order of variables on the x axis.  
 
-* `lc_path`: connects points in the order they are given.
+*   `lc_path` : connects points in the order they are given.  
 
-* `lc_ribbon`: displays a filled area, defined by`ymax`and`ymin`values.
+*   `lc_ribbon` : displays a filled area, defined by `ymax` and `ymin` values.  
 
-* `lc_abLine`: creates straight lines by intercept and slope values
+*   `lc_abLine` : creates straight lines by intercept and slope values  
 
-* `lc_hLine`: creates horizontal lines by y-intercept values
+*   `lc_hLine` : creates horizontal lines by y-intercept values  
 
-* `lc_vLine`: creates vertical lines by x-intercept values
+*   `lc_vLine` : creates vertical lines by x-intercept values
 
 
 ## Available Properties
@@ -970,107 +1006,122 @@ Argument      |Description
 You can read more about different properties
  [here](https://anders-biostat.github.io/linked-charts/rlc/tutorials/props.html) .
  
- 
+  
 
-* `x, y`- vector of x and y coordinates of the points to connect. Can bevectors for a single line or`m x n`matrix for`n`lines.
+*   `x, y` - vector of x and y coordinates of the points to connect. Can be vectors for a single line or `m x n` matrix for `n` lines. 
 
-* `ymax, ymin`- (only for`lc_ribbon`) vectors of maximal and minimal values for a ribbon.
+*   `ymax, ymin` - (only for `lc_ribbon` ) vectors of maximal and minimal values for a ribbon. 
 
-* `a, b`- (only for`lc_abLine`) vectors of slope and intercept values respectively.
+*   `a, b` - (only for `lc_abLine` ) vectors of slope and intercept values respectively. 
 
-* `v`- (only for`lc_vLine`) vector of x-intercepts.
+*   `v` - (only for `lc_vLine` ) vector of x-intercepts. 
 
-* `h`- (only for`lc_hLine`) vector of y-intercepts.
+*   `h` - (only for `lc_hLine` ) vector of y-intercepts. 
 
-* `lineWidth`- (nor for`lc_ribbon`) width of each line.
+*   `lineWidth` - (nor for `lc_ribbon` ) width of each line. 
 
-* `opacity`- opacity of each line in the range from 0 to 1.
+*   `opacity` - a vector of opacity values for each line in the range from 0 to 1. 
 
-* `label`- vector of text labels for each line (labels by default are shown, when mouse hovers over a line).
+*   `label` - vector of text labels for each line (labels by default are shown, when mouse hovers over a line). 
 
-* `dasharray`- defines pattern of dashes and gaps for each line. 
+*   `dasharray` - defines pattern of dashes and gaps for each line. 
+
+*   `informText` - text that appears when the mouse cursor moves over an element. Unlike `label` , completely overwrites the tooltip content with a custom HTML code. Must be a vector of characters (HTML code for each element). 
  
  Colour settings
- 
+  
 
-* `colour`- colour of the lines. Must be a colour name or hexadecimal code. For`lc_ribbon`this property defines colour of the ribbon, not the strokes.
+*   `colour` - colour of the lines. Must be a colour name or a hexadecimal code. For `lc_ribbon` this property defines colour of the ribbon, not the strokes. 
 
-* `fill`- (not for`lc_ribbon`) colour with which to fill area inside the line.Must be a colour name or hexadecimal code.
+*   `fill` - (not for `lc_ribbon` ) colour with which to fill area inside the line. Must be a colour name or a hexadecimal code. 
 
-* `colourValue`- grouping values for different colours. Can be numbers or characters.
+*   `colourValue` - grouping values for different colours. Can be numbers or characters. 
 
-* `colourDomain`- vector of all possible values for discrete colour scalesor range of all possible colour values for the continuous ones.
+*   `colourDomain` - a vector of all possible values for discrete colour scales or a range of all possible colour values for the continuous ones. 
 
-* `palette`- vector of colours to construct the colour scale.
+*   `palette` - a vector of colours to construct the colour scale. 
 
-* `colourLegendTitle`- title for the colour legend.
+*   `colourLegendTitle` - a title for the colour legend. 
 
-* `addColourScaleToLegend`- whether or not to show colour legend for the current layer.
+*   `addColourScaleToLegend` - whether or not to show the colour legend for the current layer. 
 
-* `globalColourScale`- whether or not to use one colour scale for all the layers.
+*   `globalColourScale` - whether or not to use one colour scale for all the layers. 
 
-* `stroke`- (only for`lc_ribbon`) stroke colour for each ribbon.Must be a colour name or hexadecimal code.
+*   `stroke` - (only for `lc_ribbon` ) stroke colour for each ribbon. Must be a colour name or a hexadecimal code. 
 
-* `strokeWidth`- (only for`lc_ribbon`) width of the strokes for each ribbon. 
+*   `strokeWidth` - (only for `lc_ribbon` ) width of the strokes for each ribbon. 
  
  Axes settings
- 
+  
 
-* `logScaleX, logScaleY`- a base of logarithm for logarithmic scale transformation.If 0 or`FALSE`no transformation will be performed.
+*   `logScaleX, logScaleY` - a base of logarithm for logarithmic scale transformation. If 0 or `FALSE` no transformation will be performed. 
 
-* `layerDomainX, layerDomainY`- default axes ranges for the given layer.
+*   `layerDomainX, layerDomainY` - default axes ranges for the given layer. 
 
-* `domainX, domainY`- default axes ranges for the entire chart. If not defined,is automatically set to include all layer domains.
+*   `domainX, domainY` - default axes ranges for the entire chart. If not defined, it is automatically set to include all layer domains. 
 
-* `contScaleX, contScaleY`- whether or not the axis should be continuous.
+*   `contScaleX, contScaleY` - whether or not the axis should be continuous. 
 
-* `aspectRatio`- aspect ratio.
+*   `aspectRatio` - an aspect ratio for the chart. 
 
-* `axisTitleX, axisTitleY`- axes titles.
+*   `axisTitleX, axisTitleY` - axis titles. 
 
-* `axisTitlePosX, axisTitlePosY`- position of axes titles. For each axis one can specify title positionacross or along the corresponding axis. Possible options are`"up"`(for title inside the plotting area)or`"down"`(outside the plotting area, under the axis), and`"start"`,`"middle"`,`"end"`. This property must be a string with one or two of the aforementioned options(e.g.`"middle down"`,`"start"`, etc.).
+*   `axisTitlePosX, axisTitlePosY` - positions of the axis titles. For each axis, one can specify a title position across or along the corresponding axis. Possible options are `"up"` (for title inside the plotting area) or `"down"` (outside the plotting area, under the axis), and `"start"` , `"middle"` , `"end"` . This property must be a string with one or two of the aforementioned options (e.g. `"middle down"` , `"start"` , etc.). 
 
-* `ticksRotateX, ticksRotateY`- angle by which to rotate ticks (in degrees). Must be between0 (horizontal ticks, default) and 90 (vertical ticks).
+*   `ticksRotateX, ticksRotateY` - angles by which to rotate ticks (in degrees). Must be between 0 (horizontal ticks, default) and 90 (vertical ticks). 
 
-* `ticksX, ticksY`- set of ticks for the axes. 
+*   `ticksX, ticksY` - sets of ticks for the axes. 
  
  Interactivity settings
+  
+
+*   `on_click` - a function, to be called when one of the lines is clicked. Gets an index of the clicked line as an argument. 
+
+*   `on_clickPosition` - a function, to be called when any point of the chart is clicked. Unlike `on_click` , which is called only when an element of the chart (point, line, etc.) is clicked, this function reacts to any click on the chart. As an argument, it receives a vector of x and y coordinates of the click (based on the current axes scales). If one of the axes is categorical, the function will get the closest tick to the clicked position. 
+
+*   `on_mouseover` - a function, to be called when the mouse hovers over one of the lines. Gets an index of the clicked line as an argument. 
+
+*   `on_mouseout` - a function, to be called when the mouse moves out of one of the lines. 
+
+*   `on_marked` - a function, to be called when any of the lines are selected (marked) or deselected. Use [`getMarked`](#getmarked) function to get the IDs of the currently marked lines. To mark lines, select them with your mouse while holding the Shift key. 
  
+ Legend settings
+  
 
-* `on_click`- function, to be called, when one of the lines is clicked. Gets anindex of the clicked line as an argument.
+*   `legend_width` - width of the legend in pixels. The default value is 200. 
 
-* `on_clickPosition`- function, to be called, when any point of the chart is clicked. Unlike`on_click`which is called only when an element of the chart (point, line, etc.) is clicked, thisfunction reacts to any click on the chart. As an argument it receives a vector of x and y coordinates ofthe click (based on the current axes scales). If one of the axes is categorical, then the function willget the closest tick to the clicked position.
+*   `legend_height` - height of the legend in pixels. By default, it is equal to the height of the chart. 
 
-* `on_mouseover`- function, to be called, when mouse hovers over one of the lines.Gets an index of the clicked line as an argument.
+*   `legend_sampleHeight` - height of a single key of the legend in pixels. The default value is 20. 
 
-* `on_mouseout`- function, to be called, when mouse moves out of one of the lines.
+*   `legend_ncol` - number of columns to order several legends. By default, this is defined from the number of legends to reach close to a square shape. 
 
-* `on_marked`- function, to be called, when any of the lines are selected (marked)or deselected. Use[`getMarked`](#getmarked)function to get the IDs of the currently marked lines. To mark lines,select them with your mouse while holding theShiftkey. 
+*   `legend_container` - a DOM element of the web page where to place the legend. By default, the legend is positioned to the right from the chart in a table cell specifically made for it. This should be a valid CSS selector. If the specified element does not exist, the legend will be added to the web page's body. \
  
  Global chart settings
- 
+  
 
-* `width`- width of the chart in pixels.
+*   `width` - width of the chart in pixels. 
 
-* `heigth`- height of the chart in pixels.
+*   `heigth` - height of the chart in pixels. 
 
-* `plotWidth`- width of the plotting area in pixels.
+*   `plotWidth` - width of the plotting area in pixels. 
 
-* `plotHeight`- height of the plotting area in pixels.
+*   `plotHeight` - height of the plotting area in pixels. 
 
-* `paddings`- padding sizes in pixels. Must be a list with all the following fields:`"top", "bottom", "left", "right"`.
+*   `paddings` - padding sizes in pixels. Must be a list with all the following fields: `"top", "bottom", "left", "right"` . 
 
-* `title`- title of the chart.
+*   `title` - a title of the chart. 
 
-* `titleX, titleY`- coordinates of the chart title.
+*   `titleX, titleY` - coordinates of the chart title. 
 
-* `titleSize`- font-size of the chart title.
+*   `titleSize` - font-size of the chart title. 
 
-* `showLegend`- whether or not to show the legend.
+*   `showLegend` - whether or not to show the legend. 
 
-* `showPanel`- whether of not to show the instrument panel (gray triangle in the upper-left corner of the chart).
+*   `showPanel` - whether of not to show the instrument panel (grey triangle in the upper-left corner of the chart). 
 
-* `transitionDuration`- duration of the transitions between any two states of the chart. If 0,no animated transition is shown. It can be useful to turn the transition off, when lots of frequentchanges happen to the chart.
+*   `transitionDuration` - duration of the transitions between any two states of the chart. If 0, no animated transition is shown. It can be useful to turn the transition off, when lots of frequent changes happen to the chart.
 
 
 ## Examples
@@ -1148,21 +1199,21 @@ lc_beeswarm(
 
 Argument      |Description
 ------------- |----------------
-`data`     |     Name value pairs of properties, passed through the [`dat`](#dat) function. These properties will be reevaluated on each [`updateCharts`](#updatecharts) call.
-`place`     |     ID of a container, where to place new chart. Will be ignored if the chart already exists. If not defined, the chart will be appended to the body of the web pages.
+`data`     |     Name-value pairs of properties passed through the [`dat`](#dat) function. These properties will be re-evaluated on each [`updateCharts`](#updatecharts) call.
+`place`     |     An ID of the container, where to place new chart. It will be ignored if the chart already exists. If not defined, the chart will be appended to the web page's bodys.
 `...`     |     Name-value pairs of properties that will be evaluated only once and then will remain constant. These properties can still be changed later using the [`setProperties`](#setproperties) function.
-`chartId`     |     ID for the chart. All charts must have unique IDs. If a chart with the same ID already exists, it will be replaced unless `addLayer = TRUE` . If ID is not defined, it will be the same as value of the `place` argument. And if both are not defined, the ID will be set to `ChartN` , where `N - 1` is the number of existing charts.
-`layerId`     |     An ID for the new layer. All layers within one chart must have different IDs. If a layer with the same ID already exists, it will be replaced. If not defined, will be set to `LayerN` , where `N - 1`  is the number of currently existing layers in this chart.
-`with`     |     A data set from which other properties should be taken. If the data set doesn't have a column with the requested name, the variable will be searched for outside of the data set. Must be a data.frame or a list.
-`addLayer`     |     if there is already a chart with the same ID, this argument defines whether to replace it or to add a new layer to it. This argument is ignored if both `place` and `chartId` are `NULL` or if there is no chart with the given ID.
-`pacerStep`     |     Time in ms between two consecutive calls of an `onmouseover` event. Prevents overqueuing in case of cumbersome computations. May be important when the chart works in canvas mode.
+`chartId`     |     An ID for the chart. All charts must have unique IDs. If a chart with the same ID already exists, it will be replaced unless `addLayer = TRUE` . If ID is not defined, it will be the same as the value of the `place` argument. And if both are not defined, the ID will be set to `ChartN` , where `N - 1` is the number of existing charts.
+`layerId`     |     An ID for the new layer. All layers within one chart must have different IDs. If a layer with the same ID already exists, it will be replaced. If not defined, it will be set to `LayerN` , where `N - 1`  is the current number of layers in this chart.
+`with`     |     A dataset or a list from which other properties should be taken. If the dataset doesn't have a column with the requested name, the variable will be searched for outside of the dataset. Must be a `data.frame` or a `list` .
+`addLayer`     |     If there is already a chart with the same ID, this argument defines whether to replace it or to add a new layer to it. This argument is ignored if both `place` and `chartId` are `NULL` or if there is no chart with the given ID.
+`pacerStep`     |     Time in ms between two consecutive calls of an `onmouseover` event. Prevents over-queueing in case of cumbersome computations. May be important when the chart works in canvas mode.
 
 
 ## Functions
 
-* `lc_scatter`: creates a scatterplot and adds it as a new layer to an existing chart orcreates a new one.
+*   `lc_scatter` : creates a scatterplot and adds it as a new layer to an existing chart or creates a new one.  
 
-* `lc_beeswarm`: creates a special kind of scatterplot, where the points are spread along one ofthe axes to avoid overlapping.
+*   `lc_beeswarm` : creates a special kind of scatterplot, where the points are spread along one of the axes to avoid overlapping.
 
 
 ## Available Properties
@@ -1170,107 +1221,122 @@ Argument      |Description
 You can read more about different properties
  [here](https://anders-biostat.github.io/linked-charts/rlc/tutorials/props.html) .
  
- 
+  
 
-* `x, y`- vector of x and y coordinates of the points.
+*   `x, y` - vector of x and y coordinates of the points. 
 
-* `size`- sizes of the points. Default size is 6.
+*   `size` - sizes of the points. Default size is 6. 
 
-* `opacity`- opacity of each point in the range from 0 to 1.
+*   `opacity` - a vector of opacity values for each point in the range from 0 to 1. 
 
-* `label`- vector of text labels for each point (labels by default are shown, when mouse hovers over a point).
+*   `label` - vector of text labels for each point (labels by default are shown, when mouse hovers over a point). 
 
-* `valueAxis`- (for`lc_beeswarm`only) defines axis with values that willnot be changed. Must be`"x"`or`"y"`(default). 
+*   `valueAxis` - (for `lc_beeswarm` only) defines axis with values that will not be changed. Must be `"x"` or `"y"` (default). 
+
+*   `informText` - text that appears when the mouse cursor moves over an element. Unlike `label` , completely overwrites the tooltip content with a custom HTML code. Must be a vector of characters (HTML code for each element). 
  
  Colour and shape settings
- 
+  
 
-* `colour`- colour of the points. Must be a colour name or hexadecimal code.
+*   `colour` - colour of the points. Must be a colour name or a hexadecimal code. 
 
-* `colourValue`- grouping values for different colours. Can be numbers or characters.
+*   `colourValue` - grouping values for different colours. Can be numbers or characters. 
 
-* `colourDomain`- vector of all possible values for discrete colour scalesor range of all possible colour values for the continuous ones.
+*   `colourDomain` - a vector of all possible values for discrete colour scales or a range of all possible colour values for the continuous ones. 
 
-* `palette`- vector of colours to construct the colour scale.
+*   `palette` - a vector of colours to construct the colour scale. 
 
-* `colourLegendTitle`- title for the colour legend.
+*   `colourLegendTitle` - a title for the colour legend. 
 
-* `addColourScaleToLegend`- whether or not to show colour legend for the current layer.
+*   `addColourScaleToLegend` - whether or not to show the colour legend for the current layer. 
 
-* `globalColourScale`- whether or not to use one colour scale for all the layers.
+*   `globalColourScale` - whether or not to use one colour scale for all the layers. 
 
-* `symbol`- shape of each point. Must be one of`"Circle"`,`"Cross"`,`"Diamond"`,`"Square"`,`"Star"`,`"Triangle"`,`"Wye"`.
+*   `symbol` - shape of each point. Must be one of `"Circle"` , `"Cross"` , `"Diamond"` , `"Square"` , `"Star"` , `"Triangle"` , `"Wye"` . 
 
-* `symbolValue`- grouping values for different symbols.
+*   `symbolValue` - grouping values for different symbols. 
 
-* `symbolLegendTitle`- title for the symbol value.
+*   `symbolLegendTitle` - a title for the symbol value. 
 
-* `stroke`- stroke colour for each element. Must be a colour name or hexadecimal code.
+*   `stroke` - stroke colour for each element. Must be a colour name or a hexadecimal code. 
 
-* `strokeWidth`- width of the strokes for each point. 
+*   `strokeWidth` - width of the strokes for each point. 
  
  Axes settings
- 
+  
 
-* `logScaleX, logScaleY`- a base of logarithm for logarithmic scale transformation.If 0 or`FALSE`no transformation will be performed.
+*   `logScaleX, logScaleY` - a base of logarithm for logarithmic scale transformation. If 0 or `FALSE` no transformation will be performed. 
 
-* `jitterX, jitterY`- amount of random variation to be added to the position of thepoints along one of the axes. 0 means no variation. 1 stands for distance between`x`and`x + 1`for linear scale,`x`and`b*x`for logarithmic scale (`b`is a baseof the logarithm), or between neighbouring ticks for categorical scale.
+*   `jitterX, jitterY` - amount of random variation to be added to the position of the points along one of the axes. 0 means no variation. 1 stands for distance between `x` and `x + 1` for linear scale, `x` and `b*x` for logarithmic scale ( `b` is a base of the logarithm), or between neighbouring ticks for categorical scale. 
 
-* `shiftX, shiftY`- shift for each point from its original position along one of theaxes. 0 means no shift. 1 stands for distance between`x`and`x + 1`for linear scale,`x`and`b*x`for logarithmic scale (`b`is a baseof the logarithm), or between neighbouring ticks for categorical scale.
+*   `shiftX, shiftY` - shift for each point from its original position along one of the axes. 0 means no shift. 1 stands for distance between `x` and `x + 1` for linear scale, `x` and `b*x` for logarithmic scale ( `b` is a base of the logarithm), or between neighbouring ticks for categorical scale. 
 
-* `layerDomainX, layerDomainY`- default axes ranges for the given layer.
+*   `layerDomainX, layerDomainY` - default axes ranges for the given layer. 
 
-* `domainX, domainY`- default axes ranges for the entire chart. If not defined,is automatically set to include all layer domains.
+*   `domainX, domainY` - default axes ranges for the entire chart. If not defined, it is automatically set to include all layer domains. 
 
-* `contScaleX, contScaleY`- whether or not the axis should be continuous.
+*   `contScaleX, contScaleY` - whether or not the axis should be continuous. 
 
-* `aspectRatio`- aspect ratio.
+*   `aspectRatio` - an aspect ratio for the chart. 
 
-* `axisTitleX, axisTitleY`- axes titles.
+*   `axisTitleX, axisTitleY` - axis titles. 
 
-* `axisTitlePosX, axisTitlePosY`- position of axes titles. For each axis one can specify title positionacross or along the corresponding axis. Possible options are`"up"`(for title inside the plotting area)or`"down"`(outside the plotting area, under the axis), and`"start"`,`"middle"`,`"end"`. This property must be a string with one or two of the aforementioned options(e.g.`"middle down"`,`"start"`, etc.).
+*   `axisTitlePosX, axisTitlePosY` - positions of the axis titles. For each axis, one can specify a title position across or along the corresponding axis. Possible options are `"up"` (for title inside the plotting area) or `"down"` (outside the plotting area, under the axis), and `"start"` , `"middle"` , `"end"` . This property must be a string with one or two of the aforementioned options (e.g. `"middle down"` , `"start"` , etc.). 
 
-* `ticksRotateX, ticksRotateY`- angle by which to rotate ticks (in degrees). Must be between0 (horizontal ticks, default) and 90 (vertical ticks).
+*   `ticksRotateX, ticksRotateY` - angles by which to rotate ticks (in degrees). Must be between 0 (horizontal ticks, default) and 90 (vertical ticks). 
 
-* `ticksX, ticksY`- set of ticks for the axes. 
+*   `ticksX, ticksY` - sets of ticks for the axes. 
  
  Interactivity settings
+  
+
+*   `on_click` - a function, to be called when one of the points is clicked. Gets an index of the clicked point as an argument. 
+
+*   `on_clickPosition` - a function, to be called when any point of the chart is clicked. Unlike `on_click` , which is called only when an element of the chart (point, line, etc.) is clicked, this function reacts to any click on the chart. As an argument, it receives a vector of x and y coordinates of the click (based on the current axes scales). If one of the axes is categorical, the function will get the closest tick to the clicked position. 
+
+*   `on_mouseover` - a function, to be called when the mouse hovers over one of the points. Gets an index of the clicked point as an argument. 
+
+*   `on_mouseout` - a function, to be called when the mouse moves out of one of the points. 
+
+*   `on_marked` - a function, to be called when any of the points are selected (marked) or deselected. Use [`getMarked`](#getmarked) function to get the IDs of the currently marked points. To mark points, select them with your mouse while holding the Shift key. 
  
+ Legend settings
+  
 
-* `on_click`- function, to be called, when one of the points is clicked. Gets anindex of the clicked point as an argument.
+*   `legend_width` - width of the legend in pixels. The default value is 200. 
 
-* `on_clickPosition`- function, to be called, when any point of the chart is clicked. Unlike`on_click`which is called only when an element of the chart (point, line, etc.) is clicked, thisfunction reacts to any click on the chart. As an argument it receives a vector of x and y coordinates ofthe click (based on the current axes scales). If one of the axes is categorical, then the function willget the closest tick to the clicked position.
+*   `legend_height` - height of the legend in pixels. By default, it is equal to the height of the chart. 
 
-* `on_mouseover`- function, to be called, when mouse hovers over one of the points.Gets an index of the clicked point as an argument.
+*   `legend_sampleHeight` - height of a single key of the legend in pixels. The default value is 20. 
 
-* `on_mouseout`- function, to be called, when mouse moves out of one of the points.
+*   `legend_ncol` - number of columns to order several legends. By default, this is defined from the number of legends to reach close to a square shape. 
 
-* `on_marked`- function, to be called, when any of the points are selected (marked)or deselected. Use[`getMarked`](#getmarked)function to get the IDs of the currently marked points. To mark points,select them with your mouse while holding theShiftkey. 
+*   `legend_container` - a DOM element of the web page where to place the legend. By default, the legend is positioned to the right from the chart in a table cell specifically made for it. This should be a valid CSS selector. If the specified element does not exist, the legend will be added to the web page's body. 
  
  Global chart settings
- 
+  
 
-* `width`- width of the chart in pixels.
+*   `width` - width of the chart in pixels. 
 
-* `heigth`- height of the chart in pixels.
+*   `heigth` - height of the chart in pixels. 
 
-* `plotWidth`- width of the plotting area in pixels.
+*   `plotWidth` - width of the plotting area in pixels. 
 
-* `plotHeight`- height of the plotting area in pixels.
+*   `plotHeight` - height of the plotting area in pixels. 
 
-* `paddings`- padding sizes in pixels. Must be a list with all the following fields:`"top", "bottom", "left", "right"`.
+*   `paddings` - padding sizes in pixels. Must be a list with all the following fields: `"top", "bottom", "left", "right"` . 
 
-* `title`- title of the chart.
+*   `title` - a title of the chart. 
 
-* `titleX, titleY`- coordinates of the chart title.
+*   `titleX, titleY` - coordinates of the chart title. 
 
-* `titleSize`- font-size of the chart title.
+*   `titleSize` - font-size of the chart title. 
 
-* `showLegend`- whether or not to show the legend.
+*   `showLegend` - whether or not to show the legend. 
 
-* `showPanel`- whether of not to show the instrument panel (gray triangle in the upper-left corner of the chart).
+*   `showPanel` - whether of not to show the instrument panel (grey triangle in the upper-left corner of the chart). 
 
-* `transitionDuration`- duration of the transitions between any two states of the chart. If 0,no animated transition is shown. It can be useful to turn the transition off, when lots of frequentchanges happen to the chart.
+*   `transitionDuration` - duration of the transitions between any two states of the chart. If 0, no animated transition is shown. It can be useful to turn the transition off, when lots of frequent changes happen to the chart.
 
 
 ## Examples
@@ -1320,67 +1386,67 @@ Object of this class represents the entire linked-charts app. It stores all char
 
 - Removes a chart with the given ID from the app. See also [`removeChart`](#removechart) .
 
-`removeLayer(chartId, layerId)`
+  `removeLayer(chartId, layerId)`
 
 - Removes a layer from a chart by their IDs. See also [`removeLayer`](#removelayer) .
 
-`setProperties(data, chartId, layerId = NULL)`
+  `setProperties(data, chartId, layerId = NULL)`
 
 - Changes or sets properties for a given chart and layer. For more information, please, check [`setProperties`](#setproperties) .
 
-`updateCharts(chartId = NULL, layerId = NULL, updateOnly = NULL, sessionId = NULL)`
+  `updateCharts(chartId = NULL, layerId = NULL, updateOnly = NULL, sessionId = NULL)`
 
 - Updates charts or specific layers for one or multiple users. For more information on the arguments, please, check [`updateCharts`](#updatecharts) .
 
-`chartEvent(d, chartId, layerId = "main", event, sessionId = NULL)`
+  `chartEvent(d, chartId, layerId = "main", event, sessionId = NULL)`
 
 - Triggers a reaction to mouse event on a web page. Generally, this method is not supposed to be called explicitly. It is called internally each time, client clicks or hovers over an interactive chart element. However, experienced users can use this method to simulate mouse events on the R side. For more information on the arguments, please, check [`chartEvent`](#chartevent) .
 
-`listCharts()`
+  `listCharts()`
 
 - Prints a list of all existing charts and their layers. See also [`listCharts`](#listcharts) .
 
-`getMarked(chartId = NULL, layerId = NULL, sessionId = NULL)`
+  `getMarked(chartId = NULL, layerId = NULL, sessionId = NULL)`
 
 - Returns a vector of indices of all currently marked elements of a certain chart and layer and from a given client. For more information, please, check [`getMarked`](#getmarked) .
 
-`mark(elements, chartId = NULL, layerId = NULL, preventEvent = TRUE, sessionId = NULL)`
+  `mark(elements, chartId = NULL, layerId = NULL, preventEvent = TRUE, sessionId = NULL)`
 
 - Marks elements of a given chart and layer on one of the currently opened web pages. Please, check [`mark`](#mark) for more information on the arguments.
 
-`setChart(chartType, data, ..., place = NULL, chartId = NULL, layerId = NULL, [...])`
+  `setChart(chartType, data, ..., place = NULL, chartId = NULL, layerId = NULL, [...])`
 
-- Adds a new chart (or replaces an existing one) to the app. This is the main method of the package, that allows to define any chart and all its properties. There are multiple wrappers for this method - one for each type of chart. Here is a full list: 
+- Adds a new chart (or replaces an existing one) to the app. This is the main method of the package, that allows to define any chart and all its properties. There are multiple wrappers for this method - one for each type of chart. Here is a full list:  
 
-* [`lc_scatter`](#lcscatter)
+*   [`lc_scatter`](#lcscatter)  
 
-* [`lc_beeswarm`](#lcbeeswarm)
+*   [`lc_beeswarm`](#lcbeeswarm)  
 
-* [`lc_line`](#lcline)
+*   [`lc_line`](#lcline)  
 
-* [`lc_path`](#lcpath)
+*   [`lc_path`](#lcpath)  
 
-* [`lc_ribbon`](#lcribbon)
+*   [`lc_ribbon`](#lcribbon)  
 
-* [`lc_bars`](#lcbars)
+*   [`lc_bars`](#lcbars)  
 
-* [`lc_hist`](#lchist)
+*   [`lc_hist`](#lchist)  
 
-* [`lc_dens`](#lcdens)
+*   [`lc_dens`](#lcdens)  
 
-* [`lc_heatmap`](#lcheatmap)
+*   [`lc_heatmap`](#lcheatmap)  
 
-* [`lc_colourSlider`](#lccolourslider)
+*   [`lc_colourSlider`](#lccolourslider)  
 
-* [`lc_abLine`](#lcabline)
+*   [`lc_abLine`](#lcabline)  
 
-* [`lc_vLine`](#lcvline)
+*   [`lc_vLine`](#lcvline)  
 
-* [`lc_html`](#lchtml)
+*   [`lc_html`](#lchtml)  
 
-* [`lc_input`](#lcinput)  You can check the wrapper functions for information about arguments and available properties. Compared to them, this method gets additional argument `chartType` , which is always the same as the second part of the name of a corresponding wrapper function ( `lc_'chartType'` ). In all other aspects, wrapper functions and the `setChart`  method are the same.
+*   [`lc_input`](#lcinput)   You can check the wrapper functions for information about arguments and available properties. Compared to them, this method gets additional argument `chartType` , which is always the same as the second part of the name of a corresponding wrapper function ( `lc_'chartType'` ). In all other aspects, wrapper functions and the `setChart`  method are the same.
 
-`new(layout = NULL, beforeLoad = function(s) {}, afterLoad = function(s) {}, ...)`
+  `new(layout = NULL, beforeLoad = function(s) {}, afterLoad = function(s) {}, ...)`
 
 - Creates new instance of class `LCApp` . Most of its arguments are inherited from method `new` of class [`App`](#app) from the `jrc` package. There are only three arguments specific for the `LCApp` class. `layout` sets a default layout for each new webpage (currently only tables of arbitrary size are supported). `beforeLoad` and `afterLoad` replace `onStart` from the [`App`](#app)  class. For more information, please, check [`openPage`](#openpage) .
 
@@ -1654,7 +1720,7 @@ Argument      |Description
 `data`     |     List of properties to be redefined for this layer or chart. Created by the [`dat`](#dat)  function.
 `chartId`     |     ID of the chart, for which to redefine properties.
 `layerId`     |     ID of the layer, for which to redefine properties. If the chart has a single layer or doesn't have layers, default value (which is NULL) can be used.
-`with`     |     A data set from which other properties should be taken. If the data set doesn't have a column with the requested name, the variable will be searched for outside of the data set. Must be a data.frame or a list.
+`with`     |     A dataset or a list from which other properties should be taken. If the dataset doesn't have a column with the requested name, the variable will be searched for outside of the dataset. Must be a `data.frame` or a `list` .
 
 
 ## Examples
@@ -1704,7 +1770,7 @@ Argument      |Description
 Linked charts of the rlc package are based on the idea that the variables that are
  used to define a chart are not constant, but can change as a result of user's
  actions. Each time the `updateCharts` function is called, all the properties that were set inside
- the [`dat`](#dat) function are reevaluated and the chart is redrawn in accordance with the
+ the [`dat`](#dat) function are re-evaluated and the chart is redrawn in accordance with the
  new state.
  
  If this function is called from the R session, changes will be applied
@@ -1721,43 +1787,43 @@ To improve performance you can update only a certain part of a chart (e.g. colou
  possible values for this argument.
  
  These are valid for all the charts:
- 
+  
 
-* `Size`changes the size of the chart (and consequently positionof all its elements).
+*   `Size` changes the size of the chart (and consequently position of all its elements). 
 
-* `Title`changes the title of the chart.
+*   `Title` changes the title of the chart. 
 
-* `Canvas`If number of elements is too high thecharts switch to the canvas mode and instead of multiple SVG point or cellsa single Canvas image is generated. This type of update redraws the Canvasimage.It is not recommended to use this option, since it will be used automatically when necessary. 
+*   `Canvas` If number of elements is too high the charts switch to the canvas mode and instead of multiple SVG point or cells a single Canvas image is generated. This type of update redraws the Canvas image. It is not recommended to use this option, since it will be used automatically when necessary.  
  
  These can be updated only in heatmaps ( [`lc_heatmap`](#lcheatmap) ):
- 
+  
 
-* `Labels`adds new row and column labels and removes those that are no longerneeded. Also updates`Cells`.
+*   `Labels` adds new row and column labels and removes those that are no longer needed. Also updates `Cells` . 
 
-* `Cells`adds new cells and removes those that are no longer needed.Also updates`Texts`if necessary.
+*   `Cells` adds new cells and removes those that are no longer needed. Also updates `Texts` if necessary. 
 
-* `Texts`adds or remove text inside cells where needed.
+*   `Texts` adds or remove text inside cells where needed. 
 
-* `LabelPosition`updates coordinates of all existing row and column labels.Also updates`CellPosition`.
+*   `LabelPosition` updates coordinates of all existing row and column labels. Also updates `CellPosition` . 
 
-* `CellPosition`updates coordinates of all existing cells. Alsoupdates`TextPosition`if necessary.
+*   `CellPosition` updates coordinates of all existing cells. Also updates `TextPosition` if necessary. 
 
-* `LabelText`updates text of all existing labels.
+*   `LabelText` updates text of all existing labels. 
 
-* `CellColour`updates colour of all existing cells. Alsoupdates`TextValues`if necessary.
+*   `CellColour` updates colour of all existing cells. Also updates `TextValues` if necessary. 
 
-* `TextValues`updates text inside cells to make it up to date with currentdata values. 
+*   `TextValues` updates text inside cells to make it up to date with current data values. 
  
  These aspects are present in all the charts with axes.
- 
+  
 
-* `Axes`updates axes of a chart and changes positionof its elements (points, lines, etc.) accordingly.
+*   `Axes` updates axes of a chart and changes position of its elements (points, lines, etc.) accordingly. 
 
-* `Elements`updates (add or removes) all the elements of the layer.
+*   `Elements` updates (add or removes) all the elements of the layer. 
 
-* `ElementPosition`updates positions of all the elements in the layer.
+*   `ElementPosition` updates positions of all the elements in the layer. 
 
-* `ElementStyle`updates the style (colour, opacity, etc.) of all the elementsof the layer.
+*   `ElementStyle` updates the style (colour, opacity, etc.) of all the elements of the layer.
 
 
 ## Examples

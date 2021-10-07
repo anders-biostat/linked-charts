@@ -6,21 +6,26 @@ showGallery: "true"
 
 # R/LinkedCharts
 
+R/LinkedCharts is a powerful novel way to perform exploratory data analysis in R. With only very few lines of code, you can create interactive data visualization apps that allow you to simultaneously get an overview of your data and dive deeply into details.
+
 <div class="gallery"></div>
 
-R/LinkedCharts is a powerful novel way to perform exploratory data analysis in R. With only very few lines of code, you can create interactive data visualization apps that allow you to simuyltaneously get an overview of your data and dive deeply into details.
-
-See the Examples and Tutorials section for simple (and more complex) usage examples.
+See the examples above and the Tutorials section in the navigation menu for simple (and more complex) usage examples.
 
 ## Installation
 
-To install R/LinkedCharts, start R and type
+R/LinkedCharts is available on CRAN as the `rlc` package. To install R/LinkedCharts, start R and type
+
+```r
+install.packages("rlc")
+```
+
+A more recent version can be installed from our [GitHub repo](https://github.com/anders-biostat/rlc).
 
 ```r
 install.packages( "devtools" )
 devtools::install_github( "anders-biostat/rlc" )
 ```
-
 
 ## Examples and Tutorials
 
@@ -30,26 +35,24 @@ devtools::install_github( "anders-biostat/rlc" )
 
 #### Exploring single-cell data
 
-[**This tutorial**](tutorials/citeseq1.html) uses the "CiteSeq" data set by Stoecklin et al. to demonstrate how LinkedCharts can help you to understand your single-cell transcriptomics data. It introduces `lc_scatter`, the workhorse of R/LinkedCharts, which produces interactively linked scatter plots. Like the previous one, this tutorial is a good way to get started and get a quick idea what you can do with R/LinkedCharts.
+[**This tutorial**](tutorials/citeseq1.html) uses the "CiteSeq" data set by Stoecklin et al. to demonstrate how LinkedCharts can help you to understand your single-cell transcriptomics data. It introduces `lc_scatter`, the workhorse of R/LinkedCharts, which produces interactively linked scatter plots. Like the previous one, this tutorial is a good way to get started and get a quick idea of what you can do with R/LinkedCharts.
 
-#### A multicolored t-SNE plot
+#### A multicoloured t-SNE plot
 
-[**This tutorial**](tutorials/citeseq2.html) continues from the previous one and demonstrated how you can leverage standard HTML5 and JavaScript techniques and make them interact smoothly with R/LinkedCharts functions.
+[**This tutorial**](tutorials/citeseq2.html) continues from the previous one and demonstrates how you can leverage standard HTML5 and JavaScript techniques and make them interact smoothly with R/LinkedCharts functions.
 
 #### User input
 
 [**Here**](tutorials/inputs.html) you can learn how to add forms for user input and use this input to change your charts.
 
 
-#### Customise your cahrt
+#### Customise your chart
 
-[**Here**](tutorials/props.html) you can find use cases of all the adjustable parameters in R/LinkedCharts. This tutorial demonstrates how to youse colours, change shape of elements, add titles, use all built-in parameters to
-control interactivity, etc.
+[**Here**](tutorials/props.html) you can find use cases of all the adjustable parameters in R/LinkedCharts. This tutorial demonstrates how to youse colours, change the shape of elements, add titles, use all built-in parameters to control interactivity, etc.
 
 ## Questions
 
 If you have any questions, send us an e-mail, or, even better, ask them at the [R/LinkedCharts Issue Tracker](https://github.com/anders-biostat/rlc/issues).
-
 
 ## Authors
 
