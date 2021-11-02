@@ -2,7 +2,7 @@ import { get_symbolSize } from "./additionalFunctions";
 
 export function legend(chart) {
 	var legend = lc.base()
-		.add_property("width", 200)
+		.add_property("width", 100)
 		.add_property("height", function() {return chart.height();})
 		.add_property("sampleHeight", 20)
 		.add_property("titles", {})

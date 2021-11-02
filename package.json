@@ -16,10 +16,10 @@
     "minify": "uglifyjs build/linked-charts.js -c -m -o build/linked-charts.min.js"
   },
   "devDependencies": {
-    "rollup": "^0.27",
+    "rollup": "^0.27.1",
     "rollup-watch": "^3.2.2",
     "tape": "^4",
-    "uglify-js": "^2.8.29",
-    "uglify-es": "^3.3.9"
+    "uglify-es": "^3.3.9",
+    "uglify-js": "^2.8.29"
   }
 }
