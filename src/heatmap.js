@@ -457,8 +457,8 @@ export function heatmap(id, chart){
 		}
 
 		chart.canvas
-			.style("left", (+chart.paddings().left + 3) + "px")
-			.style("top", (+chart.paddings().top + 3) + "px")
+			.style("left", chart.paddings().left + "px")
+			.style("top", chart.paddings().top + "px")
 			.attr("width", chart.plotWidth())
 			.attr("height", chart.plotHeight());		
 
