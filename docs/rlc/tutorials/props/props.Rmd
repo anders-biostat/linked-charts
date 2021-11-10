@@ -10,20 +10,14 @@ useLC: true
 ## R/LinkedCharts Tutorial
 # Customising your chart
 
-Here, we show how one can use various built-in properties to customise charts.
-The main goal of this tutorial is to give overview of the adjuststable apects in R/LinkedCharts, 
-(colours, axes, labels, etc.). Therefore we are going to use well known example data sets
-such as [Iris](https://en.wikipedia.org/wiki/Iris_flower_data_set) flower data set or randomly 
-generated data. 
+Here, we show how one can use various built-in properties to customise charts. The main goal of this tutorial is to give an overview of the adjustable aspects in R/LinkedCharts, (colours, axes, labels, etc.). Therefore, we will use well-known example data sets such as [Iris](https://en.wikipedia.org/wiki/Iris_flower_data_set) flower data set or randomly generated data. 
 
 ```{r}
 data("iris") # load Iris data set
 head(iris)
 ```
 
-We assume that you are already familiar with R/LinkedCharts and its main ideas and principles
-and you want to explore more possibilities of the library. Otherwise, we recommend first to 
-go through [this](oscc.html) tutorial.
+We assume that you are already familiar with R/LinkedCharts and its central ideas and principles, and you want to explore more possibilities of the library. Otherwise, we recommend first to go through [this](oscc.html) tutorial.
 
 ```{r message=FALSE}
 library(rlc) # load the library
@@ -42,9 +36,7 @@ This section describes the following properties:
 - `globalColourScale`
 - `addColourScaleToLegend`
 
-The simplest way to colour elements of a chart is to use the `colourValue` property.
-It takes numbers or strings for each point (line, bar, etc.) and based on that generates
-a continuous or categorical colour scale.
+The simplest way to colour elements of a chart is to use the `colourValue` property. It takes numbers or strings for each point (line, bar, etc.) and generates a continuous or categorical colour scale based on that.
 
 ```{r message=FALSE}
 openPage(layout = "table1x2")
@@ -68,14 +60,11 @@ lc_scatter(dat(x = iris$Sepal.Length,
   <table><tr><td id ="A1"></td><td id="A2"></td></tr></table>
 </div>
 
-To further specify colours one can use `palette` and `colourDomain` properties. 
+To further specify colours, one can use `palette` and `colourDomain` properties. 
 
-In case of categorical colour scale `colourDomain` is a set of all possible colour values.
-Thus for the chart on the left by default `colourDomain = c("setosa", "versicolor", "virginica")`.
-If a value is not included in colourDomain, corresponding points will be black.
+In the case of a categorical colour scale, `colourDomain` is a set of all possible colour values. Thus for the chart on the left by default `colourDomain = c("setosa", "versicolor", "virginica")`. If a value is not included in the colour domain, the corresponding points will be black.
 
-For continuous colour scales, `colourDomain` defines the range in wich colour values can change. All values
-outside this range will produce colours that correspond to maximal or to minimal value of the `colourDomain`.
+For continuous colour scales, `colourDomain` defines the range in which colour values can change. All values outside this range will produce colours corresponding to the maximal or minimum value of the `colourDomain`.
 
 To illustrate all this, let's add `colourDomain` to our example.
 
@@ -102,16 +91,9 @@ lc_scatter(dat(x = iris$Sepal.Length,
   <table><tr><td id = "A1"></td><td id = "A2"></td></tr></table>
 </div>
 
-On the left plot, all the "versicolor" points are now black, since this value is no longer present in
-`colourDomain`. At the same time, orange colour is reserved for "something else". On the plot to the right,
-colour scale now varies between -1 and 1. All the points with `colourValue` greater than 1 are just purple.
+All the "versicolor" points on the left plot are now black since this value is no longer present in `colourDomain`. At the same time, the orange colour is reserved for "something else". On the plot to the right, the colour scale now varies between -1 and 1. All the points with `colourValue` greater than 1 are just purple.
 
-Finally, `palette` defines what colours are used. It is always a vector of colours (their 
-[names](http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf) or
-[hexadecimal](https://en.wikipedia.org/wiki/Web_colors#HTML_color_names) codes). For categorical colour scale,
-`palette` must have a colour for each element from `colourDomain`. For continous scales, `palette` is a set of
-"reference points" for the colour scale. By default, they are spread evenly withing `colourDomain`, but one can
-also specify intermediate points.
+Finally, `palette` defines what colours are used. It is always a vector of colours (their [names](http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf) or [hexadecimal](https://en.wikipedia.org/wiki/Web_colors#HTML_color_names) codes). For categorical colour scale, `palette` must have a colour for each element from `colourDomain`. For continuous scales, `palette` is a set of "reference points" for the colour scale. By default, they are spread evenly withing `colourDomain`, but one can also specify intermediate points.
 
 ```{r message=FALSE}
 openPage(layout = "table1x2")
@@ -138,14 +120,9 @@ lc_scatter(dat(x = iris$Sepal.Length,
   <table><tr><td id = "A1"></td><td id = "A2"></td></tr></table>
 </div>
 
-Now chart to the left has more elements in `colourDomain` than colours in `palette` and therefore colours are repeated, 
-starting from the first element in `palette`. For the chart to the right we've provided `palette` with three colours
-and also we've added an intermediate point in `colourDomain`. This tells R/LinkedCharts to interpolate colours from red to grey
-between 0 and 0.3 and from grey to black between 0.3 and 2.6.
+Now chart to the left has more elements in `colourDomain` than colours in `palette`, and therefore colours are repeated, starting from the first element in `palette`. For the chart to the right, we've provided `palette` with three colours, and also we've added an intermediate point in `colourDomain`. This tells R/LinkedCharts to interpolate colours from red to grey between 0 and 0.3 and from grey to black between 0.3 and 2.6.
 
-Intead of using `colourValue` and `palette` one can also assign colours directly. `colour` is similar to `colourValue`, 
-but it assigns colours without generating a colour scale. Here is an example. Note how the fifth circle is coloured black,
-since `some_strange_colour` doesn't correspond to any colour.
+Instead of using `colourValue` and `palette`, one can also assign colours directly. `colour` is similar to `colourValue`, but it assigns colours without generating a colour scale. Here is an example. Note how the fifth circle is coloured black since `some_strange_colour` doesn't correspond to any colour.
 
 
 ```{r message=FALSE}
@@ -159,8 +136,7 @@ lc_scatter(dat(x = 1:5,  # x-coordinates of the points are 1, 2, 3, 4, 5
 ```
 <div id = "example4"></div>
 
-Besides that you can also change stroke colour (`stroke`) in scatters, bar charts and ribbons and `fill` lines (`lc_line`, 
-`lc_abLine`, etc.) with some colour. These two properties work the same way as `colour`.
+Besides that, you can also change stroke colour (`stroke`) in scatters, bar charts and ribbons and `fill` lines (`lc_line`,  `lc_abLine`, etc.) with some colour. These two properties work the same way as `colour`.
 
 ```{r message=FALSE}
 openPage(layout = "table1x2")
@@ -194,17 +170,13 @@ lc_scatter(dat(x = 0:2, y = 0:2, size = 55, # three huge points instead of circl
   <table><tr><td id = "A1"></td><td id = "A2"></td></tr></table>
 </div>
 
-`colourLegendTitle` allows to give a meaningfull name to your legend.
-`globalColourScale` can be useful, when your chart has several layers with coloured elements. If `globalColourScale` is 
-`TRUE` (default value) a single global scale is created for all the layers. Otherwise, each layer gets its own colour
-scale.
-`addColourScaleToLegend` (by default, `TRUE`) defines whether or not display legend for the colour scale of this layer.
+`colourLegendTitle` allows giving a meaningful name to your legend.
 
-Imagine, we have three types data samples. Samples of type "a" are randomly scattered, samples of types "b" and "c" are
-distributed along some lines, but for type "c" we don't have any points only the area, where they are likely to be found.
-This artificial example can help us illustrate the meaning of having a global colour scale. So we are going to have a chart
-with three layers: one with points of type "a" and "b", another for lines along which type "b" and "c" samples are scattered, 
-and one more to highlight the area of most likely location for type "c" samples.
+`globalColourScale` can be helpful when your chart has several layers with coloured elements. If `globalColourScale` is `TRUE` (default value), a single global scale is created for all the layers. Otherwise, each layer gets its own colour scale.
+
+`addColourScaleToLegend` (by default, `TRUE`) defines whether or not to display a legend for the colour scale of this layer.
+
+Imagine we have three types of data samples. Samples of type "a" are randomly scattered, samples of types "b" and "c" are distributed along some lines, but for type "c", we don't have any points, only the area where they are likely to be found. This artificial example can help us illustrate the meaning of having a global colour scale. So we are going to have a chart with three layers: one with points of type "a" and "b", another for lines along which type "b" and "c" samples are scattered, and one more to highlight the area of most likely location for type "c" samples.
 
 ```{r message=FALSE}
 # generate 20 randomly distributed points, and 20 that
