@@ -1,7 +1,6 @@
 ---
 usePrism: true
 title: 'R/LinkedCharts API'
-hideTOC: 'true'
 api: 'rlc'
 ---
 # Trigger an event

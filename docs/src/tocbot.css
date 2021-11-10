@@ -1,5 +1,5 @@
 .toc {
-	overflow-y: auto
+	overflow-y: auto;
 }
 
 .toc > ul {
@@ -18,7 +18,7 @@
 
 a.toc-link {
 	text-decoration: none;
-	color: #646;
+	color: #1c1c4a;
 	height: 100%;
 	line-height: 150%;
 	font-size: 120%;
