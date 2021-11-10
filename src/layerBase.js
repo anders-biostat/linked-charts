@@ -126,7 +126,6 @@ export function layerBase(id) {
     
     if(allNum){
       range = range.filter(function(el) {return el != "Infinity"});
-      console.log(range)
       //the scale is continuous
       //Now look at the palette
       if(palette == undefined)

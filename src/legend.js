@@ -41,6 +41,13 @@ export function legend(chart) {
 	}
 
 	legend.add_block = function(scale, type, id, layer){
+		if(legend.chart.globalColourScale && type === "colour" && 
+			legend.chart.globalColourScale() && blocks[id] === undefined && 
+			Object.keys(blocks).map(el => blocks[el].type).indexOf("colour") > -1) {
+
+			return legend.chart
+		}
+
 		//scale can be an array or d3 scale. If scale is an array,
 		//we need to turn it into a scale
 		var block = {};
