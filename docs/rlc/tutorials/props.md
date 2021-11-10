@@ -10,11 +10,7 @@ useLC: true
 ## R/LinkedCharts Tutorial
 # Customising your chart
 
-Here, we show how one can use various built-in properties to customise charts.
-The main goal of this tutorial is to give overview of the adjuststable apects in R/LinkedCharts, 
-(colours, axes, labels, etc.). Therefore we are going to use well known example data sets
-such as [Iris](https://en.wikipedia.org/wiki/Iris_flower_data_set) flower data set or randomly 
-generated data. 
+Here, we show how one can use various built-in properties to customise charts. The main goal of this tutorial is to give an overview of the adjustable aspects in R/LinkedCharts, (colours, axes, labels, etc.). Therefore, we will use well-known example data sets such as [Iris](https://en.wikipedia.org/wiki/Iris_flower_data_set) flower data set or randomly generated data. 
 
 
 ```r
@@ -32,9 +28,7 @@ head(iris)
 ## 6          5.4         3.9          1.7         0.4  setosa
 ```
 
-We assume that you are already familiar with R/LinkedCharts and its main ideas and principles
-and you want to explore more possibilities of the library. Otherwise, we recommend first to 
-go through [this](oscc.html) tutorial.
+We assume that you are already familiar with R/LinkedCharts and its central ideas and principles, and you want to explore more possibilities of the library. Otherwise, we recommend first to go through [this](oscc.html) tutorial.
 
 
 ```r
@@ -54,9 +48,7 @@ This section describes the following properties:
 - `globalColourScale`
 - `addColourScaleToLegend`
 
-The simplest way to colour elements of a chart is to use the `colourValue` property.
-It takes numbers or strings for each point (line, bar, etc.) and based on that generates
-a continuous or categorical colour scale.
+The simplest way to colour elements of a chart is to use the `colourValue` property. It takes numbers or strings for each point (line, bar, etc.) and generates a continuous or categorical colour scale based on that.
 
 
 ```r
@@ -81,14 +73,11 @@ lc_scatter(dat(x = iris$Sepal.Length,
   <table><tr><td id ="A1"></td><td id="A2"></td></tr></table>
 </div>
 
-To further specify colours one can use `palette` and `colourDomain` properties. 
+To further specify colours, one can use `palette` and `colourDomain` properties. 
 
-In case of categorical colour scale `colourDomain` is a set of all possible colour values.
-Thus for the chart on the left by default `colourDomain = c("setosa", "versicolor", "virginica")`.
-If a value is not included in colourDomain, corresponding points will be black.
+In the case of a categorical colour scale, `colourDomain` is a set of all possible colour values. Thus for the chart on the left by default `colourDomain = c("setosa", "versicolor", "virginica")`. If a value is not included in the colour domain, the corresponding points will be black.
 
-For continuous colour scales, `colourDomain` defines the range in wich colour values can change. All values
-outside this range will produce colours that correspond to maximal or to minimal value of the `colourDomain`.
+For continuous colour scales, `colourDomain` defines the range in which colour values can change. All values outside this range will produce colours corresponding to the maximal or minimum value of the `colourDomain`.
 
 To illustrate all this, let's add `colourDomain` to our example.
 
@@ -116,16 +105,9 @@ lc_scatter(dat(x = iris$Sepal.Length,
   <table><tr><td id = "A1"></td><td id = "A2"></td></tr></table>
 </div>
 
-On the left plot, all the "versicolor" points are now black, since this value is no longer present in
-`colourDomain`. At the same time, orange colour is reserved for "something else". On the plot to the right,
-colour scale now varies between -1 and 1. All the points with `colourValue` greater than 1 are just purple.
+All the "versicolor" points on the left plot are now black since this value is no longer present in `colourDomain`. At the same time, the orange colour is reserved for "something else". On the plot to the right, the colour scale now varies between -1 and 1. All the points with `colourValue` greater than 1 are just purple.
 
-Finally, `palette` defines what colours are used. It is always a vector of colours (their 
-[names](http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf) or
-[hexadecimal](https://en.wikipedia.org/wiki/Web_colors#HTML_color_names) codes). For categorical colour scale,
-`palette` must have a colour for each element from `colourDomain`. For continous scales, `palette` is a set of
-"reference points" for the colour scale. By default, they are spread evenly withing `colourDomain`, but one can
-also specify intermediate points.
+Finally, `palette` defines what colours are used. It is always a vector of colours (their [names](http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf) or [hexadecimal](https://en.wikipedia.org/wiki/Web_colors#HTML_color_names) codes). For categorical colour scale, `palette` must have a colour for each element from `colourDomain`. For continuous scales, `palette` is a set of "reference points" for the colour scale. By default, they are spread evenly withing `colourDomain`, but one can also specify intermediate points.
 
 
 ```r
@@ -153,14 +135,9 @@ lc_scatter(dat(x = iris$Sepal.Length,
   <table><tr><td id = "A1"></td><td id = "A2"></td></tr></table>
 </div>
 
-Now chart to the left has more elements in `colourDomain` than colours in `palette` and therefore colours are repeated, 
-starting from the first element in `palette`. For the chart to the right we've provided `palette` with three colours
-and also we've added an intermediate point in `colourDomain`. This tells R/LinkedCharts to interpolate colours from red to grey
-between 0 and 0.3 and from grey to black between 0.3 and 2.6.
+Now chart to the left has more elements in `colourDomain` than colours in `palette`, and therefore colours are repeated, starting from the first element in `palette`. For the chart to the right, we've provided `palette` with three colours, and also we've added an intermediate point in `colourDomain`. This tells R/LinkedCharts to interpolate colours from red to grey between 0 and 0.3 and from grey to black between 0.3 and 2.6.
 
-Intead of using `colourValue` and `palette` one can also assign colours directly. `colour` is similar to `colourValue`, 
-but it assigns colours without generating a colour scale. Here is an example. Note how the fifth circle is coloured black,
-since `some_strange_colour` doesn't correspond to any colour.
+Instead of using `colourValue` and `palette`, one can also assign colours directly. `colour` is similar to `colourValue`, but it assigns colours without generating a colour scale. Here is an example. Note how the fifth circle is coloured black since `some_strange_colour` doesn't correspond to any colour.
 
 
 
@@ -175,8 +152,7 @@ lc_scatter(dat(x = 1:5,  # x-coordinates of the points are 1, 2, 3, 4, 5
 ```
 <div id = "example4"></div>
 
-Besides that you can also change stroke colour (`stroke`) in scatters, bar charts and ribbons and `fill` lines (`lc_line`, 
-`lc_abLine`, etc.) with some colour. These two properties work the same way as `colour`.
+Besides that, you can also change stroke colour (`stroke`) in scatters, bar charts and ribbons and `fill` lines (`lc_line`,  `lc_abLine`, etc.) with some colour. These two properties work the same way as `colour`.
 
 
 ```r
@@ -211,17 +187,13 @@ lc_scatter(dat(x = 0:2, y = 0:2, size = 55, # three huge points instead of circl
   <table><tr><td id = "A1"></td><td id = "A2"></td></tr></table>
 </div>
 
-`colourLegendTitle` allows to give a meaningfull name to your legend.
-`globalColourScale` can be useful, when your chart has several layers with coloured elements. If `globalColourScale` is 
-`TRUE` (default value) a single global scale is created for all the layers. Otherwise, each layer gets its own colour
-scale.
-`addColourScaleToLegend` (by default, `TRUE`) defines whether or not display legend for the colour scale of this layer.
+`colourLegendTitle` allows giving a meaningful name to your legend.
 
-Imagine, we have three types data samples. Samples of type "a" are randomly scattered, samples of types "b" and "c" are
-distributed along some lines, but for type "c" we don't have any points only the area, where they are likely to be found.
-This artificial example can help us illustrate the meaning of having a global colour scale. So we are going to have a chart
-with three layers: one with points of type "a" and "b", another for lines along which type "b" and "c" samples are scattered, 
-and one more to highlight the area of most likely location for type "c" samples.
+`globalColourScale` can be helpful when your chart has several layers with coloured elements. If `globalColourScale` is `TRUE` (default value), a single global scale is created for all the layers. Otherwise, each layer gets its own colour scale.
+
+`addColourScaleToLegend` (by default, `TRUE`) defines whether or not to display a legend for the colour scale of this layer.
+
+Imagine we have three types of data samples. Samples of type "a" are randomly scattered, samples of types "b" and "c" are distributed along some lines, but for type "c", we don't have any points, only the area where they are likely to be found. This artificial example can help us illustrate the meaning of having a global colour scale. So we are going to have a chart with three layers: one with points of type "a" and "b", another for lines along which type "b" and "c" samples are scattered, and one more to highlight the area of most likely location for type "c" samples.
 
 
 ```r
@@ -259,8 +231,7 @@ lc_abLine(dat(
     # we can add 'n' lines by defining 'n' values
     # of slope ('a') and intercept ('b')
     a = c(3, 2), b = c(0, 0),
-    colourValue = c("b", "c"),
-    addColourScaleToLegend = F),
+    colourValue = c("b", "c")),
   place = "A1", addLayer = T)
 
 # The same chart but without global colour scale
@@ -270,7 +241,7 @@ lc_ribbon(dat(
     ymin = x * 2 - abs(x - 0.5),
     colourValue = "c",
     globalColourScale = F,
-    colourLegendTitle = "ribbon",
+    addColourScaleToLegend = F,
     width = 300, height = 300),
   place = "A2")
 
@@ -292,22 +263,11 @@ lc_abLine(dat(
   <table><tr><td id = "A1"></td><td id = "A2"></td></tr></table>
 </div>
 
-Note, how on the cahrt to the left all three layers use exactly the same colour for the three data types.
-On the left one, where we didn't use global colour scale (`globalColourScale = F`), each layer has its own
-`colourDomain` and the same default `palette`. `lc_ribbon` has only one element and its type is "c", so it
-uses the first colour of the default `palette` (which is blue) for this type. `lc_abLine` has types "b" and "c",
-but it has no idea, that blue has already been used for type "c". "b" comes first in the data and it gets the
-first colour (blue), and "c" is now orange. In a similar manner colours are defined for `lc_scatter`.
-You make chart to the right look like the one to the left by adding to each layer `colourDomain = c("a", "b", "c")`.
+The chart to the left uses a single colour scale for all the layers, even if some colour values of one layer are not present in the others. In the right one, where we didn't use global colour scale (`globalColourScale = F`), each layer has its own `colourDomain` and the same default `palette`. `lc_ribbon` has only one element with `colourValue = "c"`. Hence, it uses the first colour of the default palette (which is blue) for this data type. `lc_abLine` has data of types "b" and "c", but it has no idea that blue has already been used for the data type "c". "b" comes first in the data and it gets the first colour (blue), and "c" is now orange. Similarly, colours are defined for `lc_scatter`. You can make the chart to the right look like the one to the left by adding to each layer colourDomain = c("a", "b", "c")`.
 
-R/LinkedCharts shows colour legend for each layer. It is useful for the chart to the right, where meaning of each colour
-changes from layer to layer, but doesn't make sence for a chart to the left. It shows to legends, because we've hidden
-one with `addColourScaleToLegend = F`. It is probably a good idea to do the same for one more layer (doesn't matter which
-one).
+R/LinkedCharts shows a colour legend for each layer. It is helpful for the chart to the right, where each colour's meaning changes from layer to layer but can be excessive in some cases. If `globalColourScale = T`, only one legend (of the first layer with the `colourValue` property) will be used. In other cases, one should manually set `addColourScaleToLegent = F` (the ribbon layer of the chart to the right).
 
-So far we didn't mention heatmaps (`lc_heatmap`), but their colouring is defined by the already mentioned `palette` and
-`colourDomain` properties the same way it happens for all other charts. It can also be interesting to use an interactive
-`lc_colourSlider` instead of static colour scale.
+So far, we didn't mention heatmaps (`lc_heatmap`), but their colouring is defined by the already mentioned `palette` and `colourDomain` properties the same way it happens for all other charts. It can also be interesting to use an interactive `lc_colourSlider` instead of a static colour scale.
 
 
 ```r
@@ -339,12 +299,7 @@ This section describes the following properties:
 - `opacity`
 - `dasharray`
 
-Scatters and beeswarms in R/LinkedCharts can display points as one of seven standard d3 
-[symbols](https://bl.ocks.org/d3indepth/bae221df69af953fb06351e1391e89a0). `symbolValue`,
-which is similar to `colourValue`, generates a scale that converts some user-provided values
-to one of the symbols. `symbol` property directly assigns symbol types to each element.
-Possible symble types are `"Circle", "Cross", "Diamond", "Square", "Star", "Triangle", "Wye"`.
-`symbolLegendTitle` adds a title to the symbol legend.
+Scatters and beeswarms in R/LinkedCharts can display points as one of seven standard d3 [symbols](https://bl.ocks.org/d3indepth/bae221df69af953fb06351e1391e89a0). `symbolValue`, which is similar to `colourValue`, generates a scale that converts some user-provided values to one of the symbols. `symbol` property directly assigns symbol types to each element. Possible symbol types are `"Circle", "Cross", "Diamond", "Square", "Star", "Triangle", "Wye"`. `symbolLegendTitle` adds a title to the symbol legend.
 
 
 ```r
@@ -367,13 +322,9 @@ lc_scatter(dat(x = iris$Sepal.Length,
   <table><tr><td id = "A1"></td><td id = "A2"></td></tr></table>
 </div>
 
-On the left chart R/LinkedCharts automatically puts a symbol for each of the present species
-`symbolValue = iris$Species`. On the chart to the right we do it manualy 
-`symbol = ifelse(iris$Species == "setosa", "Star", "Cross")` (for the sake of simplicity, we only distinguish
-"setosa" from everything else).
+On the left chart R/LinkedCharts automatically puts a symbol for each of the present species `symbolValue = iris$Species`. On the chart to the right, we do it manually `symbol = ifelse(iris$Species == "setosa", "Star", "Cross")` (for the sake of simplicity, we only distinguish "setosa" from everything else).
 
-We can also change `size` of the points (default is 6), `opacity` (value from 0 to 1), or `strokeWidth` (by default, 
-`0.1 * size`).
+We can also change `size` of the points (default is 6), `opacity` (value from 0 to 1), or `strokeWidth` (by default, `0.1 * size`).
 
 
 ```r
@@ -387,10 +338,7 @@ lc_scatter(dat(x = iris$Sepal.Length,
 ```
 <div id="example9"></div>
 
-Lines can have different width (`lineWidth`, default is 1.5) and dashes pattern (`dasharray`). `dasharray` is defined
-the same way as CSS [stroke-dasharray](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dasharray)
-attribute. It is a list of numbers that specify legnth of alternating dashes and gaps. First number is length
-of the first dash, second - of the first gap, third - of the second dash, and so on, and so forth.
+Lines can have different widths (`lineWidth`, default is 1.5) and dashes pattern (`dasharray`). `dasharray` is defined the same way as CSS [stroke-dasharray](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dasharray) attribute. It is a list of numbers that specify the lengths of alternating dashes and gaps. The first number is the length of the first dash, second - of the first gap, third - of the second dash, and so forth.
 
 
 ```r
@@ -404,6 +352,7 @@ lc_hLine(dat(
 <div id="example10"></div>
 
 ## Titles and labels
+
 This section describes the following properties:
 - `label`
 - `title`
@@ -413,12 +362,7 @@ This section describes the following properties:
 - `colourLegendTitle`
 - `symbolLegendTitle`
 
-`label` defines text that you see when hovering mouse over some element. If vectors that specify `x` or `y` coordinates
-have names, these names will be used as labels. Otherwise, element's index is used as its label (note, that indices start 
-from 0). One can also define the main `title` of a plot, its size (`titleSize`) and position. `titleX` specifies horisontal
-position of title midpoint, while `titleY` is vertical position of its bottom. 
-`axisTitleX` and `axisTitleY` set title to x and y axes respectively. `colourLegendTitle` and `symbolLegendTitle` have 
-already been mentioned in the sections above - they specify titles for colour and symbol legends.
+`label` defines the text that you see when hovering the mouse over some element. If vectors that specify `x` or `y` coordinates have names, these names will be used as labels. Otherwise, the element's index is used as its label (note that indices start from 0). One can also define the main `title` of a plot, its size (`titleSize`) and position. `titleX` specifies the horizontal position of title midpoint, while `titleY` is the vertical position of its bottom. `axisTitleX` and `axisTitleY` set title to x and y axes respectively. `colourLegendTitle` and `symbolLegendTitle` have already been mentioned in the sections above - they specify titles for colour and symbol legends.
 
 
 ```r
@@ -441,22 +385,18 @@ lc_scatter(dat(
 <div id="example11"></div>
 
 ## Interactivity
+
 This section describes the following properties:
 - `on_click`
 - `on_mouseover`
 - `on_mouseout`
 - `on_marked`
 
-R/LinkedCharts is designed as an easy-to-use framework to create sets of interactive linked charts. 
-From [this](oscc.html) tutorial you can already get a pretty good idea of how it 
-works, but let's quickly go through it again here.
+R/LinkedCharts is designed as an easy-to-use framework to create sets of interactive linked charts. From [this](oscc.html) tutorial, you can already get a pretty good idea of how it works, but let's quickly go through it again here.
 
 All the interactivity in R/LinkedCharts is based on the two main ideas. 
 
-First is the `dat()` function.
-Properties, defined inside this function (e.g. `dat(x = somePoints$x, y = somePoints$y)`) can be reevaluated 
-any moment by calling the `updateCharts()` function and the chart will be changed accordingly. For example, if
-`somePoints` is changed, then `updateCharts()` will make the points move to new positions.
+First is the `dat()` function. Properties, defined inside this function (e.g. `dat(x = somePoints$x, y = somePoints$y)`) can be reevaluated any moment by calling the `updateCharts` function and the chart will be changed accordingly. For example, if `somePoints` is changed, then `updateCharts()` will make the points move to new positions.
 
 
 ```r
@@ -467,21 +407,11 @@ updateCharts()
 <div id="example12"></div>
 <input type = "button" onclick = "ex12.chart.update();" value = "updateCharts();">
 
-Note, how each time you call `updateCharts()`, points are moved along the x-axis to some new randomly 
-generated locations. At the same time y-coordinates of each point remain unchanged.
+Note how each time you call `updateCharts`, points are moved along the x-axis to some new randomly generated locations. At the same time, the y-coordinates of each point remain unchanged.
 
-Second is a system of callback functions. Whenever something happens on the opened web page (e.g. a point is clicked)
-a user-defined function is called. The most simple way to use this function, is to change some global variable that the
-charts depends on and then call `updateCharts`. Of course, you can also run calculations, print some information to console,
-make static plots or whatever else you want.
+The second one is a system of callback functions. A user-defined function is called whenever something happens on the opened web page (e.g. a point is clicked). The most straightforward way to use this function is to change some global variable that the charts depends on and then call `updateCharts`. Of course, you can also run calculations, print some information to console, make static plots or whatever else you want.
 
-So here is a basic example with reaction to click (`on_click`). In this example we have a set of ten colours and a 
-scatter plot with ten points. When any of the points is clicked, all of them change colour and index of the clicked
-point is printed in the console. To do this we create a variable that stores currently selected colour `selColor` and
-then use it to set `colour` property. When a point is clicked, the function assigned to the `on_click` property is called.
-It gets index of the clicked point and prints it (`print(i)`). It also changes `selColour` and updates chart. Note, that 
-inside this function we use global assignment operator `<<-` instead of usual `<-`. `<-` will just create a local variable 
-`selColour` inside the function.
+So here is a basic example with reaction to click (`on_click`). In this example, we have a set of ten colours and a scatter plot with ten points. When any of the points is clicked, all of them change colour, and the index of the clicked point is printed in the console. To do this, we create a variable that stores the currently selected colour `selColor` and then use it to set the `colour` property. When a point is clicked, the function assigned to the `on_click` property is called. It gets the index of the clicked point and prints it (`print(i)`). It also changes `selColour` and updates the chart. Note that we use the global assignment operator `<<-` inside this function instead of the usual `<-`. `<-` will just create a local variable `selColour` inside the function.
 
 
 ```r
@@ -501,10 +431,7 @@ lc_scatter(dat(
 ```
 <div id="example13"></div>
 
-`on_mouseover` and `on_mouseout` specify, what happens when user moves mouse over and out an element. `on_mouseover` like 
-`on_click` gets an index of the point (line, cell, etc.), `on_mouseout` doesn't get anything. Here is example similar to
-the one above, but now, instead of clicking on a point, one can just move the mouse over it. When mouse moves out all points
-become black.
+`on_mouseover` and `on_mouseout` specify what happens when the user moves the mouse over and out an element. `on_mouseover` like `on_click` gets an index of the point (line, cell, etc.), `on_mouseout` doesn't get anything. Here is an example similar to the one above, but now, one can just move the mouse over it instead of clicking on a point. When the mouse moves out, all points become black.
 
 
 ```r
@@ -527,14 +454,7 @@ lc_scatter(dat(
 ```
 <div id="example14"></div>
 
-In any chart you can select elements by drawing a rectangle with the mouse or by clicking on the 
-element while holding the `Shift` key. Double mouse click with the `Shift` key pressed will deselect
-all the elements. Whenever any element is selected or deselected, function assigned to the `on_marked` property is 
-called. At any moment you can get indices of currently selected elements of any chart by calling `getMarked`.
-Let's make a brushing example. When on_marked event is triggered for one of the charts, we get indices of selected
-points (`getMarked("A1")`) and select them on the other chart (`mark(getMarked("A1"), "A2")`). Note, that when 
-we use `mark` function `on_marked` is not called to prevent creating infinite stack of calls. You can change that
-by setting `preventEvent = FALSE`.
+In any chart, you can select elements by drawing a rectangle with the mouse or by clicking on an element while holding the `Shift` key. Double mouse click with the `Shift` key pressed will deselect all the elements. Whenever any element is selected or deselected, the function assigned to the `on_marked` property is called. At any moment, you can get indices of currently selected elements of any chart by calling `getMarked`. Let's make a brushing example. When the `on_marked` event is triggered for one of the charts, we get indices of selected points (`getMarked("A1")`) and select them on the other chart (`mark(getMarked("A1"), "A2")`). Note that when we use `mark` function, `on_marked` is not called to prevent creating an infinite stack of calls. You can change that by setting `preventEvent = FALSE`.
 
 
 ```r
@@ -561,11 +481,13 @@ lc_scatter(dat(
 <div id="example15">
   <table><tr><td id = "A1"></td><td id = "A2"></td></tr></table>
 </div>
+
 Try it by selecting points on one of the charts (the `Shift` key must be pressed in order to select points).
 
 If you want to see more use cases of these properties, check [this](citeseq1.html) tutorial.
 
 ## Axes Settings
+
 This section describes the following properties:
 - `shiftX`/`shiftY`
 - `jitterX`/`jitterY`
@@ -577,22 +499,11 @@ This section describes the following properties:
 - `ticksRotateX`/`ticksRotateY`
 - `ticksX`/`ticksY`
 
-When you want to put too many points on a scatter plot, overplotting can become an annoying issue. It means that several
-points have the same (or almost the same) coordinates and are plotted on top of each other. In this case it's impossible
-to say, how many points are there at some coordinates. What seems to be one point can be two, or ten, or hundred.
-One way to address this problem is to make points transperent (e.g. `opacity = 0.4`). Another is to add noise along one
-of the axes, which can be especially helpful when one of the axes is categorical or discrete and there are noticeable gaps
-between agglomeration of points.
+Overplotting can become an annoying issue when you want to put too many points on a scatter plot. It means that several points have the same (or almost the same) coordinates and are plotted on top of each other. In this case, it's impossible to say how many points are there at some coordinates. What seems to be one point can be two, or ten, or a hundred. One way to address this problem is to make points transparent (e.g. `opacity = 0.4`). Another is to add noise along one of the axes, which can be especially helpful when one of the axes is categorical or discrete, and there are noticeable gaps between agglomerations of points.
 
-`shiftX`, `shiftY`, `jitterX`, `jitterY` can add this noise. `jitterX` and jitterY` are numbers that specify 
-amplitude of the random noise that will be added to each point along one of the axes. 0 stands for no noise, 1 is 
-distance between `x` and `x + 1` for linear scale, `x` and `b*x` for logarithmic scale (where `b` is a base of the 
-logarithm), and between neighbouring ticks for categorical scale. `shiftX` and `shiftY` specify shift for each 
-point separately. `jitterX = 0.3` is equivalent to `shiftX = runif(length(x), -0.3, 0.3)`.
+`shiftX`, `shiftY`, `jitterX`, `jitterY` can add this noise. `jitterX` and jitterY` are numbers that specify the amplitude of the random noise that will be added to each point along one of the axes. 0 stands for no noise, 1 is distance between `x` and `x + 1` for linear scale, `x` and `b*x` for logarithmic scale (where `b` is a base of the  logarithm), and between neighbouring ticks for categorical scale. `shiftX` and `shiftY` specify shift for each point separately. `jitterX = 0.3` is equivalent to `shiftX = runif(length(x), -0.3, 0.3)`.
 
-This example demonstrate how `jitterX` works and also shows how one can use `shiftX` to create a violine plot. 
-We generate 1500 points devided into three groups `"a", "b"` and `"c"`. Y-values are normaly distributed within 
-each group, but with different means.
+This example demonstrates how `jitterX` works and how one can use `shiftX` to create a violin plot. We generate 1500 points divided into three groups `"a", "b"` and `"c"`. Y-values are normally distributed within each group, but with different means.
 
 
 ```r
@@ -634,8 +545,7 @@ lc_scatter(dat(
   <table><tr><td id = "A1"></td><td id = "A2"></td></tr></table>
 </div>
 
-You can make your x or y axis logarithmic by setting `logScaleX` and `logScaleY` respectively to the base of the
-desired logarithm.
+You can make your X or Y axis logarithmic by setting `logScaleX` and `logScaleY` respectively to the base of the desired logarithm.
 
 
 ```r
@@ -645,17 +555,9 @@ lc_scatter(dat(x = seq(1, 128, length.out = 20),
 ```
 <div id="example17"></div>
 
-By default, limits of the axes are set so that to include all the user-provided values. One can change them simply by
-changing `domainX` or `domainY`. If an axis is continuous, correspoinding domain should be a vector with minimal and
-maximal value to display. Domain for a logarithmic scale must contain only positive values. Domain for a categorical 
-axis is a vector of all possible values to display. One can also specify domain not for the entire chart, but only 
-for a given layer using `layerDomainX` and `layerDomainY`. The resulting domain then will be something that includes
-domains of all the layers.
+By default, limits of the axes are set so that to include all the user-provided values. One can change them simply by changing `domainX` or `domainY`. If an axis is continuous, the corresponding domain should be a vector with minimal and maximal value to display. Domain for a logarithmic scale must contain only positive values. Domain for a categorical axis is a vector of all possible values to display. One can also specify domain not for the entire chart but only for a given layer using `layerDomainX` and `layerDomainY`. The resulting domain then will be something that includes domains of all the layers.
 
-No matter how you set the axes limits, they define only the initial state of the chart. Afterwards you can alway zoom in
-or out. Just draw a rectangle with your mouse and the chart will zoom in the selected area. Double click will return chart
-to its original scale. You can also use `+` and `-` buttons on the tools pannel (click on the grey triangle in the 
-left upper corner) to zoom in or out.
+No matter how you set the axes limits, they define only the initial state of the chart. Afterwards, you can always zoom in or out. Just draw a rectangle with your mouse, and the chart will zoom in on the selected area. Double click will return the chart to its original scale. You can also use `+` and `-` buttons on the tools panel (click on the grey triangle in the left upper corner) to zoom in or out.
 
 
 ```r
@@ -667,20 +569,16 @@ lc_scatter(dat(
     y = x1 * 3 + rnorm(40),
     layerDomainX = c(3, 9),
     domainY = c(0, 20)),
-  id = "chart")
+  chartId = "chart")
 
 lc_scatter(x = x2, y = -x2  + rnorm(40), 
           colour = "red", 
-          id = "chart", 
+          chartId = "chart", 
           addLayer = T) # new scatter plot will be added as a new layer
 ```
 <div id="example18"></div>
 
-When the first scatter plot is generated, it uses `c(3, 9)` as limits for x-axis and `c(0, 20)` - for y-axis. There is no difference between
-using `domainX` and `layerDomainX`, when chart has only one layer. Then we add another layer that has points outside the limits of both
-axes. And now x-axis changes to fit all the new (red) points, while y-axis remains the same. That is the difference between the two properties. 
-`domainY` specify limits of the y-axis for the entire chart, no matter what else will be there. `layerDomainX` on the other hand is combined with
-other layers' domains to define the final limits of the axis.
+When the first scatter plot is generated, it uses `c(3, 9)` as limits for the x-axis and `c(0, 20)` - for the y-axis. There is no difference between `domainX` and `layerDomainX` when the chart has only one layer. Then we add another layer that has points outside the limits of both axes. And now, the x-axis changes to fit all the new (red) points, while the y-axis remains the same. That is the difference between the two properties. `domainY` specify limits of the y-axis for the entire chart, no matter what else will be there. `layerDomainX`, on the other hand, is combined with other layers' domains to define the final limits of the axis.
 
 And here is how domain works for categorical axes.
 
@@ -696,11 +594,9 @@ lc_scatter(dat(
 ```
 <div id="example19"></div>
 
-`domainX = c("virginica", "something else", "setosa", "versicolor")` not only specifies order of ticks, but also tells the chart to 
-expect `"something else"` as one of the species, even thoug there is no points with this x-value.
+`domainX = c("virginica", "something else", "setosa", "versicolor")` not only specifies the order of ticks but also tells the chart to expect `"something else"` as one of the species, even though there are no points with this x-value.
 
-`aspectRatio` allows to control the aspect ratio of the axes. Note, that it's possible only if both axes are linear and
-continuous. In all other cases this property will be ignored.
+`aspectRatio` allows controlling the aspect ratio of the axes. Note that it's possible only if both axes are linear and continuous. In all other cases, this property will be ignored.
 
 
 ```r
@@ -710,15 +606,9 @@ lc_scatter(x = 1:10, y = 1:10,
 ```
 <div id="example20"></div>
 
-`axisTitleX` and `axisTitleY` set titles of the axes. `ticksRotateX` and `ticksRotateY` allow to rotate ticks. The angle of rotation must be
-set in degrees and lie between 0 and 90. Any values outside this range will be put into it. It is also possible to define what ticks to show
-and to replace their lables with something esle. To this end, `ticksX` and `ticksY` one should set to one or several columns of values. The
-first column is always where to put ticks. Next columns are optional and they allow to specify with what to replace tick values (one tick
-can be replaced with several values simultaneously, as if you have several axes at the same time).
+`axisTitleX` and `axisTitleY` set titles of the axes. `ticksRotateX` and `ticksRotateY` allow to rotate ticks. The angle of rotation must be set in degrees and lie between 0 and 90. Any values outside this range will be put into it. It is also possible to define what ticks to show and to replace their labels with something else. To this end, one of the `ticksX` and `ticksY` should be set to one or several columns of values. The first column is always where to put ticks. The next columns are optional, and they allow to specify with what to replace tick values (one tick can be replaced with several values simultaneously as if you have several axes at the same time).
 
-Imagine now in the Iris dataset some values are missing. By default these points are moved to the left upper corner of the plot, but what if
-we want to show them as well? We can replace NAs with some numerc value that is smaller than all our real values and then change tick labels to
-indicate that.
+Imagine now some values in the Iris dataset are missing. By default, these points are moved to the left upper corner of the plot, but what if we want to show them as well? We can replace NAs with some numeric value that is smaller than all our real values and then change tick labels to indicate that.
 
 
 ```r
@@ -744,6 +634,7 @@ lc_scatter(dat(
 
 
 ## Global chart Settings
+
 This section describes the following properties:
 - `width`
 - `height`
@@ -753,10 +644,7 @@ This section describes the following properties:
 - `transitionDuration`
 - `mode`
 
-`width` and `height` specify size of the chart in pixels (default value for both is 500). It is possible to change default `paddings` that are
-used for axes, titles, labels and dendograms (for heatmaps). `paddings` must be a list with at least one of the following four elements: 
-`"top", "right", "bottom"` and `"left"`. `showLegend` is a boolean property, which specifies whether or not to show any legend at all. In similar 
-manner with `showPanel` one can show or hide instrument panel (grey triangle in the right upper corner).
+`width` and `height` specify the chart size in pixels (the default value for both is 500). It is possible to change default `paddings` that are used for axes, titles, labels and dendrograms (for heatmaps). `paddings` must be a list with at least one of the following four elements:  `"top", "right", "bottom"` and `"left"`. `showLegend` is a boolean property, which specifies whether or not to show any legend at all. Similarly, with `showPanel`, one can show or hide the instrument panel (grey triangle in the right upper corner).
 
 
 ```r
@@ -773,14 +661,10 @@ lc_scatter(dat(
 ))
 ```
 <div id="example22"></div>
-As you can see, this chart has no instrument panel or legend, it's wider than a default-sized one, and its left paddin is too small for
-the y-axis ticks.
 
-You could have noticed by now that when you update a chart, zoom in or zoom out, there is an animated transion between the states that allows you,
-for example, to track the movement of each point. The duration of this transition is defined by `transitionDuration` property (in ms). If it is 
-set to 0 there will be no transition effect, which can considerably save performance time in case of cumbersome calculations. It is also 
-useful to turn the transition off, if you plan to make rapid changes to the chart. For example, you can change colour of the points depending
-on which point the mouse is hovering right now.
+As you can see, this chart has no instrument panel or legend, it's wider than a default-sized one, and its left padding is too small for the y-axis ticks.
+
+You could have noticed by now that when you update a chart, zoom in or zoom out, there is an animated transition between the states that allows you, for example, to track the movement of each point. The duration of this transition is defined by `transitionDuration` property (in ms). If it is set to 0, there will be no transition effect, which can considerably save performance time in case of cumbersome calculations. It is also helpful to turn the transition off if you plan to make rapid changes to the chart. For example, you can change the colour of the points depending on which point the mouse is hovering right now.
 
 
 ```r
@@ -807,22 +691,12 @@ lc_scatter(dat(
 ```
 <div id="example23"></div>
 
-This example allows to check how well a dimentionality reduction approach (in this case, PCA) preserves the original distance. As it usually 
-happens we plot the first two principal components. The points are coloured by the distance from the selected one (`selPoint`). When user 
-moves the mouse over one of the points a mouseover event fires. When it happens, we change the selected point (`selPoint <<- i`) and call the 
-`updateCharts` function. `updateOnly = "ElementStyle"` tells is to change only style of the points and nothing else. In case of many points this
-may save some performance.
+This example allows checking how well a dimensionality reduction approach (in this case, PCA) preserves the original distance. As it usually happens, we plot the first two principal components. The points are coloured by the distance from the selected one (`selPoint`). When the user moves the mouse over one of the points, a mouseover event fires. When it happens, we change the selected point (`selPoint <<- i`) and call the `updateCharts` function. `updateOnly = "ElementStyle"` tells the chart to change only the style of the points and nothing else. In case of many points, this may save some performance.
 
-Scatters, beeswarms and heatmaps can also work in either "svg", or "canvas" mode. In "svg" mode each point or cell is a separate element whick allows
-you to be more effective, when you want to change only some of them or only a specific aspect of a chart (e.g. change colour of the points 
-without changing their location). Yet if you have too many points, rendering each of them as a separate element can require too much memory and 
-considerably slows down you browser or RStudio Viewer. An alternative to SVG is HTML-Canvas. In "canvas" mode all the points or cells are 
-parts of a single image. It makes rendering much faster, but any change of the plot, no matter how small, requires the image to be completely 
-redrawn. No transition effect is available for the "canvas" mode. It also can't be used in RStudio Viewer. If you want to use "canvas" mode,
-you need first to open a page in your browser (`openPage(useViewer = FALSE)`). There are three options available for the `mode` property:
-`"svg"` and `"canvas"` specifies the mode and `"default"` allows chart to select the mode automatically.
+Scatters, beeswarms and heatmaps can also work in either `"svg"` or `"canvas"` mode. In the `"svg"` mode, each point or cell is a separate element, which allows you to be more efficient when you want to change only some of them or only a specific aspect of a chart (e.g. change the colour of the points without changing their location). Yet if you have too many points, rendering each of them as a separate element can require too much memory and considerably slows down your browser or RStudio Viewer. An alternative to SVG is HTML-Canvas. In "canvas" mode, all the points or cells are parts of a single image. It makes rendering much faster, but any plot change, no matter how small, requires the image to be completely redrawn. No transition effect is available for the "canvas" mode. It also can't be used in RStudio Viewer. If you want to use "canvas" mode, you need first to open a page in your browser (`openPage(useViewer = FALSE)`). There are three options available for the `mode` property: `"svg"` and `"canvas"` specifies the mode, and `"default"` allows the chart to select the mode automatically.
 
 ## Heatmaps
+
 This section describes the following properties:
 - `rowLabel`/`colLabel`
 - `clusterRows`/`clusterCols`
@@ -832,13 +706,7 @@ This section describes the following properties:
 - `rowTitle`/`colTitle`
 - `showValue`
 
-Each row and column of heatmap has labels that are shown next to the row or column and on the label that apears when mouse hovers onel of the cells.
-This labels can be automatically picked from column and row names of the `value` matrix, or you can specify them using `colLabel` and `rowLabel`. 
-When neither is available, numbers are used instead. `clusterRows` and `clusterCols` specify, whether rows and columns should be clustered when the
-heatmap is generated. Even if these two are set to `FALSE`, you can always cluster rows and columns later, using the instrument panel (click on the
-grey triangle in the upper-left corner to open/hide the instrument panel). Note, that hierarchical clustering is slow and it may cause 
-the page to go down. When rows or columns are clustered, an interective dendogram appears on the top or to the left from the heatmap. You can 
-click on a branch of the, for example, row dendogram to cluster columns, using only rows of the selected branch as features.
+Each row and column of heatmap has labels shown next to the row or column and on the label that appears when the mouse hovers over one of the cells. These labels can be automatically picked from column and row names of the `value` matrix, or you can specify them using `colLabel` and `rowLabel`. When neither is available, numbers are used instead. `clusterRows` and `clusterCols` specify whether rows and columns should be clustered when the heatmap is generated. Even if these two are set to `FALSE`, you can always cluster rows and columns later, using the instrument panel (click on the grey triangle in the upper-left corner to open/hide the instrument panel). Note that hierarchical clustering is slow and it may cause the page to go down. When rows or columns are clustered, an interactive dendrogram appears on the top or to the left from the heatmap. You can click on a branch of the, for example, row dendrogram to cluster columns, using only rows of the selected branch as features.
 
 
 ```r
@@ -855,15 +723,9 @@ lc_heatmap(dat(
 ```
 <div id="example24"></div>
 
-If `showValue` is true, then when user moves the mouse over a cell, instead of a label with column and row IDs and the corresponding value,
-only the value will be shown directly inside the cell. This may be useful for small heatmaps with large cells. `rowTitle` and `colTitle` work like
-axes title, but for heatmaps.
+If `showValue` is true, then when the user moves the mouse over a cell, instead of a label with column and row IDs and the corresponding value, only the value will be shown directly inside the cell. This may be useful for small heatmaps with large cells. `rowTitle` and `colTitle` work like axes title, but for heatmaps.
 
-By default, rows and columns are ordered as they are given. If `clusterRows` or `clusterCols` is `TRUE`, then rows or columns are ordered 
-according to the hierarchical clustering. It is also possible to set row and column order by setting `rankRows` and `rankCols` properties.
-You may have noticed by now, that clicking on a row label causes columns to rearange themselves so that cells in the clicked row are sorted 
-by their values. The same goes for column lables Now, we are going to replace that with a different kind of behaviour. When a row label is clicked,
-it will be placed on top of the heatmap and all other rows will be ordered by correlation with the selected one.
+By default, rows and columns are ordered as they are given. If `clusterRows` or `clusterCols` is `TRUE`, then rows or columns are ordered according to the hierarchical clustering. It is also possible to set row and column order by setting `rankRows` and `rankCols` properties. By now, you may have noticed that clicking on a row label causes columns to rearrange themselves so that cells in the clicked row are sorted by their values. The same goes for column labels. Now, we are going to replace that with a different kind of behaviour. When a row label is clicked, it will be placed on top of the heatmap, and all other rows will be ordered by correlation with the selected one.
 
 
 ```r
@@ -884,11 +746,6 @@ lc_heatmap(dat(
     updateCharts()
   }
 ))
-```
-
-```
-## Warning in setProperties(c(data, nonEv), id, layerId): In chart 'Chart1':
-## Property 'rankRows' doesn't exist.
 ```
 <div id="example25"></div>
 <script src="props/examples.js"></script>

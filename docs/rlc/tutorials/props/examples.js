@@ -143,6 +143,7 @@ ex6.A2 = lc.pointRibbon()
 	.nsteps(ex6.x.length)
 	.globalColourScale(false)
 	.colourLegendTitle("ribbon")
+	.addColourScaleToLegend(false)
 	.colourValue("c")
 	.width(300)
 	.height(300);
