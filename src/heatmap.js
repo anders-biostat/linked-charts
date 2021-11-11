@@ -102,15 +102,6 @@ export function heatmap(id, chart){
 			}
 			return res;
 		}
-	});	
-
-	chart.wrapSetter("showValue", function(oldSetter) {
-		return function() {
-			chart.get_showInform = function() {
-				return !oldSetter();
-			}
-			return oldSetter.apply(chart, arguments);
-		}
 	});
 
 	chart.colour(function(val) {return chart.colourScale(val);});
@@ -649,12 +640,6 @@ export function heatmap(id, chart){
 			.filter(function(dl) {return dl == d[0];})
 				.classed("hover", true);
 		//show label
-		if(!chart.get_showInform()){
-			chart.g.selectAll(".tval").filter(function(fd){
-				return fd[0] == d[0] && fd[1] == d[1];
-			})
-			.classed("hidden", false);
-		} else {
 		chart.container.select(".inform")
 			.style("left", (pos[0] + 10) + "px")
 			.style("top", (pos[1] + 10) + "px")
@@ -662,7 +647,6 @@ export function heatmap(id, chart){
 				.html(function() {return chart.get_informText(d[0], d[1])});  
 		chart.container.select(".inform")
 			.classed("hidden", false);
-		}
 		chart.get_on_mouseover(d[0], d[1]);
 	};
 	function on_mouseout(d) {
@@ -675,12 +659,8 @@ export function heatmap(id, chart){
 		//deselect row and column labels
 		chart.svg.selectAll(".label")
 			.classed("hover", false);
-		if(chart.get_showValue()){
-			chart.g.selectAll(".tval").classed("hidden", true);
-		} else {
-			chart.container.select(".inform")
-				.classed("hidden", true);
-		}
+		chart.container.select(".inform")
+			.classed("hidden", true);
 		chart.get_on_mouseout(d[0], d[1]);		
 	};
 	
@@ -986,8 +966,9 @@ export function heatmap(id, chart){
 			.remove();
 		text.enter()
 			.append("text")
-				.attr("class", "tval hidden")
+				.attr("class", "tval")
 				.attr("text-anchor", "middle")
+				.style("fill", d => chart.get_colour(chart.get_value(d[0], d[1])))
 				.on("click", function(d) {
 					var cell = chart.svg.selectAll("#p" + (d[0] + "_-sep-_" + d[1]).replace(/[ .]/g,"_")).node();
 					chart.get_on_click.apply(cell, [d[0], d[1]]);
@@ -1132,6 +1113,20 @@ export function heatmap(id, chart){
 			ncols, nrows,
 			0, 0,	chart.plotWidth(), chart.plotHeight());
 
+		if(chart.showValue()) {
+			ctx.font = chart.cellSize.height * 0.4 + "px arial";
+			ctx.textAlign = "center";
+			for(var i = 0; i < nrows; i++)
+				for(var j = 0; j < ncols; j++){
+					let x = chart.axes.scale_x(chart.get_heatmapCol(i)) + 
+							chart.cellSize.width/2,
+						y = chart.axes.scale_y(chart.get_heatmapRow(j)) + 
+							chart.cellSize.height * 0.75,
+						val = chart.get_value(i, j);
+						val = val.toFixed ? val.toFixed(1) : "NA";
+					ctx.fillText(val, x, y, chart.cellSize.width);
+				}
+		}
 	}
 
 	chart.get_elements = function(data){
