@@ -43,6 +43,15 @@ export function heatmap(id, chart){
 		.add_property("on_click", function() {})
 		.add_property("rowTitle", "")
 		.add_property("showValue", false)
+		.add_property("valueTextColour", (row, col) => chart.get_colour(chart.get_value(row, col)), 
+			function(value) {
+				if(typeof value === "function")
+					return value;
+				if(typeof value === "string")
+					return value;
+				throw "Error in 'typeCheck' for 'valueTextColour': invalid type. valueTextColour must be " +
+             "a colour name or a function.";
+			})
 		.add_property("showInform", true)
 		.add_property("colTitle", "")
 		.add_property("on_mouseover")
@@ -63,6 +72,13 @@ export function heatmap(id, chart){
 
 	chart.paddings({top: 100, left: 100, right: 10, bottom: 40});
 	chart.legend.width(75);
+
+	//in Google Chrome before v.89 CSS filters were not applied to 
+	//SVG objects. Set valueTextColour to black
+	if(navigator.userAgent.toLowerCase().indexOf('chrome') > -1 &&
+			navigator.userAgent.match(/Chrome\/([0-9]+)\./)[1] < 90)
+		chart.valueTextColour("black");
+
 
 	//setting a number of elements or their IDs should replace
 	//each other
@@ -968,7 +984,6 @@ export function heatmap(id, chart){
 			.append("text")
 				.attr("class", "tval")
 				.attr("text-anchor", "middle")
-				.style("fill", d => chart.get_colour(chart.get_value(d[0], d[1])))
 				.on("click", function(d) {
 					var cell = chart.svg.selectAll("#p" + (d[0] + "_-sep-_" + d[1]).replace(/[ .]/g,"_")).node();
 					chart.get_on_click.apply(cell, [d[0], d[1]]);
@@ -1010,12 +1025,14 @@ export function heatmap(id, chart){
 		if(chart.transitionDuration() > 0 && !chart.transitionOff)
 			chart.g.selectAll(".tval").transition("textValues")
 				.duration(chart.transitionDuration())
+				.attr("fill", d => chart.get_valueTextColour(d[0], d[1]))
 				.text(function(d) {
 					var val = chart.get_value(d[0], d[1]);
 					return val.toFixed ? val.toFixed(1) : "NA";
 			})
 		else
 			chart.g.selectAll(".tval")
+				.attr("fill", d => chart.get_valueTextColour(d[0], d[1]))
 				.text(function(d) {
 					var val = chart.get_value(d[0], d[1]);
 					return val.toFixed ? val.toFixed(1) : "NA";
