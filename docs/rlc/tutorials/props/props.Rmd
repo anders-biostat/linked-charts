@@ -706,7 +706,6 @@ lc_heatmap(dat(
   colLabel = colnames(iris),
   height = 1000,
   rankRows = rnk,
-  showValue = T,
   rowTitle = "Samples",
   colTitle = "Measurements",
   on_labelClickRow = function(i) {
@@ -716,4 +715,18 @@ lc_heatmap(dat(
 ))
 ```
 <div id="example25"></div>
+
+```{r message=FALSE}
+openPage(layout = "table1x2")
+
+lc_heatmap(value = matrix(rnorm(100), nrow = 10),
+           showValue = T,
+           place = "A1")
+lc_heatmap(value = matrix(rnorm(100), nrow = 10),
+           showValue = T,
+           palette = viridisLite::mako(10),
+           valueTextColour = "brown",
+           place = "A2")
+```
+
 <script src="props/examples.js"></script>

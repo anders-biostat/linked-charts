@@ -489,7 +489,6 @@ ex25.chart = lc.heatmap()
 	.value((row, col) => iris[col][row])
 	.rowLabel(iris.Species)
 	.height(1000)
-	.showValue(true)
 	.rowTitle("Samples")
 	.colTitle("Measurements")
 	.on_labelClickRow(function(i) {

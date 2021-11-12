@@ -42,3 +42,8 @@ a.toc-link {
 .is-active-link {
 	font-weight: 700
 }
+
+.is-collapsible li .toc-link {
+	font-size: 105%;
+	color: #383894;
+}

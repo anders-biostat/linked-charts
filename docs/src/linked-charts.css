@@ -126,3 +126,7 @@
 .linked-charts .mainTable {
 	border-spacing: 0px;	
 }
+
+.linked-charts .tval {
+	filter: invert(75%) contrast(300%);
+}
