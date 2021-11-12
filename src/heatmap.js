@@ -27,10 +27,12 @@ export function heatmap(id, chart){
 		               "must be one of d3 interpolators (e.g. 'interpolateOrRd').";
 		    return d3[value];
 			}
-			if(Array.isArray(value))
+			if(Array.isArray(value)){
+				value = value.map(el => /^#[0-9a-fA-F]{8,8}$/.test(el) ? el.substring(0, 7) : el);
 				return d3.scaleLinear()
 									.domain(d3.range(value.length).map(function(el) {return el/value.length}))
 									.range(value);
+			}
 			if(typeof value === "function")
 				return value
 

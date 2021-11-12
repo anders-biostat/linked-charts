@@ -136,6 +136,7 @@ export function layerBase(id) {
       //if palette is an array of colors, make a linear colour scale using all
       //values of the palette as intermideate points
       if(Array.isArray(palette)){
+        palette = palette.map(el => /^#[0-9a-fA-F]{8,8}$/.test(el) ? el.substring(0, 7) : el);
         if(palette.length != range.length)
           range = [d3.min(range), d3.max(range)];
         if(palette.length == 1)
