@@ -122,6 +122,19 @@ export function heatmap(id, chart){
 		}
 	});
 
+	//if row or col titles are set, make sure there is enough space for them
+	["col", "row"].forEach(function(name){
+		var pad = name == "col" ? "bottom" :"right";
+		chart.wrapSetter(name + "Title", function(oldSetter){
+			return function() {
+				let new_pads = {};
+				new_pads[pad] = d3.max([chart.paddings()[pad], 20]);
+				chart.set_paddings(new_pads)
+				return oldSetter.apply(chart, arguments);
+			}
+		});
+	});
+
 	chart.colour(function(val) {return chart.colourScale(val);});
 
 	chart.axes = {};
