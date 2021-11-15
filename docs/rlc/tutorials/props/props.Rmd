@@ -372,10 +372,12 @@ lc_scatter(dat(
 ## Interactivity
 
 This section describes the following properties:
+
 - `on_click`
 - `on_mouseover`
 - `on_mouseout`
 - `on_marked`
+- `on_clickPosition`
 
 R/LinkedCharts is designed as an easy-to-use framework to create sets of interactive linked charts. From [this](oscc.html) tutorial, you can already get a pretty good idea of how it works, but let's quickly go through it again here.
 
@@ -467,6 +469,29 @@ lc_scatter(dat(
 Try it by selecting points on one of the charts (the `Shift` key must be pressed in order to select points).
 
 If you want to see more use cases of these properties, check [this](citeseq1.html) tutorial.
+
+So far, we talked about the event handlers that react to user interactions only with a chart element that represents a data instance: a point, a line, a heatmap cell, etc. Unlike them, `on_clickPosition` reacts to any user's click on the plot. It receives coordinates of the click based on the current axes scales. If the axis is discrete, the closest value will be used as the corresponding coordinate. The example below shows how this property works. 
+
+
+```{r message=FALSE}
+x <- 0
+y <- "a"
+
+lc_scatter(dat(
+    x = x,
+    y = y), 
+  domainX = c(-10, 10),
+  domainY = letters[1:10],
+  on_clickPosition = function(d) {
+    x <<- c(x, d[1])
+    y <<- c(y, d[2])
+    updateCharts()
+  })
+```
+<div id="example27"></div>
+
+
+Here, we start with a scatter plot that has a single point. Clicking on any position in this plot adds another value to `x` and `y` variables and, thus, another point to the plot. Note the difference between a continuous X-axis and a discrete Y-axis. As an X-coordinate, the exact click position is returned, and, therefore, a new point is placed exactly where the mouse points. As a Y-coordinate, the nearest tick is returned, and the points are placed only at one of the 10 specified positions. At any moment, you can return to your R session to explore the current state of the `x` and `y` variables and modify them, if needed. However, since R doesn't allow values of different types inside a single vector, both coordinates are returned as characters. Base R `as.numeric` function will turn the values in the `x` variables into numbers. The `rlc` package also doesn't allow a scatter plot without `x` or `y` values; therefore, in this example, we start with one point.
 
 ## Axes Settings
 

@@ -523,4 +523,23 @@ lc.heatmap()
 	.palette(["#0B0405FF", "#28192FFF", "#3B2F5EFF", "#40498EFF", "#366A9FFF", "#348AA6FF", "#38AAACFF", "#54C9ADFF", "#A0DFB9FF", "#DEF5E5FF"])
 	.rowTitle("Here are the rows!")
 	.colTitle("And these are the columns")
-	.place("#example26 #A2")	
+	.place("#example26 #A2")
+
+	////////////////
+	///example 27///
+	////////////////
+
+	var x_27 = [0],
+		y_27 = ["a"];
+	var ex27 = lc.scatter()
+		.x(i => x_27[i])
+		.y(i => y_27[i])
+		.domainX([-10, 10])
+		.domainY("abcdefghij".split(""))
+		.on_clickPosition((x, y) => {
+			x_27 = x_27.concat(x);
+			y_27 = y_27.concat(y);
+			ex27.nelements(x_27.length)
+				.update();
+		})
+		.place("#example27")
