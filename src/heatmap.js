@@ -45,8 +45,14 @@ export function heatmap(id, chart){
 		.add_property("on_click", function() {})
 		.add_property("rowTitle", "")
 		.add_property("showValue", false)
-		.add_property("valueTextColour", (row, col) => chart.get_colour(chart.get_value(row, col)), 
-			function(value) {
+		.add_property("valueTextColour", (row, col) => {
+			let cellColour = d3.hsl(chart.get_colour(chart.get_value(row, col)));
+			cellColour.h = (cellColour.h + 180) % 360;
+			cellColour.s = Math.sqrt(cellColour.s);
+			cellColour.l = 1 - cellColour.l;
+
+			return cellColour;
+		}, function(value) {
 				if(typeof value === "function")
 					return value;
 				if(typeof value === "string")
@@ -74,13 +80,6 @@ export function heatmap(id, chart){
 
 	chart.paddings({top: 100, left: 100, right: 10, bottom: 40});
 	chart.legend.width(75);
-
-	//in Google Chrome before v.89 CSS filters were not applied to 
-	//SVG objects. Set valueTextColour to black
-	if(navigator.userAgent.toLowerCase().indexOf('chrome') > -1 &&
-			navigator.userAgent.match(/Chrome\/([0-9]+)\./)[1] < 90)
-		chart.valueTextColour("black");
-
 
 	//setting a number of elements or their IDs should replace
 	//each other
@@ -1154,8 +1153,16 @@ export function heatmap(id, chart){
 							chart.cellSize.width/2,
 						y = chart.axes.scale_y(chart.get_heatmapRow(j)) + 
 							chart.cellSize.height * 0.75,
-						val = chart.get_value(i, j);
-						val = val.toFixed ? val.toFixed(1) : "NA";
+						val = chart.get_value(j, i),
+					  cellColour = d3.hsl(chart.get_colour(chart.get_value(j, i)));
+			
+					cellColour.h = (cellColour.h + 180) % 360;
+					cellColour.s = Math.floor(Math.sqrt(cellColour.s) * 100);
+					cellColour.l = Math.floor((1 - cellColour.l) * 100);
+					ctx.fillStyle = "hsl(" + cellColour.h + "," + cellColour.s + "%," + cellColour.l + "%)";
+					
+					val = val.toFixed ? val.toFixed(1) : "NA";
+					
 					ctx.fillText(val, x, y, chart.cellSize.width);
 				}
 		}
