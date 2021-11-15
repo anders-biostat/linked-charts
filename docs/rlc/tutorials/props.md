@@ -359,10 +359,15 @@ This section describes the following properties:
 - `titleSize`
 - `titleX`/`titleY`
 - `axisTitleX`/`axisTitleY`
+- `axisTitlePosX`/`axisTitlePosY`
 - `colourLegendTitle`
 - `symbolLegendTitle`
 
-`label` defines the text that you see when hovering the mouse over some element. If vectors that specify `x` or `y` coordinates have names, these names will be used as labels. Otherwise, the element's index is used as its label (note that indices start from 0). One can also define the main `title` of a plot, its size (`titleSize`) and position. `titleX` specifies the horizontal position of title midpoint, while `titleY` is the vertical position of its bottom. `axisTitleX` and `axisTitleY` set title to x and y axes respectively. `colourLegendTitle` and `symbolLegendTitle` have already been mentioned in the sections above - they specify titles for colour and symbol legends.
+`label` defines the text that you see when hovering the mouse over some element. If vectors that specify `x` or `y` coordinates have names, these names will be used as labels. Otherwise, the element's index is used as its label (note that indices start from 0). One can also define the main `title` of a plot, its size (`titleSize`) and position. `titleX` specifies the horizontal position of the title midpoint, while `titleY` is the vertical position of its bottom.
+
+`axisTitleX` and `axisTitleY` set title to x and y axes respectively. By default, the titles are positions above the axis (inside the plotting area) around its end. One can change the default positioning with `axisTitlePosX` and `axisTitlePosY`. These properties accept a combination of the keywords. `"up"` and `"down"` defines whether the title should be above or below the axis (inside or outside the plotting area), `"start"`, `"middle"` and `"end"` specify positioning along the axis. So, the default value of this property is `"up end"`. You can use one or two keywords at once.
+
+`colourLegendTitle` and `symbolLegendTitle` have already been mentioned in the sections above - they specify titles for colour and symbol legends.
 
 
 ```r
@@ -378,6 +383,8 @@ lc_scatter(dat(
   titleSize = 30,
   axisTitleX = "Sepal Length",
   axisTitleY = "Petal Length",
+  axisTitlePosX = "middle",
+  axisTitlePosY = "down start",
   colourLegendTitle = "Petal Width",
   symbolLegendTitle = "Species"
 ))
@@ -495,13 +502,12 @@ This section describes the following properties:
 - `layerDomainX`/`layerDomainY`
 - `domainX`/`domainY`
 - `aspectRatio`
-- `axisTitleX`/`axisTitleY`
 - `ticksRotateX`/`ticksRotateY`
 - `ticksX`/`ticksY`
 
 Overplotting can become an annoying issue when you want to put too many points on a scatter plot. It means that several points have the same (or almost the same) coordinates and are plotted on top of each other. In this case, it's impossible to say how many points are there at some coordinates. What seems to be one point can be two, or ten, or a hundred. One way to address this problem is to make points transparent (e.g. `opacity = 0.4`). Another is to add noise along one of the axes, which can be especially helpful when one of the axes is categorical or discrete, and there are noticeable gaps between agglomerations of points.
 
-`shiftX`, `shiftY`, `jitterX`, `jitterY` can add this noise. `jitterX` and jitterY` are numbers that specify the amplitude of the random noise that will be added to each point along one of the axes. 0 stands for no noise, 1 is distance between `x` and `x + 1` for linear scale, `x` and `b*x` for logarithmic scale (where `b` is a base of the  logarithm), and between neighbouring ticks for categorical scale. `shiftX` and `shiftY` specify shift for each point separately. `jitterX = 0.3` is equivalent to `shiftX = runif(length(x), -0.3, 0.3)`.
+`shiftX`, `shiftY`, `jitterX`, `jitterY` can add this noise. `jitterX` and `jitterY` are numbers that specify the amplitude of the random noise that will be added to each point along one of the axes. 0 stands for no noise, 1 is distance between `x` and `x + 1` for linear scale, `x` and `b*x` for logarithmic scale (where `b` is a base of the  logarithm), and between neighbouring ticks for categorical scale. `shiftX` and `shiftY` specify shift for each point separately. `jitterX = 0.3` is equivalent to `shiftX = runif(length(x), -0.3, 0.3)`.
 
 This example demonstrates how `jitterX` works and how one can use `shiftX` to create a violin plot. We generate 1500 points divided into three groups `"a", "b"` and `"c"`. Y-values are normally distributed within each group, but with different means.
 
@@ -606,7 +612,7 @@ lc_scatter(x = 1:10, y = 1:10,
 ```
 <div id="example20"></div>
 
-`axisTitleX` and `axisTitleY` set titles of the axes. `ticksRotateX` and `ticksRotateY` allow to rotate ticks. The angle of rotation must be set in degrees and lie between 0 and 90. Any values outside this range will be put into it. It is also possible to define what ticks to show and to replace their labels with something else. To this end, one of the `ticksX` and `ticksY` should be set to one or several columns of values. The first column is always where to put ticks. The next columns are optional, and they allow to specify with what to replace tick values (one tick can be replaced with several values simultaneously as if you have several axes at the same time).
+`ticksRotateX` and `ticksRotateY` allow to rotate ticks. The angle of rotation must be set in degrees and lie between 0 and 90. Any values outside this range will be put into it. It is also possible to define what ticks to show and to replace their labels with something else. To this end, one of the `ticksX` and `ticksY` should be set to one or several columns of values. The first column is always where to put ticks. The next columns are optional, and they allow to specify with what to replace tick values (one tick can be replaced with several values simultaneously as if you have several axes at the same time).
 
 Imagine now some values in the Iris dataset are missing. By default, these points are moved to the left upper corner of the plot, but what if we want to show them as well? We can replace NAs with some numeric value that is smaller than all our real values and then change tick labels to indicate that.
 
@@ -623,8 +629,6 @@ lc_scatter(dat(
   y = values,
   ticksY = cbind(3:8, c("NA", 4:8)),
   ticksRotateX = 45,
-  axisTitleX = "species",
-  axisTitleY = "sepal length",
   jitterX = 0.2,
   size = 4,
   colourValue = iris$Petal.Length
