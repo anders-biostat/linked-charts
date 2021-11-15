@@ -675,6 +675,7 @@ This section describes the following properties:
 - `on_labelClickRow`/`on_labelClickCol`
 - `rowTitle`/`colTitle`
 - `showValue`
+- `valueTextColour`
 
 Each row and column of heatmap has labels shown next to the row or column and on the label that appears when the mouse hovers over one of the cells. These labels can be automatically picked from column and row names of the `value` matrix, or you can specify them using `colLabel` and `rowLabel`. When neither is available, numbers are used instead. `clusterRows` and `clusterCols` specify whether rows and columns should be clustered when the heatmap is generated. Even if these two are set to `FALSE`, you can always cluster rows and columns later, using the instrument panel (click on the grey triangle in the upper-left corner to open/hide the instrument panel). Note that hierarchical clustering is slow and it may cause the page to go down. When rows or columns are clustered, an interactive dendrogram appears on the top or to the left from the heatmap. You can click on a branch of the, for example, row dendrogram to cluster columns, using only rows of the selected branch as features.
 
@@ -692,9 +693,7 @@ lc_heatmap(dat(
 ```
 <div id="example24"></div>
 
-If `showValue` is true, then when the user moves the mouse over a cell, instead of a label with column and row IDs and the corresponding value, only the value will be shown directly inside the cell. This may be useful for small heatmaps with large cells. `rowTitle` and `colTitle` work like axes title, but for heatmaps.
-
-By default, rows and columns are ordered as they are given. If `clusterRows` or `clusterCols` is `TRUE`, then rows or columns are ordered according to the hierarchical clustering. It is also possible to set row and column order by setting `rankRows` and `rankCols` properties. By now, you may have noticed that clicking on a row label causes columns to rearrange themselves so that cells in the clicked row are sorted by their values. The same goes for column labels. Now, we are going to replace that with a different kind of behaviour. When a row label is clicked, it will be placed on top of the heatmap, and all other rows will be ordered by correlation with the selected one.
+By default, rows and columns are ordered as they are given. If `clusterRows` or `clusterCols` is `TRUE`, then rows or columns are ordered according to the hierarchical clustering. It is also possible to set row and column order by setting `rankRows` and `rankCols` properties. By now, you may have noticed that clicking on a row label causes columns to rearrange themselves so that cells in the clicked row are sorted by their values. The same goes for column labels. Now, we are going to replace that with a different kind of behaviour. When a row label is clicked, it will be placed on top of the heatmap, and all other rows will be ordered by correlation value with the selected one.
 
 ```{r message=FALSE}
 openPage(useViewer = F)
@@ -706,27 +705,36 @@ lc_heatmap(dat(
   colLabel = colnames(iris),
   height = 1000,
   rankRows = rnk,
-  rowTitle = "Samples",
-  colTitle = "Measurements",
   on_labelClickRow = function(i) {
-    rnk <<- rank(-cor(unlist(iris[i, 1:4]), t(iris[, 1:4])))
+    rnk <<- -cor(unlist(iris[i, 1:4]), t(iris[, 1:4]))
     updateCharts()
   }
 ))
 ```
 <div id="example25"></div>
 
+There are other types of information one can add to a heatmap.
+
+`rowTitle` and `colTitle` define titles to rows and columns. They work like `axisTitleY` and `axisTitleX` for plots with axes, but for heatmaps. By setting `showValue = T`, you can force a heatmap to display the corresponding values inside each cell. The colour of the text is, by default, set individually for each cell to make it visible. You can also change the colour with `valueTextColour` property.
+
 ```{r message=FALSE}
 openPage(layout = "table1x2")
 
 lc_heatmap(value = matrix(rnorm(100), nrow = 10),
            showValue = T,
+           rowTitle = "Here are the rows!",
+           colTitle = "And these are the columns.",
            place = "A1")
 lc_heatmap(value = matrix(rnorm(100), nrow = 10),
            showValue = T,
            palette = viridisLite::mako(10),
            valueTextColour = "brown",
+           rowTitle = "Here are the rows!",
+           colTitle = "And these are the columns.",
            place = "A2")
 ```
+<div id="example26">
+  <table><tr><td id = "A1"></td><td id = "A2"></td></tr></table>
+</div>
 
 <script src="props/examples.js"></script>
