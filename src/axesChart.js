@@ -36,9 +36,9 @@ export function axesChart() {
                var y = value.y.split(" ").map(el => el.toLowerCase());
                if(y.indexOf("down") > -1)
                   newValue.y.across = "down";
-               if(x.indexOf("middle") > -1)
+               if(y.indexOf("middle") > -1)
                   newValue.y.along = "middle";
-               if(x.indexOf("start") > -1)
+               if(y.indexOf("start") > -1)
                   newValue.y.along = "start";
             }
             return newValue;
