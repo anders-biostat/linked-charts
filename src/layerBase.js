@@ -73,22 +73,36 @@ export function layerBase(id) {
   })
 
   layer.colourDomain(function() {
-    var ids = layer.elementIds();
-    if(ids.length == 0)
+    var values = layer.elementIds().map(el => layer.get_colourValue(el));
+    if(values.length == 0)
       return;
-    //if(layer.get_colourValue(ids[0]) !== undefined){
-      var range = [];
-      for(var i = 0 ; i < ids.length; i++)
+    if(values.length == 1)
+      return values;
+    var i = -1, range;
+
+    if(typeof values[1] === "number" && typeof values[2] === "number") {
+      range = values[1] > values[0] ? [values[0], values[1]] : [values[1], values[0]];
+      i = 2;
+      while(i < values.length && (typeof values[i] === "number" || lc.isNaN(values[i]))){
+        if(range[0] > values[i]) range[0] = values[i];
+        if(range[1] < values[i]) range[1] = values[i];
+        i++;
+      }
+    }
+    // then colour scale should be discrete
+    if(i < values.length) {
+      range = [];
+      for(var i = 0 ; i < values.length; i++)
         //colour range can contain only unique values
-        if(range.indexOf(layer.get_colourValue(ids[i])) == -1)
-          range.push(layer.get_colourValue(ids[i]));
+        if(range.indexOf(values[i]) == -1)
+          range.push(values[i]);
 
-      var undi = range.indexOf(undefined);
-      if(undi > -1)
-        range.splice(undi, 1);
+        var undi = range.indexOf(undefined);
+        if(undi > -1)
+            range.splice(undi, 1);
+    }
 
-      return range;
-    //}
+    return range;
   });
 
   layer.colourScale = function(){

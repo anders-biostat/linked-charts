@@ -1,0 +1,13 @@
+<script type="text/javascript" src="../build/linked-charts.js"></script>
+<script type="text/javascript" src="../build/adds.js"></script>
+<script type="text/javascript" src="data/iris.js"></script>
+<link rel="stylesheet" type="text/css" href="../lib/linked-charts.css">
+
+<div id="container"></div>
+<script type="text/javascript">
+	lc.scatter()
+		.x(i => +iris[i].sepal_length)
+		.y(i => +iris[i].petal_width)
+		.colourValue(i => iris[i].species)
+		.place("#container");
+</script>
