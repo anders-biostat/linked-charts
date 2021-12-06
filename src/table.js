@@ -301,7 +301,7 @@ export function input() {
     if(chart.type() == "checkbox")
       chart.container
         .selectAll("input")
-          .attr("checked", d => chart.get_value(d) ? "true" : undefined);
+          .property("checked", d => chart.get_value(d) ? true : false);
 
     if(chart.type() == "text")
       chart.container
