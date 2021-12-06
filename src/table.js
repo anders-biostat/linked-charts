@@ -113,6 +113,8 @@ export function input() {
     .add_property("max", 100, check("array_fun", "max"))
     .add_property("step", 1, check("array_fun", "step"))
     .add_property("fontSize", 17, check("number_nonneg", "fontSize"))
+    .add_property("ncols", 1, check("number_nonneg", "ncols"))
+    .add_property("nrows", function() {return chart.nelements()}, check("number_nonneg", "nrows"))
 //    .add_property("orientation", "vertical") may be later...
     .add_property("on_change", function() {});
   
@@ -130,6 +132,23 @@ export function input() {
     return function() {
       chart.get_nelements = function(){
         return oldSetter().length;
+      };
+      return oldSetter.apply(chart, arguments);
+    }
+  });
+
+  chart.wrapSetter("nrows", function(oldSetter){
+    return function() {
+      chart.get_ncols = function(){
+        return Math.ceil(chart.nelements() / oldSetter());
+      };
+      return oldSetter.apply(chart, arguments);
+    }
+  });
+  chart.wrapSetter("ncols", function(oldSetter){
+    return function() {
+      chart.get_nrows = function(){
+        return Math.ceil(chart.nelements() / oldSetter());
       };
       return oldSetter.apply(chart, arguments);
     }
@@ -156,12 +175,13 @@ export function input() {
     inherited_put_static_content(element);
     chart.container
       .style("display", "grid")
-      .style("grid-template-columns", "fit-content(500px) 1fr fit-content(20px)")
+      .style("grid-template-columns", 
+        "repeat(auto-fit, fit-content(500px) 1fr fit-content(20px))")
       .style("column-gap", "9px")
       .style("align-items", "center")
       .append("p")
         .style("grid-row", 1)
-        .style("grid-column", "1/4")
+        .style("grid-column", "1/" + (chart.ncols() * 3 + 1))
         .style("text-align", "center")
         .style("font-weight", "bold")
         .attr("id", "title");
@@ -208,11 +228,13 @@ export function input() {
       .append("input")
         .attr("type", chart.type())
         .attr("name", chart.name)
-        .style("grid-row", (d, i) => i + 2)
-        .style("grid-column", (chart.type() == "text" || chart.type() ==  "range") ? 2 : 1)
+        .style("grid-row", (d, i) => (i % chart.nrows() + 2))
+        .style("grid-column", 
+          (d, i) => Math.floor(i/chart.nrows()) * 3 + 
+                      ((chart.type() == "text" || chart.type() ==  "range") ? 2 : 1))
         .attr("id", d => chart.name + "_in_" + d)
         .property("value", d => chart.type() == "radio" ? d : undefined)
-        .style("width", chart.type() == "text" ? "100%" : undefined)
+        .style("width", (chart.type() == "text" || chart.type() == "range") ? "100%" : undefined)
         .on(chart.type() == "button" ? "click" : "change", function() {
           chart.get_on_change(get_value(this));
         });
@@ -225,8 +247,10 @@ export function input() {
       labels.enter()
         .append("label")
           .attr("for", d => chart.name + "_in_" + d)
-          .style("grid-row", (d, i) => i + 2)
-          .style("grid-column", (chart.type() == "text" || chart.type() ==  "range") ? 1 : 2)
+          .style("grid-row", (d, i) => (i % chart.nrows() + 2))
+          .style("grid-column", 
+            (d, i) => Math.floor(i/chart.nrows()) * 3 + 
+                          ((chart.type() == "text" || chart.type() ==  "range") ? 1 : 2))
           .merge(labels)        
             .text(d => chart.get_label(d))
             .style("font-size", chart.fontSize())
@@ -245,8 +269,8 @@ export function input() {
         .append("p")
           .attr("class", "currentValue")
           .attr("id", d => chart.name + "_in_" + d)
-          .style("grid-row", (d, i) => i + 2)
-          .style("grid-column", 3)
+          .style("grid-row", (d, i) => (i % chart.nrows() + 2))
+          .style("grid-column", (d, i) => Math.floor(i/chart.nrows()) * 3 + 3)
           .style("margin-top", 0)
           .style("margin-bottom", 0);
       cvs.exit()
