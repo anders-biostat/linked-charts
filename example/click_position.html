@@ -1,0 +1,22 @@
+<script type="text/javascript" src="../build/linked-charts.js"></script>
+<script type="text/javascript" src="../build/adds.js"></script>
+<link rel="stylesheet" type="text/css" href="../lib/linked-charts.css">
+
+<div id="container"></div>
+
+<script type="text/javascript">
+	var x_27 = [0],
+		y_27 = ["a"];
+	var ex27 = lc.scatter()
+		.x(i => x_27[i])
+		.y(i => y_27[i])
+		.domainX([-10, 10])
+		.domainY("abcdefghij".split(""))
+		.on_clickPosition((x, y) => {
+			x_27 = x_27.concat(x);
+			y_27 = y_27.concat(y);
+			ex27.nelements(x_27.length)
+				.update();
+		})
+		.place("#container")	
+</script>

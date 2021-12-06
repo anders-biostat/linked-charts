@@ -1,0 +1,47 @@
+<script type="text/javascript" src="../build/linked-charts.js"></script>
+<script type="text/javascript" src="../build/adds.js"></script>
+<link rel="stylesheet" type="text/css" href="../lib/linked-charts.css">
+
+<div id="default"></div>
+<div id="ncol"></div>
+<div id="nrow"></div>
+
+<script type="text/javascript">
+	var types = ['text', 'radio', 'checkbox', 'button', 'range'],
+		ids = ["a", "b", "c", "d", "e"];
+
+	["default", "ncol", "nrow"].forEach(el => {
+		d3.select("#" + el)
+			.append("table")
+				.append("tr")
+					.selectAll("td").data(types)
+					.enter().append("td")
+						.attr("id", d => el + "_" + d);
+	})
+
+	var charts_d = types.map(el => {
+		return lc.input()
+			.type(el)
+			.elementIds(ids)
+			.title("default_" + el)
+			.place("#default_" + el);
+	});
+	var charts_c = types.map(el => {
+		return lc.input()
+			.type(el)
+			.elementIds(ids)
+			.ncols(2)
+			.title("ncol_" + el)
+			.place("#ncol_" + el);
+	});	
+	var charts_r = types.map(el => {
+		return lc.input()
+			.type(el)
+			.elementIds(ids)
+			.nrows(2)
+			.title("nrow_" + el)
+			.place("#nrow_" + el);
+	});	
+
+</script>
+
