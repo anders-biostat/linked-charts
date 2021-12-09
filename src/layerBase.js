@@ -77,7 +77,8 @@ export function layerBase(id) {
     if(values.length == 0)
       return;
     if(values.length == 1)
-      return values;
+      return values[0] === undefined ? [] : values;
+    
     var i = -1, range;
 
     if(typeof values[1] === "number" && typeof values[2] === "number") {
@@ -94,12 +95,8 @@ export function layerBase(id) {
       range = [];
       for(var i = 0 ; i < values.length; i++)
         //colour range can contain only unique values
-        if(range.indexOf(values[i]) == -1)
+        if(range.indexOf(values[i]) == -1 && values[i] !== undefined)
           range.push(values[i]);
-
-        var undi = range.indexOf(undefined);
-        if(undi > -1)
-            range.splice(undi, 1);
     }
 
     return range;
