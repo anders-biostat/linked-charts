@@ -175,7 +175,8 @@ export function chartBase() {
 			chart.svg.selectAll(".data_element.marked")
 				.classed("marked", false);
 			chart.svg.selectAll(".data_element")
-				.attr("opacity", 1);
+				.attr("opacity", 1)
+				.style("filter", "none");
 			if(!pe)
 				chart.on_marked();
 			return chart;
@@ -187,20 +188,24 @@ export function chartBase() {
 		
 		if(chart.svg.selectAll(".data_element.marked").empty())
 			chart.svg.selectAll(".data_element")
-				.attr("opacity", 0.5);
+				.attr("opacity", 0.3)
+				.style("filter", "saturate(0.3) brightness(0.3)");
 		marked.classed("switch", true);
 		if(marked.size() < 2)
 			marked.filter(function() {return d3.select(this).classed("marked");})
 				.classed("switch", false)
 				.classed("marked", false)
-				.attr("opacity", 0.5);
+				.attr("opacity", 0.3)
+				.style("filter", "saturate(0.3) brightness(0.3)");
 		marked.filter(function() {return d3.select(this).classed("switch");})
 			.classed("marked", true)
 			.classed("switch", false)
-			.attr("opacity", 1);
+			.attr("opacity", 1)
+			.style("filter", "none");
 		if(chart.svg.selectAll(".data_element.marked").empty())
 			chart.svg.selectAll(".data_element")
-				.attr("opacity", 1);
+				.attr("opacity", 1)
+				.style("filter", "none");
 
 		if(!pe)
 			chart.on_marked();

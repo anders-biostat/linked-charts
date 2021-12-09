@@ -10,4 +10,11 @@
 		.y(i => +iris[i].petal_width)
 		.colourValue(i => iris[i].species)
 		.place("#container");
+
+		var chart = lc.scatter()
+			.x(i => +iris[i].sepal_length)
+			.y(i => +iris[i].petal_width)
+			.colourValue(i => "1")
+			.mode("canvas")
+			.place("#container");		
 </script>

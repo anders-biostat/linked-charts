@@ -836,7 +836,6 @@ export function heatmap(id, chart){
 			cells.enter()
 				.append("rect")
 					.attr("class", "data_element")
-					.attr("opacity", 0.5)
 					.merge(cells)
 						.attr("id", function(d) {return "p" + (d[0] + "_-sep-_" + d[1]).replace(/[ .]/g,"_")})
 						.attr("rowId", function(d) {return d[0];})
@@ -870,7 +869,6 @@ export function heatmap(id, chart){
 		if(newMarked == 0)
 			chart.g.selectAll(".data_element")
 				.attr("opacity", 1);
-
 		
 		return chart;
 	}
@@ -1108,27 +1106,38 @@ export function heatmap(id, chart){
 		//create an object to store information on each cell of a heatmap
 		var pixelData = new ImageData(ncols, nrows);
 
-		for(var i = 0; i < nrows; i++)
-			for(var j = 0; j < ncols; j++) {
+		if(chart.marked.length == 0) {
+			for(var i = 0; i < nrows; i++)
+				for(var j = 0; j < ncols; j++) {
 					rgbColour = d3.rgb(chart.get_colour(chart.get_value(rowIds[i], 
-																													colIds[j])));
+																														colIds[j])));
 					position = chart.get_heatmapRow(rowIds[i]) * ncols * 4 +
 						chart.get_heatmapCol(colIds[j]) * 4;
 					pixelData.data[position] = rgbColour.r;
 					pixelData.data[position + 1] = rgbColour.g;
 					pixelData.data[position + 2] = rgbColour.b;
-			}
-		//set opacity of pixels
-		if(chart.marked.length == 0)
-			for(var i = 0; i < ncols * nrows; i++)
-				pixelData.data[i * 4 + 3] = 255
-		else
-			for(var i = 0; i < ncols * nrows; i++)
-				pixelData.data[i * 4 + 3] = 75;
-		for(var i = 0; i < chart.marked.length; i++){
-			position = chart.get_heatmapRow(chart.marked[i][0]) * ncols * 4 +
-						chart.get_heatmapCol(chart.marked[i][1]) * 4;			
-			pixelData.data[position + 3] = 255;
+					pixelData.data[position + 3] = 255;
+				}
+		} else {
+			for(var i = 0; i < nrows; i++)
+				for(var j = 0; j < ncols; j++) {
+					rgbColour = d3.rgb(chart.get_colour(chart.get_value(rowIds[i], 
+																														colIds[j])));
+					position = chart.get_heatmapRow(rowIds[i]) * ncols * 4 +
+						chart.get_heatmapCol(colIds[j]) * 4;
+					pixelData.data[position] = rgbColour.r / 4;
+					pixelData.data[position + 1] = rgbColour.g / 4;
+					pixelData.data[position + 2] = rgbColour.b / 4;
+					pixelData.data[position + 3] = 55;
+				}
+			for(var i = 0; i < chart.marked.length; i++){
+				position = chart.get_heatmapRow(chart.marked[i][0]) * ncols * 4 +
+					chart.get_heatmapCol(chart.marked[i][1]) * 4;			
+				pixelData.data[position] *= 4;
+				pixelData.data[position + 1] *= 4;
+				pixelData.data[position + 2] *= 4;
+				pixelData.data[position + 3] = 255;
+			}	
 		}
 		
 		//put a small heatmap on screen and then rescale it

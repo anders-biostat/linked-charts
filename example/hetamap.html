@@ -1,0 +1,20 @@
+<script type="text/javascript" src="../build/linked-charts.js"></script>
+<script type="text/javascript" src="../build/adds.js"></script>
+<link rel="stylesheet" type="text/css" href="../lib/linked-charts.css">
+
+<div id="container"></div>
+
+<script type="text/javascript">
+	var hm = lc.heatmap()
+		.nrows(30)
+		.ncols(30)
+		.value((row, col) => Math.random())
+		.place("#container");
+
+	var hm_can = lc.heatmap()
+		.nrows(30)
+		.ncols(30)
+		.mode("canvas")
+		.value((row, col) => Math.random())
+		.place("#container");		
+</script>
