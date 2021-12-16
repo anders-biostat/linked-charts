@@ -118,7 +118,10 @@ export function layerBase(id) {
         l = layer.chart.get_layer(layerId);
         if(layerId != layer.id && !l.globalScaleUpdate){
           l.globalScaleUpdate = true;
+          let us = l.updateStarted;
+          l.updateStarted = true;
           l.updateElementStyle();
+          l.updateStarted = us;
           l.globalScaleUpdate = false;
         }
       }
