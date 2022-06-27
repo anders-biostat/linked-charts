@@ -269,7 +269,9 @@ export function barchart(id, chart){
 	}
 
 	layer.updateElements = function(){
-		
+		if(layer.groupIds() === undefined)
+			return layer;
+
 		var groups = layer.g.selectAll(".group")
 			.data(layer.groupIds(), function(d) {return d;});
 		groups.exit()
