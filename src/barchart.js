@@ -15,6 +15,9 @@ export function barchart(id, chart){
 		.add_property("barIds", undefined, check("array", "barIds"))
 		.add_property("nstacks", undefined, check("number_nonneg", "nstacks"))
 		.add_property("stackIds", undefined, check("array", "stackIds"))
+		.add_property("stackLabel", d => d, check("array_fun", "stackLabel"))
+		.add_property("groupLabel", d => d, check("array_fun", "groupLabel"))
+		.add_property("barLabel", d => d, check("array_fun", "barLabel"))
 		.add_property("value", undefined, function(value) {
 			if(typeof value === "function")
 				return value;
@@ -56,10 +59,12 @@ export function barchart(id, chart){
 	layer.type = "barchart";
 
 	layer.chart.informText(function(groupId, barId, stackId){
-			var id = groupId;
-			if(layer.nbars() > 1) id += ", " + barId;
-			if(layer.nstacks() > 1) id += ", " + stackId;
-			return "ID: <b>" + id + "</b>;<br>" + 
+			var gLab = layer.get_groupLabel(groupId),
+				bLab = layer.get_barLabel(barId),
+				sLab = layer.get_stackLabel(stackId);
+			if(layer.nbars() > 1) gLab += ", " + bLab;
+			if(layer.nstacks() > 1) gLab += ", " + sLab;
+			return "ID: <b>" + gLab + "</b>;<br>" + 
             "value = " + layer.get_value(groupId, barId, stackId).toFixed(2)
 		});
 
@@ -90,6 +95,8 @@ export function barchart(id, chart){
 	layer.nstacks(1);
 	layer.contScaleX(false);
 	layer.elementIds(function(){
+		if(layer.groupIds() === undefined || layer.groupIds().length == 0)
+			return [];
 		if(layer.nbars() == 1 && (layer.barIds()[0] == 0 || layer.barIds()[0] == 1))
 			return layer.stackIds();
 		var ids = [], barIds = layer.barIds(), stackIds = layer.stackIds();
@@ -113,11 +120,11 @@ export function barchart(id, chart){
 	layer.addColourScaleToLegend(true);
 
 	layer.layerDomainX(function() {
-		var groupIds = layer.groupIds();
+		var groups = layer.groupIds().map(el => layer.get_groupLabel(el));
 		if(layer.contScaleX())
-			return [d3.min(groupIds), d3.max(groupIds)]
+			return [d3.min(groups), d3.max(groups)]
 		else
-			return layer.groupIds();
+			return groups;
 	});
 	layer.layerDomainY(function(){
 		//go through all bars and find the highest
@@ -187,9 +194,11 @@ export function barchart(id, chart){
 	}
 
 	layer.updateElementPosition = function(){
-		var groupWidth, groupIds = layer.groupIds();
+		if(layer.groupIds() === undefined)
+			return layer;
+		var groupWidth, groups = layer.groupIds().map(el => layer.get_groupLabel(el));
 		if(layer.contScaleX())
-			groupWidth = Math.abs(layer.chart.axes.scale_x(groupIds[1]) - layer.chart.axes.scale_x(groupIds[0])) * layer.groupWidth()
+			groupWidth = Math.abs(layer.chart.axes.scale_x(groups[1]) - layer.chart.axes.scale_x(groups[0])) * layer.groupWidth()
 		else
 			groupWidth = layer.chart.axes.scale_x.step() * layer.groupWidth();
 
