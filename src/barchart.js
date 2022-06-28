@@ -102,20 +102,34 @@ export function barchart(id, chart){
 		var ids = [], barIds = layer.barIds(), stackIds = layer.stackIds();
 		for(var i = 0; i < layer.nbars(); i++)
 			for(var j = 0; j < layer.nstacks(); j++)
-				ids.push(barIds[i] + ", " + stackIds[j]);
+				ids.push(barIds[i] + "__,__" + stackIds[j]);
 		return ids;
 	});
 	layer.colourValue(function(id) {
-		if(id.split && layer.nstacks() == 1 && (layer.stackIds()[0] == 0 || layer.stackIds()[0] == 1))
-			return id.split(", ")[0].toString()
-		else 
+		var parts = [];
+		if(id.split) {
+			parts = id.split("__,__");
+			if(parts.length == 1)
+				parts[0] = layer.get_stackLabel(parts[0]);
+			if(parts.length == 2) {
+				parts[0] = layer.get_barLabel(parts[0]);
+				parts[1] = layer.get_stackLabel(parts[1]);
+			}
+
+			if(layer.nstacks() == 1 && (layer.stackIds()[0] == 0 || layer.stackIds()[0] == 1))
+				return parts[0].toString()
+			else 
+				return parts.join(", ").toString();
+		} else {
 			return id.toString();
+		}
+
 	});
 	layer.colour(function(gropuId, barId, stackId) {
       if((layer.nbars() == 1) && (barId == 0 || barId == 1)) //if the bars are not named, default ID is 0 in JS and 1 in R
       		return layer.colourScale(layer.get_colourValue(stackId))
       else
-      	return layer.colourScale(layer.get_colourValue(barId + ", " + stackId));
+      	return layer.colourScale(layer.get_colourValue(barId + "__,__" + stackId));
     })
 	layer.addColourScaleToLegend(true);
 
@@ -218,10 +232,10 @@ export function barchart(id, chart){
 					return layer.get_value(d[0], d[1], d[2]) * heightMult;
 				})
 				.attr("x", function(d){
-					if(layer.chart.axes.scale_x(d[0]) == undefined)
+					if(layer.chart.axes.scale_x(layer.get_groupLabel(d[0])) == undefined)
 						return -500;
 					return groupScale(barIds.indexOf(d[1])) + 
-						layer.chart.axes.scale_x(d[0]);
+						layer.chart.axes.scale_x(layer.get_groupLabel(d[0]));
 				})
 				.attr("y", function(d){
 					var height = 0;
@@ -236,10 +250,10 @@ export function barchart(id, chart){
 					return layer.get_value(d[0], d[1], d[2]) * heightMult;
 				})
 				.attr("x", function(d){
-					if(layer.chart.axes.scale_x(d[0]) == undefined)
+					if(layer.chart.axes.scale_x(layer.get_groupLabel(d[0])) == undefined)
 						return -500;
 					return groupScale(barIds.indexOf(d[1])) + 
-						layer.chart.axes.scale_x(d[0]);
+						layer.chart.axes.scale_x(layer.get_groupLabel(d[0]));
 				})
 				.attr("y", function(d){
 					var height = 0;
