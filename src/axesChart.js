@@ -179,8 +179,8 @@ export function axesChart() {
     else {
       var newDomainY = [], domainY = chart.get_domainY(),
          i = 0;
-      while(chart.axes.scale_y(domainY[i]) <= rb[1]){
-            if(chart.axes.scale_y(domainY[i]) >= lu[1])
+      while(chart.axes.scale_y(domainY[i]) >= lu[1]){
+            if(chart.axes.scale_y(domainY[i]) <= rb[1])
                newDomainY.push(domainY[i]);
             i++;     
       }
