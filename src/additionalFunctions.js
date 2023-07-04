@@ -138,12 +138,12 @@ export function add_click_listener(chart){
     return chart;
   }
 
-  var on_mousedown = function(){
+  var on_mousedown = function(event){
     //remove all the hints if there are any
     chart.container.selectAll(".hint")
       .remove();
 
-    var p = d3.mouse(this);
+    var p = d3.pointer(event, this);
 
     //Firefox ignores CSS properties when reporting the mouse position 
     //relative to an element (probably will be fixed in v.68)
@@ -155,7 +155,8 @@ export function add_click_listener(chart){
       p[1] -= chart.paddings().top;
     }
 
-    down = d3.mouse(document.body);
+    down = d3.pointer(event, document.body);
+
     downThis = p.slice();
     wait_click = window.setTimeout(function() {wait_click = null;}, 1000);
     if(!chart.pan("mode"))
@@ -264,13 +265,12 @@ export function add_click_listener(chart){
     }
   }
 
-  var on_mouseup = function(e) {
+  var on_mouseup = function(event) {
     var rect = chart.svg.select(".clickPanel").node().getBoundingClientRect(),
-      pos = [d3.max([d3.min([e.clientX - rect.left, chart.plotWidth()]), 0]), 
-            d3.max([d3.min([e.clientY - rect.top, chart.plotHeight()]), 0])];
-    d3.event = e;
+      pos = [d3.max([d3.min([event.clientX - rect.left, chart.plotWidth()]), 0]), 
+            d3.max([d3.min([event.clientY - rect.top, chart.plotHeight()]), 0])];
 
-    var mark = d3.event.shiftKey || chart.selectMode();
+    var mark = event.shiftKey || chart.selectMode();
     // remove selection frame
     chart.container.selectAll(".inform")
       .classed("blocked", false);
@@ -288,11 +288,11 @@ export function add_click_listener(chart){
     chart.svg.selectAll("rect.selection").remove();
     chart.svg.select(".shadow").remove();
 
-    if(wait_click && getEuclideanDistance(down, d3.mouse(document.body)) < tolerance){
+    if(wait_click && getEuclideanDistance(down, d3.pointer(event, document.body)) < tolerance){
       window.clearTimeout(wait_click);
       wait_click = null;
       if(wait_dblClick && 
-        getEuclideanDistance(click_coord, d3.mouse(document.body)) < tolerance
+        getEuclideanDistance(click_coord, d3.pointer(event, document.body)) < tolerance
       ){
         window.clearTimeout(wait_dblClick);
         wait_dblClick = null;
@@ -300,7 +300,7 @@ export function add_click_listener(chart){
       } else {
         wait_dblClick = window.setTimeout((function(e) {
           return function() {
-            elements.on("click").call(elements, pos, mark);
+            elements.on("click").call(elements, event, pos, mark);
             wait_dblClick = null;
             if(panStarted) {
               panStarted = false;
@@ -310,9 +310,9 @@ export function add_click_listener(chart){
               return;
             }          
           };
-        })(d3.event), 300);
+        })(event), 300);
       }
-      click_coord = d3.mouse(document.body);
+      click_coord = d3.pointer(event, document.body);
       return;
     }
 
@@ -337,9 +337,9 @@ export function add_click_listener(chart){
   var on_dblclick = function(mark){
     mark ? chart.mark("__clear__") : chart.resetDomain();
   }
-  var on_panelClick = function(p, mark){
+  var on_panelClick = function(event, p, mark){
 
-    d3.event.stopPropagation();
+    event.stopPropagation();
     //if this function wasn't called throug timers and 
     //therefore didn't get position as arguement, ignore
     if(p === undefined)
@@ -380,10 +380,10 @@ export function add_click_listener(chart){
             if(clicked[layerId].length != 0) {
               if(chart.clickSingle()) {
                 flag = false;
-                d3.customEvent(d3.event, chart.get_layer(layerId).get_on_click, this, [clicked[layerId][0]])
+                d3.customEvent(event, chart.get_layer(layerId).get_on_click, this, [event, clicked[layerId][0]])
               } else {
                 for(var j = 0; j < clicked[layerId].length; j++)
-                  d3.customEvent(d3.event, chart.get_layer(layerId).get_on_click, this, [clicked[layerId][j]])
+                  d3.customEvent(event, chart.get_layer(layerId).get_on_click, this, [event, clicked[layerId][j]])
               }
             }
           }
@@ -404,7 +404,7 @@ export function add_click_listener(chart){
     var clickFun;
     clickedElements.each(function(d){
       clickFun = d3.select(this).on("click");
-      clickFun.call(this, d)
+      clickFun.call(event, d)
     })
   }
 

@@ -654,8 +654,8 @@ export function heatmap(id, chart){
 
 	//some default onmouseover and onmouseout behaviour for cells and labels
 	//may be later moved out of the main library
-	function on_mouseover(d) {
-		var pos = d3.mouse(chart.container.node());
+	function on_mouseover(event, d) {
+		var pos = d3.pointer(event, chart.container.node());
 		//change colour and class
 		d3.select(this)
 			.attr("fill", function(d) {

@@ -13,6 +13,7 @@
 		.domainX([-10, 10])
 		.domainY("abcdefghij".split(""))
 		.on_clickPosition((x, y) => {
+			console.log([x, y])
 			x_27 = x_27.concat(x);
 			y_27 = y_27.concat(y);
 			ex27.nelements(x_27.length)

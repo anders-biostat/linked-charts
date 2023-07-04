@@ -289,10 +289,10 @@ export function layerBase(id) {
 	layer.get_position = function(id) {return undefined;}
 
   //default hovering behaviour
-  layer.on_mouseover(function(d){
+  layer.on_mouseover(function(event, d){
     var rect = layer.chart.container.node().getBoundingClientRect(),
-      pos = [d3.max([d3.min([d3.event.clientX - rect.left, layer.chart.plotWidth()]), 0]), 
-            d3.max([d3.min([d3.event.clientY - rect.top, layer.chart.plotHeight()]), 0])]; 
+      pos = [d3.max([d3.min([event.clientX - rect.left, layer.chart.plotWidth()]), 0]), 
+            d3.max([d3.min([event.clientY - rect.top, layer.chart.plotHeight()]), 0])]; 
 
     //change colour and class
     if(!this || !this.prev_time)
