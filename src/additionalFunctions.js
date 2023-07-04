@@ -346,7 +346,7 @@ export function add_click_listener(chart){
       return;
 
     //find all the points that intersect with the cursor position
-    if(chart.clickPosition)
+    if(chart.clickPosition && !mark)
       chart.clickPosition(p);
     var clicked = chart.findElements(p, p);
     if(clicked.length == 0)
@@ -354,7 +354,7 @@ export function add_click_listener(chart){
 
     if(mark){
       chart.mark(clicked);
-      return;      
+      return;
     }
 
     //if we are in canvas mode, on_click can't be called the usual way
