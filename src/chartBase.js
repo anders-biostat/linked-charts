@@ -316,7 +316,7 @@ function saveAsPng(chart) {
 				});
 	  		h += +d3.max(hlist);
  			});
-  		svgInnerHTML = "<svg xmlns='http://www.w3.org/2000/svg'>" + svgInnerHTML + "</svg>";
+  		svgInnerHTML = "<svg xmlns='http://www.w3.org/2000/svg' width='" + chart.width() + "' height='" + chart.height() + "'>" + svgInnerHTML + "</svg>";
   	} else
   		svgInnerHTML = new XMLSerializer().serializeToString(svgElement);
   	

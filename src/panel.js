@@ -157,7 +157,7 @@ export function panel(chart) {
 			.attr("class", "button")
 			.attr("id", function(d) {return "b_" + d.icon.substr(1)})
 			.attr("xlink:href", function(d) {return d.icon})
-			.on("click", function(event, d) {console.log(d); d.fun(panel.chart, d3.select(this))})
+			.on("click", function(event, d) {d.fun(panel.chart, d3.select(this))})
 			.on("mouseover", function() {
 				d3.select(this)
 					.attr("opacity", 1);
