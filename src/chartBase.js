@@ -300,23 +300,23 @@ export function chartBase() {
 
 function saveAsPng(chart) {
 	function drawInlineSVG(svgElement, ctx, callback, legend){
-		var svgInnerHTML;
+		var svgInnerHTML, w = 0;
 		if(legend !== undefined){
-			var w, h = 0, lsvg, hlist;
+			var h = 0, lsvg, hlist;
 			svgInnerHTML = "<g>" + svgElement.innerHTML + "</g>";
 			legend.container().selectAll("tr").each(function(d, i){
 				w = 0;
 				hlist = [];
 				d3.select(this).selectAll("td").each(function(dtd, itd){
 					lsvg = d3.select(this).selectAll("svg");
-					svgInnerHTML += "<g transform='translate(" + (legend.chart.width() + w) + ", "+ h + ")'>" +
+					svgInnerHTML += "<g transform='translate(" + (legend.chart.width() + w) + ", "+ (h + chart.paddings().top) + ")'>" +
 	 												lsvg.node().innerHTML + "</g>"
 					hlist.push(lsvg.attr("height"));
 					w += +lsvg.attr("width");
 				});
 	  		h += +d3.max(hlist);
  			});
-  		svgInnerHTML = "<svg xmlns='http://www.w3.org/2000/svg' width='" + chart.width() + "' height='" + chart.height() + "'>" + svgInnerHTML + "</svg>";
+  		svgInnerHTML = "<svg xmlns='http://www.w3.org/2000/svg' width='" + (chart.width() + w) + "' height='" + chart.height() + "'>" + svgInnerHTML + "</svg>";
   	} else
   		svgInnerHTML = new XMLSerializer().serializeToString(svgElement);
   	
@@ -402,7 +402,7 @@ function saveAsSvg(chart){
 	  	hlist = [];
 	  	d3.select(this).selectAll("td").each(function(){
 	  		lsvg = d3.select(this).selectAll("svg");
-	  		html += "<g transform='translate(" + (chart.width() + w) + ", " + h + ")'>" +
+	  		html += "<g transform='translate(" + (chart.width() + w) + ", " + (h + chart.paddings().top) + ")'>" +
 	  						lsvg.node().innerHTML + "</g>"
 	  		hlist.push(lsvg.attr("height"));
 	  		w += +lsvg.attr("width");
