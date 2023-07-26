@@ -1076,7 +1076,7 @@ export function heatmap(id, chart){
 					.updateLabelText()
 					.updateCellColour();
 				chart.updateStarted = false;
-				chart.mark(chart.marked.map(function(e) {return "p" + e.join("_-sep-_")}), true);
+				chart.mark(chart.marked, true);
 				chart.marked = [];
 				return false;
 			}
@@ -1216,11 +1216,7 @@ export function heatmap(id, chart){
 				for(var i = 0; i < marked.length; i++){
 					ind = ids.indexOf(marked[i].join("_"));
 					if(ind == -1)
-						chart.marked.push(marked[i])
-					else {
-						chart.marked.splice(ind, 1);
-						ids.splice(ind, 1);
-					}
+						chart.marked.push(marked[i]);
 				}
 			}
 		}
