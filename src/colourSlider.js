@@ -124,8 +124,8 @@ export function colourSlider() {
       .attr( "xlink:href", "#mainMarker")
       .attr( "y", 28 )
       .call( d3.drag()
-        .on( "drag", function() {
-          obj.midpoint( obj.pos_scale.invert( obj.pos_scale( obj.get_midpoint() ) + d3.event.dx ) );
+        .on( "drag", function(event) {
+          obj.midpoint( obj.pos_scale.invert( obj.pos_scale( obj.get_midpoint() ) + event.dx ) );
           clamp_markers();
           obj.get_on_drag();
           obj.update();
@@ -139,8 +139,8 @@ export function colourSlider() {
       .attr( "xlink:href", "#rightMarker")
       .attr( "y", 30 )
       .call( d3.drag()
-        .on( "drag", function() {
-          obj.slopeWidth( obj.pos_scale.invert( obj.pos_scale( obj.slopeWidth() ) + d3.event.dx * 2 ) );
+        .on( "drag", function(event) {
+          obj.slopeWidth( obj.pos_scale.invert( obj.pos_scale( obj.slopeWidth() ) + event.dx * 2 ) );
           clamp_markers();
           obj.update();        
           obj.get_on_drag();
@@ -154,8 +154,8 @@ export function colourSlider() {
       .attr( "xlink:href", "#leftMarker")
       .attr( "y", 30 )
       .call( d3.drag()
-        .on( "drag", function() {
-          obj.slopeWidth( obj.pos_scale.invert( obj.pos_scale( obj.slopeWidth() ) - d3.event.dx * 2 ) );
+        .on( "drag", function(event) {
+          obj.slopeWidth( obj.pos_scale.invert( obj.pos_scale( obj.slopeWidth() ) - event.dx * 2 ) );
           clamp_markers();
           obj.update();        
           obj.get_on_drag();
