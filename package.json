@@ -18,6 +18,6 @@
   "devDependencies": {
     "rollup": ">=0.27.1",
     "tape": "^4",
-    "uglify-js": "^2.8.29"
+    "uglify-js": ">=2.8.29"
   }
 }

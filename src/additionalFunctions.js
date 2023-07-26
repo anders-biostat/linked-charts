@@ -255,7 +255,7 @@ export function add_click_listener(chart){
             flag = (elements[layerId].length == 0)
           }
           if(!flag && canvases.indexOf(layerId) != -1)
-            d3.customEvent(e, chart.get_layer(layerId).get_on_mouseover, this, [elements[layerId][elements[layerId].length - 1]]);
+            chart.get_layer(layerId).get_on_mouseover.call(this, e, elements[layerId][elements[layerId].length - 1]);
             //chart.get_layer(layerId).get_on_mouseover(elements[layerId][0]);
           if(flag && chart.get_on_mouseout)
             chart.get_layer(layerId).get_on_mouseout();
@@ -380,10 +380,10 @@ export function add_click_listener(chart){
             if(clicked[layerId].length != 0) {
               if(chart.clickSingle()) {
                 flag = false;
-                d3.customEvent(event, chart.get_layer(layerId).get_on_click, this, [event, clicked[layerId][0]])
+                chart.get_layer(layerId).get_on_click.call(this, event, clicked[layerId][0])
               } else {
                 for(var j = 0; j < clicked[layerId].length; j++)
-                  d3.customEvent(event, chart.get_layer(layerId).get_on_click, this, [event, clicked[layerId][j]])
+                  chart.get_layer(layerId).get_on_click.call(this, event, clicked[layerId][j])
               }
             }
           }
