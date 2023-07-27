@@ -277,7 +277,7 @@ export function input() {
         .remove();
       chart.container
         .selectAll("input")
-          .on("input", function(d) {
+          .on("input", function(event, d) {
             chart.container
               .select(".currentValue#" + this.id)
                 .text(this.value);

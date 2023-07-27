@@ -555,9 +555,9 @@ export function heatmap(id, chart){
 				.attr("dx", 2)
 				.merge(colLabel)
 					.attr("id", function(d) {return d.toString().replace(/[ .]/g,"_")})
-					.on("mouseover", on_labelMouseover)
+					.on("mouseover", (e, d) => on_labelMouseover(d, e))
 					.on("mouseout", on_labelMouseout)
-					.on("click", labelClick);
+					.on("click", (e, d) => labelClick(d, e));
 		rowLabel.enter()
 			.append("text")
 				.attr("class", "label plainText")
@@ -565,9 +565,9 @@ export function heatmap(id, chart){
 				.attr("dx", -2)
 				.merge(rowLabel)
 					.attr("id", function(d) {return d.toString().replace(/[ .]/g,"_")})
-					.on("mouseover", on_labelMouseover)
+					.on("mouseover", (e, d) => on_labelMouseover(d, e))
 					.on("mouseout", on_labelMouseout)
-					.on("click", labelClick);
+					.on("click", (e, d) => labelClick(d, e));
 
 		chart.updateCells();
 		return chart;
@@ -654,7 +654,7 @@ export function heatmap(id, chart){
 
 	//some default onmouseover and onmouseout behaviour for cells and labels
 	//may be later moved out of the main library
-	function on_mouseover(event, d) {
+	function on_mouseover(d, event) {
 		var pos = d3.pointer(event, chart.container.node());
 		//change colour and class
 		d3.select(this)
@@ -840,10 +840,10 @@ export function heatmap(id, chart){
 						.attr("id", function(d) {return "p" + (d[0] + "_-sep-_" + d[1]).replace(/[ .]/g,"_")})
 						.attr("rowId", function(d) {return d[0];})
 						.attr("colId", function(d) {return d[1];})
-						.on("mouseover", on_mouseover)
+						.on("mouseover", (e, d) => on_mouseover(d, e))
 						.on("mouseout", on_mouseout)
-						.on("click", function(d) {
-							chart.get_on_click.apply(this, [d[0], d[1]]);
+						.on("click", function(e, d) {
+							chart.get_on_click.apply(this, [d[0], d[1], e]);
 						});
 			if(chart.get_showValue())
 				chart.updateTexts();
@@ -996,15 +996,15 @@ export function heatmap(id, chart){
 			.append("text")
 				.attr("class", "tval")
 				.attr("text-anchor", "middle")
-				.on("click", function(d) {
+				.on("click", function(event, d) {
 					var cell = chart.svg.selectAll("#p" + (d[0] + "_-sep-_" + d[1]).replace(/[ .]/g,"_")).node();
 					chart.get_on_click.apply(cell, [d[0], d[1]]);
 				})
-				.on("mouseover", function(d) {
+				.on("mouseover", function(event, d) {
 					var cell = chart.svg.selectAll("#p" + (d[0] + "_-sep-_" + d[1]).replace(/[ .]/g,"_")).node();
 					on_mouseover.apply(cell, [d]);
 				})
-				.on("mouseout", function(d) {
+				.on("mouseout", function(event, d) {
 					var cell = chart.svg.selectAll("#p" + (d[0] + "_-sep-_" + d[1]).replace(/[ .]/g,"_")).node();
 					on_mouseout.apply(cell, [d]);
 				});

@@ -243,7 +243,7 @@ export function scatter(id, chart) {
               else
                 return layer.chart.axes.scale_y(layer.get_y(d));
             })
-            .on("mousedown", function(d){
+            .on("mousedown", function(event, d){
               if(layer.chart.axes.scale_x.invert != undefined)
                 layer.chart.domainX([d3.min([domainX[0], layer.get_x(d)]), d3.max([domainX[1], layer.get_x(d)])]);
               if(layer.chart.axes.scale_y.invert != undefined)
@@ -334,8 +334,8 @@ export function scatter(id, chart) {
         .attr( "class", "data_element" )
         .merge(sel)
           .attr("id", function(d) {return "p" + (layer.id + "_" + d).replace(/[ .]/g,"_");})
-          .on( "click", layer.get_on_click )
-          .on( "mouseover", layer.get_on_mouseover )
+          .on( "click", (e, d) => layer.get_on_click(d, e) )
+          .on( "mouseover", (e, d) => layer.get_on_mouseover(d, e) )
           .on( "mouseout", layer.get_on_mouseout );
     } else {
       if(!layer.updateStarted)
