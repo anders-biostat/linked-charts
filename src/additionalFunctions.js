@@ -380,10 +380,10 @@ export function add_click_listener(chart){
             if(clicked[layerId].length != 0) {
               if(chart.clickSingle()) {
                 flag = false;
-                chart.get_layer(layerId).get_on_click.call(this, event, clicked[layerId][0])
+                chart.get_layer(layerId).get_on_click.call(this, clicked[layerId][0])
               } else {
                 for(var j = 0; j < clicked[layerId].length; j++)
-                  chart.get_layer(layerId).get_on_click.call(this, event, clicked[layerId][j])
+                  chart.get_layer(layerId).get_on_click.call(this, clicked[layerId][j])
               }
             }
           }
