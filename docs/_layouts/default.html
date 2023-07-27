@@ -31,7 +31,9 @@
       <script type="text/javascript" src = "{{ 'src/linked-charts.min.js' | relative_url}}"></script>
       <link rel="stylesheet" type="text/css" href="{{ 'src/linked-charts.css' | relative_url}}">
     {% endif %}
-    <script src="https://d3js.org/d3.v4.min.js"></script>
+    {% if page.useLC != "true" %}
+      <script src="https://d3js.org/d3.v7.min.js"></script>
+    {% endif %}
   </head>
   <body>
     <script type="text/javascript">

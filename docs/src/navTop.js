@@ -109,14 +109,14 @@ menuCells.append("div")
 					return pages[lang][d[0]][d[1]];
 				})
 
-menuCells.on("click", function(d){
+menuCells.on("click", function(event, d){
 	var hide = false;
 	if(d3.select(this).selectAll(".dropdown-content").style("display") != "none")
 		hide = true;
 
 	d3.selectAll(".dropdown-content")
 		.style("display", "none");
-	d3.event.stopPropagation();	
+	event.stopPropagation();	
 		
 	if(!hide){
 		d3.select(this).selectAll(".dropdown-content")
