@@ -296,7 +296,7 @@ export function layerBase(id) {
             d3.max([d3.min([event.clientY - rect.top, layer.chart.plotHeight()]), 0])]; 
 
     //change colour and class
-    if(!event.target || !event.target.prev_time)
+    if(!this || !this.prev_time)
       d3.select(event.target)
         .attr("fill", function(d) {
           return d3.rgb(layer.get_colour(d)).darker(0.5);
