@@ -36,9 +36,9 @@ function line(id, chart){
 				.attr("class", "data_element")
 			.merge(lines)
 				.attr("id", function(d) {return "p" + (layer.id + "_" + d).replace(/[ .]/g,"_");})
-        .on( "click", layer.get_on_click )
-        .on( "mouseover", layer.get_on_mouseover )
-        .on( "mouseout", layer.get_on_mouseout );			
+        .on( "click", (e, d) => layer.get_on_click(d, e) )
+        .on( "mouseover", (e, d) => layer.get_on_mouseover(d, e) )
+        .on( "mouseout", (e, d) => layer.get_on_mouseout(d, e) );			
 	};
 
 	layer.dresser(function(sel){
@@ -105,10 +105,10 @@ function line(id, chart){
 	}
 
   //default hovering behaviour
-  layer.on_mouseover(function(d){
-    var pos = d3.mouse(layer.chart.container.node());
+  layer.on_mouseover(function(d, event){
+    var pos = d3.pointer(event, layer.chart.container.node());
     //change colour and class
-    d3.select(this)
+    d3.select(event.target)
       .attr("stroke", function(d) {
         return d3.rgb(layer.get_colour(d)).darker(0.5);
       })
@@ -122,9 +122,9 @@ function line(id, chart){
     layer.chart.container.selectAll(".inform")
       .classed("hidden", false);
   });
-  layer.on_mouseout(function(d){
+  layer.on_mouseout(function(d, event){
     var mark = layer.get_marked().length > 0;
-    d3.select(this)
+    d3.select(event.target)
       .attr("stroke", function(d) {
           return mark ^ d3.select(this).classed("marked") ?
                   "#aaa": layer.get_colour(d);

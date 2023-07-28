@@ -294,9 +294,8 @@ export function layerBase(id) {
     var rect = layer.chart.container.node().getBoundingClientRect(),
       pos = [d3.max([d3.min([event.clientX - rect.left, layer.chart.plotWidth()]), 0]), 
             d3.max([d3.min([event.clientY - rect.top, layer.chart.plotHeight()]), 0])]; 
-
     //change colour and class
-    if(!this || !this.prev_time)
+    if(this && !this.prev_time)
       d3.select(event.target)
         .attr("fill", function(d) {
           return d3.rgb(layer.get_colour(d)).darker(0.5);
@@ -311,11 +310,12 @@ export function layerBase(id) {
     layer.chart.container.selectAll(".inform")
       .classed("hidden", false);
   });
-  layer.on_mouseout(function(d){
-    if(!this.propList){
+  layer.on_mouseout(function(d, event){
+
+    if(event){
       var mark = layer.get_marked().length > 0;
 
-      d3.select(this)
+      d3.select(event.target)
         .attr("fill", function(d) {
           return mark ^ d3.select(this).classed("marked") ?
                   "#aaa": layer.get_colour(d);

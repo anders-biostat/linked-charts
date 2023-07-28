@@ -404,7 +404,7 @@ export function add_click_listener(chart){
     var clickFun;
     clickedElements.each(function(d){
       clickFun = d3.select(this).on("click");
-      clickFun.call(event, d)
+      clickFun.call(this, event, d)
     })
   }
 

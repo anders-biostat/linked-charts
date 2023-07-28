@@ -60,7 +60,7 @@ var menuCells = d3.select(".page-header").append("ul")
 					if(typeof pages[lang][d] !== "string")
 						return "dropdown";
 				})
-				.on("click", function(d) {
+				.on("click", function(event, d) {
 					if(d === "rlc" || d ==="js") {
 						localStorage.setItem("lang", d);
 						window.open(document.location.origin + "/linked-charts/" + d, "_self")

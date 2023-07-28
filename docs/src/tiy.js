@@ -213,14 +213,14 @@ tiy.insert_box = function( pre ) {
             .style("top", "15px")
             .attr("width", "30px")
             .attr("height", "30px")
-            .on("click", function(d) {tiy["button_" + d](id);})
-            .on("mouseover", function(d){
+            .on("click", function(event, d) {tiy["button_" + d](id);})
+            .on("mouseover", function(event, d){
               d3.select(this)
                 .attr("src", function(d){
                   return document.location.origin + "/linked-charts/src/img/" + d + "_hover.svg"
                 });
             })
-            .on("mouseout", function(d){
+            .on("mouseout", function(event, d){
               d3.select(this)
                 .attr("src", function(d){
                   return document.location.origin + "/linked-charts/src/img/" + d + ".svg"

@@ -41,7 +41,7 @@ d3.select(".gallery")
 		.enter()
 			.append("a")
 				.attr("class", d => d == -1 ? "prev" : "next")
-				.on("click", function(d) {
+				.on("click", function(event, d) {
 					currentEx += d;
 					if(currentEx == 0) currentEx = lastEx;
 					if(currentEx > lastEx) currentEx = 1;
@@ -104,7 +104,7 @@ function changeThumb() {
 							.attr("class", "column")
 							.append("img")
 								.attr("class", "demo cursor")
-								.on("click", function(d) {
+								.on("click", function(event, d) {
 									currentEx = d;
 									changeSlides();
 								})
@@ -136,7 +136,7 @@ d3.select(".gallery")
 						if(d == 2)
 							return "Go to the tutorial";
 					})
-					.on("click", function(d) {
+					.on("click", function(event, d) {
 						if(d == 0)
 							window.open(document.location.origin + "/linked-charts/gallery/ex" + currentEx + "/code_R.html", 
 								"R code for the example", "width=700,height=600");
