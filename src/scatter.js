@@ -336,7 +336,7 @@ export function scatter(id, chart) {
           .attr("id", function(d) {return "p" + (layer.id + "_" + d).replace(/[ .]/g,"_");})
           .on( "click", (e, d) => layer.get_on_click(d, e) )
           .on( "mouseover", (e, d) => layer.get_on_mouseover(d, e) )
-          .on( "mouseout", layer.get_on_mouseout );
+          .on( "mouseout", (e, d) => layer.get_on_mouseout(d, e) );
     } else {
       if(!layer.updateStarted)
         layer.updateCanvas();

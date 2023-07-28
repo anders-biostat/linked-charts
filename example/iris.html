@@ -5,7 +5,7 @@
 
 <div id="container"></div>
 <script type="text/javascript">
-	lc.scatter()
+	var ch1 = lc.scatter()
 		.x(i => +iris[i].sepal_length)
 		.y(i => +iris[i].petal_width)
 		.colourValue(i => iris[i].species)
