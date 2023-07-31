@@ -308,11 +308,11 @@ export function heatmap(id, chart){
 	}
 
 	//set default hovering behaviour
-	function on_labelMouseover() {
-		d3.select(this).classed("hover", true);
+	function on_labelMouseover(d, event) {
+		d3.select(event.target).classed("hover", true);
 	};
-	function on_labelMouseout() {
-		d3.select(this).classed("hover", false);
+	function on_labelMouseout(d, event) {
+		d3.select(event.target).classed("hover", false);
 	};
 
 	chart.reorder = function(type, f){
@@ -556,7 +556,7 @@ export function heatmap(id, chart){
 				.merge(colLabel)
 					.attr("id", function(d) {return d.toString().replace(/[ .]/g,"_")})
 					.on("mouseover", (e, d) => on_labelMouseover(d, e))
-					.on("mouseout", on_labelMouseout)
+					.on("mouseout", (e, d) => on_labelMouseout(d, e))
 					.on("click", (e, d) => labelClick(d, e));
 		rowLabel.enter()
 			.append("text")
@@ -566,7 +566,7 @@ export function heatmap(id, chart){
 				.merge(rowLabel)
 					.attr("id", function(d) {return d.toString().replace(/[ .]/g,"_")})
 					.on("mouseover", (e, d) => on_labelMouseover(d, e))
-					.on("mouseout", on_labelMouseout)
+					.on("mouseout", (e, d) => on_labelMouseout(d, e))
 					.on("click", (e, d) => labelClick(d, e));
 
 		chart.updateCells();
@@ -710,12 +710,12 @@ export function heatmap(id, chart){
 	})
 
 	//set default clicking behaviour for labels (ordering)
-	function labelClick(d){
+	function labelClick(d, event){
 		//check whether row or col label has been clicked
 		var type;
-		d3.select(this.parentNode).classed("row") ? type = "row" : type = "col";
+		d3.select(event.target.parentNode).classed("row") ? type = "row" : type = "col";
 		//if this label is already selected, flip the heatmap
-		if(d3.select(this).classed("sorted")){
+		if(d3.select(event.target).classed("sorted")){
 			type == "col" ? chart.reorder("Row", "flip") : chart.reorder("Col", "flip");
 		} else {
 			//select new label and chage ordering
@@ -726,10 +726,10 @@ export function heatmap(id, chart){
 
 			chart.updateLabelPosition();
 		}
-		d3.select(this.parentNode)
+		d3.select(event.target.parentNode)
 			.selectAll(".label")
 				.classed("selected", false);
-		d3.select(this)
+		d3.select(event.target)
 			.classed("selected", true);
 	};
 	
@@ -1002,11 +1002,11 @@ export function heatmap(id, chart){
 				})
 				.on("mouseover", function(event, d) {
 					var cell = chart.svg.selectAll("#p" + (d[0] + "_-sep-_" + d[1]).replace(/[ .]/g,"_")).node();
-					on_mouseover.apply(cell, [d]);
+					on_mouseover.apply(cell, [d, event]);
 				})
 				.on("mouseout", function(event, d) {
 					var cell = chart.svg.selectAll("#p" + (d[0] + "_-sep-_" + d[1]).replace(/[ .]/g,"_")).node();
-					on_mouseout.apply(cell, [d]);
+					on_mouseout.apply(cell, [d, event]);
 				});
 
 		return chart;		
