@@ -68,6 +68,7 @@ export function heatmap(id, chart){
 		.add_property("on_labelClickCol")
 		.add_property("clusterRows", false)
 		.add_property("clusterCols", false)
+		.add_property("legendTitle", "")
 		.add_property("informText", function(rowId, colId) {
 			var value = chart.get_value(rowId, colId);
 			if(typeof value == "number")
@@ -649,7 +650,7 @@ export function heatmap(id, chart){
 		}
 
 		if(chart.showLegend() && chart.legend)
-			updateLegend();		
+			updateLegend();
 	}	
 
 	//some default onmouseover and onmouseout behaviour for cells and labels
@@ -1055,7 +1056,7 @@ export function heatmap(id, chart){
 
 	function updateLegend() {
 		chart.legend
-			.set_title({"heatmap": ""})
+			.set_title({"heatmap": chart.legendTitle()})
 			.add_block(chart.colourScale, "colour", "heatmap");
 
 		return chart;
