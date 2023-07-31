@@ -1,0 +1,14 @@
+<script type="text/javascript" src="../build/linked-charts.js"></script>
+<script type="text/javascript" src="../build/adds.js"></script>
+<link rel="stylesheet" type="text/css" href="../lib/linked-charts.css">
+
+<div id="container"></div>
+
+<script type="text/javascript">
+lc.barchart()
+	.nbars(3)
+	.ngroups(10)
+	.nstacks(2)
+	.value(i => i)
+	.place("#container")	
+</script>
