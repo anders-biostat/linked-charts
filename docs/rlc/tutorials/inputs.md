@@ -38,7 +38,7 @@ cbmc
 ```
 ## An object of class Seurat 
 ## 20501 features across 8617 samples within 1 assay 
-## Active assay: RNA (20501 features)
+## Active assay: RNA (20501 features, 2000 variable features)
 ##  1 dimensional reduction calculated: pca
 ```
 
@@ -56,11 +56,9 @@ head(clusters)
 ```
 
 ```
-## CTGTTTACACCGCTAG CTCTACGGTGTGGCTC AGCAGCCAGGCTCATT GAATAAGAGATCCCAT 
-##            Mouse            Mouse            Mouse            Mouse 
-## GTGCATAGTCATGCAT TACACGACACATCCGG 
-##            Mouse            Mouse 
-## 15 Levels: Memory CD4 T CD14+ Mono Naive CD4 T NK Mouse B ... pDCs
+## CTGTTTACACCGCTAG CTCTACGGTGTGGCTC AGCAGCCAGGCTCATT GAATAAGAGATCCCAT GTGCATAGTCATGCAT TACACGACACATCCGG 
+##            Mouse            Mouse            Mouse            Mouse            Mouse            Mouse 
+## Levels: Memory CD4 T CD14+ Mono Naive CD4 T NK Mouse B CD8 T CD16+ Mono T/Mono doublets CD34+ Multiplets Eryth Mk DC pDCs
 ```
 
 ```r
@@ -82,18 +80,12 @@ X[2000:2004, 1:5] #we are showing not the first rows to get some non-zero expres
 
 ```
 ## 5 x 5 sparse Matrix of class "dgCMatrix"
-##         CTGTTTACACCGCTAG CTCTACGGTGTGGCTC AGCAGCCAGGCTCATT
-## BCL11B                 .        0.3862658                .
-## BCL2                   .        0.6642082                .
-## BCL2A1                 .        .                        .
-## BCL2L1                 .        .                        .
-## BCL2L11                .        .                        .
-##         GAATAAGAGATCCCAT GTGCATAGTCATGCAT
-## BCL11B                 .                .
-## BCL2                   .                .
-## BCL2A1                 .                .
-## BCL2L1                 .                .
-## BCL2L11                .                .
+##         CTGTTTACACCGCTAG CTCTACGGTGTGGCTC AGCAGCCAGGCTCATT GAATAAGAGATCCCAT GTGCATAGTCATGCAT
+## BCL11B                 .        0.3862658                .                .                .
+## BCL2                   .        0.6642082                .                .                .
+## BCL2A1                 .        .                        .                .                .
+## BCL2L1                 .        .                        .                .                .
+## BCL2L11                .        .                        .                .                .
 ```
 
 Even though UMAP is a relatively fast dimensionality reductin tool, it still takes some time to recalculate an embedding for the full dataset. Since the
@@ -120,13 +112,13 @@ head(um)
 ```
 
 ```
-##            [,1]       [,2]
-## [1,]   5.812631 15.5554827
-## [2,]  -1.161773  7.1273220
-## [3,] -11.685457 -0.8766521
-## [4,]  -1.513780  7.4060183
-## [5,]  -2.360365  6.4010089
-## [6,]   2.045644 -9.7356628
+##                        [,1]      [,2]
+## CTGCTGTAGTGTCCCG  -2.171477 -8.283055
+## TCATTTGTCAGAGCTT -16.644293 -0.155554
+## CACTCCAGTCTAAACC   0.906120 10.273386
+## TGGGAAGGTTGCGCAC  -2.650380 -7.168352
+## GGGTTGCAGGCAGTCA   2.304979  9.892189
+## GCCAAATCAGTTCCCT  -2.498022 -7.678300
 ```
 
 After that we are ready to make the central plot for our app.
@@ -163,11 +155,8 @@ useClusters
 ```
 
 ```
-##  [1] "Memory CD4 T"    "CD14+ Mono"      "Naive CD4 T"    
-##  [4] "NK"              "Mouse"           "B"              
-##  [7] "CD8 T"           "CD16+ Mono"      "T/Mono doublets"
-## [10] "CD34+"           "Multiplets"      "Eryth"          
-## [13] "Mk"              "DC"              "pDCs"
+##  [1] "Memory CD4 T"    "CD14+ Mono"      "Naive CD4 T"     "NK"              "Mouse"           "B"               "CD8 T"           "CD16+ Mono"     
+##  [9] "T/Mono doublets" "CD34+"           "Multiplets"      "Eryth"           "Mk"              "DC"              "pDCs"
 ```
 
 ```r
@@ -249,7 +238,7 @@ selGene <- "CD3E"
 lc_input(type = "text",
          label = "Show gene: ",
          place = "A2",
-         id = "geneBox",
+         chartId = "geneBox",
          value = selGene,
          on_change = function(value) {
            if(value %in% rownames(X)) {
@@ -268,7 +257,7 @@ whether it is really a name of a gene, which expression is stored in the count m
 plot. `updateOnly` here is an optional parameter that tells LinkedCharts to change only styling of points, but not there position of number. In some 
 cases, it may safe performance time.
 
-Not so obvious thing here, is why we defined `id` of the `lc_input` block. As you can see, we put in the same table cell `A2` as the set of checkboxes.
+Not so obvious thing here, is why we defined `chartId` of the `lc_input` block. As you can see, we put in the same table cell `A2` as the set of checkboxes.
 By default, LinkedCharts set an ID of each chart the same as ID of its container (`A2` in this case). But since we already have a chart with ID `A2`,
 this will cause replacing our checkboxes with a text field. To avoid that we explicitly specify another ID. Now, text field is added under the
 checkboxes.
@@ -299,7 +288,7 @@ If user enters a gene that doesn't exist, nothing happens. However it may be nic
 ```r
 display <- "none"
 lc_html(dat(content = paste0("<p style='color: red; display: ", display, "'>There is no such gene</p>")), 
-        place = "A2", id = "warning")
+        place = "A2", chartId = "warning")
 ```
 
 ```
@@ -315,7 +304,7 @@ change in time and store it in a separate variable. Now we need to make changes 
 lc_input(type = "text",
          label = "Show gene: ",
          place = "A2",
-         id = "geneBox",
+         chartId = "geneBox",
          value = selGene,
          on_change = function(value) {
            if(value %in% rownames(X)) {

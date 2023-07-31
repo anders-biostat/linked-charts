@@ -158,7 +158,7 @@ selGene <- "CD3E"
 lc_input(type = "text",
          label = "Show gene: ",
          place = "A2",
-         id = "geneBox",
+         chartId = "geneBox",
          value = selGene,
          on_change = function(value) {
            if(value %in% rownames(X)) {
@@ -173,7 +173,7 @@ whether it is really a name of a gene, which expression is stored in the count m
 plot. `updateOnly` here is an optional parameter that tells LinkedCharts to change only styling of points, but not there position of number. In some 
 cases, it may safe performance time.
 
-Not so obvious thing here, is why we defined `id` of the `lc_input` block. As you can see, we put in the same table cell `A2` as the set of checkboxes.
+Not so obvious thing here, is why we defined `chartId` of the `lc_input` block. As you can see, we put in the same table cell `A2` as the set of checkboxes.
 By default, LinkedCharts set an ID of each chart the same as ID of its container (`A2` in this case). But since we already have a chart with ID `A2`,
 this will cause replacing our checkboxes with a text field. To avoid that we explicitly specify another ID. Now, text field is added under the
 checkboxes.
@@ -198,7 +198,7 @@ If user enters a gene that doesn't exist, nothing happens. However it may be nic
 ```{r}
 display <- "none"
 lc_html(dat(content = paste0("<p style='color: red; display: ", display, "'>There is no such gene</p>")), 
-        place = "A2", id = "warning")
+        place = "A2", chartId = "warning")
 ```
 
 This code adds a paragraph with text "There is no such gene" once again to the `A2` table cell. For this paragraph we set two style attributes.
@@ -209,7 +209,7 @@ change in time and store it in a separate variable. Now we need to make changes 
 lc_input(type = "text",
          label = "Show gene: ",
          place = "A2",
-         id = "geneBox",
+         chartId = "geneBox",
          value = selGene,
          on_change = function(value) {
            if(value %in% rownames(X)) {
