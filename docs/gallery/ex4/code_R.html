@@ -20,9 +20,9 @@ lc_scatter(
     x = tsne$Y[,1],
     y = tsne$Y[,2],
     colour = rgb( 
-      if( red=="off" )   0 else unitrange(log( countMatrixADT[red,] )), 
-      if( green=="off" ) 0 else unitrange(log( countMatrixADT[green,] )), 
-      if( blue=="off" )  0 else unitrange(log( countMatrixADT[blue,] )) ),
+      if( red=="off" )   0 else unitrange(log1p( countMatrixADT[red,] )), 
+      if( green=="off" ) 0 else unitrange(log1p( countMatrixADT[green,] )), 
+      if( blue=="off" )  0 else unitrange(log1p( countMatrixADT[blue,] )) ),
     size = 1 ),
   place = "A1" )
 
@@ -33,7 +33,7 @@ lc_input(type = "radio",
            red <<- buttonRows[value]
            updateCharts("A1")
          }, 
-         value = 1,  width = 100, place = "A2")
+         value = 1,  width = 110, place = "A2")
 lc_input(type = "radio", 
          labels = buttonRows, 
          title = "Green", 
@@ -41,7 +41,7 @@ lc_input(type = "radio",
            green <<- buttonRows[value]
            updateCharts("A1")
          }, 
-         value = 1, width = 100, place = "A3")
+         value = 1, width = 110, place = "A3")
 lc_input(type = "radio",
          labels = buttonRows, 
          title = "Blue", 
@@ -49,6 +49,6 @@ lc_input(type = "radio",
            blue <<- buttonRows[value]
            updateCharts("A1")
            }, 
-         value = 1, width = 100, place = "A4")
+         value = 1, width = 110, place = "A4")
 
 </code></pre>
