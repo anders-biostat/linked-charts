@@ -1,0 +1,65 @@
+<head>
+	<script type="text/javascript" src = "data.js"></script>
+	<script type="text/javascript" src = "../../../build/adds.js"></script>
+	<script type="text/javascript" src = "../../../build/linked-charts.js"></script>
+	<link rel="stylesheet" type="text/css" href="../../../lib/linked-charts.css">
+</head>
+<body>
+<div id = "heatmap-scatter">
+<table>
+   <tr>
+      <td id = "heatmap" style="padding: 0px"></td>
+      <td id = "scatter" style="padding: 0px"></td>
+   </tr>
+</table>
+</div>	
+	<script type="text/javascript">
+
+var xSample = 0, ySample = 1,
+	size = window.innerWidth - 10;
+
+console.log(size);
+
+var hm = lc.heatmap()
+	.width(() => size * 0.48)
+	.height(() => size * 0.48 - 80)
+	.nrows(hData.sampleNames.length)
+	.ncols(hData.sampleNames.length)
+	.value((i, j) => hData.corrMat[i][j])
+	.rowLabel(i => hData.sampleNames[i])
+	.colLabel(i => hData.sampleNames[i])
+	.clusterCols(true)
+	.clusterRows(true)
+	.showLegend(false)
+	.paddings(() => ({top: size * 0.03, left: size * 0.03 + 40, right: size * 0.025 + 40, bottom: size * 0.025}))
+	.on_click(function(row, col) {
+		xSample = row;
+		ySample = col;
+		sch.update();
+	})
+	.place(d3.select("#heatmap-scatter").select("#heatmap"));
+
+var sch = lc.scatter()
+	.width(() => size * 0.48)
+	.height(() => size * 0.48)
+	.x(i => Math.log10(hData.countMatrix[i][xSample] + 1))
+	.y(i => Math.log10(hData.countMatrix[i][ySample] + 1))
+	.size(1.5)
+	.showLegend(false)
+	.opacity(0.7)
+	.place(d3.select("#heatmap-scatter").select("#scatter"));
+
+var slider = lc.colourSlider()
+	.width(() => size * 0.48)
+	.linkedChart(hm)
+	.place(d3.select("#heatmap-scatter").select("#heatmap"));
+
+window.addEventListener("resize", () => {
+	size = window.innerWidth - 10;
+	hm.update();
+	sch.update();
+	slider.update();
+})
+
+	</script>
+</body>

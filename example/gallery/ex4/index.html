@@ -1,0 +1,71 @@
+<head>
+	<script type="text/javascript" src = "data.js"></script>
+	<script type="text/javascript" src = "../../../build/adds.js"></script>
+	<script type="text/javascript" src = "../../../build/linked-charts.js"></script>
+	<link rel="stylesheet" type="text/css" href="../../../lib/linked-charts.css">
+	<style type="text/css">
+		table {
+			border-spacing: 0px;
+		}
+		td {
+			padding: 0px;
+		}
+	</style>
+</head>
+<body>
+<div id = "top">
+<table>
+   <tr>
+      <td id = "plot"></td>
+      <td id = "buttons_red"><table></table></td>
+      <td id = "buttons_green"><table></table></td>
+      <td id = "buttons_blue"><table></table></td>
+   </tr>
+</table>
+</div>
+	<script type="text/javascript">
+
+var marker = 0,
+	size = window.innerWidth - 10;
+red = "off";
+green = "off";
+blue = "off";
+
+var cm = {};
+for(var i = 0; i < data.markerNames.length; i++)
+	cm[data.markerNames[i]] = data.countMatrix[i];
+
+var tsne = lc.scatter()
+	.x(i => data.tsne[i][0])
+	.y(i => data.tsne[i][1])
+	.width(() => size * 0.48)
+	.height(() => size * 0.48)
+	.size(1)
+	.colour(i => "rgb(" + cm[red][i] + ", " +
+												cm[green][i] + ", " +
+												cm[blue][i] + ")")
+	.place(d3.select("#top").select("#plot"));
+
+var colours = ["red", "green", "blue"],
+	colour_inputs = [];
+
+for(var i in colours)
+	colour_inputs.push((function(colour) {
+		return lc.input()
+			.type("radio")
+			.width(() => size * 0.16)
+			.fontSize(() => d3.min([size * 0.03, 17]))
+			.title(colour)
+			.elementIds(data.markerNames)
+			.on_change(value => {window[colour] = value; tsne.updateElementStyle()})
+			.value("off")
+			.place(d3.select("#top").select("#buttons_" + colour));
+	})(colours[i]));
+
+window.addEventListener("resize", () => {
+	size = window.innerWidth - 10;
+	tsne.update();
+	colour_inputs.forEach(el => {el.update()});
+})	
+	</script>
+</body>
