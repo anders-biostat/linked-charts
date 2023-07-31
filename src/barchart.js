@@ -158,10 +158,10 @@ export function barchart(id, chart){
 	});
 
   //default hovering behaviour
-  layer.on_mouseover(function(d){
-    var pos = d3.mouse(chart.container.node());
+  layer.on_mouseover(function(d, event){
+    var pos = d3.pointer(event, chart.container.node());
     //change colour and class
-    d3.select(this)
+    d3.select(event.target)
       .attr("fill", function(d) {
         return d3.rgb(layer.get_colour(d[0], d[1], d[2])).darker(0.5);
       })
@@ -175,12 +175,12 @@ export function barchart(id, chart){
     layer.chart.container.select(".inform")
       .classed("hidden", false);
   });
-  layer.on_mouseout(function(d){
+  layer.on_mouseout(function(d, event){
   	var mark = layer.get_marked().length > 0;
 
-    d3.select(this)
+    d3.select(event.target)
       .attr("fill", function(d) {
-      	return mark ^ d3.select(this).classed("marked") ?
+      	return mark ^ d3.select(event.target).classed("marked") ?
         		"#aaa" : layer.get_colour(d[0], d[1], d[2]);
       })
       .classed("hover", false);
@@ -328,9 +328,9 @@ export function barchart(id, chart){
 				.attr("class", "data_element")
 				.merge(stacks)
 					.attr("id", function(d) {return "p" + layer.id + "_" + d.join("_").replace(/[ .]/g, "_")})
-					.on( "click", function(d) {layer.get_on_click(d[0], d[1], d[2])} )
-        	.on( "mouseover", layer.get_on_mouseover )
-        	.on( "mouseout", layer.get_on_mouseout );		
+					.on("click", function(e, d) {layer.get_on_click(d[0], d[1], d[2], e)})
+        	.on("mouseover", (e, d) => layer.get_on_mouseover(d, e))
+        	.on("mouseout", (e, d) => layer.get_on_mouseout(d, e));		
 	}
 
   layer.colourMarked = function() {
