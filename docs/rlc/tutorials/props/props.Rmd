@@ -744,7 +744,7 @@ lc_heatmap(dat(
 
 There are other types of information one can add to a heatmap.
 
-`rowTitle` and `colTitle` define titles to rows and columns. They work like `axisTitleY` and `axisTitleX` for plots with axes, but for heatmaps. By setting `showValue = T`, you can force a heatmap to display the corresponding values inside each cell. The colour of the text is, by default, set individually for each cell to make it visible. You can also change the colour with `valueTextColour` property.
+`rowTitle` and `colTitle` define titles to rows and columns. They work like `axisTitleY` and `axisTitleX` for plots with axes, but for heatmaps. One can also add title to the colour legend with `legendTitle`. By setting `showValue = T`, you can force a heatmap to display the corresponding values inside each cell. The colour of the text is, by default, set individually for each cell to make it visible. You can also change the colour with `valueTextColour` property.
 
 ```{r message=FALSE}
 openPage(layout = "table1x2")
@@ -753,6 +753,7 @@ lc_heatmap(value = matrix(rnorm(100), nrow = 10),
            showValue = T,
            rowTitle = "Here are the rows!",
            colTitle = "And these are the columns.",
+           legendTitle = "Another title",
            place = "A1")
 lc_heatmap(value = matrix(rnorm(100), nrow = 10),
            showValue = T,
