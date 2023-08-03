@@ -31,3 +31,6 @@ docs/rlc/props/\.Rhistory
 /node_modules/
 
 docs/rlc/tutorials/oscc/ERP007185_counts_gene.tsv.gz
+
+*.bam
+*.bai
