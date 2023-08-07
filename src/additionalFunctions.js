@@ -255,8 +255,8 @@ export function add_click_listener(chart){
             flag = (elements[layerId].length == 0)
           }
           if(!flag && canvases.indexOf(layerId) != -1) 
-            chart.get_layer(layerId).get_on_mouseover.call(this, elements[layerId][elements[layerId].length - 1], e);
-            //chart.get_layer(layerId).get_on_mouseover(elements[layerId][0]);            
+            chart.get_layer(layerId).get_on_mouseover.call(this, elements[layerId][0], e);
+            //chart.get_layer(layerId).get_on_mouseover(elements[layerId][0]);  elements[layerId].length - 1            
           if(flag && chart.get_on_mouseout)
             chart.get_layer(layerId).get_on_mouseout();
         }
