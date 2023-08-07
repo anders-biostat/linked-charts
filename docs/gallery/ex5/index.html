@@ -20,12 +20,12 @@ var selGene = 0,
 	igvBrowser;
 
 var maPlot = lc.scatter()
-	.x(i => maData.pvals[i].AveExpr)
-	.y(i => maData.pvals[i].tissuetumour)
-	.colour(i => maData.pvals[i]["adj.P.Val"] < 0.1 ? "red" : "black")
-	.label(i => maData.geneNames[i])
+	.x(i => maData[i].AveExpr)
+	.y(i => maData[i].tissuetumour)
+	.colour(i => maData[i]["adj.P.Val"] < 0.1 ? "red" : "black")
+	.label(i => maData[i].geneNames)
 	.size(1.3)
-	.on_click(i => {igvBrowser.search(maData.geneNames[i])})
+	.on_click(i => {igvBrowser.search(maData[i].geneNames)})
 	.width(() => (size - 100) * 0.48)
 	.height(() => (size - 100) * 0.48)
 	.set_paddings({left: 15})
