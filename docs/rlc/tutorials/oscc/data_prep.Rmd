@@ -105,7 +105,7 @@ from Ensembl Biomart a table mapping all Ensembl human gene IDs to gene symbols
 ```{r}
 bmtbl <- biomaRt::getBM( 
    c( "ensembl_gene_id", "external_gene_name" ), 
-   mart = biomaRt::useEnsembl( "ensembl", "hsapiens_gene_ensembl" ) )
+   mart = biomaRt::useEnsembl( "ensembl", "hsapiens_gene_ensembl", host = "oct2018.archive.ensembl.org" ) )
 
 head(bmtbl)
 ```
@@ -122,8 +122,7 @@ tibble( rowname = rownames(countMatrix) ) %>%
             ! external_gene_name %in% external_gene_name[duplicated(external_gene_name)], 
          external_gene_name, 
          rowname ) ) %>%
-   pull( new_rowname ) ->
-     rownames(countMatrix)
+   pull( new_rowname ) -> rownames(countMatrix)
 ```
 
 Now, we have this
