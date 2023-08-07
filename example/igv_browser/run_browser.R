@@ -4,7 +4,7 @@ load("src/oscc.rda")
 
 app <- openPage(useViewer = FALSE, startPage = "localBam.html")
 
-gene <- 1
+gene <- "TSPAN6"
 
 lc_scatter(dat(
   x = voomResult$AveExpr,
@@ -14,20 +14,10 @@ lc_scatter(dat(
   size = 1.3,
   on_click = function(k) {
     geneName <- rownames(voomResult)[k]
+    position <- paste0("chr", gene_positions[geneName, "chr"], ":", 
+                       gene_positions[geneName, "start"], "-", 
+                       gene_positions[geneName, "end"])
     com <- paste0("igvBrowser.search('", geneName, "')")
     app$getSession(.id)$sendCommand(com)
-    gene <<- k; updateCharts("A2")
     } ),
   "A1")
-
-countsums <- colSums(countMatrix)
-
-lc_scatter(dat(
-  x = sampleTable$patient,
-  y = countMatrix[gene,] / countsums * 1e6 + .1,
-  logScaleY = 10,
-  colorValue = sampleTable$tissue,
-  title = rownames(countMatrix)[gene],
-  axisTitleY = "counts per million (CPM)",
-  ticksRotateX = 45),
-  "A2")
