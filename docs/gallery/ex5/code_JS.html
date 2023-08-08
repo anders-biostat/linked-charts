@@ -1,9 +1,7 @@
 <link rel="stylesheet" type="text/css" href="../../src/prism.css">
 <script type="text/javascript" src="../../src/prism.js"></script>
 
-<pre class="language-javascript line-numbers"><code>var selGene = 0;
-
-var maPlot = lc.scatter()
+<pre class="language-javascript line-numbers"><code>var maPlot = lc.scatter()
    .x(i => maData[i].AveExpr)
    .y(i => maData[i].tissuetumour)
    .colour(i => maData[i]["adj.P.Val"] < 0.1 ? "red" : "black")

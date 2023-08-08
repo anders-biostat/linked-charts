@@ -36,7 +36,8 @@ var pages = {
 			citeseq1: "Exploring single-cell data",
 			citeseq2: "Multicoloured t-SNE plot",
 			inputs: "Getting input from the web page",
-			props: "Customising your chart"
+			props: "Customising your chart",
+			igv: "Combining LinkedCharts with the IGV browser"
 		}
 	},
 	none: {

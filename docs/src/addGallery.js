@@ -13,7 +13,7 @@ var titleEx = [
 		"rlc/tutorials/oscc.html", 
 		"rlc/tutorials/citeseq1.html", 
 		"rlc/tutorials/citeseq2.html", 
-		"", 
+		"rlc/tutorials/igv.html", 
 		""
 	],
 	captionEx = [
