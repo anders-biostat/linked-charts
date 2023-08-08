@@ -65,6 +65,8 @@ Now, with all the preparations complete, we can switch to the R session.
 To open with R/LinkedCharts an existing web page, one needs to use the `startPage` argument of the `openPage` function.
 
 ```{r}
+library(rlc)
+
 app <- openPage(useViewer = FALSE, startPage = "localBam.html")
 ```
 

@@ -66,11 +66,9 @@ To open with R/LinkedCharts an existing web page, one needs to use the `startPag
 
 
 ```r
-app <- openPage(useViewer = FALSE, startPage = "localBam.html")
-```
+library(rlc)
 
-```
-## Error in openPage(useViewer = FALSE, startPage = "localBam.html"): could not find function "openPage"
+app <- openPage(useViewer = FALSE, startPage = "localBam.html")
 ```
 
 This command with open the `localBam.html` page in the default browser. The functional IGV browser will already be there, but we still need to add 
@@ -110,7 +108,11 @@ lc_scatter(dat(
 ```
 
 ```
-## Error in lc_scatter(dat(x = voomResult$AveExpr, y = voomResult$tissuetumour, : could not find function "lc_scatter"
+## Chart 'A1' added.
+```
+
+```
+## Layer 'Layer1' is added to chart 'A1'.
 ```
 
 The detailed explanations of most part of this code are given in [this](oscc.md) tutorial. Here, we will only go throug 
