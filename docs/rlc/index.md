@@ -45,10 +45,23 @@ devtools::install_github( "anders-biostat/rlc" )
 
 [**Here**](tutorials/inputs.html) you can learn how to add forms for user input and use this input to change your charts.
 
-
 #### Customise your chart
 
 [**Here**](tutorials/props.html) you can find use cases of all the adjustable parameters in R/LinkedCharts. This tutorial demonstrates how to youse colours, change the shape of elements, add titles, use all built-in parameters to control interactivity, etc.
+
+#### Further customisation
+
+[**Here**](tutorials/inputs.html) possibilities of the **jrc** package, which is the foundation of R/LinkedCharts are explored. As an example, we combine R/LinkedCharts with the [IGV](https://software.broadinstitute.org/software/igv/) browser.
+
+## Jupyter notebooks
+
+Since an R session in Jupiter Notebook is not considered interactive, no messages from the app will be processed without an explicit command. This means that an R/LinkedCharts app, while remaining fully functional, cannot run without blocking the R session. Use `listen` function to do so.
+
+For example,
+```r
+listen(activeSessions = TRUE)
+```
+will make R session to listen to the R/LinkedCharts app until there at least one web page connected to the app. Closing all the opened pages will unblock the R session. You can also interrupt this function at any moment to return control over the R session and then run it again to restore the app's functionality. Any changes to the R session's environment done via the app will be stored.
 
 ## Questions
 
