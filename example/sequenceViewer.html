@@ -1,0 +1,15 @@
+<script type="text/javascript" src="../build/linked-charts.js"></script>
+<script type="text/javascript" src="../build/adds.js"></script>
+<link rel="stylesheet" type="text/css" href="../lib/linked-charts.css">
+
+<div id="container"></div>
+
+<script type="text/javascript">
+	seqs = ["AAAATGCATG", "AAAATGCGGCGGG"]
+
+	var viewer = lc.sequenceViewer()
+        .nrows(2)
+        .startPos([0, 3])
+        .seq(seqs)
+		.place("#container");		
+</script>

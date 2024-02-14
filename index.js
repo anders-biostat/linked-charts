@@ -12,3 +12,4 @@ export { table, html, input, image } from "./src/table";
 export { barchart } from "./src/barchart";
 export { dendogram } from "./src/dendogram";
 export { beeswarm } from "./src/beeswarm";
+export { sequenceViewer } from "./src/sequenceViewer";

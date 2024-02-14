@@ -1041,14 +1041,22 @@ export function heatmap(id, chart){
 				.attr("fill", d => chart.get_valueTextColour(d[0], d[1]))
 				.text(function(d) {
 					var val = chart.get_value(d[0], d[1]);
-					return val.toFixed ? val.toFixed(1) : "NA";
+					if(val === undefined) {
+						return ""
+					} else {
+						return val.toFixed ? val.toFixed(1) : val;
+					}
 			})
 		else
 			chart.g.selectAll(".tval")
 				.attr("fill", d => chart.get_valueTextColour(d[0], d[1]))
 				.text(function(d) {
 					var val = chart.get_value(d[0], d[1]);
-					return val.toFixed ? val.toFixed(1) : "NA";
+					if(val === undefined) {
+						return ""
+					} else {
+						return val.toFixed ? val.toFixed(1) : val;
+					}
 			});
 		return chart;
 	}
@@ -1165,15 +1173,16 @@ export function heatmap(id, chart){
 							chart.cellSize.height * 0.75,
 						val = chart.get_value(j, i),
 					  cellColour = d3.hsl(chart.get_colour(chart.get_value(j, i)));
-			
-					cellColour.h = (cellColour.h + 180) % 360;
-					cellColour.s = Math.floor(Math.sqrt(cellColour.s) * 100);
-					cellColour.l = Math.floor((1 - cellColour.l) * 100);
-					ctx.fillStyle = "hsl(" + cellColour.h + "," + cellColour.s + "%," + cellColour.l + "%)";
-					
-					val = val.toFixed ? val.toFixed(1) : "NA";
-					
-					ctx.fillText(val, x, y, chart.cellSize.width);
+					if (val !== undefined){
+						cellColour.h = (cellColour.h + 180) % 360;
+						cellColour.s = Math.floor(Math.sqrt(cellColour.s) * 100);
+						cellColour.l = Math.floor((1 - cellColour.l) * 100);
+						ctx.fillStyle = "hsl(" + cellColour.h + "," + cellColour.s + "%," + cellColour.l + "%)";
+						
+						val = val.toFixed ? val.toFixed(1) : val;
+						
+						ctx.fillText(val, x, y, chart.cellSize.width);	
+					}			
 				}
 		}
 	}

@@ -1,7 +1,6 @@
 import { chartBase } from "./chartBase";
 import { check } from "./additionalFunctions";
 
-
 export function table() {
 
   var chart = chartBase()
