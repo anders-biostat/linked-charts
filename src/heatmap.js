@@ -775,7 +775,7 @@ export function heatmap(id, chart){
 	}
 
 	chart.updateCellColour = function() {
-		if(!checkMode())
+		if(!chart.checkMode())
 			return chart;
 
 		if(get_mode() == "svg") {
@@ -810,7 +810,7 @@ export function heatmap(id, chart){
 	}
 
 	chart.updateCells = function(){
-		if(!checkMode())
+		if(!chart.checkMode())
 			return chart;
 
 		var markedCells = chart.get_marked().length;
@@ -875,7 +875,7 @@ export function heatmap(id, chart){
 	}
 
 	chart.updateCellPosition = function(){
-		if(!checkMode())
+		if(!chart.checkMode())
 			return chart;
 
 		if(get_mode() == "svg"){
@@ -1070,7 +1070,7 @@ export function heatmap(id, chart){
 		return chart;
 	}
 
-	function checkMode(){
+	chart.checkMode = function(){
 		if((get_mode() == "svg") && (chart.canvas.classed("active"))) {
 			chart.canvas.classed("active", false);
 			chart.g.classed("active", true);
@@ -1167,12 +1167,12 @@ export function heatmap(id, chart){
 			ctx.textAlign = "center";
 			for(var i = 0; i < nrows; i++)
 				for(var j = 0; j < ncols; j++){
-					let x = chart.axes.scale_x(chart.get_heatmapCol(i)) + 
+					let x = chart.axes.scale_x(chart.get_heatmapCol(j)) + 
 							chart.cellSize.width/2,
-						y = chart.axes.scale_y(chart.get_heatmapRow(j)) + 
+						y = chart.axes.scale_y(chart.get_heatmapRow(i)) + 
 							chart.cellSize.height * 0.75,
-						val = chart.get_value(j, i),
-					  cellColour = d3.hsl(chart.get_colour(chart.get_value(j, i)));
+						val = chart.get_value(i, j),
+					  cellColour = d3.hsl(chart.get_colour(val));
 					if (val !== undefined){
 						cellColour.h = (cellColour.h + 180) % 360;
 						cellColour.s = Math.floor(Math.sqrt(cellColour.s) * 100);
