@@ -5,14 +5,23 @@ export function sequenceViewer() {
     const chart = heatmap()
         .add_property("seq", undefined, check("array_fun", "seq"))
         .add_property("reverseComplement", false)
-        .add_property("startPos", 0, check(("array_fun", "seq")))
-        .add_property("highlightMatches", true);     
+        .add_property("startPos", 0, check("array_fun", "startPos"))
+        .add_property("highlightMatches", true)
+        .add_property("reversed", false, check("array_fun", "reversed"));     
 
     //number of rows is defined by heatmap logic
     //number of cols must be defined based on all the sequences and start postions
 
     chart
-        .value((i, j) => chart.get_seq(i)[j - chart.get_startPos(i)])
+        .value(function(i, j) {
+            if(chart.get_reversed(i)) {
+                let seq = chart.get_seq(i),
+                    len = seq.length;  
+                return seq[len + chart.get_startPos(i) - 1 - j]
+            } else {
+                return chart.get_seq(i)[j - chart.get_startPos(i)]
+            }
+        })
         .ncols(function() {
             var ncol = 0,
                 rowIds = chart.rowIds();
@@ -35,9 +44,12 @@ export function sequenceViewer() {
     var inherited_updateCellColour = chart.updateCellColour;
     chart.updateCellColour = function() {
         inherited_updateCellColour();
-        chart.g.selectAll(".data_element")
-            .attr("stroke", "black")
-        chart.updateCellStroke();
+        if(chart.highlightMatches()) {
+            chart.g.selectAll(".data_element")
+                .attr("stroke", "black");
+            chart.updateCellStroke();
+        }
+        return chart;
     }
 
     chart.updateCellStroke = function(){
