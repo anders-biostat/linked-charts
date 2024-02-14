@@ -6,12 +6,15 @@
 
 <script type="text/javascript">
 	seqs = ["AAAATGCATG", "AAAATGCGGCGGG"]
-
 	var viewer = lc.sequenceViewer()
         .nrows(2)
         .startPos([0, 3])
         .seq(seqs)
         .reversed([false, true])
+        .matchComplementary(function(n) {
+            let comps = {A: "T", T: "A", C: "G", G: "C"};
+            return comps[n];
+        })
         .palette(["#b3ff99", "#ff9999", "#99b3ff", "#ffe699"])
         .colourDomain(["A", "T", "C", "G"]) //this probably should go to the charttype itself... At some point
         .mode("canvas")

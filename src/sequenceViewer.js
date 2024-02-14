@@ -7,7 +7,8 @@ export function sequenceViewer() {
         .add_property("reverseComplement", false)
         .add_property("startPos", 0, check("array_fun", "startPos"))
         .add_property("highlightMatches", true)
-        .add_property("reversed", false, check("array_fun", "reversed"));     
+        .add_property("reversed", false, check("array_fun", "reversed"))
+        .add_property("matchComplementary", x => x);     
 
     //number of rows is defined by heatmap logic
     //number of cols must be defined based on all the sequences and start postions
@@ -115,7 +116,7 @@ export function sequenceViewer() {
                 newVal = chart.get_value(rowIds[i], colId);
                 if(newVal !== undefined) {
                     count++;
-                    matching = val == newVal
+                    matching = val == chart.get_matchComplementary(newVal)
                 }
             }
             i++;
