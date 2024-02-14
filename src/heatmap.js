@@ -30,8 +30,8 @@ export function heatmap(id, chart){
 			if(Array.isArray(value)){
 				value = value.map(el => /^#[0-9a-fA-F]{8,8}$/.test(el) ? el.substring(0, 7) : el);
 				return d3.scaleLinear()
-									.domain(d3.range(value.length).map(function(el) {return el/value.length}))
-									.range(value);
+					.domain(d3.range(value.length).map(function(el) {return el/value.length}))
+					.range(value);
 			}
 			if(typeof value === "function")
 				return value
@@ -641,10 +641,10 @@ export function heatmap(id, chart){
 		else {
 			chart.colourScale = d3.scaleOrdinal()
 				.domain(range);
-			if(chart.get_palette().splice)
-				chart.colourScale.range(chart.get_palette())
-			else if(typeof chart.get_palette.range === "function")
+			if(typeof chart.get_palette.range === "function")
 				chart.colourScale.range(chart.get_palette.range())
+			else if(chart.get_palette().splice)
+				chart.colourScale.range(chart.get_palette())
 			else
 				chart.colourScale.range(d3.schemeSet1);
 		}
