@@ -17,5 +17,15 @@
 		.mode("canvas")
 		.value((row, col) => Math.random())
 		.legendTitle("BBB!")
+		.place("#container");
+
+	var hm_bw = lc.heatmap()
+		.nrows(30)
+		.ncols(30)
+		.mode("canvas")
+		.palette(["white", "black"])
+		.colourDomain([0, 1])
+		.value((row, col) => Math.random())
+		.legendTitle("CCC!")
 		.place("#container");		
 </script>

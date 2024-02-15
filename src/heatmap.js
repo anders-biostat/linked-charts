@@ -30,7 +30,7 @@ export function heatmap(id, chart){
 			if(Array.isArray(value)){
 				value = value.map(el => /^#[0-9a-fA-F]{8,8}$/.test(el) ? el.substring(0, 7) : el);
 				return d3.scaleLinear()
-					.domain(d3.range(value.length).map(function(el) {return el/value.length}))
+					.domain(d3.range(value.length).map(function(el) {return el/(value.length - 1)}))
 					.range(value);
 			}
 			if(typeof value === "function")
