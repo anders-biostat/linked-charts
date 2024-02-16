@@ -52,6 +52,32 @@ export function sequenceViewer() {
         }
         return chart;
     }
+    var inherited_updateCanvas = chart.updateCanvas;
+    chart.updateCanvas = function() {
+        inherited_updateCanvas();
+        if (chart.highlightMatches())
+            addCellStrokesCanvas();
+
+        return chart;
+    }
+
+    function addCellStrokesCanvas() {
+        var ctx = chart.canvas.node().getContext("2d");
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 2;
+        var rowIds = chart.dispRowIds(),
+            colIds = chart.dispColIds(),
+            ncols = colIds.length, nrows = rowIds.length;
+        for(let j = 0; j < ncols; j++) 
+            if(isMatching(colIds[j])) {
+                var x = chart.axes.scale_x(chart.get_heatmapCol(colIds[j]));
+                for(let i = 0; i < nrows; i++)
+                    if(chart.get_value(rowIds[i], colIds[j]) !== undefined) {
+                        var y = chart.axes.scale_y(chart.get_heatmapRow(rowIds[i]))
+                        ctx.strokeRect(x, y, chart.cellSize.width, chart.cellSize.height);
+                    }
+            }
+    }
 
     chart.updateCellStroke = function(){
         if(!chart.checkMode())
@@ -75,26 +101,9 @@ export function sequenceViewer() {
                             .classed("matching", matching);
                         return val !== undefined && matching ? 2 : 0;
                     })
-            chart.g
-                .selectAll(".data_element.matching")
-                .raise();                    
-        } else {
-            var ctx = chart.canvas.node().getContext("2d");
-            ctx.strokeStyle = "black";
-            ctx.lineWidth = 2;
-            var rowIds = chart.dispRowIds(),
-			    colIds = chart.dispColIds(),
-			    ncols = colIds.length, nrows = rowIds.length;
-            for(let j = 0; j < ncols; j++) 
-                if(isMatching(colIds[j])) {
-                    var x = chart.axes.scale_x(chart.get_heatmapCol(colIds[j]));
-                    for(let i = 0; i < nrows; i++)
-                        if(chart.get_value(rowIds[i], colIds[j]) !== undefined) {
-                            var y = chart.axes.scale_y(chart.get_heatmapRow(rowIds[i]))
-                            ctx.strokeRect(x, y, chart.cellSize.width, chart.cellSize.height);
-                        }
-                }
-                            
+            // chart.g
+            //     .selectAll(".data_element.matching")
+            //     .raise();                    
         }
         return chart;
     }
